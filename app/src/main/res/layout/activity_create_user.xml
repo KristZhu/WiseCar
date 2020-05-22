@@ -139,7 +139,7 @@
                 android:ems="10"
                 android:freezesText="false"
                 android:hint="Your E-mail"
-                android:inputType="textPersonName"
+                android:inputType="textWebEmailAddress"
                 android:maxLines="1"
                 android:selectAllOnFocus="false"
                 android:shadowColor="#FFFFFF"

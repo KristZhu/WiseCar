@@ -42,6 +42,18 @@ public class CreateUserActivity extends AppCompatActivity {
 
     private static final String TAG = "createUser";
 
+    private String userImg;
+    private String username;
+    private String userEmail;
+    private String password;
+    private String dob;
+    private String licence;
+    private String address1;
+    private String address2;
+    private String country;
+    private String state;
+    private String postCode;
+
     private static final int TAKE_PHOTO = 0;
     private static final int CHOOSE_PHOTO = 1;
     private static final int GROP_PHOTO = 2;
@@ -63,29 +75,6 @@ public class CreateUserActivity extends AppCompatActivity {
     private ImageView confirmNoPassImageView;
     private ImageButton nextImageButton;
 
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        View v = getCurrentFocus();
-        if(HideKeyBoard.isShouldHideInput(v, ev)) {
-            hideSoftInput(v.getWindowToken());
-            if(passwordEditText.getText().toString().length()>0) {
-                passImageView.setVisibility(View.VISIBLE);
-            }
-            if(confirmPasswordEditText.getText().toString().length()>0) {
-                if(confirmPasswordEditText.getText().toString().equals(passwordEditText.getText().toString())) {
-                    confirmPassImageView.setVisibility(View.VISIBLE);
-                } else {
-                    confirmNoPassImageView.setVisibility(View.VISIBLE);
-                }
-            }
-        }
-        return super.dispatchTouchEvent(ev);
-    }
-    private void hideSoftInput(IBinder token) {
-        if (token != null) {
-            InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -280,18 +269,25 @@ public class CreateUserActivity extends AppCompatActivity {
         nextImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*
                 if(usernameEditText.getText().toString()!=null
                     && userEmailEditText.getText().toString()!=null
                     && passImageView.getVisibility()==View.VISIBLE
                     && confirmPassImageView.getVisibility()==View.VISIBLE
                     && confirmNoPassImageView.getVisibility()==View.INVISIBLE
                     && userImgImageBitmap!=null
-                ) {
+                )*/ {
+
+                    userImg = userImgImageBitmap!=null ? userImgImageBitmap.toString() : ""; //该方法需要修改！
+
+                    username = usernameEditText.getText().toString();
+                    userEmail = userEmailEditText.getText().toString();
+                    password = passwordEditText.getText().toString();
                     Intent intent = new Intent(CreateUserActivity.this, CreateUserActivity2.class);
-                    intent.putExtra("userImgImageBitmap", userImgImageBitmap);
-                    intent.putExtra("username", userEmailEditText.getText());
-                    intent.putExtra("userEmail", userEmailEditText.getText());
-                    intent.putExtra("password", passwordEditText.getText());
+                    intent.putExtra("userImgImage", userImg);
+                    intent.putExtra("username", username);
+                    intent.putExtra("userEmail", userEmail);
+                    intent.putExtra("password", password);
                     startActivity(intent);
                 }
             }
@@ -397,6 +393,30 @@ public class CreateUserActivity extends AppCompatActivity {
             userImgImageBitmap = bitmap;
         }else{
             Toast.makeText(this,"failed to get image",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        View v = getCurrentFocus();
+        if(HideKeyBoard.isShouldHideInput(v, ev)) {
+            hideSoftInput(v.getWindowToken());
+            if(passwordEditText.getText().toString().length()>0) {
+                passImageView.setVisibility(View.VISIBLE);
+            }
+            if(confirmPasswordEditText.getText().toString().length()>0) {
+                if(confirmPasswordEditText.getText().toString().equals(passwordEditText.getText().toString())) {
+                    confirmPassImageView.setVisibility(View.VISIBLE);
+                } else {
+                    confirmNoPassImageView.setVisibility(View.VISIBLE);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+    private void hideSoftInput(IBinder token) {
+        if (token != null) {
+            InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 }
