@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CreateUserActivity"
+    android:background="@drawable/create_user0bg"
+    android:theme="@style/Theme.AppCompat.NoActionBar">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:fadingEdge="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/logoImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="4:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.05"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent="0.5"
+                app:srcCompat="@drawable/create_user0logo" />
+
+            <ImageView
+                android:id="@+id/createAccountImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@+id/logoImageView"
+                app:layout_constraintDimensionRatio="4:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent="0.5"
+                app:srcCompat="@drawable/create_user0create_account" />
+
+
+            <com.example.wisecarapp.CircleImageView
+                android:id="@+id/userImgImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_centerInParent="true"
+                android:layout_marginTop="16dp"
+                android:src="@drawable/create_user0empty_image"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/createAccountImageView"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent="0.3" />
+
+            <ImageButton
+                android:id="@+id/uploadPhotoImageButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@null"
+                app:layout_constraintBottom_toBottomOf="@+id/userImgImageView"
+                android:cropToPadding="false"
+                android:padding="0dp"
+                android:scaleType="fitXY"
+                app:layout_constraintDimensionRatio="22:10"
+                app:layout_constraintEnd_toEndOf="@+id/usernameImageView"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@+id/userImgImageView"
+                app:srcCompat="@drawable/create_user0upload_photo" />
+
+            <ImageView
+                android:id="@+id/usernameImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintDimensionRatio="82:16"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/userImgImageView"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent=".67"
+                app:srcCompat="@drawable/create_user0edittext_frame" />
+
+            <EditText
+                android:id="@+id/usernameEditText"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:autoSizeTextType="uniform"
+                android:background="@null"
+                android:ems="10"
+                android:freezesText="false"
+                android:hint="Your Nickname"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:selectAllOnFocus="false"
+                android:shadowColor="#FFFFFF"
+                android:singleLine="false"
+                android:textColor="#FFFFFF"
+                android:textSize="20dp"
+                app:layout_constraintBottom_toBottomOf="@+id/usernameImageView"
+                app:layout_constraintDimensionRatio="6:1"
+                app:layout_constraintEnd_toEndOf="@+id/usernameImageView"
+                app:layout_constraintHorizontal_bias="0.3"
+                app:layout_constraintStart_toStartOf="@+id/usernameImageView"
+                app:layout_constraintTop_toTopOf="@+id/usernameImageView"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent="0.5" />
+
+            <ImageView
+                android:id="@+id/userEmailImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintDimensionRatio="82:16"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/usernameImageView"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent=".67"
+                app:srcCompat="@drawable/create_user0edittext_frame" />
+
+            <EditText
+                android:id="@+id/userEmailEditText"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:autoSizeTextType="uniform"
+                android:background="@null"
+                android:ems="10"
+                android:freezesText="false"
+                android:hint="Your E-mail"
+                android:inputType="textPersonName"
+                android:maxLines="1"
+                android:selectAllOnFocus="false"
+                android:shadowColor="#FFFFFF"
+                android:singleLine="false"
+                android:textColor="#FFFFFF"
+                android:textSize="20dp"
+                app:layout_constraintBottom_toBottomOf="@+id/userEmailImageView"
+                app:layout_constraintDimensionRatio="6:1"
+                app:layout_constraintEnd_toEndOf="@+id/userEmailImageView"
+                app:layout_constraintHorizontal_bias="0.3"
+                app:layout_constraintStart_toStartOf="@+id/userEmailImageView"
+                app:layout_constraintTop_toTopOf="@+id/userEmailImageView"
+                app:layout_constraintVertical_bias="0.4"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent="0.5" />
+
+            <ImageView
+                android:id="@+id/passwordImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintDimensionRatio="82:16"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/userEmailImageView"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent=".67"
+                app:srcCompat="@drawable/create_user0edittext_frame" />
+
+            <EditText
+                android:id="@+id/passwordEditText"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:autoSizeTextType="uniform"
+                android:background="@null"
+                android:ems="10"
+                android:freezesText="false"
+                android:hint="Your Password"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:selectAllOnFocus="false"
+                android:shadowColor="#FFFFFF"
+                android:singleLine="false"
+                android:textColor="#FFFFFF"
+                android:textSize="20dp"
+                app:layout_constraintBottom_toBottomOf="@+id/passwordImageView"
+                app:layout_constraintDimensionRatio="6:1"
+                app:layout_constraintEnd_toEndOf="@+id/passwordImageView"
+                app:layout_constraintHorizontal_bias="0.3"
+                app:layout_constraintStart_toStartOf="@+id/passwordImageView"
+                app:layout_constraintTop_toTopOf="@+id/passwordImageView"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent="0.5" />
+
+            <ImageView
+                android:id="@+id/passImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@+id/passwordEditText"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toEndOf="@+id/passwordEditText"
+                app:layout_constraintTop_toTopOf="@+id/passwordEditText"
+                app:srcCompat="@drawable/create_user0pass" />
+
+            <ImageView
+                android:id="@+id/confirmPasswordImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintDimensionRatio="82:16"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/passwordImageView"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent=".67"
+                app:srcCompat="@drawable/create_user0edittext_frame" />
+
+            <EditText
+                android:id="@+id/confirmPasswordEditText"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:autoSizeTextType="uniform"
+                android:background="@null"
+                android:ems="10"
+                android:freezesText="false"
+                android:hint="Confirm Password"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:selectAllOnFocus="false"
+                android:shadowColor="#FFFFFF"
+                android:singleLine="false"
+                android:textColor="#FFFFFF"
+                android:textSize="20dp"
+                app:layout_constraintBottom_toBottomOf="@+id/confirmPasswordImageView"
+                app:layout_constraintDimensionRatio="6:1"
+                app:layout_constraintEnd_toEndOf="@+id/confirmPasswordImageView"
+                app:layout_constraintHorizontal_bias="0.3"
+                app:layout_constraintStart_toStartOf="@+id/confirmPasswordImageView"
+                app:layout_constraintTop_toTopOf="@+id/confirmPasswordImageView"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent="0.5" />
+
+            <ImageView
+                android:id="@+id/confirmPassImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@+id/confirmPasswordEditText"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toEndOf="@+id/confirmPasswordEditText"
+                app:layout_constraintTop_toTopOf="@+id/confirmPasswordEditText"
+                app:srcCompat="@drawable/create_user0pass" />
+
+            <ImageView
+                android:id="@+id/confirmNoPassImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="@+id/confirmPasswordEditText"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toEndOf="@+id/confirmPasswordEditText"
+                app:layout_constraintTop_toTopOf="@+id/confirmPasswordEditText"
+                app:srcCompat="@drawable/create_user0nopass" />
+
+            <ImageButton
+                android:id="@+id/nextImageButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:background="@null"
+                android:cropToPadding="false"
+                android:padding="0dp"
+                android:scaleType="fitXY"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/confirmPasswordImageView"
+                app:layout_constraintWidth_default="percent"
+                app:layout_constraintWidth_percent=".15"
+                app:srcCompat="@drawable/create_user0next" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
