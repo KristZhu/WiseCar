@@ -84,42 +84,30 @@ public class CreateUserActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: Length: " + grantResults.length);
-        if(grantResults.length>0) Log.d(TAG, "onRequestPermissionsResult: " + grantResults[0]);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 0:
                 Log.d(TAG, "onRequestPermissionsResult: MULTI?");
                 if(grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0){
-                    //创建File对象，用于存储拍照后的照片
-                    File outputImage = new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
-                    try {
-                        if (outputImage.exists()) {
-                            outputImage.delete();
-                        }
-                        outputImage.createNewFile();
-                        Log.d(TAG, "outputImage.createNewFile success ");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    userImgImageUri = Uri.fromFile(outputImage);
-                    Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
-                    startActivityForResult(intent, TAKE_PHOTO);
-                    //启动照相机
+                    beforeStartCamera();
                 } else {
-                    //...
+                    Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case 1:
                 Log.d(TAG, "onRequestPermissionsResult: STORAGE?");
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //...
+                    beforeStartStorage();
+                } else {
+                    Toast.makeText(getApplicationContext(), "You cannot upload the image without authorization", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case 2:
                 Log.d(TAG, "onRequestPermissionsResult: CAMERA?");
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //...
+                if(grantResults[0] == 0) {
+                    beforeStartCamera();
+                } else {
+                    Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
@@ -219,6 +207,8 @@ public class CreateUserActivity extends AppCompatActivity {
                                                 PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
                                         );
                                     } else {
+                                        beforeStartCamera();
+                                        /*
                                         //创建File对象，用于存储拍照后的照片
                                         File outputImage = new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
                                         try {
@@ -235,15 +225,19 @@ public class CreateUserActivity extends AppCompatActivity {
                                         intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
                                         startActivityForResult(intent, TAKE_PHOTO);
                                         //启动照相机
+                                         */
                                     }
                                 } else if(i==1) {   //upload from phone
-                                    if(ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+                                    if(ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                                        Log.d(TAG, "onClickPermissionRequestStorage: ");
                                         ActivityCompat.requestPermissions(
                                                 CreateUserActivity.this,
-                                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                                 PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
                                         );
                                     }else{
+                                        beforeStartStorage();
+                                        /*
                                         File outputImage=new File(getExternalCacheDir(),"output_image.jpg");
                                         try{
                                             if(outputImage.exists()){
@@ -261,6 +255,8 @@ public class CreateUserActivity extends AppCompatActivity {
                                         intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
 
                                         startActivityForResult(intent,CHOOSE_PHOTO);
+
+                                         */
                                     }
                                 } else {    //cancel
 
@@ -279,12 +275,11 @@ public class CreateUserActivity extends AppCompatActivity {
                 userEmail = userEmailEditText.getText().toString();
                 password = passwordEditText.getText().toString();
 
-                if(username!=null
-                    && userEmail!=null
-                    && passImageView.getVisibility()==View.VISIBLE
-                    && confirmPassImageView.getVisibility()==View.VISIBLE
-                    && confirmNoPassImageView.getVisibility()==View.INVISIBLE
-                    && userImgDrawable!=null
+                if(!username.equals("")
+                    && !userEmail.equals("")
+                    && !password.equals("")
+                    && confirmPasswordEditText.getText().toString().equals(password)
+                    //&& userImgDrawable!=null
                 ) {
 
                     userImgImageBitmap = Bitmap.createBitmap(
@@ -299,12 +294,18 @@ public class CreateUserActivity extends AppCompatActivity {
                     username = usernameEditText.getText().toString();
                     userEmail = userEmailEditText.getText().toString();
                     password = passwordEditText.getText().toString();
+
                     Intent intent = new Intent(CreateUserActivity.this, CreateUserActivity2.class);
-                    intent.putExtra("userImgImage", userImg);
+                    intent.putExtra("userImg", userImg);
                     intent.putExtra("username", username);
                     intent.putExtra("userEmail", userEmail);
                     intent.putExtra("password", password);
                     startActivity(intent);
+                } else {    //not valid info
+                    if(username.equals("")) Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();
+                    else if(userEmail.equals("")) Toast.makeText(getApplicationContext(), "Please entry email", Toast.LENGTH_SHORT).show();
+                    else if(password.equals("")) Toast.makeText(getApplicationContext(), "Please entry password", Toast.LENGTH_SHORT).show();
+                    else Toast.makeText(getApplicationContext(), "2 passwords are not the same", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -356,6 +357,45 @@ public class CreateUserActivity extends AppCompatActivity {
                 break;
         }
 
+    }
+
+    private void beforeStartCamera () {
+        //创建File对象，用于存储拍照后的照片
+        File outputImage = new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
+        try {
+            if (outputImage.exists()) {
+                outputImage.delete();
+            }
+            outputImage.createNewFile();
+            Log.d(TAG, "outputImage.createNewFile success ");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        userImgImageUri = Uri.fromFile(outputImage);
+        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
+        startActivityForResult(intent, TAKE_PHOTO);
+        //启动照相机
+    }
+
+    private void beforeStartStorage () {
+        File outputImage=new File(getExternalCacheDir(),"output_image.jpg");
+        try{
+            if(outputImage.exists()){
+                outputImage.delete();
+            }
+            outputImage.createNewFile();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        userImgImageUri = Uri.fromFile(outputImage);
+        Intent intent=new Intent("android.intent.action.GET_CONTENT");
+        intent.setType("image/*");
+        intent.putExtra("crop",true);
+        intent.putExtra("scale",true);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
+
+        startActivityForResult(intent,CHOOSE_PHOTO);
     }
 
     private void handleImageBeforeKitKat(Intent data){

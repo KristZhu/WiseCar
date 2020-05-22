@@ -133,7 +133,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 Log.d(TAG, "password: " + password);
                 Log.d(TAG, "FName: " + firstName);
                 Log.d(TAG, "LName: " + lastName);
-                Log.d(TAG, "dob: " + dateToStr(dob));
+                Log.d(TAG, "dob: " + dob);
                 Log.d(TAG, "licence: " + licence);
                 Log.d(TAG, "address1: " + address1);
                 Log.d(TAG, "address2: " + address2);
@@ -146,7 +146,17 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 //userImg -> byte[]
                 //jsonParam.put("image", userImg);
 
-                if (!username.equals("") && !userEmail.equals("") && !password.equals("") && !firstName.equals("") && !lastName.equals("") && !dob.equals("") && !licence.equals("") && !address1.equals("") && !country.equals("") && !state.equals("") && !postCode.equals("")) {
+                if (!username.equals("")
+                        && !userEmail.equals("")
+                        && !password.equals("")
+                        && !firstName.equals("")
+                        && !lastName.equals("")
+                        && dob!=null && dob.before(new java.util.Date())
+                        && !licence.equals("")
+                        && !address1.equals("")
+                        && !country.equals("")
+                        && !state.equals("") && !postCode.equals("")
+                ) {
                     String URL = "http://54.206.19.123:3000/api/v1/users/register";
                     final JSONObject jsonParam = new JSONObject();
                     try {
@@ -204,7 +214,15 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     Volley.newRequestQueue(CreateUserActivity2.this).add(objectRequest);
 
                 } else {
-                    Toast.makeText(getApplicationContext(), "Please enter all your information", Toast.LENGTH_LONG).show();
+                    if(firstName.equals("")) Toast.makeText(getApplicationContext(), "Please enter first name", Toast.LENGTH_LONG).show();
+                    else if(lastName.equals("")) Toast.makeText(getApplicationContext(), "Please enter last name", Toast.LENGTH_LONG).show();
+                    else if(dob==null || dob.compareTo(new java.util.Date())>0) Toast.makeText(getApplicationContext(), "Please select date of birth correctly", Toast.LENGTH_LONG).show();
+                    else if(licence.equals("")) Toast.makeText(getApplicationContext(), "Please enter driver licence", Toast.LENGTH_LONG).show();
+                    else if(address1.equals("")) Toast.makeText(getApplicationContext(), "Please enter address", Toast.LENGTH_LONG).show();
+                    else if(country.equals("")) Toast.makeText(getApplicationContext(), "Please enter country", Toast.LENGTH_LONG).show();
+                    else if(state.equals("")) Toast.makeText(getApplicationContext(), "Please enter state", Toast.LENGTH_LONG).show();
+                    else if(postCode.equals("")) Toast.makeText(getApplicationContext(), "Please enter post code", Toast.LENGTH_LONG).show();
+                    else Toast.makeText(getApplicationContext(), "Creation fail", Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -228,6 +246,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
     }
 
     private static java.util.Date strToDate(String str) {
+        if(str==null || str.length()==0) return null;
         SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
         java.util.Date date = null;
         try {
@@ -251,7 +270,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
         try {
             date = format.parse(sb.toString());
         } catch (ParseException e) {
-            e.printStackTrace();
+            return null;
         }
         return date;
     }
