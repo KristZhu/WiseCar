@@ -17,6 +17,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,19 +36,21 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Blob;
 
 public class CreateUserActivity extends AppCompatActivity {
 
     private static final String TAG = "createUser";
 
-    private String userImg;
+    private byte[] userImg;
     private String username;
     private String userEmail;
     private String password;
-    private String dob;
+    private java.util.Date dob;
     private String licence;
     private String address1;
     private String address2;
@@ -63,6 +67,7 @@ public class CreateUserActivity extends AppCompatActivity {
 
     private Uri userImgImageUri;
     private Bitmap userImgImageBitmap;
+    private Drawable userImgDrawable;
 
     private ImageView userImgImageView;
     private ImageButton uploadPhotoImageButton;
@@ -269,16 +274,27 @@ public class CreateUserActivity extends AppCompatActivity {
         nextImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                if(usernameEditText.getText().toString()!=null
-                    && userEmailEditText.getText().toString()!=null
+                userImgDrawable = userImgImageView.getDrawable();
+                username = usernameEditText.getText().toString();
+                userEmail = userEmailEditText.getText().toString();
+                password = passwordEditText.getText().toString();
+
+                if(username!=null
+                    && userEmail!=null
                     && passImageView.getVisibility()==View.VISIBLE
                     && confirmPassImageView.getVisibility()==View.VISIBLE
                     && confirmNoPassImageView.getVisibility()==View.INVISIBLE
-                    && userImgImageBitmap!=null
-                )*/ {
+                    && userImgDrawable!=null
+                ) {
 
-                    userImg = userImgImageBitmap!=null ? userImgImageBitmap.toString() : ""; //该方法需要修改！
+                    userImgImageBitmap = Bitmap.createBitmap(
+                            userImgDrawable.getIntrinsicWidth(),
+                            userImgDrawable.getIntrinsicHeight(),
+                            userImgDrawable.getOpacity() != PixelFormat.OPAQUE ?
+                                    Bitmap.Config.ARGB_8888: Bitmap.Config.RGB_565);
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+                    userImg = bos.toByteArray();
 
                     username = usernameEditText.getText().toString();
                     userEmail = userEmailEditText.getText().toString();
@@ -406,8 +422,10 @@ public class CreateUserActivity extends AppCompatActivity {
             if(confirmPasswordEditText.getText().toString().length()>0) {
                 if(confirmPasswordEditText.getText().toString().equals(passwordEditText.getText().toString())) {
                     confirmPassImageView.setVisibility(View.VISIBLE);
+                    confirmNoPassImageView.setVisibility(View.INVISIBLE);
                 } else {
                     confirmNoPassImageView.setVisibility(View.VISIBLE);
+                    confirmPassImageView.setVisibility(View.INVISIBLE);
                 }
             }
         }

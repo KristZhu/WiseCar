@@ -13,6 +13,14 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
+
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -21,6 +29,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,14 +49,17 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private ImageButton signInImageButton;
     private ImageButton createUserImageButton;
+    String username;
+    String password;
 
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
-        if(HideKeyBoard.isShouldHideInput(v, ev)) {
+        if (HideKeyBoard.isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -67,9 +80,63 @@ public class LoginActivity extends AppCompatActivity {
         signInImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String username = usernameEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
+                username = usernameEditText.getText().toString();
+                password = passwordEditText.getText().toString();
                 //isValidLogIn(username, password);
+                if (!username.equals("") && !password.equals("")) {
+                    String URL = "http://54.206.19.123:3000/api/v1/users/login";
+                    final JSONObject jsonParam = new JSONObject();
+                    try {
+                        jsonParam.put("user_name", username);
+                        jsonParam.put("password", password);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.e("Response", response.toString());
+                            Toast.makeText(getApplicationContext(), response.optString("message"), Toast.LENGTH_LONG).show();
+                            if (!response.optString("message").equals("success")) {
+
+                                // Login successfully
+
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e("ERROR!!!", String.valueOf(error.toString()));
+                            Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+                            NetworkResponse networkResponse = error.networkResponse;
+                            if (networkResponse != null && networkResponse.data != null) {
+                                String JSONError = new String(networkResponse.data);
+                                JSONObject messageJO;
+                                String message = "";
+                                try {
+                                    messageJO = new JSONObject(JSONError);
+                                    message = messageJO.optString("message");
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.e("JSON ERROR MESSAGE!!!", message);
+                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                                if (!message.equals("The password does not match")) {
+                                    usernameEditText.setText("");
+                                }
+                                passwordEditText.setText("");
+                            }
+
+                        }
+                    });
+
+                    Volley.newRequestQueue(LoginActivity.this).add(objectRequest);
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please enter your username and password", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
