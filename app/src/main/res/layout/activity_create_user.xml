@@ -89,7 +89,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/userImgImageView"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent=".67"
-                app:srcCompat="@drawable/create_user0edittext_frame" />
+                app:srcCompat="@drawable/create_user0edittext_border" />
 
             <EditText
                 android:id="@+id/usernameEditText"
@@ -128,7 +128,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/usernameImageView"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent=".67"
-                app:srcCompat="@drawable/create_user0edittext_frame" />
+                app:srcCompat="@drawable/create_user0edittext_border" />
 
             <EditText
                 android:id="@+id/userEmailEditText"
@@ -168,7 +168,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/userEmailImageView"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent=".67"
-                app:srcCompat="@drawable/create_user0edittext_frame" />
+                app:srcCompat="@drawable/create_user0edittext_border" />
 
             <EditText
                 android:id="@+id/passwordEditText"
@@ -218,7 +218,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/passwordImageView"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent=".67"
-                app:srcCompat="@drawable/create_user0edittext_frame" />
+                app:srcCompat="@drawable/create_user0edittext_border" />
 
             <EditText
                 android:id="@+id/confirmPasswordEditText"
