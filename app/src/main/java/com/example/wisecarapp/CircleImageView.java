@@ -15,7 +15,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 
-public class CircleImageView extends androidx.appcompat.widget.AppCompatImageView {
+class CircleImageView extends androidx.appcompat.widget.AppCompatImageView {
     //画笔
     private Paint mPaint;
     //圆形图片的半径

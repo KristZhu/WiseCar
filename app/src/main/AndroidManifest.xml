@@ -5,7 +5,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -25,8 +24,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".CreateUserActivity2"></activity>
-        <activity android:name=".CameraActivity" />
+        <activity android:name=".AddVehicleActivity" />
+        <activity android:name=".CreateUserActivity2" />
         <activity android:name=".LoginActivity" />
         <activity android:name=".CreateUserActivity" />
         <activity android:name=".MainActivity">

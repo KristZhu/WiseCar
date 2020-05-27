@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".CreateUserActivity"
-    android:background="@drawable/create_user0bg"
+    android:background="@drawable/wc0bg_dark"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
     <ScrollView
@@ -19,7 +19,7 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/logoImageView"
+                android:id="@+id/titleImageView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -31,14 +31,14 @@
                 app:layout_constraintVertical_bias="0.05"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent="0.5"
-                app:srcCompat="@drawable/create_user0logo" />
+                app:srcCompat="@drawable/wc0title" />
 
             <ImageView
                 android:id="@+id/createAccountImageView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@+id/logoImageView"
+                app:layout_constraintTop_toBottomOf="@+id/titleImageView"
                 app:layout_constraintDimensionRatio="4:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
