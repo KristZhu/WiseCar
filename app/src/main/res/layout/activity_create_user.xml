@@ -96,6 +96,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:autoSizeTextType="uniform"
+                android:autoText="false"
                 android:background="@null"
                 android:ems="10"
                 android:freezesText="false"

@@ -24,6 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".VehicleActivity"></activity>
         <activity android:name=".AddVehicleActivity" />
         <activity android:name=".CreateUserActivity2" />
         <activity android:name=".LoginActivity" />
