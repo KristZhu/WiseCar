@@ -6,7 +6,7 @@ xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".LoginActivity"
-android:background="@drawable/login0bg"
+android:background="@drawable/wc0bg_light"
 android:theme="@style/Theme.AppCompat.NoActionBar">
 
 <ScrollView

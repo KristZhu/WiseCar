@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-public class HideKeyBoard {
+class HideKeyBoard {
     public static boolean isShouldHideInput(View v, MotionEvent event) {
         if(v != null && (v instanceof EditText)) {
             int[] l = {0, 0};

@@ -98,9 +98,11 @@ public class LoginActivity extends AppCompatActivity {
                         public void onResponse(JSONObject response) {
                             Log.e("Response", response.toString());
                             Toast.makeText(getApplicationContext(), response.optString("message"), Toast.LENGTH_LONG).show();
-                            if (!response.optString("message").equals("success")) {
-
+                            if (response.optString("message").equals("success")) {
+                                Log.d(TAG, "onResponse: Success");
                                 // Login successfully
+                                UserInfo.setUsername(username);
+                                startActivity(new Intent(LoginActivity.this, VehicleActivity.class));
 
                             }
                         }

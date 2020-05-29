@@ -7,8 +7,6 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,12 +15,10 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.os.StrictMode;
 import android.provider.DocumentsContract;
@@ -31,32 +27,57 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Blob;
 
-public class CreateUserActivity extends AppCompatActivity {
+public class AddVehicleActivity extends AppCompatActivity {
 
-    private static final String TAG = "createUser";
+    private static final String TAG = "addVehicle";
 
-    private byte[] userImg;
-    private String username;
-    private String userEmail;
-    private String password;
-    private java.util.Date dob;
-    private String licence;
-    private String address1;
-    private String address2;
-    private String country;
-    private String state;
-    private String postCode;
+    private ImageView vehicleImageView;
+    private Uri vehicleImageUri;
+    private Bitmap vehicleImageBitmap;
+    private Drawable vehicleDrawable;
+
+    private EditText rcEditText;
+    private String rc;
+    private EditText makeEditText;
+    private String make;
+    private EditText modelEditText;
+    private String model;
+    private EditText descriptionEditText;
+    private String description;
+    private CheckBox serviceCheckBox;
+    private boolean service;
+    private CheckBox registrationCheckBox;
+    private boolean registration;
+    private CheckBox driverCheckBox;
+    private boolean driver;
+    private CheckBox parkingCheckBox;
+    private boolean parking;
+
+    private Button uploadButton;
+    private ImageButton saveImageButton;
+
+    String username;
 
     private static final int TAKE_PHOTO = 0;
     private static final int CHOOSE_PHOTO = 1;
@@ -65,28 +86,13 @@ public class CreateUserActivity extends AppCompatActivity {
     private static final int PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE = 1;
     private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
 
-    private Uri userImgImageUri;
-    private Bitmap userImgImageBitmap;
-    private Drawable userImgDrawable;
-
-    private ImageView userImgImageView;
-    private ImageButton uploadPhotoImageButton;
-    private EditText usernameEditText;
-    private EditText userEmailEditText;
-    private EditText passwordEditText;
-    private ImageView passImageView;
-    private EditText confirmPasswordEditText;
-    private ImageView confirmPassImageView;
-    private ImageView confirmNoPassImageView;
-    private ImageButton nextImageButton;
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: Length: " + grantResults.length);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case 0:
+            case 0: //permit both camera and storage
                 Log.d(TAG, "onRequestPermissionsResult: MULTI?");
                 if(grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0){
                     beforeStartCamera();
@@ -94,7 +100,7 @@ public class CreateUserActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
                 }
                 break;
-            case 1:
+            case 1: //permit storage
                 Log.d(TAG, "onRequestPermissionsResult: STORAGE?");
                 if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     beforeStartStorage();
@@ -102,7 +108,7 @@ public class CreateUserActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "You cannot upload the image without authorization", Toast.LENGTH_SHORT).show();
                 }
                 break;
-            case 2:
+            case 2: //permit camera
                 Log.d(TAG, "onRequestPermissionsResult: CAMERA?");
                 if(grantResults[0] == 0) {
                     beforeStartCamera();
@@ -116,55 +122,28 @@ public class CreateUserActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_user);
+        setContentView(R.layout.activity_add_vehicle);
 
-        userImgImageView = (ImageView) findViewById(R.id.userImgImageView);
-        uploadPhotoImageButton = (ImageButton) findViewById(R.id.uploadPhotoImageButton);
-        usernameEditText = (EditText) findViewById(R.id.usernameEditText);
-        userEmailEditText = (EditText) findViewById(R.id.userEmailEditText);
-        passwordEditText = (EditText) findViewById(R.id.passwordEditText);
-        passImageView = (ImageView) findViewById(R.id.passImageView);
-        confirmPasswordEditText = (EditText) findViewById(R.id.confirmPasswordEditText);
-        confirmPassImageView = (ImageView) findViewById(R.id.confirmPassImageView);
-        confirmNoPassImageView = (ImageView) findViewById(R.id.confirmNoPassImageView);
-        nextImageButton = (ImageButton) findViewById(R.id.nextImageButton);
+        username = this.getIntent().getStringExtra("username");
+        assert username != null;
 
+        vehicleImageView = (ImageView) findViewById(R.id.vehicleImageView);
+        uploadButton = (Button) findViewById(R.id.uploadButton);
+        rcEditText = (EditText) findViewById(R.id.rcEditText);
+        makeEditText = (EditText) findViewById(R.id.makeEditText);
+        modelEditText = (EditText) findViewById(R.id.modelEditText);
+        descriptionEditText = (EditText) findViewById(R.id.descriptionEditText);
+        serviceCheckBox = (CheckBox) findViewById(R.id.serviceCheckBox);
+        registrationCheckBox = (CheckBox) findViewById(R.id.registrationCheckBox);
+        driverCheckBox = (CheckBox) findViewById(R.id.driverCheckBox);
+        parkingCheckBox = (CheckBox) findViewById(R.id.parkingCheckBox);
+        saveImageButton = (ImageButton) findViewById(R.id.saveImageButton);
 
-        passwordEditText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                passImageView.setVisibility(View.INVISIBLE);
-                return false;
-            }
-        });
-        passwordEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                passImageView.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        confirmPasswordEditText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                confirmPassImageView.setVisibility(View.INVISIBLE);
-                confirmNoPassImageView.setVisibility(View.INVISIBLE);
-                return false;
-            }
-        });
-        confirmPasswordEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                confirmPassImageView.setVisibility(View.INVISIBLE);
-                confirmNoPassImageView.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        uploadPhotoImageButton.setOnClickListener(new View.OnClickListener() {
+        uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
-                AlertDialog alertDialog3 = new AlertDialog.Builder(CreateUserActivity.this)
+                AlertDialog alertDialog3 = new AlertDialog.Builder(AddVehicleActivity.this)
                         .setTitle("How to upload? ")
                         .setIcon(R.mipmap.ic_launcher)
                         .setItems(ways, new DialogInterface.OnClickListener() {
@@ -172,8 +151,8 @@ public class CreateUserActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 Log.d(TAG, "onClick: " + ways[i]);
                                 if(i==0) {  //take photo
-                                    int permissionCheckCamera = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.CAMERA);
-                                    int permissionCheckStorage = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                                    int permissionCheckCamera = ContextCompat.checkSelfPermission(AddVehicleActivity.this, Manifest.permission.CAMERA);
+                                    int permissionCheckStorage = ContextCompat.checkSelfPermission(AddVehicleActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                                     Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
                                     Log.d(TAG, "onClickPermissionCheckStorage: " + permissionCheckStorage);
 
@@ -187,7 +166,7 @@ public class CreateUserActivity extends AppCompatActivity {
                                     if(permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                         Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
                                         ActivityCompat.requestPermissions(
-                                                CreateUserActivity.this,
+                                                AddVehicleActivity.this,
                                                 new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                                 MULTI_PERMISSION_CODE
                                         );
@@ -195,14 +174,14 @@ public class CreateUserActivity extends AppCompatActivity {
                                     else if(permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
                                         Log.d(TAG, "onClickPermissionRequestCamera: ");
                                         ActivityCompat.requestPermissions(
-                                                CreateUserActivity.this,
+                                                AddVehicleActivity.this,
                                                 new String[]{Manifest.permission.CAMERA},
                                                 PERMISSION_CAMERA_REQUEST_CODE
                                         );
                                     } else if(permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                         Log.d(TAG, "onClickPermissionRequestStorage: ");
                                         ActivityCompat.requestPermissions(
-                                                CreateUserActivity.this,
+                                                AddVehicleActivity.this,
                                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                                 PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
                                         );
@@ -210,10 +189,10 @@ public class CreateUserActivity extends AppCompatActivity {
                                         beforeStartCamera();
                                     }
                                 } else if(i==1) {   //upload from phone
-                                    if(ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                                    if(ContextCompat.checkSelfPermission(AddVehicleActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
                                         Log.d(TAG, "onClickPermissionRequestStorage: ");
                                         ActivityCompat.requestPermissions(
-                                                CreateUserActivity.this,
+                                                AddVehicleActivity.this,
                                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                                 PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
                                         );
@@ -229,50 +208,34 @@ public class CreateUserActivity extends AppCompatActivity {
             }
         });
 
-        nextImageButton.setOnClickListener(new View.OnClickListener() {
+        saveImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                userImgDrawable = userImgImageView.getDrawable();
-                username = usernameEditText.getText().toString();
-                userEmail = userEmailEditText.getText().toString();
-                password = passwordEditText.getText().toString();
+                //似乎有bug 即使clickable=false了还是会运行
 
-                if(!username.equals("")
-                    && !userEmail.equals("")
-                    && !password.equals("")
-                    && confirmPasswordEditText.getText().toString().equals(password)
-                    //&& userImgDrawable!=null
-                ) {
+                vehicleDrawable = vehicleImageView.getDrawable();
 
-                    userImgImageBitmap = Bitmap.createBitmap(
-                            userImgDrawable.getIntrinsicWidth(),
-                            userImgDrawable.getIntrinsicHeight(),
-                            userImgDrawable.getOpacity() != PixelFormat.OPAQUE ?
-                                    Bitmap.Config.ARGB_8888: Bitmap.Config.RGB_565);
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-                    userImg = bos.toByteArray();
+                Log.d(TAG, "--------------------Add Vehicle------------------");
+                Log.d(TAG, "username: " + username);
+                Log.d(TAG, "rc: " + rc);
+                Log.d(TAG, "make: " + make);
+                Log.d(TAG, "description: " + description);
+                Log.d(TAG, "service: " + service);
+                Log.d(TAG, "driver: " + driver);
+                Log.d(TAG, "registration: " + registration);
+                Log.d(TAG, "parking: " + parking);
 
-                    username = usernameEditText.getText().toString();
-                    userEmail = userEmailEditText.getText().toString();
-                    password = passwordEditText.getText().toString();
+                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
 
-                    Intent intent = new Intent(CreateUserActivity.this, CreateUserActivity2.class);
-                    intent.putExtra("userImg", userImg);
-                    intent.putExtra("username", username);
-                    intent.putExtra("userEmail", userEmail);
-                    intent.putExtra("password", password);
-                    startActivity(intent);
-                } else {    //not valid info
-                    if(username.equals("")) Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();
-                    else if(userEmail.equals("")) Toast.makeText(getApplicationContext(), "Please entry email", Toast.LENGTH_SHORT).show();
-                    else if(password.equals("")) Toast.makeText(getApplicationContext(), "Please entry password", Toast.LENGTH_SHORT).show();
-                    else Toast.makeText(getApplicationContext(), "2 passwords are not the same", Toast.LENGTH_SHORT).show();
-                }
+                // Write database connection here
+
+
+
             }
         });
 
     }
+
 
     @Override
     public void onActivityResult(int requestCode,int resultCode,Intent data) {
@@ -281,9 +244,9 @@ public class CreateUserActivity extends AppCompatActivity {
             case TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
                     Intent intent = new Intent("com.android.camera.action.CROP");
-                    intent.setDataAndType(userImgImageUri, "image/**");
+                    intent.setDataAndType(vehicleImageUri, "image/**");
                     intent.putExtra("scale", true);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, vehicleImageUri);
                     startActivityForResult(intent, GROP_PHOTO);
                 }
                 break;
@@ -291,9 +254,9 @@ public class CreateUserActivity extends AppCompatActivity {
             case GROP_PHOTO: //剪裁程序 似乎有bug 不确定是不是由于模拟器！
                 if (resultCode == RESULT_OK) {
                     try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(userImgImageUri));
-                        userImgImageView.setImageBitmap(bitmap);
-                        userImgImageBitmap = bitmap;
+                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(vehicleImageUri));
+                        vehicleImageView.setImageBitmap(bitmap);
+                        vehicleImageBitmap = bitmap;
                         //show
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -310,7 +273,7 @@ public class CreateUserActivity extends AppCompatActivity {
                     }
                 }
                 data.putExtra("scale", true);
-                data.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
+                data.putExtra(MediaStore.EXTRA_OUTPUT, vehicleImageUri);
                 startActivityForResult(data, GROP_PHOTO);
                 break;
 
@@ -332,9 +295,9 @@ public class CreateUserActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        userImgImageUri = Uri.fromFile(outputImage);
+        vehicleImageUri = Uri.fromFile(outputImage);
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, vehicleImageUri);
         startActivityForResult(intent, TAKE_PHOTO);
         //active camera
     }
@@ -350,12 +313,12 @@ public class CreateUserActivity extends AppCompatActivity {
         }catch(IOException e){
             e.printStackTrace();
         }
-        userImgImageUri = Uri.fromFile(outputImage);
+        vehicleImageUri = Uri.fromFile(outputImage);
         Intent intent=new Intent("android.intent.action.GET_CONTENT");
         intent.setType("image/*");
         intent.putExtra("crop",true);
         intent.putExtra("scale",true);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, vehicleImageUri);
 
         startActivityForResult(intent,CHOOSE_PHOTO);
     }
@@ -375,7 +338,7 @@ public class CreateUserActivity extends AppCompatActivity {
             String docId=DocumentsContract.getDocumentId(uri);
             if("com.android.providers.media.documents".equals(uri.getAuthority())){
                 String id=docId.split(":")[1];
-                String seletion=MediaStore.Images.Media._ID+"="+id;
+                String seletion= MediaStore.Images.Media._ID+"="+id;
                 imagePath=getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,seletion);
             }else if("com.android.providers.downloads.documents".equals(uri.getAuthority())){
                 Uri contentUri= ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),Long.valueOf(docId));
@@ -407,33 +370,39 @@ public class CreateUserActivity extends AppCompatActivity {
     private void displayImage(String imagePath){
         if(imagePath!=null){
             Bitmap bitmap= BitmapFactory.decodeFile(imagePath);
-            userImgImageView.setImageBitmap(bitmap);
-            userImgImageBitmap = bitmap;
+            vehicleImageView.setImageBitmap(bitmap);
+            vehicleImageBitmap = bitmap;
         }else{
             Toast.makeText(this,"failed to get image",Toast.LENGTH_SHORT).show();
         }
     }
 
 
+
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if(HideKeyBoard.isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            if(passwordEditText.getText().toString().length()>0) {
-                passImageView.setVisibility(View.VISIBLE);
-            }
-            if(confirmPasswordEditText.getText().toString().length()>0) {
-                if(confirmPasswordEditText.getText().toString().equals(passwordEditText.getText().toString())) {
-                    confirmPassImageView.setVisibility(View.VISIBLE);
-                    confirmNoPassImageView.setVisibility(View.INVISIBLE);
-                } else {
-                    confirmNoPassImageView.setVisibility(View.VISIBLE);
-                    confirmPassImageView.setVisibility(View.INVISIBLE);
-                }
+            rc = rcEditText.getText().toString();
+            make = makeEditText.getText().toString();
+            model = modelEditText.getText().toString();
+            description = descriptionEditText.getText().toString();
+            if(rc.length()>0 && make.length()>0 && model.length()>0 && description.length()>0
+                && rc!=null && make!=null && model!=null && description!=null) {
+                service = serviceCheckBox.isChecked();
+                registration = registrationCheckBox.isChecked();
+                driver = driverCheckBox.isChecked();
+                parking = parkingCheckBox.isChecked();
+                saveImageButton.setAlpha(1.0f);
+                saveImageButton.setClickable(true);
+            } else {
+                saveImageButton.setAlpha(0.5f);
+                saveImageButton.setClickable(false);
             }
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
