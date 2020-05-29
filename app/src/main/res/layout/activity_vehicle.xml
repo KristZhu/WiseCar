@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".VehicleActivity"
+    android:background="@drawable/wc0bg_dark"
+    android:theme="@style/Theme.AppCompat.NoActionBar">
+
+    <ImageView
+        android:id="@+id/backImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.1"
+        app:srcCompat="@drawable/vehicle0back" />
+
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/backImageView"
+        app:layout_constraintDimensionRatio="4:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/backImageView"
+        app:layout_constraintTop_toTopOf="@+id/backImageView"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.3"
+        app:srcCompat="@drawable/wc0title"
+        android:contentDescription="TODO" />
+
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:fadingEdge="vertical"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/backImageView"
+        app:layout_constraintVertical_bias="1.0">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mainDiv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/imageDiv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/wc0bg_light"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0">
+
+                <com.example.wisecarapp.CircleImageView
+                    android:id="@+id/userImgImageView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:src="@drawable/vehicle0empty_user"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.3" />
+
+                <ImageView
+                    android:id="@+id/usernameImageView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="32dp"
+                    app:layout_constraintBottom_toBottomOf="@id/userImgImageView"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toEndOf="@id/userImgImageView"
+                    app:layout_constraintTop_toTopOf="@id/userImgImageView"
+                    app:layout_constraintVertical_bias="0.2"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.05"
+                    app:srcCompat="@drawable/vehicle0username" />
+
+                <TextView
+                    android:id="@+id/usernameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@+id/usernameImageView"
+                    app:layout_constraintStart_toEndOf="@+id/usernameImageView"
+                    app:layout_constraintTop_toTopOf="@+id/usernameImageView" />
+
+                <ImageView
+                    android:id="@+id/userEmailImageView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="@+id/usernameImageView"
+                    app:layout_constraintLeft_toLeftOf="@id/usernameImageView"
+                    app:layout_constraintStart_toStartOf="@id/usernameImageView"
+                    app:layout_constraintTop_toBottomOf="@id/usernameImageView"
+                    app:layout_constraintVertical_bias="0.2"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent="0.05"
+                    app:srcCompat="@drawable/vehicle0user_email" />
+
+                <TextView
+                    android:id="@+id/userEmailTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:text="//UserEmail"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/userEmailImageView"
+                    app:layout_constraintStart_toEndOf="@+id/userEmailImageView"
+                    app:layout_constraintTop_toTopOf="@+id/userEmailImageView" />
+
+                <ImageButton
+                    android:id="@+id/settingImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintBottom_toBottomOf="@id/userImgImageView"
+                    app:layout_constraintDimensionRatio="3.5:1"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="@id/usernameImageView"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/userEmailImageView"
+                    app:layout_constraintVertical_bias="1.0"
+                    app:layout_constraintWidth_percent="0.25"
+                    app:srcCompat="@drawable/vehicle0setting" />
+
+                <ImageButton
+                    android:id="@+id/editImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintBottom_toBottomOf="@id/userImgImageView"
+                    app:layout_constraintDimensionRatio="3.5:1"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toRightOf="@id/settingImageButton"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/userEmailImageView"
+                    app:layout_constraintVertical_bias="1.0"
+                    app:layout_constraintWidth_percent="0.25"
+                    app:srcCompat="@drawable/vehicle0edit" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/rowDiv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/vehicle0bg_rows"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/imageDiv">
+
+                <ImageButton
+                    android:id="@+id/dashboardImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1112:154"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0"
+                    app:srcCompat="@drawable/vehicle0dashboard" />
+
+                <Button
+                    android:id="@+id/dashboardButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="64dp"
+                    android:autoText="true"
+                    android:background="@null"
+                    android:gravity="left"
+                    android:padding="0dp"
+                    android:text="DashBoard"
+                    android:textAllCaps="false"
+                    android:textColor="#007BA4"
+                    android:textStyle="bold"
+                    app:autoSizeTextType="uniform"
+                    app:layout_constraintBottom_toBottomOf="@id/dashboardImageButton"
+                    app:layout_constraintEnd_toEndOf="@+id/dashboardImageButton"
+                    app:layout_constraintHeight_percent="0.08"
+                    app:layout_constraintStart_toStartOf="@+id/dashboardImageButton"
+                    app:layout_constraintTop_toTopOf="@+id/dashboardImageButton" />
+
+                <ImageButton
+                    android:id="@+id/calendarImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1112:154"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/dashboardImageButton"
+                    app:layout_constraintVertical_bias="0.0"
+                    app:srcCompat="@drawable/vehicle0calendar" />
+
+                <Button
+                    android:id="@+id/calendarButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="64dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:autoText="true"
+                    android:text="Calendar"
+                    android:textColor="#007BA4"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:gravity="left"
+                    app:autoSizeTextType="uniform"
+                    app:layout_constraintEnd_toEndOf="@+id/calendarImageButton"
+                    app:layout_constraintStart_toStartOf="@+id/calendarImageButton"
+                    app:layout_constraintTop_toTopOf="@+id/calendarImageButton"
+                    app:layout_constraintBottom_toBottomOf="@id/calendarImageButton"
+                    app:layout_constraintHeight_percent="0.08"/>
+
+                <ImageView
+                    android:id="@+id/vehicleRow1ImageView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1112:154"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/calendarImageButton"
+                    app:layout_constraintVertical_bias="0.0"
+                    app:srcCompat="@drawable/vehicle0empty_row" />
+
+                <com.example.wisecarapp.CircleImageView
+                    android:id="@+id/circleImageView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintWidth_percent="0.1"
+                    app:layout_constraintHorizontal_bias="0.045"
+                    app:layout_constraintBottom_toBottomOf="@+id/vehicleRow1ImageView"
+                    app:layout_constraintEnd_toEndOf="@+id/vehicleRow1ImageView"
+                    app:layout_constraintStart_toStartOf="@+id/vehicleRow1ImageView"
+                    app:layout_constraintTop_toTopOf="@+id/vehicleRow1ImageView"
+                    app:srcCompat="@drawable/vehicle0empty_vehicle" />
+
+                <Button
+                    android:id="@+id/vehicleTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="64dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:autoText="true"
+                    android:text="No Vehicle"
+                    android:textColor="#007BA4"
+                    android:textStyle="bold"
+                    android:clickable="false"
+                    android:textAllCaps="false"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:gravity="left"
+                    app:autoSizeTextType="uniform"
+                    app:layout_constraintEnd_toStartOf="@+id/editVehicleImageButton"
+                    app:layout_constraintStart_toStartOf="@+id/vehicleRow1ImageView"
+                    app:layout_constraintTop_toTopOf="@+id/vehicleRow1ImageView"
+                    app:layout_constraintBottom_toBottomOf="@id/vehicleRow1ImageView"
+                    app:layout_constraintHeight_percent="0.08"/>
+
+                <ImageButton
+                    android:id="@+id/editVehicleImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintLeft_toLeftOf="@id/vehicleRow1ImageView"
+                    app:layout_constraintRight_toRightOf="@id/vehicleRow1ImageView"
+                    app:layout_constraintTop_toTopOf="@id/vehicleRow1ImageView"
+                    app:layout_constraintBottom_toBottomOf="@id/vehicleRow1ImageView"
+                    app:layout_constraintHeight_percent="0.1"
+                    app:srcCompat="@drawable/vehicle0edit_vehicle" />
+
+                <ImageView
+                    android:id="@+id/vehicleRow2ImageView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1112:186"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/vehicleRow1ImageView"
+                    app:layout_constraintVertical_bias="0.0"
+                    app:srcCompat="@drawable/vehicle0vehicle_row_2" />
+
+                <HorizontalScrollView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginRight="16dp"
+                    app:layout_constraintBottom_toBottomOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintEnd_toStartOf="@+id/addImageButton"
+                    app:layout_constraintHeight_percent="0.1"
+                    app:layout_constraintLeft_toLeftOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintRight_toLeftOf="@id/manageImageButton"
+                    app:layout_constraintStart_toStartOf="@+id/circleImageView"
+                    app:layout_constraintTop_toTopOf="@id/vehicleRow2ImageView" >
+
+                    <LinearLayout
+                        android:id="@+id/vehicleLayout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"></LinearLayout>
+
+                </HorizontalScrollView>
+
+                <ImageButton
+                    android:id="@+id/addImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintLeft_toLeftOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintRight_toLeftOf="@id/manageImageButton"
+                    app:layout_constraintTop_toTopOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintBottom_toBottomOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintHeight_percent="0.1"
+                    app:srcCompat="@drawable/vehicle0add" />
+
+                <ImageButton
+                    android:id="@+id/manageImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintLeft_toLeftOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintRight_toRightOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintTop_toTopOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintBottom_toBottomOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintHeight_percent="0.1"
+                    app:srcCompat="@drawable/vehicle0manage_vehicle" />
+
+                <ImageButton
+                    android:id="@+id/inboxImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1112:154"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/vehicleRow2ImageView"
+                    app:layout_constraintVertical_bias="0.0"
+                    app:srcCompat="@drawable/vehicle0inbox" />
+
+                <Button
+                    android:id="@+id/inboxButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="64dp"
+                    android:layout_marginTop="0dp"
+                    app:layout_goneMarginBottom="0dp"
+                    android:autoText="true"
+                    android:text="Inbox"
+                    android:textColor="#007BA4"
+                    android:textStyle="bold"
+                    android:textAllCaps="false"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:gravity="left"
+                    app:autoSizeTextType="uniform"
+                    app:layout_constraintEnd_toEndOf="@+id/inboxImageButton"
+                    app:layout_constraintStart_toStartOf="@+id/inboxImageButton"
+                    app:layout_constraintTop_toTopOf="@+id/inboxImageButton"
+                    app:layout_constraintBottom_toBottomOf="@id/inboxImageButton"
+                    app:layout_constraintHeight_percent="0.08"/>
+
+                <ImageView
+                    android:id="@+id/emptyImageView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginBottom="16dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="1112:154"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/inboxImageButton"
+                    app:layout_constraintVertical_bias="0.0"
+                    app:srcCompat="@drawable/vehicle0empty_row" />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
