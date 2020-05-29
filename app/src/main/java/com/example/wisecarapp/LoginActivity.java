@@ -100,9 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), response.optString("message"), Toast.LENGTH_LONG).show();
                             if (response.optString("message").equals("success")) {
                                 Log.d(TAG, "onResponse: Success");
-
                                 // Login successfully
-
                                 UserInfo.setUsername(username);
                                 Intent intent = new Intent(LoginActivity.this, VehicleActivity.class);
                                 intent.putExtra("user_id", response.optString("user_id"));
