@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -78,7 +79,6 @@ public class VehicleActivity extends AppCompatActivity {
                 Log.e("image bitmap: ", ImgBitmap.toString());
                 userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
             }
-
         }, new userNameCallback() {
 
             @Override
@@ -94,20 +94,20 @@ public class VehicleActivity extends AppCompatActivity {
             }
         });
 
-        returnVehicles("1", new vehicleListCallbacks() {
-            @Override
-            public void onSuccess(@NonNull List<Vehicle> value) {
-                for (Vehicle vehicle : user_Vehicles) {
-                    Log.e("user Vehicles: ", vehicle.getMake_name());
-                }
-            }
-
-            @Override
-            public void onError(@NonNull String errorMessage) {
-                Log.e("user Vehicles: ", String.valueOf(user_Vehicles.size()));
-            }
-
-        });
+//        returnVehicles("1", new vehicleListCallbacks() {
+//            @Override
+//            public void onSuccess(@NonNull List<Vehicle> value) {
+//                for (Vehicle vehicle : user_Vehicles) {
+//                    Log.e("user Vehicles: ", vehicle.getMake_name());
+//                }
+//            }
+//
+//            @Override
+//            public void onError(@NonNull String errorMessage) {
+//                Log.e("user Vehicles: ", String.valueOf(user_Vehicles.size()));
+//            }
+//
+//        });
 
 
         settingImageButton = (ImageButton) findViewById(R.id.settingImageButton);
@@ -210,9 +210,10 @@ public class VehicleActivity extends AppCompatActivity {
                 ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
                 user_name = response.optString("user_name");
                 email_address = response.optString("email_address");
-                Log.e("test: ", ImgBitmap.toString());
-
-                if (imageCallback != null)
+                if(ImgBitmap == null){
+                    Log.e("No image: ", "this user has no image");
+                }
+                if (ImgBitmap != null)
                     imageCallback.onSuccess(ImgBitmap);
                 if (nameCallback != null)
                     nameCallback.onSuccess(user_name);
@@ -247,7 +248,7 @@ public class VehicleActivity extends AppCompatActivity {
     public interface userImageCallback {
         void onSuccess(@NonNull Bitmap value);
 
-//        void onError(@NonNull Throwable throwable);
+//        void onError(@NonNull String error);
     }
 
     public interface userNameCallback {
@@ -332,6 +333,7 @@ public class VehicleActivity extends AppCompatActivity {
 
     public interface vehicleListCallbacks {
         void onSuccess(@NonNull List<Vehicle> value);
+
         void onError(@NonNull String errorMessage);
     }
 
