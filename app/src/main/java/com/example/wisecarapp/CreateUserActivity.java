@@ -18,6 +18,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -244,11 +245,9 @@ public class CreateUserActivity extends AppCompatActivity {
                     //&& userImgDrawable!=null
                 ) {
 
-                    userImgImageBitmap = Bitmap.createBitmap(
-                            userImgDrawable.getIntrinsicWidth(),
-                            userImgDrawable.getIntrinsicHeight(),
-                            userImgDrawable.getOpacity() != PixelFormat.OPAQUE ?
-                                    Bitmap.Config.ARGB_8888: Bitmap.Config.RGB_565);
+                    BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
+                    userImgImageBitmap = bitmapDrawable.getBitmap();
+
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
                     userImg = bos.toByteArray();

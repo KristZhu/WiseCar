@@ -302,17 +302,24 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     while ((sResponse = reader.readLine()) != null) {
                         s = s.append(sResponse);
                     }
+                    if(s.toString().contains("success")){
+                        Intent intent = new Intent(CreateUserActivity2.this, VehicleActivity.class);
+                        int position = s.indexOf("user_id");
+                        Log.e("user_id test: ", "\"" + s.substring(position + 9, s.length() - 1) + "\"");
+                        intent.putExtra("user_id", s.substring(position + 9, s.length() - 1));
+                        startActivity(intent);
+                    }
                     Log.e("response", s.toString());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                StringBuilder finalS = s;
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(CreateUserActivity2.this, finalS.toString(), Toast.LENGTH_LONG).show();
-                    }
-                });
+//                StringBuilder finalS = s;
+//                runOnUiThread(new Runnable() {
+//                    public void run() {
+//                        Toast.makeText(CreateUserActivity2.this, finalS.toString(), Toast.LENGTH_LONG).show();
+//                    }
+//                });
 
                 postRequest.abort();
 
