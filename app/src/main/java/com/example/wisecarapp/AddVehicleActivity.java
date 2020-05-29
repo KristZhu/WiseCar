@@ -439,16 +439,16 @@ public class AddVehicleActivity extends AppCompatActivity {
                 HttpPost postRequest = new HttpPost("http://54.206.19.123:3000/api/v1/vehicles/");
 
                 MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-                DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
                 try {
                     reqEntity.addPart("make", new StringBody(make));
                     reqEntity.addPart("model", new StringBody(model));
                     reqEntity.addPart("registration_no", new StringBody(registration_no));
-                    reqEntity.addPart("description", new StringBody(format.format(description)));
-//                    reqEntity.addPart("driver_license", new StringBody(licence));
-//                    reqEntity.addPart("address_line1", new StringBody(address1));
-//                    reqEntity.addPart("address_line2", new StringBody(address2));
-//                    reqEntity.addPart("postcode", new StringBody(postCode));
+                    reqEntity.addPart("description", new StringBody(description));
+                    reqEntity.addPart("services", new StringBody("1234"));
+                    reqEntity.addPart("state", new StringBody("1"));
+                    reqEntity.addPart("year", new StringBody("2011"));
+                    reqEntity.addPart("user_id", new StringBody("179"));
 //                    reqEntity.addPart("state", new StringBody(state));
 //                    reqEntity.addPart("country", new StringBody(country));
 //                    reqEntity.addPart("email", new StringBody(userEmail));
