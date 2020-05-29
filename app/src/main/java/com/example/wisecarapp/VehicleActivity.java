@@ -73,7 +73,7 @@ public class VehicleActivity extends AppCompatActivity {
         userImgImageView = (ImageView) findViewById(R.id.userImgImageView);
 
 
-        loadUserNameEmailImg("183", new userImageCallback() {
+        loadUserNameEmailImg(user_id, new userImageCallback() {
 
             @Override
             public void onSuccess(@NonNull Bitmap value) {
@@ -96,12 +96,13 @@ public class VehicleActivity extends AppCompatActivity {
         });
 
 
-        returnVehicles("183", new vehicleListCallbacks() {
+        returnVehicles(user_id, new vehicleListCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Vehicle> value) {
                 for (Vehicle vehicle : user_Vehicles) {
                     Log.e("user Vehicles: ", vehicle.getMake_name());
                 }
+                Log.e("user Vehicles size: ", String.valueOf(user_Vehicles.size()));
             }
 
             @Override
@@ -110,7 +111,6 @@ public class VehicleActivity extends AppCompatActivity {
             }
 
         });
-
 
         settingImageButton = (ImageButton) findViewById(R.id.settingImageButton);
         editImageButton = (ImageButton) findViewById(R.id.editImageButton);
