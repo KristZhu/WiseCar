@@ -102,14 +102,17 @@ public class LoginActivity extends AppCompatActivity {
                                 Log.d(TAG, "onResponse: Success");
                                 // Login successfully
                                 UserInfo.setUsername(username);
-                                startActivity(new Intent(LoginActivity.this, VehicleActivity.class));
-
+                                Intent intent = new Intent(LoginActivity.this, VehicleActivity.class);
+                                intent.putExtra("user_id", response.optString("user_id"));
+                                startActivity(intent);
+                            }else{
+                                Toast.makeText(getApplicationContext(), "Please check your username or password", Toast.LENGTH_LONG).show();
                             }
                         }
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.e("ERROR!!!", String.valueOf(error.toString()));
+                            Log.e("ERROR!!!", error.toString());
                             Log.e("ERROR!!!", String.valueOf(error.networkResponse));
 
                             NetworkResponse networkResponse = error.networkResponse;
