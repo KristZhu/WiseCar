@@ -180,6 +180,7 @@ public class VehicleActivity extends AppCompatActivity {
             for (String s : strings) {
                 CircleImageView imageView = new CircleImageView(VehicleActivity.this);
                 imageView.setImageDrawable(userImgImageView.getDrawable());
+                //imageView.setBackground();
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
                 params.setMargins(0, 0, 16, 0);
                 imageView.setLayoutParams(params);

@@ -414,15 +414,60 @@
                     android:layout_marginStart="32dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp"
                     android:button="@drawable/add_vehicle0checkbox_style"
                     android:checked="true"
                     android:text="Parking Receipts"
                     android:textColor="#000000"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/textView5"
                     app:layout_constraintTop_toBottomOf="@id/driverCheckBox" />
+
+                <CheckBox
+                    android:id="@+id/insuranceCheckBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:button="@drawable/add_vehicle0checkbox_style"
+                    android:checked="true"
+                    android:text="Insurance Records"
+                    android:textColor="#000000"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView5"
+                    app:layout_constraintTop_toBottomOf="@id/parkingCheckBox" />
+
+                <CheckBox
+                    android:id="@+id/tollCheckBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:button="@drawable/add_vehicle0checkbox_style"
+                    android:checked="true"
+                    android:text="Toll Receipts"
+                    android:textColor="#000000"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView5"
+                    app:layout_constraintTop_toBottomOf="@id/insuranceCheckBox" />
+
+                <CheckBox
+                    android:id="@+id/fuelCheckBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:button="@drawable/add_vehicle0checkbox_style"
+                    android:checked="true"
+                    android:text="Fuel Receipts"
+                    android:textColor="#000000"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/textView5"
+                    app:layout_constraintTop_toBottomOf="@id/tollCheckBox" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
