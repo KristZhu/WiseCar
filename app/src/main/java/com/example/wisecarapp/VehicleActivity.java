@@ -374,5 +374,4 @@ public class VehicleActivity extends AppCompatActivity {
         void onError(@NonNull String errorMessage);
     }
 
-
 }
