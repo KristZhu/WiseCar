@@ -185,7 +185,7 @@ public class VehicleActivity extends AppCompatActivity {
                             editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    editVehicle(vehicle.getRegistration_no());
+                                    editVehicle("1");
                                 }
                             });
                         }
@@ -235,8 +235,8 @@ public class VehicleActivity extends AppCompatActivity {
 
     }
 
-    private void editVehicle(String registrationNo) {
-        Log.d(TAG, "editVehicle: " + registrationNo);
+    private void editVehicle(String vehicleID) {
+        Log.d(TAG, "editVehicle: " + vehicleID);
     }
 
     private void startInbox() {
@@ -333,6 +333,7 @@ public class VehicleActivity extends AppCompatActivity {
                         vehicle.setUser_name(jsonObject.optString("user_name"));
                         vehicle.setImage(jsonObject.optString("image"));
                         vehicle.setState_name(jsonObject.optString("state_name"));
+                        //vehicle.setServices(...)
 
                         user_Vehicles.add(vehicle);
 
