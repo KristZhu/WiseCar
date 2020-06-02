@@ -3,9 +3,19 @@ package com.example.wisecarapp;
 import java.util.List;
 
 class UserInfo {
+
+    private static String userID;
     private static String username;
     private static String userEmail;
     private static List<Vehicle> vehicles;
+
+    public static String getUserID() {
+        return userID;
+    }
+
+    public static void setUserID(String userID) {
+        UserInfo.userID = userID;
+    }
 
     public static String getUsername() {
         return username;
