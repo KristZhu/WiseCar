@@ -146,6 +146,7 @@ public class VehicleActivity extends AppCompatActivity {
         });
 
 
+
         selectedVehicleTextView = (Button) findViewById(R.id.selectedVehicleTextView);
         selectedVehicleImageView = (ImageView) findViewById(R.id.selectedVehicleImageView);
         vehicleLayout = (LinearLayout) findViewById(R.id.vehicleLayout);
@@ -157,7 +158,7 @@ public class VehicleActivity extends AppCompatActivity {
         returnVehicles("179", new vehicleListCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Vehicle> value) {
-                if (user_Vehicles.size() == 0) {
+                if(user_Vehicles.size()==0) {
                     selectedVehicleTextView.setText("No Vehicle");
                     selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
                     return;
@@ -186,7 +187,7 @@ public class VehicleActivity extends AppCompatActivity {
                             editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    editVehicle(vehicle.getRegistration_no());
+                                    editVehicle(vehicle);
                                 }
                             });
                         }
@@ -208,6 +209,7 @@ public class VehicleActivity extends AppCompatActivity {
                 startActivity(new Intent(VehicleActivity.this, AddVehicleActivity.class));
             }
         });
+
 
 
         inboxImageButton = (ImageButton) findViewById(R.id.inboxImageButton);
@@ -235,8 +237,8 @@ public class VehicleActivity extends AppCompatActivity {
 
     }
 
-    private void editVehicle(String registrationNo) {
-        Log.d(TAG, "editVehicle: " + registrationNo);
+    private void editVehicle(Vehicle vehicle) {
+        Log.d(TAG, "editVehicle: " + vehicle);
     }
 
     private void startInbox() {
@@ -373,6 +375,5 @@ public class VehicleActivity extends AppCompatActivity {
 
         void onError(@NonNull String errorMessage);
     }
-
 
 }
