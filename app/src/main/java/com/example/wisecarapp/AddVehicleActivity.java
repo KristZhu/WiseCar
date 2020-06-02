@@ -104,6 +104,9 @@ public class AddVehicleActivity extends AppCompatActivity {
     private CheckBox fuelCheckBox;
     private boolean fuel;
 
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String ADD_VEHICLE = "/api/v1/vehicles/";
+
     private String servicesChoice = "";
     List<Integer> servicesList = new ArrayList<>();
 
@@ -503,7 +506,7 @@ public class AddVehicleActivity extends AppCompatActivity {
             @Override
             public void run() {
                 HttpClient httpClient = new DefaultHttpClient();
-                HttpPost postRequest = new HttpPost("http://54.206.19.123:3000/api/v1/vehicles/");
+                HttpPost postRequest = new HttpPost(IP_HOST + ADD_VEHICLE);
 
                 MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 

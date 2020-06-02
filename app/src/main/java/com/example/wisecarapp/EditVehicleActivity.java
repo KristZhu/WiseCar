@@ -43,6 +43,9 @@ public class EditVehicleActivity extends AppCompatActivity {
 
     private LinearLayout servicesLayout;
 
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_SERVICE = "/api/v1/services/";
+
     private static List<Integer> service_list = new ArrayList<>();
 
     @Override
@@ -167,7 +170,7 @@ public class EditVehicleActivity extends AppCompatActivity {
 
     private void loadServices(String vehicle_id, @Nullable final servicesListCallbacks callbacks) {
 
-        String URL = "http://54.206.19.123:3000/api/v1/services/" + vehicle_id;
+        String URL = IP_HOST + GET_SERVICE + vehicle_id;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
             @Override

@@ -73,6 +73,10 @@ public class VehicleActivity extends AppCompatActivity {
     private Bitmap ImgBitmap;
     private List<Vehicle> user_Vehicles;
 
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_IMG_EMAIL = "/api/v1/users/";
+    private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -240,7 +244,7 @@ public class VehicleActivity extends AppCompatActivity {
     }
 
     private void loadUserEmailImg(String user_id, @Nullable final userImageCallback imageCallback, @Nullable final userEmailCallback emailCallback) {
-        String URL = "http://54.206.19.123:3000/api/v1/users/" + user_id;
+        String URL = IP_HOST + GET_IMG_EMAIL + user_id;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
             @Override
@@ -297,7 +301,7 @@ public class VehicleActivity extends AppCompatActivity {
 
     private void returnVehicles(String user_id, @Nullable final vehicleListCallbacks callbacks) {
 
-        String URL = "http://54.206.19.123:3000/api/v1/vehicles/user/" + user_id;
+        String URL = IP_HOST + GET_VEHICLE_LIST + user_id;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
             @Override

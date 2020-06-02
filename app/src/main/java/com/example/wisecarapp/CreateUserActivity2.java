@@ -17,13 +17,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -33,8 +26,6 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -75,6 +66,9 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private EditText stateEditText;
     private EditText postCodeEditText;
     private ImageButton createImageButton;
+
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String CREATE_USER = "/api/v1/users/register";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -261,7 +255,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
             @Override
             public void run() {
                 HttpClient httpClient = new DefaultHttpClient();
-                HttpPost postRequest = new HttpPost("http://54.206.19.123:3000/api/v1/users/register");
+                HttpPost postRequest = new HttpPost(IP_HOST + CREATE_USER);
 
                 MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
                 DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
