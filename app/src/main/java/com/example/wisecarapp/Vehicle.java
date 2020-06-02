@@ -7,6 +7,8 @@ import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -106,4 +108,9 @@ public class Vehicle {
         this.state_name = state_name;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return getRegistration_no();
+    }
 }

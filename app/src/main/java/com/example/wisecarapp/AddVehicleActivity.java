@@ -91,6 +91,7 @@ public class AddVehicleActivity extends AppCompatActivity {
     private CheckBox fuelCheckBox;
     private boolean fuel;
 
+    private ImageButton backImageButton;
     private Button uploadButton;
     private ImageButton saveImageButton;
 
@@ -141,9 +142,6 @@ public class AddVehicleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_vehicle);
 
-        username = this.getIntent().getStringExtra("username");
-        assert username != null;
-
         vehicleImageView = (ImageView) findViewById(R.id.vehicleImageView);
         uploadButton = (Button) findViewById(R.id.uploadButton);
         rcEditText = (EditText) findViewById(R.id.rcEditText);
@@ -158,6 +156,14 @@ public class AddVehicleActivity extends AppCompatActivity {
         tollCheckBox = (CheckBox) findViewById(R.id.tollCheckBox);
         fuelCheckBox = (CheckBox) findViewById(R.id.fuelCheckBox);
         saveImageButton = (ImageButton) findViewById(R.id.saveImageButton);
+
+        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
+        backImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
