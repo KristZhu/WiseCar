@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -30,6 +31,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,8 +85,7 @@ public class VehicleActivity extends AppCompatActivity {
         user_name = UserInfo.getUsername();
         usernameTextView.setText(user_name);
 
-        //修改一下 把username存在UserInfo里即可（登录时存入） 不用从数据库获取
-        loadUserEmailImg("1", new userImageCallback() {
+        loadUserEmailImg("179", new userImageCallback() {
 
             @Override
             public void onSuccess(@NonNull Bitmap value) {
@@ -143,7 +149,8 @@ public class VehicleActivity extends AppCompatActivity {
         addImageButton = (ImageButton) findViewById(R.id.addImageButton);
         manageImageButton = (ImageButton) findViewById(R.id.manageImageButton);
 
-        returnVehicles("1", new vehicleListCallbacks() {
+
+        returnVehicles("179", new vehicleListCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Vehicle> value) {
                 if (user_Vehicles.size() == 0) {
@@ -314,6 +321,7 @@ public class VehicleActivity extends AppCompatActivity {
                         vehicle.setUser_name(jsonObject.optString("user_name"));
                         vehicle.setImage(jsonObject.optString("image"));
                         vehicle.setState_name(jsonObject.optString("state_name"));
+                        vehicle.setVehicle_id(jsonObject.optString("vehicle_id"));
 
                         user_Vehicles.add(vehicle);
 
@@ -361,5 +369,6 @@ public class VehicleActivity extends AppCompatActivity {
 
         void onError(@NonNull String errorMessage);
     }
+
 
 }

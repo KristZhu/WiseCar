@@ -34,8 +34,17 @@ public class Vehicle {
     private String user_name;
     private Bitmap image;
     private String state_name;
+    private String vehicle_id;
 
     List<Integer> servicesList = new ArrayList<>();
+
+    public String getVehicle_id() {
+        return vehicle_id;
+    }
+
+    public void setVehicle_id(String vehicle_id) {
+        this.vehicle_id = vehicle_id;
+    }
 
     public void setServicesList(List<Integer> servicesList) {
         this.servicesList = servicesList;

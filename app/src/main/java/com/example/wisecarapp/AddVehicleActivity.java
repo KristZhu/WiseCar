@@ -37,6 +37,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -46,6 +52,9 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -459,6 +468,8 @@ public class AddVehicleActivity extends AppCompatActivity {
 
     private void uploadVehicleInfoByHttpClient() {
 
+        final String[] vehicle_id = {""};
+
         if (services) {
             servicesChoice += "1";
             servicesList.add(1);
@@ -531,10 +542,17 @@ public class AddVehicleActivity extends AppCompatActivity {
                         s = s.append(sResponse);
                     }
                     Log.e("response", s.toString());
-                    if(s.toString().contains("success")){
+                    if (s.toString().contains("success")) {
                         // Add successfully
-                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        int position = s.indexOf("vehicle_id");
+                        vehicle_id[0] = s.substring(position + 12, s.length() - 1);
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
