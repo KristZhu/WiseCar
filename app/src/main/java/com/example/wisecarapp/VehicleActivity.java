@@ -187,7 +187,7 @@ public class VehicleActivity extends AppCompatActivity {
                             editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    editVehicle(vehicle.getRegistration_no());
+                                    editVehicle(vehicle);
                                 }
                             });
                         }
