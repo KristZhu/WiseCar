@@ -52,6 +52,9 @@ public class LoginActivity extends AppCompatActivity {
     String username;
     String password;
 
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String LOGIN = "/api/v1/users/login";
+
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (HideKeyBoard.isShouldHideInput(v, ev)) {
@@ -84,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                 password = passwordEditText.getText().toString();
                 //isValidLogIn(username, password);
                 if (!username.equals("") && !password.equals("")) {
-                    String URL = "http://54.206.19.123:3000/api/v1/users/login";
+                    String URL = IP_HOST + LOGIN;
                     final JSONObject jsonParam = new JSONObject();
                     try {
                         jsonParam.put("user_name", username);
