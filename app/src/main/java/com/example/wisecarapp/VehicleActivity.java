@@ -77,7 +77,7 @@ public class VehicleActivity extends AppCompatActivity {
 
 
 //        loadUserNameEmailImg(user_id, new userImageCallback() {
-        loadUserNameEmailImg("1", new userImageCallback() {
+        loadUserNameEmailImg(user_id, new userImageCallback() {
             @Override
             public void onSuccess(@NonNull Bitmap value) {
                 Log.e("image bitmap", ImgBitmap.toString());
@@ -100,7 +100,7 @@ public class VehicleActivity extends AppCompatActivity {
 
 
 //        returnVehicles(user_id, new vehicleListCallbacks() {
-        returnVehicles("1", new vehicleListCallbacks() {
+        returnVehicles(user_id, new vehicleListCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Vehicle> value) {
 

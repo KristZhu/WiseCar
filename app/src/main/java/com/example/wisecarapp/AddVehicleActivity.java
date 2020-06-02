@@ -75,7 +75,7 @@ public class AddVehicleActivity extends AppCompatActivity {
     private EditText descriptionEditText;
     private String description;
 
-    // There should be three more
+
     private CheckBox serviceCheckBox;
     private boolean services;
     private CheckBox registrationCheckBox;
@@ -261,8 +261,6 @@ public class AddVehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "insurance: " + insurance);
                 Log.d(TAG, "toll: " + toll);
                 Log.d(TAG, "fuel: " + fuel);
-
-//                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
 
                 // Write database connection here
                 uploadVehicleInfoByHttpClient();
@@ -454,6 +452,9 @@ public class AddVehicleActivity extends AppCompatActivity {
         if (registration) serviceChoices += "2";
         if (driver) serviceChoices += "3";
         if (parking) serviceChoices += "4";
+        if (insurance) serviceChoices += "5";
+        if (toll) serviceChoices += "6";
+        if (fuel) serviceChoices += "7";
 
 
         Thread thread = new Thread(new Runnable() {
