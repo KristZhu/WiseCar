@@ -297,7 +297,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
                         s = s.append(sResponse);
                     }
                     if(s.toString().contains("success")){
-                        Intent intent = new Intent(CreateUserActivity2.this, VehicleActivity.class);
+                        Intent intent = new Intent(CreateUserActivity2.this, LoginActivity.class);
                         int position = s.indexOf("user_id");
                         Log.e("user_id test: ", "\"" + s.substring(position + 9, s.length() - 1) + "\"");
                         intent.putExtra("user_id", s.substring(position + 9, s.length() - 1));
