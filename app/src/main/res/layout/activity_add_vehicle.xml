@@ -9,13 +9,16 @@
     android:background="@drawable/wc0bg_dark"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
-    <ImageView
-        android:id="@+id/backImageView"
+    <ImageButton
+        android:id="@+id/backImageButton"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
+        android:background="@null"
+        android:padding="0dp"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
@@ -32,12 +35,12 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        app:layout_constraintBottom_toBottomOf="@+id/backImageView"
+        app:layout_constraintBottom_toBottomOf="@+id/backImageButton"
         app:layout_constraintDimensionRatio="4:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/backImageView"
-        app:layout_constraintTop_toTopOf="@+id/backImageView"
+        app:layout_constraintStart_toEndOf="@+id/backImageButton"
+        app:layout_constraintTop_toTopOf="@+id/backImageButton"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.3"
         app:srcCompat="@drawable/wc0title"
@@ -55,7 +58,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/backImageView"
+        app:layout_constraintTop_toBottomOf="@+id/backImageButton"
         app:layout_constraintVertical_bias="1.0">
 
         <androidx.constraintlayout.widget.ConstraintLayout

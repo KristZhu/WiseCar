@@ -75,7 +75,7 @@ public class AddVehicleActivity extends AppCompatActivity {
     private EditText descriptionEditText;
     private String description;
 
-
+    // There should be three more
     private CheckBox serviceCheckBox;
     private boolean services;
     private CheckBox registrationCheckBox;
@@ -91,12 +91,11 @@ public class AddVehicleActivity extends AppCompatActivity {
     private CheckBox fuelCheckBox;
     private boolean fuel;
 
-    private String serviceChoices = "";
-
+    private ImageButton backImageButton;
     private Button uploadButton;
     private ImageButton saveImageButton;
 
-    private String username;
+    String username;
 
     private static final int TAKE_PHOTO = 0;
     private static final int CHOOSE_PHOTO = 1;
@@ -143,9 +142,6 @@ public class AddVehicleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_vehicle);
 
-        username = this.getIntent().getStringExtra("username");
-        assert username != null;
-
         vehicleImageView = (ImageView) findViewById(R.id.vehicleImageView);
         uploadButton = (Button) findViewById(R.id.uploadButton);
         rcEditText = (EditText) findViewById(R.id.rcEditText);
@@ -160,6 +156,14 @@ public class AddVehicleActivity extends AppCompatActivity {
         tollCheckBox = (CheckBox) findViewById(R.id.tollCheckBox);
         fuelCheckBox = (CheckBox) findViewById(R.id.fuelCheckBox);
         saveImageButton = (ImageButton) findViewById(R.id.saveImageButton);
+
+        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
+        backImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -261,6 +265,8 @@ public class AddVehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "insurance: " + insurance);
                 Log.d(TAG, "toll: " + toll);
                 Log.d(TAG, "fuel: " + fuel);
+
+                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
 
                 // Write database connection here
                 uploadVehicleInfoByHttpClient();
@@ -447,16 +453,6 @@ public class AddVehicleActivity extends AppCompatActivity {
     }
 
     private void uploadVehicleInfoByHttpClient() {
-
-        if (services) serviceChoices += "1";
-        if (registration) serviceChoices += "2";
-        if (driver) serviceChoices += "3";
-        if (parking) serviceChoices += "4";
-        if (insurance) serviceChoices += "5";
-        if (toll) serviceChoices += "6";
-        if (fuel) serviceChoices += "7";
-
-
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -470,7 +466,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                     reqEntity.addPart("model", new StringBody(model));
                     reqEntity.addPart("registration_no", new StringBody(registration_no));
                     reqEntity.addPart("description", new StringBody(description));
-                    reqEntity.addPart("services", new StringBody(serviceChoices));
+                    reqEntity.addPart("services", new StringBody("1234"));
                     reqEntity.addPart("state", new StringBody("1"));
                     reqEntity.addPart("year", new StringBody("2011"));
                     reqEntity.addPart("user_id", new StringBody("179"));
@@ -507,12 +503,12 @@ public class AddVehicleActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                StringBuilder finalS = s;
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(AddVehicleActivity.this, finalS.toString(), Toast.LENGTH_LONG).show();
-                    }
-                });
+//                StringBuilder finalS = s;
+//                runOnUiThread(new Runnable() {
+//                    public void run() {
+//                        Toast.makeText(CreateUserActivity2.this, finalS.toString(), Toast.LENGTH_LONG).show();
+//                    }
+//                });
 
                 postRequest.abort();
 
