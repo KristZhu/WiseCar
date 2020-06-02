@@ -74,7 +74,7 @@ public class EditVehicleActivity extends AppCompatActivity {
                 leftImageView.setLayoutParams(leftParams);
                 servicesLineLayout.addView(leftImageView);
                 ImageView rightImageView = new ImageView(EditVehicleActivity.this);
-                
+
                 switch (left) {
                     case 0: rightImageView.setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0service_button)); break;
                     case 1: rightImageView.setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0driver_button)); break;
