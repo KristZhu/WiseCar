@@ -104,6 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                             if (response.optString("message").equals("success")) {
                                 Log.d(TAG, "onResponse: Success");
                                 // Login successfully
+                                UserInfo.clear();
                                 UserInfo.setUsername(username);
                                 UserInfo.setUserID(response.optString("user_id"));
                                 startActivity(new Intent(LoginActivity.this, VehicleActivity.class));
