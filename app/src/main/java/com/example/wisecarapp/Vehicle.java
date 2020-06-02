@@ -22,6 +22,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.Intent.getIntent;
+
 public class Vehicle {
     private String registration_no;
     private String make_name;
@@ -32,7 +34,25 @@ public class Vehicle {
     private String user_name;
     private Bitmap image;
     private String state_name;
+    private String vehicle_id;
 
+    List<Integer> servicesList = new ArrayList<>();
+
+    public String getVehicle_id() {
+        return vehicle_id;
+    }
+
+    public void setVehicle_id(String vehicle_id) {
+        this.vehicle_id = vehicle_id;
+    }
+
+    public void setServicesList(List<Integer> servicesList) {
+        this.servicesList = servicesList;
+    }
+
+    public List<Integer> getServicesList(){
+        return servicesList;
+    }
 
     public String getRegistration_no() {
         return registration_no;
@@ -92,6 +112,11 @@ public class Vehicle {
 
     public Bitmap getImage() {
         return image;
+    }
+
+    public void setImage(byte[] imageByte) {
+        Bitmap imageBitmap = BitmapFactory.decodeByteArray(imageByte, 0, imageByte.length);
+        this.image = imageBitmap;
     }
 
     public void setImage(String imageBase64) {

@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -31,9 +31,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +73,10 @@ public class VehicleActivity extends AppCompatActivity {
     private Bitmap ImgBitmap;
     private List<Vehicle> user_Vehicles;
 
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_IMG_EMAIL = "/api/v1/users/";
+    private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,20 +89,12 @@ public class VehicleActivity extends AppCompatActivity {
         user_name = UserInfo.getUsername();
         usernameTextView.setText(user_name);
 
-        //修改一下 把username存在UserInfo里即可（登录时存入） 不用从数据库获取
-        loadUserNameEmailImg("1", new userImageCallback() {
+        loadUserEmailImg("179", new userImageCallback() {
 
             @Override
             public void onSuccess(@NonNull Bitmap value) {
                 Log.e("image bitmap: ", ImgBitmap.toString());
                 userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
-            }
-        }, new userNameCallback() {
-
-            @Override
-            public void onSuccess(@NonNull String value) {
-                Log.e("username: ", user_name);
-                usernameTextView.setText(user_name);
             }
         }, new userEmailCallback() {
             @Override
@@ -145,7 +146,6 @@ public class VehicleActivity extends AppCompatActivity {
         });
 
 
-
         selectedVehicleTextView = (Button) findViewById(R.id.selectedVehicleTextView);
         selectedVehicleImageView = (ImageView) findViewById(R.id.selectedVehicleImageView);
         vehicleLayout = (LinearLayout) findViewById(R.id.vehicleLayout);
@@ -153,10 +153,11 @@ public class VehicleActivity extends AppCompatActivity {
         addImageButton = (ImageButton) findViewById(R.id.addImageButton);
         manageImageButton = (ImageButton) findViewById(R.id.manageImageButton);
 
-        returnVehicles("1", new vehicleListCallbacks() {
+
+        returnVehicles("179", new vehicleListCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Vehicle> value) {
-                if(user_Vehicles.size()==0) {
+                if (user_Vehicles.size() == 0) {
                     selectedVehicleTextView.setText("No Vehicle");
                     selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
                     return;
@@ -185,7 +186,7 @@ public class VehicleActivity extends AppCompatActivity {
                             editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    editVehicle("1");
+                                    editVehicle(vehicle.getRegistration_no());
                                 }
                             });
                         }
@@ -207,7 +208,6 @@ public class VehicleActivity extends AppCompatActivity {
                 startActivity(new Intent(VehicleActivity.this, AddVehicleActivity.class));
             }
         });
-
 
 
         inboxImageButton = (ImageButton) findViewById(R.id.inboxImageButton);
@@ -235,16 +235,16 @@ public class VehicleActivity extends AppCompatActivity {
 
     }
 
-    private void editVehicle(String vehicleID) {
-        Log.d(TAG, "editVehicle: " + vehicleID);
+    private void editVehicle(String registrationNo) {
+        Log.d(TAG, "editVehicle: " + registrationNo);
     }
 
     private void startInbox() {
 
     }
 
-    private void loadUserNameEmailImg(String user_id, @Nullable final userImageCallback imageCallback, @Nullable final userNameCallback nameCallback, @Nullable final userEmailCallback emailCallback) {
-        String URL = "http://54.206.19.123:3000/api/v1/users/" + user_id;
+    private void loadUserEmailImg(String user_id, @Nullable final userImageCallback imageCallback, @Nullable final userEmailCallback emailCallback) {
+        String URL = IP_HOST + GET_IMG_EMAIL + user_id;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
             @Override
@@ -252,15 +252,12 @@ public class VehicleActivity extends AppCompatActivity {
                 Log.e("Response", response.toString());
                 byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
                 ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
-                user_name = response.optString("user_name");
                 email_address = response.optString("email_address");
-                if(ImgBitmap == null){
+                if (ImgBitmap == null) {
                     Log.e("No image: ", "this user has no image");
                 }
                 if (ImgBitmap != null)
                     imageCallback.onSuccess(ImgBitmap);
-                if (nameCallback != null)
-                    nameCallback.onSuccess(user_name);
                 if (emailCallback != null)
                     emailCallback.onSuccess(email_address);
             }
@@ -295,11 +292,6 @@ public class VehicleActivity extends AppCompatActivity {
 //        void onError(@NonNull String error);
     }
 
-    public interface userNameCallback {
-        void onSuccess(@NonNull String value);
-
-//        void onError(@NonNull Throwable throwable);
-    }
 
     public interface userEmailCallback {
         void onSuccess(@NonNull String value);
@@ -309,7 +301,7 @@ public class VehicleActivity extends AppCompatActivity {
 
     private void returnVehicles(String user_id, @Nullable final vehicleListCallbacks callbacks) {
 
-        String URL = "http://54.206.19.123:3000/api/v1/vehicles/user/" + user_id;
+        String URL = IP_HOST + GET_VEHICLE_LIST + user_id;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
             @Override
@@ -333,7 +325,7 @@ public class VehicleActivity extends AppCompatActivity {
                         vehicle.setUser_name(jsonObject.optString("user_name"));
                         vehicle.setImage(jsonObject.optString("image"));
                         vehicle.setState_name(jsonObject.optString("state_name"));
-                        //vehicle.setServices(...)
+                        vehicle.setVehicle_id(jsonObject.optString("vehicle_id"));
 
                         user_Vehicles.add(vehicle);
 
@@ -381,5 +373,6 @@ public class VehicleActivity extends AppCompatActivity {
 
         void onError(@NonNull String errorMessage);
     }
+
 
 }
