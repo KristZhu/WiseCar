@@ -77,13 +77,19 @@ public class AddVehicleActivity extends AppCompatActivity {
 
     // There should be three more
     private CheckBox serviceCheckBox;
-    private boolean services; // to be confirmed
+    private boolean services;
     private CheckBox registrationCheckBox;
-    private boolean registration; // to be modified
+    private boolean registration;
     private CheckBox driverCheckBox;
-    private boolean driver; // to be modified
+    private boolean driver;
     private CheckBox parkingCheckBox;
-    private boolean parking; // to be modified
+    private boolean parking;
+    private CheckBox insuranceCheckBox;
+    private boolean insurance;
+    private CheckBox tollCheckBox;
+    private boolean toll;
+    private CheckBox fuelCheckBox;
+    private boolean fuel;
 
     private String serviceChoices = "";
 
@@ -150,6 +156,9 @@ public class AddVehicleActivity extends AppCompatActivity {
         registrationCheckBox = (CheckBox) findViewById(R.id.registrationCheckBox);
         driverCheckBox = (CheckBox) findViewById(R.id.driverCheckBox);
         parkingCheckBox = (CheckBox) findViewById(R.id.parkingCheckBox);
+        insuranceCheckBox = (CheckBox) findViewById(R.id.insuranceCheckBox);
+        tollCheckBox = (CheckBox) findViewById(R.id.tollCheckBox);
+        fuelCheckBox = (CheckBox) findViewById(R.id.fuelCheckBox);
         saveImageButton = (ImageButton) findViewById(R.id.saveImageButton);
 
         uploadButton.setOnClickListener(new View.OnClickListener() {
@@ -223,7 +232,6 @@ public class AddVehicleActivity extends AppCompatActivity {
         saveImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //似乎有bug 即使clickable=false了还是会运行
 
                 vehicleDrawable = vehicleImageView.getDrawable();
 
@@ -244,11 +252,15 @@ public class AddVehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "username: " + username);
                 Log.d(TAG, "rc: " + registration_no);
                 Log.d(TAG, "make: " + make);
+                Log.d(TAG, "model: " + model);
                 Log.d(TAG, "description: " + description);
                 Log.d(TAG, "service: " + services);
-                Log.d(TAG, "driver: " + driver);
                 Log.d(TAG, "registration: " + registration);
+                Log.d(TAG, "driver: " + driver);
                 Log.d(TAG, "parking: " + parking);
+                Log.d(TAG, "insurance: " + insurance);
+                Log.d(TAG, "toll: " + toll);
+                Log.d(TAG, "fuel: " + fuel);
 
 //                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
 
@@ -416,6 +428,9 @@ public class AddVehicleActivity extends AppCompatActivity {
                 registration = registrationCheckBox.isChecked();
                 driver = driverCheckBox.isChecked();
                 parking = parkingCheckBox.isChecked();
+                insurance = insuranceCheckBox.isChecked();
+                toll = tollCheckBox.isChecked();
+                fuel = fuelCheckBox.isChecked();
                 saveImageButton.setAlpha(1.0f);
                 saveImageButton.setClickable(true);
             } else {
