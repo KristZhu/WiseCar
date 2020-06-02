@@ -22,8 +22,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.content.Intent.getIntent;
-
 public class Vehicle {
     private String registration_no;
     private String make_name;
