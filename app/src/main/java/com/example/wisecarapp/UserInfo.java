@@ -23,6 +23,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Intent;
+
+import static android.content.Intent.getIntent;
+
 class UserInfo {
     private static String username;
     private static String userEmail;
@@ -33,6 +37,7 @@ class UserInfo {
     private String email_address;
     private String user_name;
     private Bitmap ImgBitmap;
+
 
     public static String getUsername() {
         return username;

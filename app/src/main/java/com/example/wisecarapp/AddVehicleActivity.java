@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -52,9 +53,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddVehicleActivity extends AppCompatActivity {
 
@@ -90,6 +94,9 @@ public class AddVehicleActivity extends AppCompatActivity {
     private boolean toll;
     private CheckBox fuelCheckBox;
     private boolean fuel;
+
+    private String servicesChoice = "";
+    List<Integer> servicesList = new ArrayList<>();
 
     private ImageButton backImageButton;
     private Button uploadButton;
@@ -265,8 +272,6 @@ public class AddVehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "insurance: " + insurance);
                 Log.d(TAG, "toll: " + toll);
                 Log.d(TAG, "fuel: " + fuel);
-
-                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
 
                 // Write database connection here
                 uploadVehicleInfoByHttpClient();
@@ -453,6 +458,36 @@ public class AddVehicleActivity extends AppCompatActivity {
     }
 
     private void uploadVehicleInfoByHttpClient() {
+
+        if (services) {
+            servicesChoice += "1";
+            servicesList.add(1);
+        }
+        if (registration) {
+            servicesChoice += "2";
+            servicesList.add(2);
+        }
+        if (driver) {
+            servicesChoice += "3";
+            servicesList.add(3);
+        }
+        if (parking) {
+            servicesChoice += "4";
+            servicesList.add(4);
+        }
+        if (insurance) {
+            servicesChoice += "5";
+            servicesList.add(5);
+        }
+        if (toll) {
+            servicesChoice += "6";
+            servicesList.add(6);
+        }
+        if (fuel) {
+            servicesChoice += "7";
+            servicesList.add(7);
+        }
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -461,19 +496,16 @@ public class AddVehicleActivity extends AppCompatActivity {
 
                 MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
+
                 try {
                     reqEntity.addPart("make", new StringBody(make));
                     reqEntity.addPart("model", new StringBody(model));
                     reqEntity.addPart("registration_no", new StringBody(registration_no));
                     reqEntity.addPart("description", new StringBody(description));
-                    reqEntity.addPart("services", new StringBody("1234"));
+                    reqEntity.addPart("services", new StringBody(servicesChoice));
                     reqEntity.addPart("state", new StringBody("1"));
                     reqEntity.addPart("year", new StringBody("2011"));
                     reqEntity.addPart("user_id", new StringBody("179"));
-//                    reqEntity.addPart("state", new StringBody(state));
-//                    reqEntity.addPart("country", new StringBody(country));
-//                    reqEntity.addPart("email", new StringBody(userEmail));
-//                    reqEntity.addPart("password", new StringBody(password));
 
                     ByteArrayBody vehicleImgBody = new ByteArrayBody(vehicleImgByte, ContentType.IMAGE_PNG, "logo.png");
                     reqEntity.addPart("logo", vehicleImgBody);
@@ -499,16 +531,13 @@ public class AddVehicleActivity extends AppCompatActivity {
                         s = s.append(sResponse);
                     }
                     Log.e("response", s.toString());
+                    if(s.toString().contains("success")){
+                        // Add successfully
+                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-//                StringBuilder finalS = s;
-//                runOnUiThread(new Runnable() {
-//                    public void run() {
-//                        Toast.makeText(CreateUserActivity2.this, finalS.toString(), Toast.LENGTH_LONG).show();
-//                    }
-//                });
 
                 postRequest.abort();
 
