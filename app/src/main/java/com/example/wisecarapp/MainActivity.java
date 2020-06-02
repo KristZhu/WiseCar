@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
 //        startActivity(new Intent(MainActivity.this, LoginActivity.class));
 //        startActivity(new Intent(MainActivity.this, AddVehicleActivity.class));
 //        startActivity(new Intent(MainActivity.this, EditVehicleActivity.class));
-        startActivity(new Intent(MainActivity.this, VehicleActivity.class));
+        startActivity(new Intent(MainActivity.this, EditVehicleActivity.class));
     }
 
 }
