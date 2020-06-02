@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -31,7 +32,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class VehicleActivity extends AppCompatActivity {
 
@@ -41,6 +45,7 @@ public class VehicleActivity extends AppCompatActivity {
     private TextView userEmailTextView;
     private ImageView userImgImageView;
 
+    private ImageButton backImageButton;
     private ImageButton settingImageButton;
     private ImageButton editImageButton;
     private ImageButton dashboardImageButton;
@@ -50,12 +55,14 @@ public class VehicleActivity extends AppCompatActivity {
     private ImageButton inboxImageButton;
     private Button inboxButton;
 
+    private Button selectedVehicleTextView; //use button type only to make the format same as others. it is not clickable
+    private ImageView selectedVehicleImageView;
     private LinearLayout vehicleLayout;
     private ImageButton editVehicleImageButton;
     private ImageButton addImageButton;
     private ImageButton manageImageButton;
+    private Map<String, ImageView> vehicleImageViews; //key: registrationNo, value: CircleImageView
 
-    private String user_id;
     private String email_address;
     private String user_name;
     private Bitmap ImgBitmap;
@@ -66,12 +73,14 @@ public class VehicleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vehicle);
 
-        user_id = this.getIntent().getStringExtra("user_id");
-
         usernameTextView = (TextView) findViewById(R.id.usernameTextView);
         userEmailTextView = (TextView) findViewById(R.id.userEmailTextView);
         userImgImageView = (ImageView) findViewById(R.id.userImgImageView);
 
+        user_name = UserInfo.getUsername();
+        usernameTextView.setText(user_name);
+
+        //修改一下 把username存在UserInfo里即可（登录时存入） 不用从数据库获取
         loadUserNameEmailImg("1", new userImageCallback() {
 
             @Override
@@ -94,21 +103,13 @@ public class VehicleActivity extends AppCompatActivity {
             }
         });
 
-//        returnVehicles("1", new vehicleListCallbacks() {
-//            @Override
-//            public void onSuccess(@NonNull List<Vehicle> value) {
-//                for (Vehicle vehicle : user_Vehicles) {
-//                    Log.e("user Vehicles: ", vehicle.getMake_name());
-//                }
-//            }
-//
-//            @Override
-//            public void onError(@NonNull String errorMessage) {
-//                Log.e("user Vehicles: ", String.valueOf(user_Vehicles.size()));
-//            }
-//
-//        });
+        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
+        backImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+            }
+        });
 
         settingImageButton = (ImageButton) findViewById(R.id.settingImageButton);
         editImageButton = (ImageButton) findViewById(R.id.editImageButton);
@@ -143,6 +144,72 @@ public class VehicleActivity extends AppCompatActivity {
             }
         });
 
+
+
+        selectedVehicleTextView = (Button) findViewById(R.id.selectedVehicleTextView);
+        selectedVehicleImageView = (ImageView) findViewById(R.id.selectedVehicleImageView);
+        vehicleLayout = (LinearLayout) findViewById(R.id.vehicleLayout);
+        editVehicleImageButton = (ImageButton) findViewById(R.id.editVehicleImageButton);
+        addImageButton = (ImageButton) findViewById(R.id.addImageButton);
+        manageImageButton = (ImageButton) findViewById(R.id.manageImageButton);
+
+        returnVehicles("1", new vehicleListCallbacks() {
+            @Override
+            public void onSuccess(@NonNull List<Vehicle> value) {
+                if(user_Vehicles.size()==0) {
+                    selectedVehicleTextView.setText("No Vehicle");
+                    selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
+                    return;
+                }
+
+                Log.d(TAG, "vehicles: " + user_Vehicles);
+                //default show the first vehicle
+                selectedVehicleTextView.setText(user_Vehicles.get(0).getRegistration_no());
+                selectedVehicleImageView.setImageBitmap(user_Vehicles.get(0).getImage());
+                vehicleImageViews = new HashMap<>();
+
+                for (Vehicle vehicle : user_Vehicles) {
+                    Log.e("user Vehicles: ", vehicle.getMake_name());
+                    CircleImageView imageView = new CircleImageView(VehicleActivity.this);
+                    imageView.setImageBitmap(vehicle.getImage());
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                    params.setMargins(0, 0, 16, 0);
+                    imageView.setLayoutParams(params);
+                    vehicleLayout.addView(imageView);
+                    imageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Log.d(TAG, "onClickVehicle: " + vehicle.getRegistration_no());
+                            selectedVehicleTextView.setText(vehicle.getRegistration_no());
+                            selectedVehicleImageView.setImageBitmap(vehicle.getImage());
+                            editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    editVehicle(vehicle.getRegistration_no());
+                                }
+                            });
+                        }
+                    });
+                    vehicleImageViews.put(vehicle.getRegistration_no(), imageView);
+                }
+            }
+
+            @Override
+            public void onError(@NonNull String errorMessage) {
+                Log.e("user Vehicles: ", String.valueOf(user_Vehicles.size()));
+            }
+
+        });
+
+        addImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(VehicleActivity.this, AddVehicleActivity.class));
+            }
+        });
+
+
+
         inboxImageButton = (ImageButton) findViewById(R.id.inboxImageButton);
         inboxButton = (Button) findViewById(R.id.inboxButton);
         inboxImageButton.setOnClickListener(new View.OnClickListener() {
@@ -158,33 +225,6 @@ public class VehicleActivity extends AppCompatActivity {
             }
         });
 
-
-        vehicleLayout = (LinearLayout) findViewById(R.id.vehicleLayout);
-        editVehicleImageButton = (ImageButton) findViewById(R.id.editVehicleImageButton);
-        addImageButton = (ImageButton) findViewById(R.id.addImageButton);
-        manageImageButton = (ImageButton) findViewById(R.id.manageImageButton);
-
-        List<String> strings = new ArrayList<>();
-        strings.add("test0");
-        strings.add("test1");
-        strings.add("test2");
-        strings.add("test3");
-        strings.add("test4");
-        strings.add("test5");
-
-        if (strings.size() == 0) {
-            Log.d(TAG, "onCreate: no vehicles");
-        } else {
-            for (String s : strings) {
-                CircleImageView imageView = new CircleImageView(VehicleActivity.this);
-                imageView.setImageDrawable(userImgImageView.getDrawable());
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-                params.setMargins(0, 0, 16, 0);
-                imageView.setLayoutParams(params);
-                vehicleLayout.addView(imageView);
-            }
-        }
-
     }
 
     private void startDashboard() {
@@ -193,6 +233,10 @@ public class VehicleActivity extends AppCompatActivity {
 
     private void startCalendar() {
 
+    }
+
+    private void editVehicle(String registrationNo) {
+        Log.d(TAG, "editVehicle: " + registrationNo);
     }
 
     private void startInbox() {
