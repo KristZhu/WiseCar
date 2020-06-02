@@ -85,10 +85,12 @@ public class AddVehicleActivity extends AppCompatActivity {
     private CheckBox parkingCheckBox;
     private boolean parking; // to be modified
 
+    private String serviceChoices = "";
+
     private Button uploadButton;
     private ImageButton saveImageButton;
 
-    String username;
+    private String username;
 
     private static final int TAKE_PHOTO = 0;
     private static final int CHOOSE_PHOTO = 1;
@@ -248,7 +250,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "registration: " + registration);
                 Log.d(TAG, "parking: " + parking);
 
-                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_LONG).show();
 
                 // Write database connection here
                 uploadVehicleInfoByHttpClient();
@@ -432,6 +434,13 @@ public class AddVehicleActivity extends AppCompatActivity {
     }
 
     private void uploadVehicleInfoByHttpClient() {
+
+        if (services) serviceChoices += "1";
+        if (registration) serviceChoices += "2";
+        if (driver) serviceChoices += "3";
+        if (parking) serviceChoices += "4";
+
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -445,7 +454,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                     reqEntity.addPart("model", new StringBody(model));
                     reqEntity.addPart("registration_no", new StringBody(registration_no));
                     reqEntity.addPart("description", new StringBody(description));
-                    reqEntity.addPart("services", new StringBody("1234"));
+                    reqEntity.addPart("services", new StringBody(serviceChoices));
                     reqEntity.addPart("state", new StringBody("1"));
                     reqEntity.addPart("year", new StringBody("2011"));
                     reqEntity.addPart("user_id", new StringBody("179"));
@@ -482,12 +491,12 @@ public class AddVehicleActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-//                StringBuilder finalS = s;
-//                runOnUiThread(new Runnable() {
-//                    public void run() {
-//                        Toast.makeText(CreateUserActivity2.this, finalS.toString(), Toast.LENGTH_LONG).show();
-//                    }
-//                });
+                StringBuilder finalS = s;
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(AddVehicleActivity.this, finalS.toString(), Toast.LENGTH_LONG).show();
+                    }
+                });
 
                 postRequest.abort();
 

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -30,6 +32,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +62,7 @@ public class VehicleActivity extends AppCompatActivity {
     private String email_address;
     private String user_name;
     private Bitmap ImgBitmap;
-    private List<Vehicle> user_Vehicles;
+    private static List<Vehicle> user_Vehicles = new ArrayList<Vehicle>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,44 +76,47 @@ public class VehicleActivity extends AppCompatActivity {
         userImgImageView = (ImageView) findViewById(R.id.userImgImageView);
 
 
-        loadUserNameEmailImg(user_id, new userImageCallback() {
-
+//        loadUserNameEmailImg(user_id, new userImageCallback() {
+        loadUserNameEmailImg("1", new userImageCallback() {
             @Override
             public void onSuccess(@NonNull Bitmap value) {
-                Log.e("image bitmap: ", ImgBitmap.toString());
+                Log.e("image bitmap", ImgBitmap.toString());
                 userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
             }
         }, new userNameCallback() {
 
             @Override
             public void onSuccess(@NonNull String value) {
-                Log.e("username: ", user_name);
+                Log.e("username", user_name);
                 usernameTextView.setText(user_name);
             }
         }, new userEmailCallback() {
             @Override
             public void onSuccess(@NonNull String value) {
-                Log.e("email: ", email_address);
+                Log.e("email", email_address);
                 userEmailTextView.setText(email_address);
             }
         });
 
 
-        returnVehicles(user_id, new vehicleListCallbacks() {
+//        returnVehicles(user_id, new vehicleListCallbacks() {
+        returnVehicles("1", new vehicleListCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Vehicle> value) {
+
                 for (Vehicle vehicle : user_Vehicles) {
-                    Log.e("user Vehicles: ", vehicle.getMake_name());
+                    Log.e("user Vehicles", vehicle.getRegistration_no());
                 }
-                Log.e("user Vehicles size: ", String.valueOf(user_Vehicles.size()));
+                Log.e("Vehicle size callback", String.valueOf(user_Vehicles.size()));
             }
 
             @Override
             public void onError(@NonNull String errorMessage) {
-                Log.e("user Vehicles: ", String.valueOf(user_Vehicles.size()));
+                Log.e("user Vehicles error", String.valueOf(user_Vehicles.size()));
             }
 
         });
+
 
         settingImageButton = (ImageButton) findViewById(R.id.settingImageButton);
         editImageButton = (ImageButton) findViewById(R.id.editImageButton);
@@ -186,8 +192,8 @@ public class VehicleActivity extends AppCompatActivity {
                 vehicleLayout.addView(imageView);
             }
         }
-
     }
+
 
     private void startDashboard() {
 
@@ -211,9 +217,13 @@ public class VehicleActivity extends AppCompatActivity {
                 byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
                 ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
                 user_name = response.optString("user_name");
+                Log.e("username", user_name);
                 email_address = response.optString("email_address");
-                if(ImgBitmap == null){
-                    Log.e("No image: ", "this user has no image");
+                Log.e("email", email_address);
+                if (ImgBitmap == null) {
+                    Log.e("No image", "this user has no image");
+                }else{
+                    Log.e("ImgBitmap", ImgBitmap.toString());
                 }
                 if (ImgBitmap != null)
                     imageCallback.onSuccess(ImgBitmap);
@@ -278,6 +288,7 @@ public class VehicleActivity extends AppCompatActivity {
                 try {
                     jsonArray = response.getJSONArray("vehicle_list");
                     for (int i = 0; i < jsonArray.length(); i++) {
+
                         jsonObject = jsonArray.getJSONObject(i);
 
                         Vehicle vehicle = new Vehicle();
@@ -294,10 +305,10 @@ public class VehicleActivity extends AppCompatActivity {
 
                         user_Vehicles.add(vehicle);
 
-                        Log.e("vehicle number:", String.valueOf(user_Vehicles.size()));
+                        Log.e("vehicle no. in method", String.valueOf(user_Vehicles.size()));
                     }
-                    if (callbacks != null)
-                        callbacks.onSuccess(user_Vehicles);
+//                    if (callbacks != null)
+//                        callbacks.onSuccess(user_Vehicles);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -306,8 +317,8 @@ public class VehicleActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
 
-//                Log.e("ERROR!!!", error.toString());
-//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+                Log.e("ERROR!!!", error.toString());
+                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
 
                 NetworkResponse networkResponse = error.networkResponse;
                 if (networkResponse != null && networkResponse.data != null) {
@@ -320,18 +331,19 @@ public class VehicleActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    Log.e("No vehicle: ", message);
-                    if (callbacks != null)
-                        callbacks.onError(message);
+                    Log.e("No vehicle", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
                 }
 
             }
         });
 
-        user_Vehicles = new ArrayList<>();
+//        user_Vehicles = new ArrayList<>();
 
         Volley.newRequestQueue(VehicleActivity.this).add(objectRequest);
     }
+
 
     public interface vehicleListCallbacks {
         void onSuccess(@NonNull List<Vehicle> value);
