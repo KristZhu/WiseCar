@@ -537,6 +537,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                 StringBuilder s = new StringBuilder();
                 try {
                     response = httpClient.execute(postRequest);
+                    Log.e("add vehicle response", String.valueOf(response));
                     BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
                     String sResponse;
                     while ((sResponse = reader.readLine()) != null) {

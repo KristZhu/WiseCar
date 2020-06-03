@@ -239,9 +239,9 @@ public class CreateUserActivity extends AppCompatActivity {
                 password = passwordEditText.getText().toString();
 
                 if(!username.equals("")
-                    && !userEmail.equals("")
-                    && !password.equals("")
-                    && confirmPasswordEditText.getText().toString().equals(password)
+                        && !userEmail.equals("")
+                        && !password.equals("")
+                        && confirmPasswordEditText.getText().toString().equals(password)
                     //&& userImgDrawable!=null
                 ) {
 
