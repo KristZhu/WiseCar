@@ -435,7 +435,7 @@ public class AddVehicleActivity extends AppCompatActivity {
 
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
-        if (HideKeyBoard.isShouldHideInput(v, ev)) {
+        if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
             registration_no = rcEditText.getText().toString();
             make = makeEditText.getText().toString();
@@ -459,7 +459,19 @@ public class AddVehicleActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
-
+    private boolean isShouldHideInput(View v, MotionEvent event) {
+        if(v != null && (v instanceof EditText)) {
+            int[] l = {0, 0};
+            v.getLocationInWindow(l);
+            int left = l[0],
+                    top = l[1],
+                    bottom = top + v.getHeight(),
+                    right = left + v.getWidth();
+            return !(event.getX()>left && event.getX()<right
+                    && event.getY()>top && event.getY()<bottom);
+        }
+        return false;
+    }
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
