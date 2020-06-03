@@ -19,10 +19,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 
-public class Vehicle {
+class Vehicle {
+
+    private String vehicle_id;
     private String registration_no;
     private String make_name;
     private String model_name;
@@ -32,9 +34,7 @@ public class Vehicle {
     private String user_name;
     private Bitmap image;
     private String state_name;
-    private String vehicle_id;
-
-    List<Integer> servicesList = new ArrayList<>();
+    private List<Integer> servicesList;
 
     public String getVehicle_id() {
         return vehicle_id;

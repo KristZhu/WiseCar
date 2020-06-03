@@ -88,7 +88,6 @@ public class AddVehicleActivity extends AppCompatActivity {
     private EditText descriptionEditText;
     private String description;
 
-    // There should be three more
     private CheckBox serviceCheckBox;
     private boolean services;
     private CheckBox registrationCheckBox;
@@ -113,8 +112,6 @@ public class AddVehicleActivity extends AppCompatActivity {
     private ImageButton backImageButton;
     private Button uploadButton;
     private ImageButton saveImageButton;
-
-    String username;
 
     private static final int TAKE_PHOTO = 0;
     private static final int CHOOSE_PHOTO = 1;
@@ -180,7 +177,7 @@ public class AddVehicleActivity extends AppCompatActivity {
         backImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
             }
         });
 
@@ -272,7 +269,7 @@ public class AddVehicleActivity extends AppCompatActivity {
 
 
                 Log.d(TAG, "--------------------Add Vehicle------------------");
-                Log.d(TAG, "username: " + username);
+                Log.d(TAG, "userID: " + UserInfo.getUserID());
                 Log.d(TAG, "rc: " + registration_no);
                 Log.d(TAG, "make: " + make);
                 Log.d(TAG, "model: " + model);
@@ -288,6 +285,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                 // Write database connection here
                 uploadVehicleInfoByHttpClient();
 
+                startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
             }
         });
 
@@ -519,7 +517,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                     reqEntity.addPart("services", new StringBody(servicesChoice));
                     reqEntity.addPart("state", new StringBody("1"));
                     reqEntity.addPart("year", new StringBody("2011"));
-                    reqEntity.addPart("user_id", new StringBody("179"));
+                    reqEntity.addPart("user_id", new StringBody(UserInfo.getUserID()));
 
                     ByteArrayBody vehicleImgBody = new ByteArrayBody(vehicleImgByte, ContentType.IMAGE_PNG, "logo.png");
                     reqEntity.addPart("logo", vehicleImgBody);

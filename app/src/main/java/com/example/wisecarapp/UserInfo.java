@@ -1,13 +1,25 @@
 package com.example.wisecarapp;
 
+import android.graphics.Bitmap;
+
 import java.util.List;
+import java.util.Map;
 
 class UserInfo {
 
     private static String userID;
     private static String username;
     private static String userEmail;
-    private static List<Vehicle> vehicles;
+    private static Bitmap userImg;
+    private static Map<String, Vehicle> vehicles;   //key: ID
+
+    public static void clear() {
+        setUserID(null);
+        setUsername(null);
+        setUserEmail(null);
+        setUserImg(null);
+        setVehicles(null);
+    }
 
     public static String getUserID() {
         return userID;
@@ -33,16 +45,24 @@ class UserInfo {
         UserInfo.userEmail = userEmail;
     }
 
-    public static List<Vehicle> getVehicles() {
+    public static Bitmap getUserImg() {
+        return userImg;
+    }
+
+    public static void setUserImg(Bitmap userImg) {
+        UserInfo.userImg = userImg;
+    }
+
+    public static Map<String, Vehicle> getVehicles() {
         return vehicles;
     }
 
-    public static void setVehicles(List<Vehicle> vehicles) {
+    public static void setVehicles(Map<String, Vehicle> vehicles) {
         UserInfo.vehicles = vehicles;
     }
 
-    public static boolean addVehicle(Vehicle vehicle) {
-        return vehicles.add(vehicle);
+    public static void putVehicle(Vehicle vehicle) {
+        vehicles.put(vehicle.getVehicle_id(), vehicle);
     }
 
     /*
