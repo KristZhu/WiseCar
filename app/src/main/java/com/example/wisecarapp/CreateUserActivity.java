@@ -249,8 +249,10 @@ public class CreateUserActivity extends AppCompatActivity {
 
                     BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
                     userImgImageBitmap = bitmapDrawable.getBitmap();
+                    int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
+                    int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
 
-                    userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, 300, 300, true);
+                    userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
 
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
