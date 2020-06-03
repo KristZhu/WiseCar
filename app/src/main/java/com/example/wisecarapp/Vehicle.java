@@ -34,7 +34,6 @@ class Vehicle {
     private String user_name;
     private Bitmap image;
     private String state_name;
-    private List<Integer> servicesList;
 
     public String getVehicle_id() {
         return vehicle_id;
@@ -42,14 +41,6 @@ class Vehicle {
 
     public void setVehicle_id(String vehicle_id) {
         this.vehicle_id = vehicle_id;
-    }
-
-    public void setServicesList(List<Integer> servicesList) {
-        this.servicesList = servicesList;
-    }
-
-    public List<Integer> getServicesList(){
-        return servicesList;
     }
 
     public String getRegistration_no() {
