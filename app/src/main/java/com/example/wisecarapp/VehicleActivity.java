@@ -82,6 +82,8 @@ public class VehicleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vehicle);
 
+        String user_id = this.getIntent().getStringExtra("user_id");
+
         usernameTextView = (TextView) findViewById(R.id.usernameTextView);
         userEmailTextView = (TextView) findViewById(R.id.userEmailTextView);
         userImgImageView = (ImageView) findViewById(R.id.userImgImageView);
@@ -89,7 +91,7 @@ public class VehicleActivity extends AppCompatActivity {
         user_name = UserInfo.getUsername();
         usernameTextView.setText(user_name);
 
-        loadUserEmailImg("179", new userImageCallback() {
+        loadUserEmailImg("193", new userImageCallback() {
 
             @Override
             public void onSuccess(@NonNull Bitmap value) {
@@ -103,6 +105,7 @@ public class VehicleActivity extends AppCompatActivity {
                 userEmailTextView.setText(email_address);
             }
         });
+
 
         backImageButton = (ImageButton) findViewById(R.id.backImageButton);
         backImageButton.setOnClickListener(new View.OnClickListener() {
@@ -253,6 +256,8 @@ public class VehicleActivity extends AppCompatActivity {
                 byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
                 ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
                 email_address = response.optString("email_address");
+//                user_name = response.optString("user_name");
+
                 if (ImgBitmap == null) {
                     Log.e("No image: ", "this user has no image");
                 }
