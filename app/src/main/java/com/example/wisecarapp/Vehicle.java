@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.List;
 
-class Vehicle {
+class Vehicle implements Comparable<Vehicle> {
 
     private String vehicle_id;
     private String registration_no;
@@ -126,5 +126,14 @@ class Vehicle {
     @Override
     public String toString() {
         return getRegistration_no();
+    }
+
+    @Override
+    public int compareTo(Vehicle o) {
+        try {
+            return Integer.parseInt(o.getVehicle_id()) - Integer.parseInt(this.getVehicle_id());
+        } catch (Exception e) {
+            return o.getVehicle_id().compareTo(this.getVehicle_id());
+        }
     }
 }

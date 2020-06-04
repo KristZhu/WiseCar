@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class VehicleActivity extends AppCompatActivity {
 
@@ -131,7 +132,7 @@ public class VehicleActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String[] ways = new String[]{"Yes", "No"};
-                AlertDialog alertDialog3 = new AlertDialog.Builder(VehicleActivity.this)
+                AlertDialog alertDialog = new AlertDialog.Builder(VehicleActivity.this)
                         .setTitle("Are you sure you want to log out? ")
                         .setIcon(R.mipmap.ic_launcher)
                         .setItems(ways, new DialogInterface.OnClickListener() {
@@ -145,7 +146,7 @@ public class VehicleActivity extends AppCompatActivity {
                                 }
                             }
                         }).create();
-                alertDialog3.show();
+                alertDialog.show();
             }
         });
 
@@ -191,6 +192,8 @@ public class VehicleActivity extends AppCompatActivity {
         manageImageButton = (ImageButton) findViewById(R.id.manageImageButton);
 
 
+        vehicles = new TreeMap<>();
+
         returnVehicles(user_id, new vehicleMapCallbacks() {
             @Override
             public void onSuccess(@NonNull Map<String, Vehicle> value) {
@@ -203,6 +206,8 @@ public class VehicleActivity extends AppCompatActivity {
                     return;
                 }
 
+                vehicleImageViews = new HashMap<>();
+
                 //default show the first vehicle
                 for (String vehicleID : vehicles.keySet()) {
                     selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
@@ -213,7 +218,6 @@ public class VehicleActivity extends AppCompatActivity {
                             editVehicle(vehicleID);
                         }
                     });
-                    vehicleImageViews = new HashMap<>();
                     break;
                 }
 
@@ -324,7 +328,7 @@ public class VehicleActivity extends AppCompatActivity {
                 Log.e("Response", response.toString());
                 byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
                 ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
-                Log.e("image bitmap method: ", ImgBitmap.toString());
+                Log.e("image bitmap method: ", ImgBitmap==null ? "null img" : ImgBitmap.toString());
                 email_address = response.optString("email_address");
                 if (ImgBitmap == null) {
                     Log.e("No image: ", "this user has no image");
@@ -434,8 +438,6 @@ public class VehicleActivity extends AppCompatActivity {
 
             }
         });
-
-        vehicles = new HashMap<>();
 
         Volley.newRequestQueue(VehicleActivity.this).add(objectRequest);
     }
