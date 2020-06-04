@@ -75,10 +75,12 @@ public class EditVehicleActivity extends AppCompatActivity {
 
                 servicesLayout = (LinearLayout) findViewById(R.id.servicesLayout);
 
-                for(int i=0; i<services.size(); i+=3) {
+                //int column = 3;
+                int column = 2;
+                for(int i=0; i<services.size(); i+=column) {
                     ConstraintLayout servicesLineLayout = new ConstraintLayout(EditVehicleActivity.this);
                     ConstraintSet set = new ConstraintSet();
-                    ImageView[] imageViews = new ImageView[Math.min(services.size()-i, 3)];
+                    ImageView[] imageViews = new ImageView[Math.min(services.size()-i, column)];
                     Log.d(TAG, "i: " + i);
                     Log.d(TAG, "imageViews.length: " + imageViews.length);
                     for(int j=0; j<imageViews.length; j++) {

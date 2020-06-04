@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Blob;
@@ -233,20 +234,25 @@ public class CreateUserActivity extends AppCompatActivity {
         nextImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                userImgDrawable = userImgImageView.getDrawable();
+
+                userImgDrawable =  userImgImageView.getDrawable();
                 username = usernameEditText.getText().toString();
                 userEmail = userEmailEditText.getText().toString();
                 password = passwordEditText.getText().toString();
 
                 if(!username.equals("")
-                    && !userEmail.equals("")
-                    && !password.equals("")
-                    && confirmPasswordEditText.getText().toString().equals(password)
+                        && !userEmail.equals("")
+                        && !password.equals("")
+                        && confirmPasswordEditText.getText().toString().equals(password)
                     //&& userImgDrawable!=null
                 ) {
 
                     BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
                     userImgImageBitmap = bitmapDrawable.getBitmap();
+                    int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
+                    int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
+
+                    userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
 
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
                     userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);

@@ -102,12 +102,13 @@ public class VehicleActivity extends AppCompatActivity {
 
         email_address = UserInfo.getUserEmail();
         ImgBitmap = UserInfo.getUserImg();
-        if(email_address==null || ImgBitmap==null) {
+        if (email_address == null || ImgBitmap == null) {
             loadUserEmailImg(user_id, new userImageCallback() {
                 @Override
                 public void onSuccess(@NonNull Bitmap value) {
-                    Log.e("image bitmap: ", ImgBitmap.toString());
-                    userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
+                    Log.e("image bitmap callback", ImgBitmap.toString());
+//                    userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
+                    userImgImageView.setImageBitmap(ImgBitmap);
                     UserInfo.setUserImg(ImgBitmap);
                 }
             }, new userEmailCallback() {
@@ -182,7 +183,6 @@ public class VehicleActivity extends AppCompatActivity {
         });
 
 
-
         selectedVehicleTextView = (Button) findViewById(R.id.selectedVehicleTextView);
         selectedVehicleImageView = (ImageView) findViewById(R.id.selectedVehicleImageView);
         vehicleLayout = (LinearLayout) findViewById(R.id.vehicleLayout);
@@ -197,14 +197,14 @@ public class VehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "vehicles: " + vehicles);
                 UserInfo.setVehicles(vehicles);
 
-                if(vehicles.size()==0) {
+                if (vehicles.size() == 0) {
                     selectedVehicleTextView.setText("No Vehicle");
                     selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
                     return;
                 }
 
                 //default show the first vehicle
-                for(String vehicleID: vehicles.keySet()) {
+                for (String vehicleID : vehicles.keySet()) {
                     selectedVehicleTextView.setText(vehicles.get(vehicleID).getRegistration_no());
                     selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
                     editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
@@ -217,7 +217,7 @@ public class VehicleActivity extends AppCompatActivity {
                     break;
                 }
 
-                for (String vehicleID: vehicles.keySet()) {
+                for (String vehicleID : vehicles.keySet()) {
                     Vehicle vehicle = vehicles.get(vehicleID);
                     CircleImageView imageView = new CircleImageView(VehicleActivity.this);
                     imageView.setImageBitmap(vehicle.getImage());
@@ -304,7 +304,7 @@ public class VehicleActivity extends AppCompatActivity {
 
     private void manageVehicle() {
         Log.d(TAG, "manageVehicle: " + vehicleImageViews);
-        if(vehicleImageViews.size()>0) {
+        if (vehicleImageViews.size() > 0) {
 
         } else {
 
@@ -324,6 +324,7 @@ public class VehicleActivity extends AppCompatActivity {
                 Log.e("Response", response.toString());
                 byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
                 ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+                Log.e("image bitmap method: ", ImgBitmap.toString());
                 email_address = response.optString("email_address");
                 if (ImgBitmap == null) {
                     Log.e("No image: ", "this user has no image");

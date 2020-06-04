@@ -441,8 +441,9 @@ public class AddVehicleActivity extends AppCompatActivity {
             make = makeEditText.getText().toString();
             model = modelEditText.getText().toString();
             description = descriptionEditText.getText().toString();
-            if (registration_no.length() > 0 && make.length() > 0 && model.length() > 0 && description.length() > 0
-                    && registration_no != null && make != null && model != null && description != null) {
+            if (registration_no != null && make != null && model != null && description != null
+                && registration_no.length() > 0 && make.length() > 0 && model.length() > 0 && description.length() > 0
+            ) {
                 services = serviceCheckBox.isChecked();
                 registration = registrationCheckBox.isChecked();
                 driver = driverCheckBox.isChecked();
@@ -549,6 +550,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                 StringBuilder s = new StringBuilder();
                 try {
                     response = httpClient.execute(postRequest);
+                    Log.e("add vehicle response", String.valueOf(response));
                     BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
                     String sResponse;
                     while ((sResponse = reader.readLine()) != null) {
