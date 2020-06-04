@@ -64,6 +64,11 @@ dependencies {
     implementation 'com.android.volley:volley:1.1.1'
     implementation 'com.google.code.gson:gson:2.8.5'
 
+    implementation 'com.google.zxing:core:3.3.2'
+    implementation 'net.glxn:qrgen:1.4'
+    implementation 'javax.servlet:javax.servlet-api:3.0.1'
+    implementation 'net.glxn.qrgen:android:2.0'
+
     api 'org.apache.httpcomponents:httpcore:4.4.10'
     api 'org.apache.httpcomponents:httpmime:4.5.6'
 }
