@@ -43,6 +43,8 @@ public class EditVehicleActivity extends AppCompatActivity {
     private ImageButton backImageButton;
 
     private ImageView vehicleImageView;
+    private TextView makeRegistrationNoTextView;
+    private TextView vinTextView;
     private TextView registrationTextView;
     private TextView serviceTextView;
 
@@ -65,8 +67,13 @@ public class EditVehicleActivity extends AppCompatActivity {
         vehicleImageView = (ImageView) findViewById(R.id.vehicleImageView);
         vehicleImageView.setImageBitmap(vehicle.getImage());
 
+        makeRegistrationNoTextView = (TextView) findViewById(R.id.makeRegistrationNoTextView);
+        vinTextView = (TextView) findViewById(R.id.vinTextView);
         registrationTextView = (TextView) findViewById(R.id.registrationCheckBox);
         serviceTextView = (TextView) findViewById(R.id.serviceTextView);
+
+        makeRegistrationNoTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
+
 
         loadServices(vehicle.getVehicle_id(), new servicesListCallbacks() {
             @Override
@@ -74,7 +81,6 @@ public class EditVehicleActivity extends AppCompatActivity {
                 Log.e("service list", String.valueOf(services));
 
                 servicesLayout = (LinearLayout) findViewById(R.id.servicesLayout);
-
                 //int column = 3;
                 int column = 2;
                 for(int i=0; i<services.size(); i+=column) {
@@ -92,8 +98,7 @@ public class EditVehicleActivity extends AppCompatActivity {
                                 imageViews[j].setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-                                        Log.d(TAG, "onClickService: Start Service Records");
-                                        //startServiceRecords(vehicleID);
+                                        startServiceRecords(vehicleID);
                                     }
                                 });
                                 break;
@@ -108,9 +113,9 @@ public class EditVehicleActivity extends AppCompatActivity {
                         set.connect(imageViews[j].getId(), ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT);
                         set.connect(imageViews[j].getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 16);
                         set.connect(imageViews[j].getId(), ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT);
-                        set.constrainPercentWidth(imageViews[j].getId(), 0.3f);
+                        set.constrainPercentWidth(imageViews[j].getId(), 0.45f);
                         set.setDimensionRatio(imageViews[j].getId(), "1:1");
-                        set.setHorizontalBias(imageViews[j].getId(), (float)(0.5*j));
+                        set.setHorizontalBias(imageViews[j].getId(), (float)(1.0*j));
                         servicesLineLayout.addView(imageViews[j]);
                     }
                     set.applyTo(servicesLineLayout);
@@ -195,6 +200,13 @@ public class EditVehicleActivity extends AppCompatActivity {
         void onSuccess(@NonNull List<Integer> value);
 
         void onError(@NonNull String errorMessage);
+    }
+
+    private void startServiceRecords(String vehicleID) {
+        Log.d(TAG, "ServiceRecordsVehicleID: " + vehicleID);
+        Intent intent = new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class);
+        intent.putExtra("vehicleID", vehicleID);
+        startActivity(intent);
     }
 
 }
