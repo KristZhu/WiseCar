@@ -88,6 +88,9 @@ public class AddVehicleActivity extends AppCompatActivity {
     private EditText descriptionEditText;
     private String description;
 
+    private String year = "2020";
+    private String state = "1";
+
     private CheckBox serviceCheckBox;
     private boolean services;
     private CheckBox registrationCheckBox;
@@ -285,7 +288,9 @@ public class AddVehicleActivity extends AppCompatActivity {
                 // Write database connection here
                 uploadVehicleInfoByHttpClient();
 
-                //UserInfo.putVehicle();
+                int addID = 0;
+                while(UserInfo.getVehicles().containsKey("a"+addID)) addID++;
+                UserInfo.getVehicles().put("a"+addID, new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
 
                 startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
             }
@@ -530,8 +535,8 @@ public class AddVehicleActivity extends AppCompatActivity {
                     reqEntity.addPart("registration_no", new StringBody(registration_no));
                     reqEntity.addPart("description", new StringBody(description));
                     reqEntity.addPart("services", new StringBody(servicesChoice));
-                    reqEntity.addPart("state", new StringBody("1"));
-                    reqEntity.addPart("year", new StringBody("2011"));
+                    reqEntity.addPart("state", new StringBody(state));
+                    reqEntity.addPart("year", new StringBody(year));
                     reqEntity.addPart("user_id", new StringBody(UserInfo.getUserID()));
 
                     ByteArrayBody vehicleImgBody = new ByteArrayBody(vehicleImgByte, ContentType.IMAGE_PNG, "logo.png");
