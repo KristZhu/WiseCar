@@ -205,7 +205,7 @@ public class VehicleActivity extends AppCompatActivity {
 
                 //default show the first vehicle
                 for (String vehicleID : vehicles.keySet()) {
-                    selectedVehicleTextView.setText(vehicles.get(vehicleID).getRegistration_no());
+                    selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
                     selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
                     editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -229,7 +229,7 @@ public class VehicleActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             Log.d(TAG, "onClickVehicle: " + vehicle);
-                            selectedVehicleTextView.setText(vehicle.getRegistration_no());
+                            selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
                             selectedVehicleImageView.setImageBitmap(vehicle.getImage());
                             editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
