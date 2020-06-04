@@ -99,7 +99,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 new DatePickerDialog(CreateUserActivity2.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        dobEditText.setText(dateToStr(intToDate(year, monthOfYear, dayOfMonth)));
+                        dob = intToDate(year, monthOfYear, dayOfMonth);
+                        dobEditText.setText(dateToStr(dob));
                     }
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -112,7 +113,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     new DatePickerDialog(CreateUserActivity2.this, new DatePickerDialog.OnDateSetListener() {
                         @Override
                         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                            dobEditText.setText(dateToStr(intToDate(year, monthOfYear, dayOfMonth)));
+                            dob = intToDate(year, monthOfYear, dayOfMonth);
+                            dobEditText.setText(dateToStr(dob));
                         }
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
 
@@ -126,7 +128,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
             public void onClick(View v) {
                 firstName = firstNameEditText.getText().toString();
                 lastName = lastNameEditText.getText().toString();
-                dob = strToDate(dobEditText.getText().toString());
                 licence = licenceEditText.getText().toString();
                 address1 = address1EditText.getText().toString();
                 address2 = address2EditText.getText().toString();
