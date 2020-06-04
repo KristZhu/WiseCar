@@ -185,7 +185,7 @@ public class AddVehicleActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
-                AlertDialog alertDialog3 = new AlertDialog.Builder(AddVehicleActivity.this)
+                AlertDialog alertDialog = new AlertDialog.Builder(AddVehicleActivity.this)
                         .setTitle("How to upload? ")
                         .setIcon(R.mipmap.ic_launcher)
                         .setItems(ways, new DialogInterface.OnClickListener() {
@@ -245,7 +245,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                                 }
                             }
                         }).create();
-                alertDialog3.show();
+                alertDialog.show();
             }
         });
 

@@ -314,9 +314,13 @@ public class CreateUserActivity extends AppCompatActivity {
                         handleImageBeforeKitKat(data);
                     }
                 }
-                data.putExtra("scale", true);
-                data.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
-                startActivityForResult(data, GROP_PHOTO);
+                try {
+                    data.putExtra("scale", true);
+                    data.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
+                    startActivityForResult(data, GROP_PHOTO);
+                } catch (Exception e) {
+                    Log.d(TAG, "cancel choosing photo");
+                }
                 break;
 
             default:
