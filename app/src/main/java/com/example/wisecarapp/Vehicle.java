@@ -30,11 +30,24 @@ class Vehicle implements Comparable<Vehicle> {
     private String make_name;
     private String model_name;
     private String make_year;
+    private String state;
     private String description;
     private int user_id;
     private String user_name;
     private Bitmap image;
     private String state_name;
+
+    public Vehicle() {}
+
+    public Vehicle(String registration_no, String make_name, String model_name, String make_year, String state, String description, Bitmap image) {
+        this.registration_no = registration_no;
+        this.make_name = make_name;
+        this.model_name = model_name;
+        this.make_year = make_year;
+        this.state = state;
+        this.description = description;
+        this.image = image;
+    }
 
     public String getVehicle_id() {
         return vehicle_id;

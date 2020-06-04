@@ -61,20 +61,4 @@ class UserInfo {
         UserInfo.vehicles = vehicles;
     }
 
-    public static void putVehicle(Vehicle vehicle) {
-        vehicles.put(vehicle.getVehicle_id(), vehicle);
-    }
-
-    /*
-    public static boolean deleteVehicle() {
-
-    }
-
-    public Vehicle getVehicle() {
-
-    }
-
-
-
-     */
 }
