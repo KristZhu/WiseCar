@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.InputType;
@@ -34,6 +35,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private static final String TAG = "Service Records";
 
     private Vehicle vehicle;
+
+    private ImageButton backImageButton;
 
     private TextView serviceIDTextView;
     private ImageView qrImageView;
@@ -71,13 +74,20 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_records);
 
-/*
         String vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         Log.d(TAG, "vehicleID: " + vehicleID);
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
- */
 
+        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
+        backImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
+                intent.putExtra("vehicleID", vehicleID);
+                startActivity(intent);
+            }
+        });
 
         serviceIDTextView = (TextView) findViewById(R.id.serviceTextView);
         qrImageView = (ImageView) findViewById(R.id.qrImageView);
