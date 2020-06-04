@@ -62,6 +62,10 @@ public class EditVehicleActivity extends AppCompatActivity {
         Log.d(TAG, "vehicle: " + vehicle);
         services = new ArrayList<>();
 
+        // intent vehicle_id to service record.
+        Intent intent = new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class);
+        intent.putExtra("vehicle_id", vehicleID);
+
         vehicleImageView = (ImageView) findViewById(R.id.vehicleImageView);
         vehicleImageView.setImageBitmap(vehicle.getImage());
 

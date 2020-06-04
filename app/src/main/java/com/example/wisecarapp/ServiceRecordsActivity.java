@@ -1,10 +1,13 @@
 package com.example.wisecarapp;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.InputType;
@@ -22,12 +25,37 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.io.Serializable;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServiceRecordsActivity extends AppCompatActivity {
 
@@ -66,10 +94,24 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 
     private ImageButton saveImageButton;
 
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String ADD_SERVICE_RECORD = "/api/v1/servicerecords/";
+    private final String GET_RECORD_IDENTIFIER = "/api/v1/servicerecords/identifier/";
+    private String vehicle_id;
+    private String servicesOptions = "";
+    String currentDate = "";
+    private String identifier;
+    private String record_id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_records);
+
+        DateFormat format = new SimpleDateFormat("dd-MMM-yyyy");
+        currentDate = format.format(Calendar.getInstance().getTime());
+
+
 
 /*
         String vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
@@ -78,7 +120,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         Log.d(TAG, "vehicle: " + vehicle);
  */
 
-
+        vehicle_id = (String) this.getIntent().getStringExtra("vehicle_id");
         serviceIDTextView = (TextView) findViewById(R.id.serviceTextView);
         qrImageView = (ImageView) findViewById(R.id.qrImageView);
         uploadButton = (Button) findViewById(R.id.uploadButton);
@@ -116,18 +158,19 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                 dateEditText.setText("");
                 date = null;
                 Calendar c = Calendar.getInstance();
-                new TimePickerDialog(ServiceRecordsActivity.this,new TimePickerDialog.OnTimeSetListener() {
+                new TimePickerDialog(ServiceRecordsActivity.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hour, int minute) {
-                        if(date==null) ; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
+                        if (date == null)
+                            ; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
                         else {
                             StringBuffer time = new StringBuffer();
                             time.append(", ");
-                            time.append(hour>=10 ? hour : "0"+hour);
+                            time.append(hour >= 10 ? hour : "0" + hour);
                             time.append(":");
-                            time.append(minute>=10 ? minute : "0"+minute);
+                            time.append(minute >= 10 ? minute : "0" + minute);
                             time.append("  ");
-                            date = new java.util.Date(date.getTime() + (hour*60+minute)*60*1000);
+                            date = new java.util.Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
                             dateEditText.append(time);
                         }
                     }
@@ -144,20 +187,21 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         dateEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
+                if (hasFocus) {
                     dateEditText.setText("");
                     Calendar c = Calendar.getInstance();
-                    new TimePickerDialog(ServiceRecordsActivity.this,new TimePickerDialog.OnTimeSetListener() {
+                    new TimePickerDialog(ServiceRecordsActivity.this, new TimePickerDialog.OnTimeSetListener() {
                         @Override
                         public void onTimeSet(TimePicker view, int hour, int minute) {
-                            if(date==null) return; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
+                            if (date == null)
+                                return; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
                             else {
                                 StringBuffer time = new StringBuffer();
-                                time.append(hour>=10 ? hour : "0"+hour);
+                                time.append(hour >= 10 ? hour : "0" + hour);
                                 time.append(":");
-                                time.append(minute>=10 ? minute : "0"+minute);
+                                time.append(minute >= 10 ? minute : "0" + minute);
                                 time.append("  ");
-                                date = new Date(date.getTime() + (hour*60+minute)*60*1000);
+                                date = new Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
                                 dateEditText.append(time);
                                 Log.d(TAG, "date: " + date);
                             }
@@ -224,8 +268,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                 Log.d(TAG, "nextDistance: " + nextDistance);
 
                 try {
-                    if(Double.parseDouble(nextDistance)<=0) throw new Exception();
-                    if(nextDate.after(new java.util.Date())) {
+                    if (Double.parseDouble(nextDistance) <= 0) throw new Exception();
+                    if (nextDate.after(new java.util.Date())) {
 
                         // Write INSERTIONG here
 
@@ -249,8 +293,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             refNo = refNoEditText.getText().toString();
             notes = notesEditText.getText().toString();
             nextDistance = nextDistanceEditText.getText().toString();
-            if(date!=null && centre!=null && refNo!=null && notes!=null && nextDate!=null && nextDistance!=null
-                && centre.length()>0 && refNo.length()>0 && notes.length()>0 && nextDistance.length()>0
+            if (date != null && centre != null && refNo != null && notes != null && nextDate != null && nextDistance != null
+                    && centre.length() > 0 && refNo.length() > 0 && notes.length() > 0 && nextDistance.length() > 0
             ) {
                 isOil = oilCheckBox.isChecked();
                 isBrake = brakeCheckBox.isChecked();
@@ -266,19 +310,21 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v != null && (v instanceof EditText)) {
+        if (v != null && (v instanceof EditText)) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -297,6 +343,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         }
         return date;
     }
+
     private static java.util.Date intToDate(int year, int month, int day) {
         StringBuffer sb = new StringBuffer();
         if (day < 10) sb.append("0" + day);
@@ -315,16 +362,157 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         }
         return date;
     }
+
     private static String dateToStr(java.util.Date date) {
         SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
         String str = format.format(date);
         return str;
     }
+
     private static java.sql.Date utilDateToSqlDate(java.util.Date date) {
         return new java.sql.Date(date.getTime());
     }
+
     private static java.util.Date sqlDateToUtilDate(java.sql.Date date) {
         return new java.util.Date(date.getTime());
+    }
+
+    private void uploadServiceRecord() {
+
+        if (isOil) {
+            servicesOptions += "1";
+        }
+        if (isBrake) {
+            servicesOptions += "2";
+        }
+        if (isBattery) {
+            servicesOptions += "3";
+        }
+        if (isCooling) {
+            servicesOptions += "4";
+        }
+        if (isLights) {
+            servicesOptions += "5";
+        }
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpPost postRequest = new HttpPost(IP_HOST + ADD_SERVICE_RECORD);
+
+                MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+                DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
+                try {
+//                    reqEntity.addPart("record_id", new StringBody());
+                    reqEntity.addPart("vehicle_id", new StringBody(vehicle_id));
+                    reqEntity.addPart("service_date", new StringBody(format.format(date)));
+                    reqEntity.addPart("service_center", new StringBody(centre));
+                    reqEntity.addPart("service_ref", new StringBody(refNo));
+                    reqEntity.addPart("service_option_ids", new StringBody(servicesOptions));
+                    reqEntity.addPart("service_notes", new StringBody(notes));
+                    reqEntity.addPart("next_service_date", new StringBody(format.format(nextDate)));
+                    reqEntity.addPart("next_service_odometer", new StringBody(nextDistance));
+//                    reqEntity.addPart("document", new StringBody());
+//                    reqEntity.addPart("service_record_identifier", new StringBody());
+
+
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    try {
+                        reqEntity.addPart("logo", new StringBody("image error"));
+                    } catch (UnsupportedEncodingException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+                postRequest.setEntity(reqEntity);
+                HttpResponse response = null;
+                StringBuilder s = new StringBuilder();
+                try {
+                    response = httpClient.execute(postRequest);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                    String sResponse;
+                    while ((sResponse = reader.readLine()) != null) {
+                        s = s.append(sResponse);
+                    }
+                    if (s.toString().contains("success")) {
+                        Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
+                    }
+                    Log.e("response", s.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+//                StringBuilder finalS = s;
+//                runOnUiThread(new Runnable() {
+//                    public void run() {
+//                        Toast.makeText(CreateUserActivity2.this, finalS.toString(), Toast.LENGTH_LONG).show();
+//                    }
+//                });
+
+                postRequest.abort();
+
+            }
+
+        });
+        thread.start();
+    }
+
+    private void returnVehicles(String user_id, @Nullable final recordIdentifierCallback callbacks) {
+
+        // "ISUZU-TFS195" is a dummy data and needs to be modified.
+        String URL = IP_HOST + GET_RECORD_IDENTIFIER + "ISUZU-TFS195" + currentDate;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("Response: ", response.toString());
+                JSONObject jsonObject = new JSONObject();
+
+                identifier = jsonObject.optString("identifier");
+                record_id = jsonObject.optString("record_id");
+
+                if (callbacks != null)
+                    callbacks.onSuccess(identifier, record_id);
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+//                Log.e("ERROR!!!", error.toString());
+//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.data != null) {
+                    String JSONError = new String(networkResponse.data);
+                    JSONObject messageJO;
+                    String message = "";
+                    try {
+                        messageJO = new JSONObject(JSONError);
+                        message = messageJO.optString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+                }
+
+            }
+        });
+
+        Volley.newRequestQueue(ServiceRecordsActivity.this).add(objectRequest);
+    }
+
+    public interface recordIdentifierCallback {
+        void onSuccess(@NonNull String identifier, String record_id);
+
+//        void onError(@NonNull String errorMessage);
     }
 
 }
