@@ -88,6 +88,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private static final String TAG = "Service Records";
 
     private Vehicle vehicle;
+    private String vehicleID;
 
     private ImageButton backImageButton;
 
@@ -136,13 +137,12 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private final String ADD_SERVICE_RECORD = "/api/v1/servicerecords/";
     private final String GET_RECORD_IDENTIFIER = "/api/v1/servicerecords/identifier/";
     private final String scanQRCode = "/api/v1/servicerecords/upload?identifier=";
-    private String vehicleID;
+
     private String servicesOptions = "";
     private String currentDate = "";
     private String identifier;
     private String record_id;
-    private String makeReg;
-    private Bitmap QRCodeBitmap;
+    private Bitmap qrCodeBitmap;
 
 
     @Override
@@ -163,8 +163,6 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         Log.d(TAG, "vehicleID: " + vehicleID);
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
-        makeReg = (String) this.getIntent().getStringExtra("makeReg");
-        Log.e("makereg", makeReg);
 
         getRecordIdentifier(new recordIdentifierCallback() {
             @Override
@@ -183,9 +181,9 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                 serviceIDTextView.setText(idToBeShown);
                 identifierTextView.setText(returnedIdentifier);
 
-                File QRCodeFile = QRCode.from(IP_HOST + scanQRCode + identifier).to(ImageType.PNG).withSize(width, height).file();
-                QRCodeBitmap = BitmapFactory.decodeFile(QRCodeFile.getPath());
-                qrImageView.setImageBitmap(QRCodeBitmap);
+                File qrCodeFile = QRCode.from(IP_HOST + scanQRCode + identifier).to(ImageType.PNG).withSize(width, height).file();
+                qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
+                qrImageView.setImageBitmap(qrCodeBitmap);
             }
         });
 
@@ -603,7 +601,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             nextDistance = nextDistanceEditText.getText().toString();
             if (date != null && centre != null && refNo != null && notes != null && nextDate != null && nextDistance != null
                     && centre.length() > 0 && refNo.length() > 0 && notes.length() > 0 && nextDistance.length() > 0
-            ) {
+            ) {     //allow to click saveImageButton
                 isOil = oilCheckBox.isChecked();
                 isBrake = brakeCheckBox.isChecked();
                 isBattery = batteryCheckBox.isChecked();
@@ -773,7 +771,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 
     private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
 
-        String URL = IP_HOST + GET_RECORD_IDENTIFIER + makeReg.replaceAll("\\s+", "") + "/" + currentDate;
+        String URL = IP_HOST + GET_RECORD_IDENTIFIER + vehicle.getMake_name() + "-" + vehicle.getRegistration_no() + "/" + currentDate;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
             @Override

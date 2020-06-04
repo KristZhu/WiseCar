@@ -75,13 +75,13 @@ public class VehicleActivity extends AppCompatActivity {
     private ImageButton editVehicleImageButton;
     private ImageButton addImageButton;
     private ImageButton manageImageButton;
-    private Map<String, ImageView> vehicleImageViews; //key: registrationNo, value: CircleImageView
+    //private Map<String, ImageView> vehicleImageViews; //key: registrationNo, value: CircleImageView
 
     private String user_id;
     private String email_address;
     private String user_name;
     private Bitmap ImgBitmap;
-    private Map<String, Vehicle> vehicles;
+    private Map<String, Vehicle> vehiclesDB;    //vehicle data from db, should update to Userinfo.vehicles
 
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_IMG_EMAIL = "/api/v1/users/";
@@ -192,26 +192,30 @@ public class VehicleActivity extends AppCompatActivity {
         manageImageButton = (ImageButton) findViewById(R.id.manageImageButton);
 
 
-        vehicles = new TreeMap<>();
+        vehiclesDB = new TreeMap<>();
 
         returnVehicles(user_id, new vehicleMapCallbacks() {
             @Override
             public void onSuccess(@NonNull Map<String, Vehicle> value) {
-                Log.d(TAG, "vehicles: " + vehicles);
-                UserInfo.setVehicles(vehicles);
+                Log.d(TAG, "vehicles: " + vehiclesDB);
+                UserInfo.setVehicles(vehiclesDB);
 
-                if (vehicles.size() == 0) {
+                if (vehiclesDB.size() == 0) {
                     selectedVehicleTextView.setText("No Vehicle");
                     selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
                     return;
                 }
 
-                vehicleImageViews = new HashMap<>();
+                Log.d(TAG, "vehicle synchronous: " + UserInfo.getVehicles().equals(vehiclesDB));
+                Log.d(TAG, "vehicle DB: " + vehiclesDB);
+                Log.d(TAG, "vehicle local: " + UserInfo.getVehicles());
+
+                //vehicleImageViews = new HashMap<>();
 
                 //default show the first vehicle
-                for (String vehicleID : vehicles.keySet()) {
-                    selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-                    selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
+                for (String vehicleID : vehiclesDB.keySet()) {
+                    selectedVehicleTextView.setText(vehiclesDB.get(vehicleID).getMake_name() + " - " + vehiclesDB.get(vehicleID).getRegistration_no());
+                    selectedVehicleImageView.setImageBitmap(vehiclesDB.get(vehicleID).getImage());
                     editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -221,8 +225,8 @@ public class VehicleActivity extends AppCompatActivity {
                     break;
                 }
 
-                for (String vehicleID : vehicles.keySet()) {
-                    Vehicle vehicle = vehicles.get(vehicleID);
+                for (String vehicleID : vehiclesDB.keySet()) {
+                    Vehicle vehicle = vehiclesDB.get(vehicleID);
                     CircleImageView imageView = new CircleImageView(VehicleActivity.this);
                     imageView.setImageBitmap(vehicle.getImage());
                     LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -233,7 +237,7 @@ public class VehicleActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             Log.d(TAG, "onClickVehicle: " + vehicle);
-                            selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
+                            selectedVehicleTextView.setText(vehiclesDB.get(vehicleID).getMake_name() + " - " + vehiclesDB.get(vehicleID).getRegistration_no());
                             selectedVehicleImageView.setImageBitmap(vehicle.getImage());
                             editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -243,7 +247,7 @@ public class VehicleActivity extends AppCompatActivity {
                             });
                         }
                     });
-                    vehicleImageViews.put(vehicles.get(vehicleID).getRegistration_no(), imageView);
+                    //vehicleImageViews.put(vehicles.get(vehicleID).getRegistration_no(), imageView);
                 }
             }
 
@@ -264,7 +268,7 @@ public class VehicleActivity extends AppCompatActivity {
         manageImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                manageVehicle();
+                //manageVehicle();
             }
         });
 
@@ -306,6 +310,7 @@ public class VehicleActivity extends AppCompatActivity {
         startActivity(new Intent(VehicleActivity.this, AddVehicleActivity.class));
     }
 
+/*
     private void manageVehicle() {
         Log.d(TAG, "manageVehicle: " + vehicleImageViews);
         if (vehicleImageViews.size() > 0) {
@@ -314,6 +319,7 @@ public class VehicleActivity extends AppCompatActivity {
 
         }
     }
+ */
 
     private void startInbox() {
 
@@ -404,11 +410,11 @@ public class VehicleActivity extends AppCompatActivity {
                         vehicle.setState_name(jsonObject.optString("state_name"));
                         vehicle.setVehicle_id(jsonObject.optString("vehicle_id"));
 
-                        vehicles.put(vehicle.getVehicle_id(), vehicle);
+                        vehiclesDB.put(vehicle.getVehicle_id(), vehicle);
 
                     }
                     if (callbacks != null)
-                        callbacks.onSuccess(vehicles);
+                        callbacks.onSuccess(vehiclesDB);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

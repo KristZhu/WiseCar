@@ -210,7 +210,6 @@ public class EditVehicleActivity extends AppCompatActivity {
         Log.d(TAG, "ServiceRecordsVehicleID: " + vehicleID);
         Intent intent = new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class);
         intent.putExtra("vehicleID", vehicleID);
-        intent.putExtra("makeReg", makeRegistrationNoTextView.getText().toString());
         startActivity(intent);
     }
 

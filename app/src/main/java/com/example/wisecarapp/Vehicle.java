@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -125,7 +126,7 @@ class Vehicle implements Comparable<Vehicle> {
     @NonNull
     @Override
     public String toString() {
-        return getRegistration_no();
+        return getMake_name() + " - " + getRegistration_no();
     }
 
     @Override
@@ -134,6 +135,24 @@ class Vehicle implements Comparable<Vehicle> {
             return Integer.parseInt(o.getVehicle_id()) - Integer.parseInt(this.getVehicle_id());
         } catch (Exception e) {
             return o.getVehicle_id().compareTo(this.getVehicle_id());
+        }
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if(obj instanceof Vehicle) {
+            return  ((Vehicle) obj).getVehicle_id().equals(this.getVehicle_id());
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        try {
+            return Integer.parseInt(getVehicle_id());
+        } catch (Exception e) {
+            return super.hashCode();
         }
     }
 }
