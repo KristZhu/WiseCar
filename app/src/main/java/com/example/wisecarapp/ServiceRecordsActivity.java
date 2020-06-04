@@ -47,6 +47,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -723,7 +724,14 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                     reqEntity.addPart("service_notes", new StringBody(notes));
                     reqEntity.addPart("next_service_date", new StringBody(format.format(nextDate)));
                     reqEntity.addPart("next_service_odometer", new StringBody(nextDistance));
-//                    reqEntity.addPart("document", new StringBody());
+
+                    if (qrImageBitmap != null) {
+                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                        qrImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                        byte[] qrbyteArray = stream.toByteArray();
+                        ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
+                        reqEntity.addPart("document", recordBody);
+                    }
                     reqEntity.addPart("service_record_identifier", new StringBody(identifierTextView.getText().toString()));
                     Log.e("recordID in request", identifierTextView.getText().toString());
 
@@ -759,7 +767,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                
+
 
                 postRequest.abort();
 
