@@ -82,7 +82,7 @@ public class VehicleActivity extends AppCompatActivity {
     private String user_name;
     private Bitmap ImgBitmap;
 
-    private Map<String, Vehicle> vehiclesDB = new TreeMap<>();    //vehicle data from db, should update to Userinfo.vehicles
+    private Map<String, Vehicle> vehiclesDB;   //vehicle data from db, should update to Userinfo.vehicles
 
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_IMG_EMAIL = "/api/v1/users/";
@@ -192,6 +192,9 @@ public class VehicleActivity extends AppCompatActivity {
         addImageButton = (ImageButton) findViewById(R.id.addImageButton);
         manageImageButton = (ImageButton) findViewById(R.id.manageImageButton);
 
+        vehiclesDB = new TreeMap<>((o1, o2) -> {
+            return o2.compareTo(o1);
+        });
 
         returnVehicles(user_id, new vehicleMapCallbacks() {
             @Override
