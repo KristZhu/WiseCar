@@ -285,6 +285,8 @@ public class AddVehicleActivity extends AppCompatActivity {
                 // Write database connection here
                 uploadVehicleInfoByHttpClient();
 
+                //UserInfo.putVehicle();
+
                 startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
             }
         });
