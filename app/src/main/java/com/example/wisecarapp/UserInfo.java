@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 class UserInfo {
 
@@ -11,7 +12,7 @@ class UserInfo {
     private static String username;
     private static String userEmail;
     private static Bitmap userImg;
-    private static Map<String, Vehicle> vehicles;   //key: ID
+    private static Map<String, Vehicle> vehicles = new TreeMap<>((o1, o2) -> o2.compareTo(o1));   //key: ID
 
     public static void clear() {
         setUserID(null);

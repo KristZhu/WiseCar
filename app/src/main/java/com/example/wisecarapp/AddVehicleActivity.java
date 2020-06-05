@@ -68,6 +68,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 public class AddVehicleActivity extends AppCompatActivity {
 
@@ -285,14 +286,18 @@ public class AddVehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "toll: " + toll);
                 Log.d(TAG, "fuel: " + fuel);
 
-                // Write database connection here
-                uploadVehicleInfoByHttpClient();
+                if(UserInfo.getVehicles()==null) UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
+                if(UserInfo.getVehicles().containsKey("a")) {   //last new added vehicle has not synchronized. should not happen logically
+                    Toast.makeText(AddVehicleActivity.this, "failed to add vehicle", Toast.LENGTH_SHORT).show();
+                } else {
+                    UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
 
-                int addID = 0;
-                while(UserInfo.getVehicles().containsKey("a"+addID)) addID++;
-                UserInfo.getVehicles().put("a"+addID, new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
+                    // Write database connection here
+                    uploadVehicleInfoByHttpClient();
 
-                startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
+                    startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
+                }
+
             }
         });
 

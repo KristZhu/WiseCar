@@ -93,6 +93,14 @@ class Vehicle implements Comparable<Vehicle> {
         return description;
     }
 
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -139,7 +147,7 @@ class Vehicle implements Comparable<Vehicle> {
     @NonNull
     @Override
     public String toString() {
-        return getMake_name() + " - " + getRegistration_no();
+        return getMake_name() + "-" + getRegistration_no();
     }
 
     @Override
