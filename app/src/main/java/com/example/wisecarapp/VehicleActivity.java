@@ -192,32 +192,36 @@ public class VehicleActivity extends AppCompatActivity {
         addImageButton = (ImageButton) findViewById(R.id.addImageButton);
         manageImageButton = (ImageButton) findViewById(R.id.manageImageButton);
 
-        vehiclesDB = new TreeMap<>((o1, o2) -> {
-            return o2.compareTo(o1);
-        });
+        vehiclesDB = new TreeMap<>((o1, o2) -> o2.compareTo(o1));
 
-        returnVehicles(user_id, new vehicleMapCallbacks() {
-            @Override
-            public void onSuccess(@NonNull Map<String, Vehicle> value) {
-                UserInfo.setVehicles(vehiclesDB);
+        //this user either just log in or really has no vehicles
+        //get vehicle data from db and store locally
+        if(UserInfo.getVehicles()==null || UserInfo.getVehicles().size()==0) {
+            returnVehicles(user_id, new vehicleMapCallbacks() {
+                @Override
+                public void onSuccess(@NonNull Map<String, Vehicle> value) {
+                    UserInfo.setVehicles(vehiclesDB);
+                    Log.d(TAG, "vehicle DB: " + vehiclesDB);
 
-                Log.d(TAG, "vehicle DB: " + vehiclesDB);
-
-                if (vehiclesDB.size() == 0) {
-                    selectedVehicleTextView.setText("No Vehicle");
-                    selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
-                    return;
-                } else {
-                    showVehicles(vehiclesDB);
+                    if (vehiclesDB.size() == 0) {
+                        selectedVehicleTextView.setText("No Vehicle");
+                        selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
+                    } else {
+                        showVehicles(vehiclesDB);
+                    }
                 }
-            }
 
-            @Override
-            public void onError(@NonNull String errorMessage) {
-                Log.e("return vehicles error: ", errorMessage);
-            }
+                @Override
+                public void onError(@NonNull String errorMessage) {
+                    Log.e("return vehicles error: ", errorMessage);
+                }
 
-        });
+            });
+        } else {
+            Log.d(TAG, "vehicle local: " + UserInfo.getVehicles());
+            showVehicles(UserInfo.getVehicles());
+        }
+
 
 
         addImageButton.setOnClickListener(new View.OnClickListener() {
@@ -252,12 +256,21 @@ public class VehicleActivity extends AppCompatActivity {
 
     }
 
+
+    private void startDashboard() {
+
+    }
+
+    private void startCalendar() {
+
+    }
+
     private void showVehicles(Map<String, Vehicle> vehicles) {
         assert vehicles.size()>0;
 
         //vehicleImageViews = new HashMap<>();
 
-        //default show the first vehicle
+        //default show the first vehicle (latest added, sorted by TreeMap)
         for (String vehicleID : vehicles.keySet()) {
             selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
             selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
@@ -296,16 +309,34 @@ public class VehicleActivity extends AppCompatActivity {
         }
     }
 
-    private void startDashboard() {
-
-    }
-
-    private void startCalendar() {
-
-    }
-
     private void editVehicle(String vehicleID) {
         Log.d(TAG, "editVehicleID: " + vehicleID);
+        returnVehicles(user_id, new vehicleMapCallbacks() {
+            @Override
+            public void onSuccess(@NonNull Map<String, Vehicle> value) {
+                    /*
+                        for(String vehicleDBid: vehiclesDB.keySet()) {
+                            if(UserInfo.getVehicles().containsKey(vehicleDBid)) continue;
+                            Log.d(TAG, "syc from DB, new added vehicle id in DB: " + vehicleDBid);
+                            Vehicle newVehicleLocal = UserInfo.getVehicles().get("a");
+                            UserInfo.getVehicles().remove("a");
+                            UserInfo.getVehicles().put(vehicleDBid, newVehicleLocal);
+                            passID[0] = vehicleDBid;
+                            break;
+                        }
+                    */
+                UserInfo.setVehicles(vehiclesDB);
+                Log.d(TAG, "editVehicle, vehicle DB: " + vehiclesDB);
+
+            }
+            @Override
+            public void onError(@NonNull String errorMessage) {
+                Log.e("return vehicles error: ", errorMessage);
+            }
+
+        });
+
+        Log.d(TAG, "editVehicle, finalVehicleID: " + vehicleID);
         Intent intent = new Intent(VehicleActivity.this, EditVehicleActivity.class);
         intent.putExtra("vehicleID", vehicleID);
         startActivity(intent);
@@ -313,6 +344,19 @@ public class VehicleActivity extends AppCompatActivity {
 
     private void addVehicle() {
         Log.d(TAG, "addVehicle: ");
+        returnVehicles(user_id, new vehicleMapCallbacks() {
+            @Override
+            public void onSuccess(@NonNull Map<String, Vehicle> value) {
+                UserInfo.setVehicles(vehiclesDB);
+                Log.d(TAG, "addVehicle, vehicle DB: " + vehiclesDB);
+            }
+
+            @Override
+            public void onError(@NonNull String errorMessage) {
+                Log.e("return vehicles error: ", errorMessage);
+            }
+
+        });
         startActivity(new Intent(VehicleActivity.this, AddVehicleActivity.class));
     }
 

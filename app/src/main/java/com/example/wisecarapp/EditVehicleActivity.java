@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -38,6 +39,7 @@ public class EditVehicleActivity extends AppCompatActivity {
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_SERVICE = "/api/v1/services/";
 
+    private String vehicleID;
     private Vehicle vehicle;
 
     private ImageButton backImageButton;
@@ -58,8 +60,17 @@ public class EditVehicleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_vehicle);
 
-        String vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        if(vehicleID.equals("a")) {
+            for(String newID: UserInfo.getVehicles().keySet()) {
+                UserInfo.setVehicles(null);
+                Toast.makeText(EditVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class));
+                return;
+            }
+        }
         Log.d(TAG, "vehicleID: " + vehicleID);
+
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
         services = new ArrayList<>();
