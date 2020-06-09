@@ -19,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -725,9 +726,10 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                     reqEntity.addPart("next_service_date", new StringBody(format.format(nextDate)));
                     reqEntity.addPart("next_service_odometer", new StringBody(nextDistance));
 
-                    if (qrImageBitmap != null) {
+                    if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
                         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        qrImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                        Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
+                        toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
                         byte[] qrbyteArray = stream.toByteArray();
                         ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
                         reqEntity.addPart("document", recordBody);

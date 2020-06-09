@@ -286,16 +286,15 @@ public class AddVehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "toll: " + toll);
                 Log.d(TAG, "fuel: " + fuel);
 
-                if(UserInfo.getVehicles()==null) UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
-                if(UserInfo.getVehicles().containsKey("a")) {   //last new added vehicle has not synchronized. should not happen logically
+                if (UserInfo.getVehicles() == null)
+                    UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
+                if (UserInfo.getVehicles().containsKey("a")) {   //last new added vehicle has not synchronized. should not happen logically
                     Toast.makeText(AddVehicleActivity.this, "failed to add vehicle", Toast.LENGTH_SHORT).show();
                 } else {
-                    UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
 
                     // Write database connection here
                     uploadVehicleInfoByHttpClient();
 
-                    startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
                 }
 
             }
@@ -454,7 +453,7 @@ public class AddVehicleActivity extends AppCompatActivity {
             model = modelEditText.getText().toString();
             description = descriptionEditText.getText().toString();
             if (registration_no != null && make != null && model != null && description != null
-                && registration_no.length() > 0 && make.length() > 0 && model.length() > 0 && description.length() > 0
+                    && registration_no.length() > 0 && make.length() > 0 && model.length() > 0 && description.length() > 0
             ) {
                 services = serviceCheckBox.isChecked();
                 registration = registrationCheckBox.isChecked();
@@ -472,19 +471,21 @@ public class AddVehicleActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v != null && (v instanceof EditText)) {
+        if (v != null && (v instanceof EditText)) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -574,10 +575,18 @@ public class AddVehicleActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
                             }
                         });
                         int position = s.indexOf("vehicle_id");
                         vehicle_id[0] = s.substring(position + 12, s.length() - 1);
+                        UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
 
                 } catch (IOException e) {
