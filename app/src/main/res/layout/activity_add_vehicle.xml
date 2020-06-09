@@ -28,7 +28,7 @@
         app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.1"
-        app:srcCompat="@drawable/vehicle0back" />
+        app:srcCompat="@drawable/wc0back" />
 
     <ImageView
         android:id="@+id/logoImageView"
@@ -152,7 +152,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/textView1"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/add_vehicle0edittext" />
+                    app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
                     android:id="@+id/rcEditText"
@@ -210,7 +210,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/textView2"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/add_vehicle0edittext" />
+                    app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
                     android:id="@+id/makeEditText"
@@ -268,7 +268,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/textView3"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/add_vehicle0edittext" />
+                    app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
                     android:id="@+id/modelEditText"
@@ -327,7 +327,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/textView4"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/add_vehicle0edittext" />
+                    app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
                     android:id="@+id/descriptionEditText"
@@ -492,7 +492,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/add_vehicle0bg_save"
+        android:background="@drawable/wc0bg_yellow"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -518,7 +518,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.1"
-            app:srcCompat="@drawable/add_vehicle0save" />
+            app:srcCompat="@drawable/vehicle0save_1" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
