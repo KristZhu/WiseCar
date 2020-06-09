@@ -28,7 +28,7 @@
         app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.1"
-        app:srcCompat="@drawable/vehicle0back" />
+        app:srcCompat="@drawable/wc0back" />
 
     <ImageView
         android:id="@+id/logoImageView"
@@ -243,7 +243,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/add_vehicle0bg_save"
+        android:background="@drawable/wc0bg_yellow"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -269,7 +269,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.1"
-            app:srcCompat="@drawable/add_vehicle0save" />
+            app:srcCompat="@drawable/vehicle0save_1" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
