@@ -762,6 +762,9 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
+                                intent.putExtra("vehicleID", vehicleID);
+                                startActivity(intent);
                             }
                         });
                     }
@@ -770,8 +773,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-
                 postRequest.abort();
+                httpClient.getConnectionManager().shutdown();
 
             }
 
@@ -831,14 +834,5 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 //        void onError(@NonNull String errorMessage);
     }
 
-    private void generateQRCode() {
-
-
-//        QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrInputText,
-//                null,
-//                Contents.Type.TEXT,
-//                BarcodeFormat.QR_CODE.toString(),
-//                smallerDimension);
-    }
 
 }

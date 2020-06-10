@@ -594,7 +594,7 @@ public class AddVehicleActivity extends AppCompatActivity {
                 }
 
                 postRequest.abort();
-
+                httpClient.getConnectionManager().shutdown();
             }
 
         });

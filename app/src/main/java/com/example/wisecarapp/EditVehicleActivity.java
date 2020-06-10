@@ -61,8 +61,8 @@ public class EditVehicleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_edit_vehicle);
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        if(vehicleID.equals("a")) {
-            for(String newID: UserInfo.getVehicles().keySet()) {
+        if (vehicleID.equals("a")) {
+            for (String newID : UserInfo.getVehicles().keySet()) {
                 UserInfo.setVehicles(null);
                 Toast.makeText(EditVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class));
@@ -98,16 +98,16 @@ public class EditVehicleActivity extends AppCompatActivity {
                 servicesLayout = (LinearLayout) findViewById(R.id.servicesLayout);
                 //int column = 3;
                 int column = 2;
-                for(int i=0; i<services.size(); i+=column) {
+                for (int i = 0; i < services.size(); i += column) {
                     ConstraintLayout servicesLineLayout = new ConstraintLayout(EditVehicleActivity.this);
                     ConstraintSet set = new ConstraintSet();
-                    ImageView[] imageViews = new ImageView[Math.min(services.size()-i, column)];
+                    ImageView[] imageViews = new ImageView[Math.min(services.size() - i, column)];
                     Log.d(TAG, "i: " + i);
                     Log.d(TAG, "imageViews.length: " + imageViews.length);
-                    for(int j=0; j<imageViews.length; j++) {
+                    for (int j = 0; j < imageViews.length; j++) {
                         imageViews[j] = new ImageView(EditVehicleActivity.this);
                         imageViews[j].setId(j);
-                        switch (services.get(i+j)) {
+                        switch (services.get(i + j)) {
                             case 1:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0service_button));
                                 imageViews[j].setOnClickListener(new View.OnClickListener() {
@@ -117,12 +117,24 @@ public class EditVehicleActivity extends AppCompatActivity {
                                     }
                                 });
                                 break;
-                            case 2: imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0driver_button)); break;
-                            case 3: imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0registration_button)); break;
-                            case 4: imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0parking_button)); break;
-                            case 5: imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0insurance_button)); break;
-                            case 6: imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button)); break;
-                            case 7: imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0fuel_button)); break;
+                            case 2:
+                                imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0driver_button));
+                                break;
+                            case 3:
+                                imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0registration_button));
+                                break;
+                            case 4:
+                                imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0parking_button));
+                                break;
+                            case 5:
+                                imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0insurance_button));
+                                break;
+                            case 6:
+                                imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button));
+                                break;
+                            case 7:
+                                imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0fuel_button));
+                                break;
                         }
                         set.connect(imageViews[j].getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 16);
                         set.connect(imageViews[j].getId(), ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT);
@@ -130,7 +142,7 @@ public class EditVehicleActivity extends AppCompatActivity {
                         set.connect(imageViews[j].getId(), ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT);
                         set.constrainPercentWidth(imageViews[j].getId(), 0.45f);
                         set.setDimensionRatio(imageViews[j].getId(), "1:1");
-                        set.setHorizontalBias(imageViews[j].getId(), (float)(1.0*j));
+                        set.setHorizontalBias(imageViews[j].getId(), (float) (1.0 * j));
                         servicesLineLayout.addView(imageViews[j]);
                     }
                     set.applyTo(servicesLineLayout);
@@ -138,6 +150,7 @@ public class EditVehicleActivity extends AppCompatActivity {
                 }
 
             }
+
             @Override
             public void onError(@NonNull String errorMessage) {
                 Log.e("No service", String.valueOf(services));

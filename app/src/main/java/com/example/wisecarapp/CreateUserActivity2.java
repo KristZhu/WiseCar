@@ -198,19 +198,21 @@ public class CreateUserActivity2 extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v != null && (v instanceof EditText)) {
+        if (v != null && (v instanceof EditText)) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -309,7 +311,12 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     while ((sResponse = reader.readLine()) != null) {
                         s = s.append(sResponse);
                     }
-                    if(s.toString().contains("success")){
+                    if (s.toString().contains("success")) {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                         Intent intent = new Intent(CreateUserActivity2.this, LoginActivity.class);
                         int position = s.indexOf("user_id");
                         Log.e("user_id test: ", "\"" + s.substring(position + 9, s.length() - 1) + "\"");
@@ -321,14 +328,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-//                StringBuilder finalS = s;
-//                runOnUiThread(new Runnable() {
-//                    public void run() {
-//                        Toast.makeText(CreateUserActivity2.this, finalS.toString(), Toast.LENGTH_LONG).show();
-//                    }
-//                });
-
                 postRequest.abort();
+                httpClient.getConnectionManager().shutdown();
 
             }
 
