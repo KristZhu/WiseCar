@@ -101,6 +101,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private Button uploadButton;
     private ImageButton cameraImageButton;
     private TextView identifierTextView;
+    private Button resetButton;
 
     private EditText dateEditText;
     private EditText centreEditText;
@@ -152,14 +153,18 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_records);
 
+        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
+        backImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
+                intent.putExtra("vehicleID", vehicleID);
+                startActivity(intent);
+            }
+        });
+
         SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy");
         currentDate = format.format(Calendar.getInstance().getTime());
-
-        serviceIDTextView = (TextView) findViewById(R.id.serviceIDTextView);
-        qrImageView = (ImageView) findViewById(R.id.qrImageView);
-        uploadButton = (Button) findViewById(R.id.uploadButton);
-        cameraImageButton = (ImageButton) findViewById(R.id.cameraImageButton);
-        identifierTextView = (TextView) findViewById(R.id.identifierTextView);
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         Log.d(TAG, "vehicleID: " + vehicleID);
@@ -189,13 +194,17 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             }
         });
 
-        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
-        backImageButton.setOnClickListener(new View.OnClickListener() {
+        serviceIDTextView = (TextView) findViewById(R.id.serviceIDTextView);
+        qrImageView = (ImageView) findViewById(R.id.qrImageView);
+        uploadButton = (Button) findViewById(R.id.uploadButton);
+        cameraImageButton = (ImageButton) findViewById(R.id.cameraImageButton);
+        identifierTextView = (TextView) findViewById(R.id.identifierTextView);
+        resetButton = (Button) findViewById(R.id.resetButton);
+
+        resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
-                intent.putExtra("vehicleID", vehicleID);
-                startActivity(intent);
+                qrImageView.setImageBitmap(qrCodeBitmap);
             }
         });
 

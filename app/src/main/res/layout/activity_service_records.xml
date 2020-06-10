@@ -124,6 +124,25 @@
                     app:layout_constraintWidth_default="percent"
                     app:layout_constraintWidth_percent=".33" />
 
+                <Button
+                    android:id="@+id/resetButton"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@null"
+                    android:cropToPadding="false"
+                    android:padding="0dp"
+                    android:scaleType="fitXY"
+                    android:text="Reset QR Code"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="4:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/qrImageView"
+                    app:layout_constraintWidth_default="percent"
+                    app:layout_constraintWidth_percent=".33" />
+
                 <ImageButton
                     android:id="@+id/cameraImageButton"
                     android:layout_width="0dp"
