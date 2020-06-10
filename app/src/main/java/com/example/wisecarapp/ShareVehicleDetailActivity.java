@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageButton;
 
 public class ShareVehicleDetailActivity extends AppCompatActivity {
 
@@ -12,6 +13,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private String vehicleID;
     private Vehicle vehicle;
 
+    private ImageButton backImageButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
