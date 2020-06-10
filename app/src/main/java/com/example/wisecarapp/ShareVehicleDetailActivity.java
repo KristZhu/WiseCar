@@ -12,6 +12,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private String vehicleID;
     private Vehicle vehicle;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
