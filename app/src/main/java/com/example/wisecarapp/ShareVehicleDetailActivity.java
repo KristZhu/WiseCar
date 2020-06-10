@@ -9,6 +9,9 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
     private static final String TAG = "ShareVehicleDetail";
 
+    private String vehicleID;
+    private Vehicle vehicle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
