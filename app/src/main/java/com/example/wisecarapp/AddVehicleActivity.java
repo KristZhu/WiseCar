@@ -178,126 +178,117 @@ public class AddVehicleActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
-            }
+        backImageButton.setOnClickListener(v -> {
+            startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
         });
 
-        uploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
-                AlertDialog alertDialog = new AlertDialog.Builder(AddVehicleActivity.this)
-                        .setTitle("How to upload? ")
-                        .setIcon(R.mipmap.ic_launcher)
-                        .setItems(ways, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Log.d(TAG, "onClick: " + ways[i]);
-                                if (i == 0) {  //take photo
-                                    int permissionCheckCamera = ContextCompat.checkSelfPermission(AddVehicleActivity.this, Manifest.permission.CAMERA);
-                                    int permissionCheckStorage = ContextCompat.checkSelfPermission(AddVehicleActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                                    Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
-                                    Log.d(TAG, "onClickPermissionCheckStorage: " + permissionCheckStorage);
+        uploadButton.setOnClickListener(v -> {
+            final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
+            AlertDialog alertDialog = new AlertDialog.Builder(AddVehicleActivity.this)
+                    .setTitle("How to upload? ")
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setItems(ways, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Log.d(TAG, "onClick: " + ways[i]);
+                            if (i == 0) {  //take photo
+                                int permissionCheckCamera = ContextCompat.checkSelfPermission(AddVehicleActivity.this, Manifest.permission.CAMERA);
+                                int permissionCheckStorage = ContextCompat.checkSelfPermission(AddVehicleActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                                Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
+                                Log.d(TAG, "onClickPermissionCheckStorage: " + permissionCheckStorage);
 
-                                    // solve android 7.0 problem
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                                        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                                        StrictMode.setVmPolicy(builder.build());
-                                        builder.detectFileUriExposure();
-                                    }
-
-                                    if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
-                                        ActivityCompat.requestPermissions(
-                                                AddVehicleActivity.this,
-                                                new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                MULTI_PERMISSION_CODE
-                                        );
-                                    } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestCamera: ");
-                                        ActivityCompat.requestPermissions(
-                                                AddVehicleActivity.this,
-                                                new String[]{Manifest.permission.CAMERA},
-                                                PERMISSION_CAMERA_REQUEST_CODE
-                                        );
-                                    } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                        ActivityCompat.requestPermissions(
-                                                AddVehicleActivity.this,
-                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                        );
-                                    } else {
-                                        beforeStartCamera();
-                                    }
-                                } else if (i == 1) {   //upload from phone
-                                    if (ContextCompat.checkSelfPermission(AddVehicleActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                        ActivityCompat.requestPermissions(
-                                                AddVehicleActivity.this,
-                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                        );
-                                    } else {
-                                        beforeStartStorage();
-                                    }
-                                } else {
-                                    //cancel
+                                // solve android 7.0 problem
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                                    StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                                    StrictMode.setVmPolicy(builder.build());
+                                    builder.detectFileUriExposure();
                                 }
+
+                                if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                                    Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
+                                    ActivityCompat.requestPermissions(
+                                            AddVehicleActivity.this,
+                                            new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                            MULTI_PERMISSION_CODE
+                                    );
+                                } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
+                                    Log.d(TAG, "onClickPermissionRequestCamera: ");
+                                    ActivityCompat.requestPermissions(
+                                            AddVehicleActivity.this,
+                                            new String[]{Manifest.permission.CAMERA},
+                                            PERMISSION_CAMERA_REQUEST_CODE
+                                    );
+                                } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                                    Log.d(TAG, "onClickPermissionRequestStorage: ");
+                                    ActivityCompat.requestPermissions(
+                                            AddVehicleActivity.this,
+                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                            PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
+                                    );
+                                } else {
+                                    beforeStartCamera();
+                                }
+                            } else if (i == 1) {   //upload from phone
+                                if (ContextCompat.checkSelfPermission(AddVehicleActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                                    Log.d(TAG, "onClickPermissionRequestStorage: ");
+                                    ActivityCompat.requestPermissions(
+                                            AddVehicleActivity.this,
+                                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                            PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
+                                    );
+                                } else {
+                                    beforeStartStorage();
+                                }
+                            } else {
+                                //cancel
                             }
-                        }).create();
-                alertDialog.show();
-            }
+                        }
+                    }).create();
+            alertDialog.show();
         });
 
-        saveImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        saveImageButton.setOnClickListener(v -> {
 
-                vehicleDrawable = vehicleImageView.getDrawable();
+            vehicleDrawable = vehicleImageView.getDrawable();
 
-                BitmapDrawable bitmapDrawable = (BitmapDrawable) vehicleDrawable;
-                vehicleImageBitmap = bitmapDrawable.getBitmap();
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) vehicleDrawable;
+            vehicleImageBitmap = bitmapDrawable.getBitmap();
 
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                vehicleImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-                vehicleImgByte = bos.toByteArray();
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            vehicleImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+            vehicleImgByte = bos.toByteArray();
 
-                make = makeEditText.getText().toString();
-                model = modelEditText.getText().toString();
-                registration_no = rcEditText.getText().toString();
-                description = descriptionEditText.getText().toString();
+            make = makeEditText.getText().toString();
+            model = modelEditText.getText().toString();
+            registration_no = rcEditText.getText().toString();
+            description = descriptionEditText.getText().toString();
 
 
-                Log.d(TAG, "--------------------Add Vehicle------------------");
-                Log.d(TAG, "userID: " + UserInfo.getUserID());
-                Log.d(TAG, "rc: " + registration_no);
-                Log.d(TAG, "make: " + make);
-                Log.d(TAG, "model: " + model);
-                Log.d(TAG, "description: " + description);
-                Log.d(TAG, "service: " + services);
-                Log.d(TAG, "registration: " + registration);
-                Log.d(TAG, "driver: " + driver);
-                Log.d(TAG, "parking: " + parking);
-                Log.d(TAG, "insurance: " + insurance);
-                Log.d(TAG, "toll: " + toll);
-                Log.d(TAG, "fuel: " + fuel);
+            Log.d(TAG, "--------------------Add Vehicle------------------");
+            Log.d(TAG, "userID: " + UserInfo.getUserID());
+            Log.d(TAG, "rc: " + registration_no);
+            Log.d(TAG, "make: " + make);
+            Log.d(TAG, "model: " + model);
+            Log.d(TAG, "description: " + description);
+            Log.d(TAG, "service: " + services);
+            Log.d(TAG, "registration: " + registration);
+            Log.d(TAG, "driver: " + driver);
+            Log.d(TAG, "parking: " + parking);
+            Log.d(TAG, "insurance: " + insurance);
+            Log.d(TAG, "toll: " + toll);
+            Log.d(TAG, "fuel: " + fuel);
 
-                if (UserInfo.getVehicles() == null)
-                    UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
-                if (UserInfo.getVehicles().containsKey("a")) {   //last new added vehicle has not synchronized. should not happen logically
-                    Toast.makeText(AddVehicleActivity.this, "failed to add vehicle", Toast.LENGTH_SHORT).show();
-                } else {
+            if (UserInfo.getVehicles() == null)
+                UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
+            if (UserInfo.getVehicles().containsKey("a")) {   //last new added vehicle has not synchronized. should not happen logically
+                Toast.makeText(AddVehicleActivity.this, "failed to add vehicle", Toast.LENGTH_SHORT).show();
+            } else {
 
-                    // Write database connection here
-                    uploadVehicleInfoByHttpClient();
-
-                }
+                // Write database connection here
+                uploadVehicleInfoByHttpClient();
 
             }
+
         });
 
     }
@@ -526,77 +517,73 @@ public class AddVehicleActivity extends AppCompatActivity {
             servicesList.add(7);
         }
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpPost postRequest = new HttpPost(IP_HOST + ADD_VEHICLE);
+        Thread thread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + ADD_VEHICLE);
 
-                MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
 
+            try {
+                reqEntity.addPart("make", new StringBody(make));
+                reqEntity.addPart("model", new StringBody(model));
+                reqEntity.addPart("registration_no", new StringBody(registration_no));
+                reqEntity.addPart("description", new StringBody(description));
+                reqEntity.addPart("services", new StringBody(servicesChoice));
+                reqEntity.addPart("state", new StringBody(state));
+                reqEntity.addPart("year", new StringBody(year));
+                reqEntity.addPart("user_id", new StringBody(UserInfo.getUserID()));
+
+                ByteArrayBody vehicleImgBody = new ByteArrayBody(vehicleImgByte, ContentType.IMAGE_PNG, "logo.png");
+                reqEntity.addPart("logo", vehicleImgBody);
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 try {
-                    reqEntity.addPart("make", new StringBody(make));
-                    reqEntity.addPart("model", new StringBody(model));
-                    reqEntity.addPart("registration_no", new StringBody(registration_no));
-                    reqEntity.addPart("description", new StringBody(description));
-                    reqEntity.addPart("services", new StringBody(servicesChoice));
-                    reqEntity.addPart("state", new StringBody(state));
-                    reqEntity.addPart("year", new StringBody(year));
-                    reqEntity.addPart("user_id", new StringBody(UserInfo.getUserID()));
-
-                    ByteArrayBody vehicleImgBody = new ByteArrayBody(vehicleImgByte, ContentType.IMAGE_PNG, "logo.png");
-                    reqEntity.addPart("logo", vehicleImgBody);
-
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    try {
-                        reqEntity.addPart("logo", new StringBody("image error"));
-                    } catch (UnsupportedEncodingException ex) {
-                        ex.printStackTrace();
-                    }
+                    reqEntity.addPart("logo", new StringBody("image error"));
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
                 }
-
-                postRequest.setEntity(reqEntity);
-                HttpResponse response = null;
-                StringBuilder s = new StringBuilder();
-                try {
-                    response = httpClient.execute(postRequest);
-                    Log.e("add vehicle response", String.valueOf(response));
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                    String sResponse;
-                    while ((sResponse = reader.readLine()) != null) {
-                        s = s.append(sResponse);
-                    }
-                    Log.e("response", s.toString());
-                    if (s.toString().contains("success")) {
-                        // Add successfully
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
-                            }
-                        });
-                        int position = s.indexOf("vehicle_id");
-                        vehicle_id[0] = s.substring(position + 12, s.length() - 1);
-                        UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
-                    } else {
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                postRequest.abort();
-                httpClient.getConnectionManager().shutdown();
             }
 
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                Log.e("add vehicle response", String.valueOf(response));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                Log.e("response", s.toString());
+                if (s.toString().contains("success")) {
+                    // Add successfully
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
+                        }
+                    });
+                    int position = s.indexOf("vehicle_id");
+                    vehicle_id[0] = s.substring(position + 12, s.length() - 1);
+                    UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
+                } else {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
         });
         thread.start();
     }

@@ -130,19 +130,17 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_vehicle_detail);
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        vehicleID = "303";
         Log.d(TAG, "vehicleID: " + vehicleID);
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
-                intent.putExtra("vehicleID", vehicleID);
-                startActivity(intent);
-            }
+        backImageButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
+            intent.putExtra("vehicleID", vehicleID);
+            startActivity(intent);
         });
 
         searchEditText = $(R.id.searchEditText);
@@ -159,16 +157,13 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     adapter.add(id + ": " + companies.get(id));
                 }
                 searchEditText.setAdapter(adapter);
-                searchEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        String temp = searchEditText.getText().toString();
-                        companyID = temp.substring(0, temp.indexOf(":"));
-                        companyIDTextView.setText("Company ID: " + companyID);
-                        companyName = companies.get(companyID);
-                        companyNameTextView.setText(companyName);
-                        cancelImageButton.setVisibility(View.VISIBLE);
-                    }
+                searchEditText.setOnItemClickListener((parent, view, position, id) -> {
+                    String temp = searchEditText.getText().toString();
+                    companyID = temp.substring(0, temp.indexOf(":"));
+                    companyIDTextView.setText("Company ID: " + companyID);
+                    companyName = companies.get(companyID);
+                    companyNameTextView.setText(companyName);
+                    cancelImageButton.setVisibility(View.VISIBLE);
                 });
             }
 
@@ -178,26 +173,20 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             }
         });
 
-        cancelImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                companyName = "";
-                companyID = "";
-                companyNameTextView.setText("");
-                companyIDTextView.setText("");
-                searchEditText.setText("");
-                cancelImageButton.setVisibility(View.INVISIBLE);
-            }
+        cancelImageButton.setOnClickListener(v -> {
+            companyName = "";
+            companyID = "";
+            companyNameTextView.setText("");
+            companyIDTextView.setText("");
+            searchEditText.setText("");
+            cancelImageButton.setVisibility(View.INVISIBLE);
         });
 
 
         shareSwitchButton = $(R.id.shareSwitchButton);
-        shareSwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged() {
-            @Override
-            public void onToggle(boolean isOn) {
-                Log.d(TAG, "share: " + isOn);
-                isShare = isOn;
-            }
+        shareSwitchButton.setOnToggleChanged(isOn -> {
+            Log.d(TAG, "share: " + isOn);
+            isShare = isOn;
         });
 
         dateEditText = $(R.id.dateEditText);
@@ -207,107 +196,71 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         endEditText = $(R.id.endEditText);
         endEditText.setInputType(InputType.TYPE_NULL);
 
-        dateEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        dateEditText.setOnClickListener(v -> {
+            Calendar c = Calendar.getInstance();
+            new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
+                date = intToDate(year, monthOfYear, dayOfMonth);
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                String str = format.format(date);
+                dateEditText.setText(str);
+            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+        });
+        dateEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
                 Calendar c = Calendar.getInstance();
-                new DatePickerDialog(ShareVehicleDetailActivity.this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        date = intToDate(year, monthOfYear, dayOfMonth);
-                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                        String str = format.format(date);
-                        dateEditText.setText(str);
-                    }
+                new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
+                    date = intToDate(year, monthOfYear, dayOfMonth);
+                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                    String str = format.format(date);
+                    dateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-        dateEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    Calendar c = Calendar.getInstance();
-                    new DatePickerDialog(ShareVehicleDetailActivity.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                            date = intToDate(year, monthOfYear, dayOfMonth);
-                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                            String str = format.format(date);
-                            dateEditText.setText(str);
-                        }
-                    }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
 
-                }
             }
         });
 
-        startEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new TimePickerDialog(ShareVehicleDetailActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hour, int minute) {
-                        StringBuffer time = new StringBuffer();
-                        time.append(hour >= 10 ? hour : "0" + hour);
-                        time.append(":");
-                        time.append(minute >= 10 ? minute : "0" + minute);
-                        start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
-                        startEditText.setText(time);
-                    }
+        startEditText.setOnClickListener((v) -> {
+            new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
+                StringBuffer time = new StringBuffer();
+                time.append(hour >= 10 ? hour : "0" + hour);
+                time.append(":");
+                time.append(minute >= 10 ? minute : "0" + minute);
+                start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
+                startEditText.setText(time);
+            }, 0, 0, true).show();
+        });
+        startEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
+                    StringBuffer time = new StringBuffer();
+                    time.append(hour >= 10 ? hour : "0" + hour);
+                    time.append(":");
+                    time.append(minute >= 10 ? minute : "0" + minute);
+                    start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                    startEditText.setText(time);
                 }, 0, 0, true).show();
             }
         });
-        startEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    new TimePickerDialog(ShareVehicleDetailActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker view, int hour, int minute) {
-                            StringBuffer time = new StringBuffer();
-                            time.append(hour >= 10 ? hour : "0" + hour);
-                            time.append(":");
-                            time.append(minute >= 10 ? minute : "0" + minute);
-                            start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
-                            startEditText.setText(time);
-                        }
-                    }, 0, 0, true).show();
-                }
-            }
-        });
 
-        endEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new TimePickerDialog(ShareVehicleDetailActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hour, int minute) {
-                        StringBuffer time = new StringBuffer();
-                        time.append(hour >= 10 ? hour : "0" + hour);
-                        time.append(":");
-                        time.append(minute >= 10 ? minute : "0" + minute);
-                        end = new java.util.Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
-                        endEditText.setText(time);
-                    }
-                }, 0, 0, true).show();
-            }
+        endEditText.setOnClickListener((v) -> {
+            new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
+                StringBuffer time = new StringBuffer();
+                time.append(hour >= 10 ? hour : "0" + hour);
+                time.append(":");
+                time.append(minute >= 10 ? minute : "0" + minute);
+                end = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                endEditText.setText(time);
+            }, 0, 0, true).show();
         });
-        endEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    new TimePickerDialog(ShareVehicleDetailActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker view, int hour, int minute) {
-                            StringBuffer time = new StringBuffer();
-                            time.append(hour >= 10 ? hour : "0" + hour);
-                            time.append(":");
-                            time.append(minute >= 10 ? minute : "0" + minute);
-                            end = new java.util.Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
-                            endEditText.setText(time);
-                        }
-                    }, 0, 0, true).show();
-                }
+        endEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
+                    StringBuffer time = new StringBuffer();
+                    time.append(hour >= 10 ? hour : "0" + hour);
+                    time.append(":");
+                    time.append(minute >= 10 ? minute : "0" + minute);
+                    end = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                    endEditText.setText(time);
+                }, 0, 0, true).show();
             }
         });
 
@@ -315,49 +268,34 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         recurringSwitchButton = $(R.id.recurringSwitchButton);
         recurringDiv = $(R.id.recurringDiv);
         //switchButton.setToggleOn(true);
-        recurringSwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged() {
-            @Override
-            public void onToggle(boolean isOn) {
-                Log.d(TAG, "recurring: " + isOn);
-                isRecurring = isOn;
-                if (isOn) recurringDiv.setVisibility(View.VISIBLE);
-                else recurringDiv.setVisibility(View.GONE);
-            }
+        recurringSwitchButton.setOnToggleChanged(isOn -> {
+            Log.d(TAG, "recurring: " + isOn);
+            isRecurring = isOn;
+            if (isOn) recurringDiv.setVisibility(View.VISIBLE);
+            else recurringDiv.setVisibility(View.GONE);
         });
 
         endDateEditText = $(R.id.endDateEditText);
         endDateEditText.setInputType(InputType.TYPE_NULL);
-        endDateEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar c = Calendar.getInstance();
-                new DatePickerDialog(ShareVehicleDetailActivity.this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        endDate = intToDate(year, monthOfYear, dayOfMonth);
-                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                        String str = format.format(endDate);
-                        endDateEditText.setText(str);
-                    }
-                }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-            }
+        endDateEditText.setOnClickListener(v -> {
+            Calendar c = Calendar.getInstance();
+            new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
+                endDate = intToDate(year, monthOfYear, dayOfMonth);
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                String str = format.format(endDate);
+                endDateEditText.setText(str);
+            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
-        endDateEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    Calendar c = Calendar.getInstance();
-                    new DatePickerDialog(ShareVehicleDetailActivity.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                            endDate = intToDate(year, monthOfYear, dayOfMonth);
-                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                            String str = format.format(endDate);
-                            endDateEditText.setText(str);
-                        }
-                    }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+        endDateEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                Calendar c = Calendar.getInstance();
+                new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
+                    endDate = intToDate(year, monthOfYear, dayOfMonth);
+                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                    String str = format.format(endDate);
+                    endDateEditText.setText(str);
+                }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
 
-                }
             }
         });
 
@@ -372,12 +310,9 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         visibilitySwitchButton = $(R.id.visibilitySwitchButton);
         //switchButton.setToggleOn(true);
-        visibilitySwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged() {
-            @Override
-            public void onToggle(boolean isOn) {
-                Log.d(TAG, "recurring: " + isOn);
-                isVisibility = isOn;
-            }
+        visibilitySwitchButton.setOnToggleChanged(isOn -> {
+            Log.d(TAG, "recurring: " + isOn);
+            isVisibility = isOn;
         });
 
         recordCheckBox = $(R.id.recordCheckBox);
@@ -385,94 +320,91 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         saveImageButton = $(R.id.saveImageButton);
-        saveImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+        saveImageButton.setOnClickListener(v -> {
+            SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 
-                Log.d(TAG, "companyName: " + companyName);
-                Log.d(TAG, "companyID: " + companyID);
-                Log.d(TAG, "isShare: " + isShare);
-                Log.d(TAG, "date: " + date);
-                Log.d(TAG, "start: " + format.format(start));
-                Log.d(TAG, "end: " + format.format(end));
-                Log.d(TAG, "isRecurring: " + isRecurring);
+            Log.d(TAG, "companyName: " + companyName);
+            Log.d(TAG, "companyID: " + companyID);
+            Log.d(TAG, "isShare: " + isShare);
+            Log.d(TAG, "date: " + date);
+            Log.d(TAG, "start: " + format.format(start));
+            Log.d(TAG, "end: " + format.format(end));
+            Log.d(TAG, "isRecurring: " + isRecurring);
 
-                if (date.before(new Date())) {
-                    Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
+            if (date.before(new Date())) {
+                Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (start.after(end)) {
+                Toast.makeText(getApplicationContext(), "Please enter correct time", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (isRecurring) {
+                isMon = monCheckBox.isChecked();
+                isTue = tueCheckBox.isChecked();
+                isWed = wedCheckBox.isChecked();
+                isThu = thuCheckBox.isChecked();
+                isFri = friCheckBox.isChecked();
+                isSat = satCheckBox.isChecked();
+                isSun = sunCheckBox.isChecked();
+                Log.d(TAG, "endDate: " + endDate);
+                Log.d(TAG, "isMon: " + isMon);
+                Log.d(TAG, "isTue: " + isTue);
+                Log.d(TAG, "isWed: " + isWed);
+                Log.d(TAG, "isThu: " + isThu);
+                Log.d(TAG, "isFri: " + isFri);
+                Log.d(TAG, "isSat: " + isSat);
+                Log.d(TAG, "isSun: " + isSun);
+                if (endDate == null || endDate.before(date)) {
+                    Toast.makeText(getApplicationContext(), "Please enter correct end date", Toast.LENGTH_LONG).show();
                     return;
                 }
-                if (start.after(end)) {
-                    Toast.makeText(getApplicationContext(), "Please enter correct time", Toast.LENGTH_LONG).show();
-                    return;
+
+                List<Date> allDays = new LinkedList<>();
+                Date d = new Date(date.getTime());
+                while (d.before(new Date(endDate.getTime() + 24 * 60 * 60 * 1000))) {
+                    Calendar calendar = new GregorianCalendar();
+                    calendar.setTime(d);
+                    int weekday = calendar.get(Calendar.DAY_OF_WEEK);   //1:Sun, 7:Sat
+                    switch (weekday) {
+                        case 1:
+                            if (isSun) allDays.add(d);
+                            break;
+                        case 2:
+                            if (isMon) allDays.add(d);
+                            break;
+                        case 3:
+                            if (isTue) allDays.add(d);
+                            break;
+                        case 4:
+                            if (isWed) allDays.add(d);
+                            break;
+                        case 5:
+                            if (isThu) allDays.add(d);
+                            break;
+                        case 6:
+                            if (isFri) allDays.add(d);
+                            break;
+                        case 7:
+                            if (isSat) allDays.add(d);
+                            break;
+                    }
+                    calendar.add(calendar.DATE, 1);
+                    d = calendar.getTime();
                 }
 
-                if (isRecurring) {
-                    isMon = monCheckBox.isChecked();
-                    isTue = tueCheckBox.isChecked();
-                    isWed = wedCheckBox.isChecked();
-                    isThu = thuCheckBox.isChecked();
-                    isFri = friCheckBox.isChecked();
-                    isSat = satCheckBox.isChecked();
-                    isSun = sunCheckBox.isChecked();
-                    Log.d(TAG, "endDate: " + endDate);
-                    Log.d(TAG, "isMon: " + isMon);
-                    Log.d(TAG, "isTue: " + isTue);
-                    Log.d(TAG, "isWed: " + isWed);
-                    Log.d(TAG, "isThu: " + isThu);
-                    Log.d(TAG, "isFri: " + isFri);
-                    Log.d(TAG, "isSat: " + isSat);
-                    Log.d(TAG, "isSun: " + isSun);
-                    if (endDate == null || endDate.before(date)) {
-                        Toast.makeText(getApplicationContext(), "Please enter correct end date", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    List<Date> allDays = new LinkedList<>();
-                    Date d = new Date(date.getTime());
-                    while (d.before(new Date(endDate.getTime() + 24 * 60 * 60 * 1000))) {
-                        Calendar calendar = new GregorianCalendar();
-                        calendar.setTime(d);
-                        int weekday = calendar.get(Calendar.DAY_OF_WEEK);   //1:Sun, 7:Sat
-                        switch (weekday) {
-                            case 1:
-                                if (isSun) allDays.add(d);
-                                break;
-                            case 2:
-                                if (isMon) allDays.add(d);
-                                break;
-                            case 3:
-                                if (isTue) allDays.add(d);
-                                break;
-                            case 4:
-                                if (isWed) allDays.add(d);
-                                break;
-                            case 5:
-                                if (isThu) allDays.add(d);
-                                break;
-                            case 6:
-                                if (isFri) allDays.add(d);
-                                break;
-                            case 7:
-                                if (isSat) allDays.add(d);
-                                break;
-                        }
-                        calendar.add(calendar.DATE, 1);
-                        d = calendar.getTime();
-                    }
-
-                    Log.d(TAG, "all shared days: " + allDays);
-
-                }
-                Log.d(TAG, "isVisibility: " + isVisibility);
-                isRecord = recordCheckBox.isChecked();
-                isRegistration = registrationCheckBox.isChecked();
-                Log.d(TAG, "isRecord: " + isRecord);
-                Log.d(TAG, "isRegistration: " + isRegistration);
-
-                shareVehicleCheck();
+                Log.d(TAG, "all shared days: " + allDays);
 
             }
+            Log.d(TAG, "isVisibility: " + isVisibility);
+            isRecord = recordCheckBox.isChecked();
+            isRegistration = registrationCheckBox.isChecked();
+            Log.d(TAG, "isRecord: " + isRecord);
+            Log.d(TAG, "isRegistration: " + isRegistration);
+
+            shareVehicleCheck();
+
         });
 
     }
@@ -481,48 +413,42 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         String URL = IP_HOST + GET_COMPANY_LIST;
 
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.e("Response: ", response.toString());
-                JSONArray jsonArray;
-                JSONObject jsonObject;
-                try {
-                    jsonArray = response.getJSONArray("company_list");
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        jsonObject = jsonArray.getJSONObject(i);
-                        companies.put(jsonObject.optString("cust_id"), jsonObject.optString("company_name"));
-                    }
-                    if (callbacks != null)
-                        callbacks.onSuccess(companies);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONArray jsonArray;
+            JSONObject jsonObject;
+            try {
+                jsonArray = response.getJSONArray("company_list");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    companies.put(jsonObject.optString("cust_id"), jsonObject.optString("company_name"));
                 }
+                if (callbacks != null)
+                    callbacks.onSuccess(companies);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        }, error -> {
 
 //                Log.e("ERROR!!!", error.toString());
 //                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
 
-                NetworkResponse networkResponse = error.networkResponse;
-                if (networkResponse != null && networkResponse.data != null) {
-                    String JSONError = new String(networkResponse.data);
-                    JSONObject messageJO;
-                    String message = "";
-                    try {
-                        messageJO = new JSONObject(JSONError);
-                        message = messageJO.optString("message");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Log.e("No vehicle: ", message);
-                    if (callbacks != null)
-                        callbacks.onError(message);
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
+                Log.e("No vehicle: ", message);
+                if (callbacks != null)
+                    callbacks.onError(message);
             }
+
         });
 
         Volley.newRequestQueue(ShareVehicleDetailActivity.this).add(objectRequest);
@@ -610,6 +536,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
+
     private void shareVehicleCheck() {
 
         if (isSun) {
@@ -649,68 +576,64 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             visibilityChecked += "0";
         }
 
-        Thread submitingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpPost postRequest = new HttpPost(IP_HOST + SUBMIT_SHARE_VEHICLE);
+        Thread submitingThread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + SUBMIT_SHARE_VEHICLE);
 
-                MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 
-                try {
-                    reqEntity.addPart("cust_id", new StringBody(companyID));
+            try {
+                reqEntity.addPart("cust_id", new StringBody(companyID));
 //                    reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-                    reqEntity.addPart("vehicle_id", new StringBody("303"));
-                    reqEntity.addPart("share", new StringBody(shareChecked));
-                    reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
-                    reqEntity.addPart("recurring", new StringBody(recurringChecked));
-                    if (recurringChecked.equals("1")) {
-                        reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
-                        reqEntity.addPart("recurring_days", new StringBody(recurringDays));
-                    }
-                    reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
-                    if (visibilityChecked.equals("1")) {
-                        reqEntity.addPart("visible_service_ids", new StringBody("24"));
-                    }
-                    reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
-                    reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
-
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+                reqEntity.addPart("share", new StringBody(shareChecked));
+                reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
+                reqEntity.addPart("recurring", new StringBody(recurringChecked));
+                if (recurringChecked.equals("1")) {
+                    reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
+                    reqEntity.addPart("recurring_days", new StringBody(recurringDays));
                 }
-
-                postRequest.setEntity(reqEntity);
-                HttpResponse response = null;
-                StringBuilder s = new StringBuilder();
-                try {
-                    response = httpClient.execute(postRequest);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                    String sResponse;
-                    while ((sResponse = reader.readLine()) != null) {
-                        s = s.append(sResponse);
-                    }
-                    if (s.toString().contains("success")) {
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
-                        startActivity(intent);
-                    }
-                    Log.e("response", s.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
+                reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
+                if (visibilityChecked.equals("1")) {
+                    reqEntity.addPart("visible_service_ids", new StringBody("24"));
                 }
+                reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
+                reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
 
-                postRequest.abort();
-                httpClient.getConnectionManager().shutdown();
-
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("success")) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
+                    startActivity(intent);
+                }
+                Log.e("response", s.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
 
         });
 
@@ -725,7 +648,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             try {
                 reqEntity.addPart("cust_id", new StringBody(companyID));
 //                    reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-                reqEntity.addPart("vehicle_id", new StringBody("303"));
+                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
                 reqEntity.addPart("share", new StringBody(shareChecked));
                 reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
                 reqEntity.addPart("recurring", new StringBody(recurringChecked));

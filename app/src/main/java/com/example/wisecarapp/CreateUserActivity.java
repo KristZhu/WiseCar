@@ -162,118 +162,109 @@ public class CreateUserActivity extends AppCompatActivity {
             }
         });
 
-        uploadPhotoImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
-                AlertDialog alertDialog3 = new AlertDialog.Builder(CreateUserActivity.this)
-                        .setTitle("How to upload? ")
-                        .setIcon(R.mipmap.ic_launcher)
-                        .setItems(ways, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Log.d(TAG, "onClick: " + ways[i]);
-                                if(i==0) {  //take photo
-                                    int permissionCheckCamera = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.CAMERA);
-                                    int permissionCheckStorage = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                                    Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
-                                    Log.d(TAG, "onClickPermissionCheckStorage: " + permissionCheckStorage);
+        uploadPhotoImageButton.setOnClickListener(v -> {
+            final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
+            AlertDialog alertDialog3 = new AlertDialog.Builder(CreateUserActivity.this)
+                    .setTitle("How to upload? ")
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setItems(ways, (dialogInterface, i) -> {
+                        Log.d(TAG, "onClick: " + ways[i]);
+                        if(i==0) {  //take photo
+                            int permissionCheckCamera = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.CAMERA);
+                            int permissionCheckStorage = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                            Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
+                            Log.d(TAG, "onClickPermissionCheckStorage: " + permissionCheckStorage);
 
-                                    // solve android 7.0 problem
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                                        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                                        StrictMode.setVmPolicy(builder.build());
-                                        builder.detectFileUriExposure();
-                                    }
-
-                                    if(permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
-                                        ActivityCompat.requestPermissions(
-                                                CreateUserActivity.this,
-                                                new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                MULTI_PERMISSION_CODE
-                                        );
-                                    }
-                                    else if(permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestCamera: ");
-                                        ActivityCompat.requestPermissions(
-                                                CreateUserActivity.this,
-                                                new String[]{Manifest.permission.CAMERA},
-                                                PERMISSION_CAMERA_REQUEST_CODE
-                                        );
-                                    } else if(permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                        ActivityCompat.requestPermissions(
-                                                CreateUserActivity.this,
-                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                        );
-                                    } else {
-                                        beforeStartCamera();
-                                    }
-                                } else if(i==1) {   //upload from phone
-                                    if(ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
-                                        Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                        ActivityCompat.requestPermissions(
-                                                CreateUserActivity.this,
-                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                        );
-                                    }else{
-                                        beforeStartStorage();
-                                    }
-                                } else {
-                                    //cancel
-                                }
+                            // solve android 7.0 problem
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                                StrictMode.setVmPolicy(builder.build());
+                                builder.detectFileUriExposure();
                             }
-                        }).create();
-                alertDialog3.show();
-            }
+
+                            if(permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                                Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
+                                ActivityCompat.requestPermissions(
+                                        CreateUserActivity.this,
+                                        new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        MULTI_PERMISSION_CODE
+                                );
+                            }
+                            else if(permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
+                                Log.d(TAG, "onClickPermissionRequestCamera: ");
+                                ActivityCompat.requestPermissions(
+                                        CreateUserActivity.this,
+                                        new String[]{Manifest.permission.CAMERA},
+                                        PERMISSION_CAMERA_REQUEST_CODE
+                                );
+                            } else if(permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                                Log.d(TAG, "onClickPermissionRequestStorage: ");
+                                ActivityCompat.requestPermissions(
+                                        CreateUserActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
+                                );
+                            } else {
+                                beforeStartCamera();
+                            }
+                        } else if(i==1) {   //upload from phone
+                            if(ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                                Log.d(TAG, "onClickPermissionRequestStorage: ");
+                                ActivityCompat.requestPermissions(
+                                        CreateUserActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
+                                );
+                            }else{
+                                beforeStartStorage();
+                            }
+                        } else {
+                            //cancel
+                        }
+                    }).create();
+            alertDialog3.show();
         });
 
-        nextImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        nextImageButton.setOnClickListener(v -> {
 
-                userImgDrawable =  userImgImageView.getDrawable();
+            userImgDrawable =  userImgImageView.getDrawable();
+            username = usernameEditText.getText().toString();
+            userEmail = userEmailEditText.getText().toString();
+            password = passwordEditText.getText().toString();
+
+            if(!username.equals("")
+                    && !userEmail.equals("")
+                    && !password.equals("")
+                    && confirmPasswordEditText.getText().toString().equals(password)
+                //&& userImgDrawable!=null
+            ) {
+
+                BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
+                userImgImageBitmap = bitmapDrawable.getBitmap();
+                int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
+                int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
+
+                userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
+
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+                userImg = bos.toByteArray();
+
                 username = usernameEditText.getText().toString();
                 userEmail = userEmailEditText.getText().toString();
                 password = passwordEditText.getText().toString();
 
-                if(!username.equals("")
-                        && !userEmail.equals("")
-                        && !password.equals("")
-                        && confirmPasswordEditText.getText().toString().equals(password)
-                    //&& userImgDrawable!=null
-                ) {
-
-                    BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
-                    userImgImageBitmap = bitmapDrawable.getBitmap();
-                    int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
-                    int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
-
-                    userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
-
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                    userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-                    userImg = bos.toByteArray();
-
-                    username = usernameEditText.getText().toString();
-                    userEmail = userEmailEditText.getText().toString();
-                    password = passwordEditText.getText().toString();
-
-                    Intent intent = new Intent(CreateUserActivity.this, CreateUserActivity2.class);
-                    intent.putExtra("userImg", userImg);
-                    intent.putExtra("username", username);
-                    intent.putExtra("userEmail", userEmail);
-                    intent.putExtra("password", password);
-                    startActivity(intent);
-                } else {    //not valid info
-                    if(username.equals("")) Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();
-                    else if(userEmail.equals("")) Toast.makeText(getApplicationContext(), "Please entry email", Toast.LENGTH_SHORT).show();
-                    else if(password.equals("")) Toast.makeText(getApplicationContext(), "Please entry password", Toast.LENGTH_SHORT).show();
-                    else Toast.makeText(getApplicationContext(), "2 passwords are not the same", Toast.LENGTH_SHORT).show();
-                }
+                Intent intent = new Intent(CreateUserActivity.this, CreateUserActivity2.class);
+                intent.putExtra("userImg", userImg);
+                intent.putExtra("username", username);
+                intent.putExtra("userEmail", userEmail);
+                intent.putExtra("password", password);
+                startActivity(intent);
+            } else {    //not valid info
+                if(username.equals("")) Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();
+                else if(userEmail.equals("")) Toast.makeText(getApplicationContext(), "Please entry email", Toast.LENGTH_SHORT).show();
+                else if(password.equals("")) Toast.makeText(getApplicationContext(), "Please entry password", Toast.LENGTH_SHORT).show();
+                else Toast.makeText(getApplicationContext(), "2 passwords are not the same", Toast.LENGTH_SHORT).show();
             }
         });
 
