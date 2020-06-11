@@ -34,10 +34,22 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,6 +67,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_COMPANY_LIST = "/api/v1/customers/customer/list";
+    private final String SUBMIT_SHARE_VEHICLE = "/api/v1/sharevehicle/submit";
+    private final String SHARE_CHECK = "/api/v1/sharevehicle/check";
 
     private String vehicleID;
     private Vehicle vehicle;
@@ -105,6 +119,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private boolean isRecord;
     private CheckBox registrationCheckBox;
     private boolean isRegistration;
+    private String recurringDays = "";
+    private String shareChecked = "";
+    private String recurringChecked = "";
+    private String visibilityChecked = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,7 +155,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@NonNull Map<String, String> value) {
                 Log.d(TAG, "companies: " + companies);
-                for(String id: companies.keySet()) {
+                for (String id : companies.keySet()) {
                     adapter.add(id + ": " + companies.get(id));
                 }
                 searchEditText.setAdapter(adapter);
@@ -173,7 +192,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         shareSwitchButton = $(R.id.shareSwitchButton);
-        shareSwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged(){
+        shareSwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged() {
             @Override
             public void onToggle(boolean isOn) {
                 Log.d(TAG, "share: " + isOn);
@@ -232,7 +251,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         time.append(hour >= 10 ? hour : "0" + hour);
                         time.append(":");
                         time.append(minute >= 10 ? minute : "0" + minute);
-                        start = new Date(intToDate(1970,1,1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
+                        start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
                         startEditText.setText(time);
                     }
                 }, 0, 0, true).show();
@@ -249,7 +268,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                             time.append(hour >= 10 ? hour : "0" + hour);
                             time.append(":");
                             time.append(minute >= 10 ? minute : "0" + minute);
-                            start = new Date(intToDate(1970,1,1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                            start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                             startEditText.setText(time);
                         }
                     }, 0, 0, true).show();
@@ -267,7 +286,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         time.append(hour >= 10 ? hour : "0" + hour);
                         time.append(":");
                         time.append(minute >= 10 ? minute : "0" + minute);
-                        end = new java.util.Date(intToDate(1970,1,1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                        end = new java.util.Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                         endEditText.setText(time);
                     }
                 }, 0, 0, true).show();
@@ -284,7 +303,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                             time.append(hour >= 10 ? hour : "0" + hour);
                             time.append(":");
                             time.append(minute >= 10 ? minute : "0" + minute);
-                            end = new java.util.Date(intToDate(1970,1,1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                            end = new java.util.Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                             endEditText.setText(time);
                         }
                     }, 0, 0, true).show();
@@ -296,12 +315,12 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         recurringSwitchButton = $(R.id.recurringSwitchButton);
         recurringDiv = $(R.id.recurringDiv);
         //switchButton.setToggleOn(true);
-        recurringSwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged(){
+        recurringSwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged() {
             @Override
             public void onToggle(boolean isOn) {
                 Log.d(TAG, "recurring: " + isOn);
                 isRecurring = isOn;
-                if(isOn) recurringDiv.setVisibility(View.VISIBLE);
+                if (isOn) recurringDiv.setVisibility(View.VISIBLE);
                 else recurringDiv.setVisibility(View.GONE);
             }
         });
@@ -353,7 +372,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         visibilitySwitchButton = $(R.id.visibilitySwitchButton);
         //switchButton.setToggleOn(true);
-        visibilitySwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged(){
+        visibilitySwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged() {
             @Override
             public void onToggle(boolean isOn) {
                 Log.d(TAG, "recurring: " + isOn);
@@ -363,9 +382,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         recordCheckBox = $(R.id.recordCheckBox);
         registrationCheckBox = $(R.id.registrationCheckBox);
-
-
-
 
 
         saveImageButton = $(R.id.saveImageButton);
@@ -382,16 +398,16 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Log.d(TAG, "end: " + format.format(end));
                 Log.d(TAG, "isRecurring: " + isRecurring);
 
-                if(date.before(new Date())) {
+                if (date.before(new Date())) {
                     Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
                     return;
                 }
-                if(start.after(end)) {
+                if (start.after(end)) {
                     Toast.makeText(getApplicationContext(), "Please enter correct time", Toast.LENGTH_LONG).show();
                     return;
                 }
 
-                if(isRecurring) {
+                if (isRecurring) {
                     isMon = monCheckBox.isChecked();
                     isTue = tueCheckBox.isChecked();
                     isWed = wedCheckBox.isChecked();
@@ -407,25 +423,39 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     Log.d(TAG, "isFri: " + isFri);
                     Log.d(TAG, "isSat: " + isSat);
                     Log.d(TAG, "isSun: " + isSun);
-                    if(endDate==null || endDate.before(date)) {
+                    if (endDate == null || endDate.before(date)) {
                         Toast.makeText(getApplicationContext(), "Please enter correct end date", Toast.LENGTH_LONG).show();
                         return;
                     }
 
                     List<Date> allDays = new LinkedList<>();
                     Date d = new Date(date.getTime());
-                    while(d.before(new Date(endDate.getTime() + 24*60*60*1000))) {
+                    while (d.before(new Date(endDate.getTime() + 24 * 60 * 60 * 1000))) {
                         Calendar calendar = new GregorianCalendar();
                         calendar.setTime(d);
                         int weekday = calendar.get(Calendar.DAY_OF_WEEK);   //1:Sun, 7:Sat
                         switch (weekday) {
-                            case 1: if(isSun) allDays.add(d); break;
-                            case 2: if(isMon) allDays.add(d); break;
-                            case 3: if(isTue) allDays.add(d); break;
-                            case 4: if(isWed) allDays.add(d); break;
-                            case 5: if(isThu) allDays.add(d); break;
-                            case 6: if(isFri) allDays.add(d); break;
-                            case 7: if(isSat) allDays.add(d); break;
+                            case 1:
+                                if (isSun) allDays.add(d);
+                                break;
+                            case 2:
+                                if (isMon) allDays.add(d);
+                                break;
+                            case 3:
+                                if (isTue) allDays.add(d);
+                                break;
+                            case 4:
+                                if (isWed) allDays.add(d);
+                                break;
+                            case 5:
+                                if (isThu) allDays.add(d);
+                                break;
+                            case 6:
+                                if (isFri) allDays.add(d);
+                                break;
+                            case 7:
+                                if (isSat) allDays.add(d);
+                                break;
                         }
                         calendar.add(calendar.DATE, 1);
                         d = calendar.getTime();
@@ -440,10 +470,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Log.d(TAG, "isRecord: " + isRecord);
                 Log.d(TAG, "isRegistration: " + isRegistration);
 
-
-
-
-
+                shareVehicleCheck();
 
             }
         });
@@ -511,11 +538,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            if(companyName!=null && companyName.length()>0
-                && companyID!=null && companyID.length()>0
-                && date!=null
-                && start!=null
-                && end!=null
+            if (companyName != null && companyName.length() > 0
+                    && companyID != null && companyID.length() > 0
+                    && date != null
+                    && start != null
+                    && end != null
             ) {
                 saveImageButton.setAlpha(1.0f);
                 saveImageButton.setClickable(true);
@@ -526,19 +553,21 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v != null && (v instanceof EditText)) {
+        if (v != null && (v instanceof EditText)) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -577,7 +606,173 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         return date;
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
+
+    private void shareVehicleCheck() {
+
+        if (isSun) {
+            recurringDays += "0";
+        }
+        if (isMon) {
+            recurringDays += "1";
+        }
+        if (isTue) {
+            recurringDays += "2";
+        }
+        if (isWed) {
+            recurringDays += "3";
+        }
+        if (isThu) {
+            recurringDays += "4";
+        }
+        if (isFri) {
+            recurringDays += "5";
+        }
+        if (isSat) {
+            recurringDays += "6";
+        }
+        if (isShare) {
+            shareChecked += "1";
+        } else {
+            shareChecked += "0";
+        }
+        if (isRecurring) {
+            recurringChecked += "1";
+        } else {
+            recurringChecked += "0";
+        }
+        if (isVisibility) {
+            visibilityChecked += "1";
+        } else {
+            visibilityChecked += "0";
+        }
+
+        Thread submitingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpPost postRequest = new HttpPost(IP_HOST + SUBMIT_SHARE_VEHICLE);
+
+                MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+
+                try {
+                    reqEntity.addPart("cust_id", new StringBody(companyID));
+//                    reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+                    reqEntity.addPart("vehicle_id", new StringBody("303"));
+                    reqEntity.addPart("share", new StringBody(shareChecked));
+                    reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
+                    reqEntity.addPart("recurring", new StringBody(recurringChecked));
+                    if (recurringChecked.equals("1")) {
+                        reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
+                        reqEntity.addPart("recurring_days", new StringBody(recurringDays));
+                    }
+                    reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
+                    if (visibilityChecked.equals("1")) {
+                        reqEntity.addPart("visible_service_ids", new StringBody("24"));
+                    }
+                    reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
+                    reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
+
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                postRequest.setEntity(reqEntity);
+                HttpResponse response = null;
+                StringBuilder s = new StringBuilder();
+                try {
+                    response = httpClient.execute(postRequest);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                    String sResponse;
+                    while ((sResponse = reader.readLine()) != null) {
+                        s = s.append(sResponse);
+                    }
+                    if (s.toString().contains("success")) {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
+                        startActivity(intent);
+                    }
+                    Log.e("response", s.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                postRequest.abort();
+                httpClient.getConnectionManager().shutdown();
+
+            }
+
+        });
+
+        Thread checkingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpPost postRequest = new HttpPost(IP_HOST + SHARE_CHECK);
+
+                MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+
+                try {
+                    reqEntity.addPart("cust_id", new StringBody(companyID));
+//                    reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+                    reqEntity.addPart("vehicle_id", new StringBody("303"));
+                    reqEntity.addPart("share", new StringBody(shareChecked));
+                    reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
+                    reqEntity.addPart("recurring", new StringBody(recurringChecked));
+                    if (recurringChecked.equals("1")) {
+                        reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
+                        reqEntity.addPart("recurring_days", new StringBody(recurringDays));
+                    }
+                    reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
+                    if (visibilityChecked.equals("1")) {
+                        reqEntity.addPart("visible_service_ids", new StringBody("24"));
+                    }
+                    reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
+                    reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
+
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                postRequest.setEntity(reqEntity);
+                HttpResponse response = null;
+                StringBuilder s = new StringBuilder();
+                try {
+                    response = httpClient.execute(postRequest);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                    String sResponse;
+                    while ((sResponse = reader.readLine()) != null) {
+                        s = s.append(sResponse);
+                    }
+                    if (s.toString().contains("validated")) {
+                        submitingThread.start();
+                    }
+                    Log.e("response", s.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                postRequest.abort();
+                httpClient.getConnectionManager().shutdown();
+
+            }
+
+        });
+        checkingThread.start();
+    }
+
 }
