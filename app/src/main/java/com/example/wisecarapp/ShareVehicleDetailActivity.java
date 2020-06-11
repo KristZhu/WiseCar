@@ -173,12 +173,9 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         shareSwitchButton = $(R.id.shareSwitchButton);
-        shareSwitchButton.setOnToggleChanged(new SwitchButton.OnToggleChanged(){
-            @Override
-            public void onToggle(boolean isOn) {
-                Log.d(TAG, "share: " + isOn);
-                isShare = isOn;
-            }
+        shareSwitchButton.setOnToggleChanged(isOn -> {
+            Log.d(TAG, "share: " + isOn);
+            isShare = isOn;
         });
 
         dateEditText = $(R.id.dateEditText);
