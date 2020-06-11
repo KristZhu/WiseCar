@@ -120,16 +120,16 @@ public class CreateUserActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_user);
 
-        userImgImageView = (ImageView) findViewById(R.id.userImgImageView);
-        uploadPhotoImageButton = (ImageButton) findViewById(R.id.uploadPhotoImageButton);
-        usernameEditText = (EditText) findViewById(R.id.usernameEditText);
-        userEmailEditText = (EditText) findViewById(R.id.userEmailEditText);
-        passwordEditText = (EditText) findViewById(R.id.passwordEditText);
-        passImageView = (ImageView) findViewById(R.id.passImageView);
-        confirmPasswordEditText = (EditText) findViewById(R.id.confirmPasswordEditText);
-        confirmPassImageView = (ImageView) findViewById(R.id.confirmPassImageView);
-        confirmNoPassImageView = (ImageView) findViewById(R.id.confirmNoPassImageView);
-        nextImageButton = (ImageButton) findViewById(R.id.nextImageButton);
+        userImgImageView = $(R.id.userImgImageView);
+        uploadPhotoImageButton = $(R.id.uploadPhotoImageButton);
+        usernameEditText = $(R.id.usernameEditText);
+        userEmailEditText = $(R.id.userEmailEditText);
+        passwordEditText = $(R.id.passwordEditText);
+        passImageView = $(R.id.passImageView);
+        confirmPasswordEditText = $(R.id.confirmPasswordEditText);
+        confirmPassImageView = $(R.id.confirmPassImageView);
+        confirmNoPassImageView = $(R.id.confirmNoPassImageView);
+        nextImageButton = $(R.id.nextImageButton);
 
 
         passwordEditText.setOnTouchListener(new View.OnTouchListener() {
@@ -461,5 +461,9 @@ public class CreateUserActivity extends AppCompatActivity {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+    private <T extends View> T $(int id){
+        return (T) findViewById(id);
     }
 }

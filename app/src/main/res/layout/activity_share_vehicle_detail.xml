@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto"
+xmlns:tools="http://schemas.android.com/tools"
+android:id="@+id/bg"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".ShareVehicleDetailActivity"
+android:background="@drawable/wc0bg_dark"
+android:theme="@style/Theme.AppCompat.NoActionBar">
+
+<ImageButton
+    android:id="@+id/backImageButton"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginTop="16dp"
+    android:layout_marginBottom="16dp"
+    android:background="@null"
+    android:padding="0dp"
+    android:scaleType="fitXY"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintDimensionRatio="1:1"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.0"
+    app:layout_constraintWidth_default="percent"
+    app:layout_constraintWidth_percent="0.1"
+    app:srcCompat="@drawable/wc0back" />
+
+<TextView
+    android:id="@+id/headerTextView"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    android:layout_marginStart="8dp"
+    android:text="SHARE Vehicle Details"
+    android:textStyle="bold"
+    android:padding="4dp"
+    app:autoSizeTextType="uniform"
+    app:layout_constraintBottom_toBottomOf="@+id/backImageButton"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.0"
+    app:layout_constraintStart_toEndOf="@+id/backImageButton"
+    app:layout_constraintTop_toTopOf="@+id/backImageButton" />
+
+
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/mainDiv"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:background="@drawable/wc0bg_light"
+    app:layout_constraintTop_toBottomOf="@id/backImageButton"
+    app:layout_constraintVertical_bias="0.0"
+    android:layout_marginTop="8dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent">
+
+<ScrollView
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:fadingEdge="vertical"
+    android:scrollbars="vertical"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toTopOf="@id/saveImageButton"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintVertical_bias="0.0">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/infoDiv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/wc0bg_light">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rowDiv1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/wc0bg_yellow"
+            android:padding="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:scaleType="fitXY"
+                android:alpha="0.5"
+                app:layout_constraintWidth_percent="0.7"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/vehicle0edittext" />
+
+            <ImageView
+                android:id="@+id/searchImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:scaleType="fitXY"
+                app:layout_constraintTop_toTopOf="@id/imageView1"
+                app:layout_constraintBottom_toBottomOf="@id/imageView1"
+                app:layout_constraintStart_toStartOf="@id/imageView1"
+                app:layout_constraintDimensionRatio="1:1"
+                app:srcCompat="@drawable/share_vehicle0search" />
+
+            <AutoCompleteTextView
+                android:id="@+id/searchEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:ems="10"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:autoText="true"
+                android:background="@null"
+                android:textColorLink="#ffffff"
+                android:popupBackground="#ffffff"
+                android:hint="SEARCH COMPANY NAME / ID"
+                android:textColorHint="#ffffff"
+                android:completionThreshold="1"
+                android:imeOptions="actionSearch"
+                android:inputType="textAutoComplete"
+                android:dropDownAnchor="@id/imageView1"
+                app:layout_constraintBottom_toBottomOf="@+id/imageView1"
+                app:layout_constraintEnd_toEndOf="@+id/imageView1"
+                app:layout_constraintStart_toEndOf="@+id/searchImageView"
+                app:layout_constraintTop_toTopOf="@+id/imageView1" />
+
+            <ImageButton
+                android:id="@+id/addImageButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:srcCompat="@drawable/share_vehicle0add"
+                android:padding="0dp"
+                android:background="@null"
+                android:scaleType="fitXY"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rowDiv2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/wc0bg_light"
+            android:padding="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rowDiv1">
+
+            <TextView
+                android:id="@+id/companyNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"/>
+
+            <TextView
+                android:id="@+id/companyIDTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#007BA4"
+                android:textSize="14sp"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/companyNameTextView" />
+
+            <TextView
+                android:id="@+id/shareTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Share ON / OFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/companyIDTextView" />
+
+            <ImageButton
+                android:id="@+id/cancelImageButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@null"
+                android:padding="8dp"
+                android:visibility="invisible"
+                app:layout_constraintTop_toTopOf="@id/companyNameTextView"
+                app:layout_constraintBottom_toBottomOf="@id/companyIDTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                android:src="@drawable/create_user0nopass"
+                android:scaleType="fitXY"/>
+
+            <com.example.wisecarapp.SwitchButton
+                android:id="@+id/shareSwitchButton"
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintWidth_percent="0.15"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:animate="true"
+                app:borderWidth="0.8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/shareTextView"
+                app:layout_constraintDimensionRatio="45:25"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/shareTextView"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <TextView
+                android:id="@+id/dateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/shareTextView" />
+
+            <ImageView
+                android:id="@+id/dateImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                android:scaleType="fitXY"
+                android:alpha="0.5"
+                app:layout_constraintWidth_percent="0.67"
+                app:layout_constraintDimensionRatio="70:8"
+                app:layout_constraintBottom_toBottomOf="@id/dateTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/dateTextView"
+                app:srcCompat="@drawable/vehicle0edittext" />
+
+            <EditText
+                android:id="@+id/dateEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:textColor="#000000"
+                android:autoText="true"
+                android:background="@null"
+                app:layout_constraintBottom_toBottomOf="@+id/dateImageView"
+                app:layout_constraintEnd_toEndOf="@+id/dateImageView"
+                app:layout_constraintStart_toStartOf="@+id/dateImageView"
+                app:layout_constraintTop_toTopOf="@+id/dateImageView" />
+
+            <TextView
+                android:id="@+id/startTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start Time"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/dateTextView" />
+
+            <ImageView
+                android:id="@+id/startImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:scaleType="fitXY"
+                android:alpha="0.5"
+                app:layout_constraintDimensionRatio="70:8"
+                app:layout_constraintWidth_percent="0.67"
+                app:layout_constraintBottom_toBottomOf="@id/startTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/startTextView"
+                app:srcCompat="@drawable/vehicle0edittext" />
+
+            <EditText
+                android:id="@+id/startEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:textColor="#000000"
+                android:autoText="true"
+                android:background="@null"
+                app:layout_constraintBottom_toBottomOf="@+id/startImageView"
+                app:layout_constraintEnd_toEndOf="@+id/startImageView"
+                app:layout_constraintStart_toStartOf="@+id/startImageView"
+                app:layout_constraintTop_toTopOf="@+id/startImageView" />
+
+            <TextView
+                android:id="@+id/endTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="End Time"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/startTextView" />
+
+            <ImageView
+                android:id="@+id/endImageView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginEnd="8dp"
+                android:alpha="0.5"
+                android:scaleType="fitXY"
+                app:layout_constraintBottom_toBottomOf="@id/endTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintDimensionRatio="70:8"
+                app:layout_constraintWidth_percent="0.67"
+                app:layout_constraintStart_toStartOf="@+id/startImageView"
+                app:layout_constraintTop_toTopOf="@id/endTextView"
+                app:srcCompat="@drawable/vehicle0edittext" />
+
+            <EditText
+                android:id="@+id/endEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:ems="10"
+                android:inputType="textPersonName"
+                android:textColor="#000000"
+                android:autoText="true"
+                android:background="@null"
+                app:layout_constraintBottom_toBottomOf="@+id/endImageView"
+                app:layout_constraintEnd_toEndOf="@+id/endImageView"
+                app:layout_constraintStart_toStartOf="@+id/endImageView"
+                app:layout_constraintTop_toTopOf="@+id/endImageView" />
+
+            <TextView
+                android:id="@+id/recurringTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recurring"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/endTextView" />
+
+            <com.example.wisecarapp.SwitchButton
+                android:id="@+id/recurringSwitchButton"
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintWidth_percent="0.15"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:animate="true"
+                app:borderWidth="0.8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/recurringTextView"
+                app:layout_constraintDimensionRatio="45:25"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/recurringTextView"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <ImageView
+                android:id="@+id/dividing1"
+                android:layout_width="0dp"
+                android:layout_height="5dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recurringTextView"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                android:background="#ffffff"
+                app:layout_constraintWidth_percent="0.5"
+                android:layout_marginTop="16dp"
+                android:alpha="0.5" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/recurringDiv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/dividing1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <TextView
+                    android:id="@+id/endDateTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="End Date"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:padding="4dp"
+                    app:layout_constraintVertical_bias="0.0"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"/>
+
+                <ImageView
+                    android:id="@+id/endDateImageView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:scaleType="fitXY"
+                    android:alpha="0.5"
+                    app:layout_constraintDimensionRatio="70:8"
+                    app:layout_constraintWidth_percent="0.67"
+                    app:layout_constraintBottom_toBottomOf="@id/endDateTextView"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/endDateTextView"
+                    app:srcCompat="@drawable/vehicle0edittext" />
+
+                <EditText
+                    android:id="@+id/endDateEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:textColor="#000000"
+                    android:autoText="true"
+                    android:background="@null"
+                    app:layout_constraintBottom_toBottomOf="@+id/endDateImageView"
+                    app:layout_constraintEnd_toEndOf="@+id/endDateImageView"
+                    app:layout_constraintStart_toStartOf="@+id/endDateImageView"
+                    app:layout_constraintTop_toTopOf="@+id/endDateImageView" />
+
+                <CheckBox
+                    android:id="@+id/monCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:button="@drawable/vehicle0checkbox_style_2"
+                    android:checked="true"
+                    android:text="Monday"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="@id/endDateTextView"
+                    app:layout_constraintEnd_toEndOf="@id/endDateImageView"
+                    app:layout_constraintTop_toBottomOf="@id/endDateTextView"/>
+
+                <CheckBox
+                    android:id="@+id/tueCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:button="@drawable/vehicle0checkbox_style_2"
+                    android:checked="true"
+                    android:text="Tuesday"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="@id/endDateTextView"
+                    app:layout_constraintEnd_toEndOf="@id/endDateImageView"
+                    app:layout_constraintTop_toBottomOf="@id/endDateTextView"/>
+
+                <CheckBox
+                    android:id="@+id/wedCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:button="@drawable/vehicle0checkbox_style_2"
+                    android:checked="true"
+                    android:text="Wednesday"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="@id/endDateTextView"
+                    app:layout_constraintEnd_toEndOf="@id/endDateImageView"
+                    app:layout_constraintTop_toBottomOf="@id/endDateTextView"/>
+
+                <CheckBox
+                    android:id="@+id/thuCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:button="@drawable/vehicle0checkbox_style_2"
+                    android:checked="true"
+                    android:text="Thursday"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="@id/endDateTextView"
+                    app:layout_constraintEnd_toEndOf="@id/endDateImageView"
+                    app:layout_constraintTop_toBottomOf="@id/monCheckBox"/>
+
+                <CheckBox
+                    android:id="@+id/friCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:button="@drawable/vehicle0checkbox_style_2"
+                    android:checked="true"
+                    android:text="Friday"
+                    app:layout_constraintHorizontal_bias="0.33"
+                    app:layout_constraintStart_toStartOf="@id/endDateTextView"
+                    app:layout_constraintEnd_toEndOf="@id/endDateImageView"
+                    app:layout_constraintTop_toBottomOf="@id/monCheckBox"/>
+
+                <CheckBox
+                    android:id="@+id/satCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:button="@drawable/vehicle0checkbox_style_2"
+                    android:checked="true"
+                    android:text="Saturday"
+                    android:textColor="#FFEB3B"
+                    app:layout_constraintHorizontal_bias="0.67"
+                    app:layout_constraintStart_toStartOf="@id/endDateTextView"
+                    app:layout_constraintEnd_toEndOf="@id/endDateImageView"
+                    app:layout_constraintTop_toBottomOf="@id/monCheckBox"/>
+
+                <CheckBox
+                    android:id="@+id/sunCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:button="@drawable/vehicle0checkbox_style_2"
+                    android:checked="true"
+                    android:text="Sunday"
+                    android:textColor="#FFEB3B"
+                    app:layout_constraintEnd_toEndOf="@id/endDateImageView"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="@id/endDateTextView"
+                    app:layout_constraintTop_toBottomOf="@id/monCheckBox" />
+
+                <ImageView
+                    android:id="@+id/dividing2"
+                    android:layout_width="0dp"
+                    android:layout_height="5dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/thuCheckBox"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintVertical_bias="0.0"
+                    android:background="#ffffff"
+                    app:layout_constraintWidth_percent="0.5"
+                    android:layout_marginTop="16dp"
+                    android:alpha="0.5" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/visibilityTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Service Visibility"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:padding="4dp"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recurringDiv" />
+
+            <com.example.wisecarapp.SwitchButton
+                android:id="@+id/visibilitySwitchButton"
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintWidth_percent="0.15"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:animate="true"
+                app:borderWidth="0.8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/visibilityTextView"
+                app:layout_constraintDimensionRatio="45:25"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/visibilityTextView"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <CheckBox
+                android:id="@+id/recordCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:button="@drawable/vehicle0checkbox_style_2"
+                android:checked="true"
+                android:text="Service Record"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@id/visibilityTextView"
+                app:layout_constraintEnd_toEndOf="@id/visibilitySwitchButton"
+                app:layout_constraintTop_toBottomOf="@id/visibilityTextView"/>
+
+            <CheckBox
+                android:id="@+id/registrationCheckBox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:button="@drawable/vehicle0checkbox_style_2"
+                android:checked="true"
+                android:text="Registration"
+                android:layout_marginStart="16dp"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toEndOf="@id/recordCheckBox"
+                app:layout_constraintEnd_toEndOf="@id/visibilitySwitchButton"
+                app:layout_constraintTop_toBottomOf="@id/visibilityTextView"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
+
+    <ImageButton
+        android:id="@+id/saveImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="8dp"
+        android:alpha="0.5"
+        android:clickable="false"
+        android:cropToPadding="false"
+        android:padding="0dp"
+        android:scaleType="fitXY"
+        android:background="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="0.1"
+        app:srcCompat="@drawable/vehicle0save_2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

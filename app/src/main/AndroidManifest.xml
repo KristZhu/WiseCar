@@ -24,7 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ServiceRecordsActivity"></activity>
+        <activity android:name=".ShareVehicleDetailActivity"></activity>
+        <activity android:name=".SharedVehiclesActivity" />
+        <activity android:name=".ServiceRecordsActivity" />
         <activity android:name=".EditVehicleActivity" />
         <activity android:name=".VehicleActivity" />
         <activity android:name=".AddVehicleActivity" />

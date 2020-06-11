@@ -86,7 +86,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_centerInParent="true"
-                    android:src="@drawable/add_vehicle0empty_image"
+                    android:src="@drawable/vehicle0empty_image"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

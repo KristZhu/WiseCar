@@ -162,22 +162,22 @@ public class AddVehicleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_vehicle);
 
-        vehicleImageView = (ImageView) findViewById(R.id.vehicleImageView);
-        uploadButton = (Button) findViewById(R.id.uploadButton);
-        rcEditText = (EditText) findViewById(R.id.rcEditText);
-        makeEditText = (EditText) findViewById(R.id.makeEditText);
-        modelEditText = (EditText) findViewById(R.id.modelEditText);
-        descriptionEditText = (EditText) findViewById(R.id.descriptionEditText);
-        serviceCheckBox = (CheckBox) findViewById(R.id.serviceCheckBox);
-        registrationCheckBox = (CheckBox) findViewById(R.id.registrationCheckBox);
-        driverCheckBox = (CheckBox) findViewById(R.id.driverCheckBox);
-        parkingCheckBox = (CheckBox) findViewById(R.id.parkingCheckBox);
-        insuranceCheckBox = (CheckBox) findViewById(R.id.insuranceCheckBox);
-        tollCheckBox = (CheckBox) findViewById(R.id.tollCheckBox);
-        fuelCheckBox = (CheckBox) findViewById(R.id.fuelCheckBox);
-        saveImageButton = (ImageButton) findViewById(R.id.saveImageButton);
+        vehicleImageView = $(R.id.vehicleImageView);
+        uploadButton = $(R.id.uploadButton);
+        rcEditText = $(R.id.rcEditText);
+        makeEditText = $(R.id.makeEditText);
+        modelEditText = $(R.id.modelEditText);
+        descriptionEditText = $(R.id.descriptionEditText);
+        serviceCheckBox = $(R.id.serviceCheckBox);
+        registrationCheckBox = $(R.id.registrationCheckBox);
+        driverCheckBox = $(R.id.driverCheckBox);
+        parkingCheckBox = $(R.id.parkingCheckBox);
+        insuranceCheckBox = $(R.id.insuranceCheckBox);
+        tollCheckBox = $(R.id.tollCheckBox);
+        fuelCheckBox = $(R.id.fuelCheckBox);
+        saveImageButton = $(R.id.saveImageButton);
 
-        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
+        backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -594,10 +594,14 @@ public class AddVehicleActivity extends AppCompatActivity {
                 }
 
                 postRequest.abort();
-
+                httpClient.getConnectionManager().shutdown();
             }
 
         });
         thread.start();
+    }
+
+    private <T extends View> T $(int id){
+        return (T) findViewById(id);
     }
 }
