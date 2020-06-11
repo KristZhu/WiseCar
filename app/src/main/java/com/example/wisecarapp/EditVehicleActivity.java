@@ -75,17 +75,17 @@ public class EditVehicleActivity extends AppCompatActivity {
         Log.d(TAG, "vehicle: " + vehicle);
         services = new ArrayList<>();
 
-        // intent vehicle_id to service record.
-        Intent intent = new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class);
-        intent.putExtra("vehicle_id", vehicleID);
+        // intent vehicle_id to service record. (Do not know if it is written by mistake)
+        //Intent intent = new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class);
+        //intent.putExtra("vehicle_id", vehicleID);
 
-        vehicleImageView = (ImageView) findViewById(R.id.vehicleImageView);
+        vehicleImageView = $(R.id.vehicleImageView);
         vehicleImageView.setImageBitmap(vehicle.getImage());
 
-        makeRegistrationNoTextView = (TextView) findViewById(R.id.makeRegistrationNoTextView);
-        vinTextView = (TextView) findViewById(R.id.vinTextView);
-        registrationTextView = (TextView) findViewById(R.id.registrationCheckBox);
-        serviceTextView = (TextView) findViewById(R.id.serviceTextView);
+        makeRegistrationNoTextView = $(R.id.makeRegistrationNoTextView);
+        vinTextView = $(R.id.vinTextView);
+        registrationTextView = $(R.id.registrationCheckBox);
+        serviceTextView = $(R.id.serviceTextView);
 
         makeRegistrationNoTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
 
@@ -158,7 +158,7 @@ public class EditVehicleActivity extends AppCompatActivity {
         });
 
 
-        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
+        backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -235,6 +235,10 @@ public class EditVehicleActivity extends AppCompatActivity {
         Intent intent = new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class);
         intent.putExtra("vehicleID", vehicleID);
         startActivity(intent);
+    }
+
+    private <T extends View> T $(int id){
+        return (T) findViewById(id);
     }
 
 }

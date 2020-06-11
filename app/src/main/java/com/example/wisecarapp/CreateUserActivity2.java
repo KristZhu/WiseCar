@@ -80,17 +80,17 @@ public class CreateUserActivity2 extends AppCompatActivity {
         userEmail = this.getIntent().getStringExtra("userEmail");
         password = this.getIntent().getStringExtra("password");
 
-        firstNameEditText = (EditText) findViewById(R.id.userFNameEditText);
-        lastNameEditText = (EditText) findViewById(R.id.userLNameEditText);
-        dobEditText = (EditText) findViewById(R.id.dobEditText);
+        firstNameEditText = $(R.id.userFNameEditText);
+        lastNameEditText = $(R.id.userLNameEditText);
+        dobEditText = $(R.id.dobEditText);
         dobEditText.setInputType(InputType.TYPE_NULL);
-        licenceEditText = (EditText) findViewById(R.id.licenceEditText);
-        address1EditText = (EditText) findViewById(R.id.address1EditText);
-        address2EditText = (EditText) findViewById(R.id.address2EditText);
-        countryEditText = (EditText) findViewById(R.id.countryEditText);
-        stateEditText = (EditText) findViewById(R.id.stateEditText);
-        postCodeEditText = (EditText) findViewById(R.id.postCodeEditText);
-        createImageButton = (ImageButton) findViewById(R.id.createImageButton);
+        licenceEditText = $(R.id.licenceEditText);
+        address1EditText = $(R.id.address1EditText);
+        address2EditText = $(R.id.address2EditText);
+        countryEditText = $(R.id.countryEditText);
+        stateEditText = $(R.id.stateEditText);
+        postCodeEditText = $(R.id.postCodeEditText);
+        createImageButton = $(R.id.createImageButton);
 
         dobEditText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,7 +100,9 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         dob = intToDate(year, monthOfYear, dayOfMonth);
-                        dobEditText.setText(dateToStr(dob));
+                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                        String str = format.format(dob);
+                        dobEditText.setText(str);
                     }
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -114,7 +116,9 @@ public class CreateUserActivity2 extends AppCompatActivity {
                         @Override
                         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                             dob = intToDate(year, monthOfYear, dayOfMonth);
-                            dobEditText.setText(dateToStr(dob));
+                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                            String str = format.format(dob);
+                            dobEditText.setText(str);
                         }
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
 
@@ -251,20 +255,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
         return date;
     }
 
-    private static String dateToStr(java.util.Date date) {
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-        String str = format.format(date);
-        return str;
-    }
-
-    private static java.sql.Date utilDateToSqlDate(java.util.Date date) {
-        return new java.sql.Date(date.getTime());
-    }
-
-    private static java.util.Date sqlDateToUtilDate(java.sql.Date date) {
-        return new java.util.Date(date.getTime());
-    }
-
     private void uploadByHttpClient() {
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -335,6 +325,10 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
         });
         thread.start();
+    }
+
+    private <T extends View> T $(int id){
+        return (T) findViewById(id);
     }
 
 }

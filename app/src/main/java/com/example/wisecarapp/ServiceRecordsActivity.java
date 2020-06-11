@@ -153,7 +153,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_records);
 
-        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
+        backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -194,12 +194,12 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             }
         });
 
-        serviceIDTextView = (TextView) findViewById(R.id.serviceIDTextView);
-        qrImageView = (ImageView) findViewById(R.id.qrImageView);
-        uploadButton = (Button) findViewById(R.id.uploadButton);
-        cameraImageButton = (ImageButton) findViewById(R.id.cameraImageButton);
-        identifierTextView = (TextView) findViewById(R.id.identifierTextView);
-        resetButton = (Button) findViewById(R.id.resetButton);
+        serviceIDTextView = $(R.id.serviceIDTextView);
+        qrImageView = $(R.id.qrImageView);
+        uploadButton = $(R.id.uploadButton);
+        cameraImageButton = $(R.id.cameraImageButton);
+        identifierTextView = $(R.id.identifierTextView);
+        resetButton = $(R.id.resetButton);
 
         resetButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -283,17 +283,17 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         });
 
 
-        dateEditText = (EditText) findViewById(R.id.dateEditText);
-        centreEditText = (EditText) findViewById(R.id.centreEditText);
-        refNoEditText = (EditText) findViewById(R.id.refNoEditText);
-        notesEditText = (EditText) findViewById(R.id.notesEditText);
-        nextDateEditText = (EditText) findViewById(R.id.nextDateEditText);
-        nextDistanceEditText = (EditText) findViewById(R.id.nextDistanceEditText);
-        oilCheckBox = (CheckBox) findViewById(R.id.oilCheckBox);
-        brakeCheckBox = (CheckBox) findViewById(R.id.brakeCheckBox);
-        batteryCheckBox = (CheckBox) findViewById(R.id.batteryCheckBox);
-        coolingCheckBox = (CheckBox) findViewById(R.id.coolingCheckBox);
-        lightsCheckBox = (CheckBox) findViewById(R.id.lightsCheckBox);
+        dateEditText = $(R.id.dateEditText);
+        centreEditText = $(R.id.centreEditText);
+        refNoEditText = $(R.id.refNoEditText);
+        notesEditText = $(R.id.notesEditText);
+        nextDateEditText = $(R.id.nextDateEditText);
+        nextDistanceEditText = $(R.id.nextDistanceEditText);
+        oilCheckBox = $(R.id.oilCheckBox);
+        brakeCheckBox = $(R.id.brakeCheckBox);
+        batteryCheckBox = $(R.id.batteryCheckBox);
+        coolingCheckBox = $(R.id.coolingCheckBox);
+        lightsCheckBox = $(R.id.lightsCheckBox);
 
         dateEditText.setInputType(InputType.TYPE_NULL);
         dateEditText.setOnClickListener(new View.OnClickListener() {
@@ -314,8 +314,9 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                             time.append(":");
                             time.append(minute >= 10 ? minute : "0" + minute);
                             time.append("  ");
-                            date = new java.util.Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
+                            date = new Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
                             dateEditText.append(time);
+                            Log.d(TAG, "date: " + date);
                         }
                     }
                 }, 0, 0, true).show();
@@ -323,7 +324,9 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         date = intToDate(year, monthOfYear, dayOfMonth);
-                        dateEditText.append(dateToStr(date));
+                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                        String str = format.format(date);
+                        dateEditText.append(str + ", ");
                     }
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -355,7 +358,9 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                         @Override
                         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                             date = intToDate(year, monthOfYear, dayOfMonth);
-                            dateEditText.append(dateToStr(date) + ", ");
+                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                            String str = format.format(date);
+                            dateEditText.append(str + ", ");
                         }
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
                 }
@@ -371,7 +376,9 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         nextDate = intToDate(year, monthOfYear, dayOfMonth);
-                        nextDateEditText.setText(dateToStr(nextDate));
+                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                        String str = format.format(nextDate);
+                        nextDateEditText.setText(str);
                     }
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
@@ -385,7 +392,9 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                         @Override
                         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                             nextDate = intToDate(year, monthOfYear, dayOfMonth);
-                            nextDateEditText.setText(dateToStr(nextDate));
+                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                            String str = format.format(nextDate);
+                            nextDateEditText.setText(str);
                         }
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
                 }
@@ -393,7 +402,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         });
 
 
-        saveImageButton = (ImageButton) findViewById(R.id.saveImageButton);
+        saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -680,20 +689,6 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         return date;
     }
 
-    private static String dateToStr(java.util.Date date) {
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-        String str = format.format(date);
-        return str;
-    }
-
-    private static java.sql.Date utilDateToSqlDate(java.util.Date date) {
-        return new java.sql.Date(date.getTime());
-    }
-
-    private static java.util.Date sqlDateToUtilDate(java.sql.Date date) {
-        return new java.util.Date(date.getTime());
-    }
-
     private void uploadServiceRecord() {
 
         if (isOil) {
@@ -843,5 +838,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 //        void onError(@NonNull String errorMessage);
     }
 
+    private <T extends View> T $(int id){
+        return (T) findViewById(id);
+    }
 
 }

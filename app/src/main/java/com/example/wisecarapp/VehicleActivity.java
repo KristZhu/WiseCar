@@ -93,9 +93,9 @@ public class VehicleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vehicle);
 
-        usernameTextView = (TextView) findViewById(R.id.usernameTextView);
-        userEmailTextView = (TextView) findViewById(R.id.userEmailTextView);
-        userImgImageView = (ImageView) findViewById(R.id.userImgImageView);
+        usernameTextView = $(R.id.usernameTextView);
+        userEmailTextView = $(R.id.userEmailTextView);
+        userImgImageView = $(R.id.userImgImageView);
 
         user_id = UserInfo.getUserID();
         //user_id = "179";
@@ -128,7 +128,7 @@ public class VehicleActivity extends AppCompatActivity {
             userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
         }
 
-        backImageButton = (ImageButton) findViewById(R.id.backImageButton);
+        backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,11 +151,11 @@ public class VehicleActivity extends AppCompatActivity {
             }
         });
 
-        settingImageButton = (ImageButton) findViewById(R.id.settingImageButton);
-        editImageButton = (ImageButton) findViewById(R.id.editImageButton);
+        settingImageButton = $(R.id.settingImageButton);
+        editImageButton = $(R.id.editImageButton);
 
-        dashboardImageButton = (ImageButton) findViewById(R.id.dashboardImageButton);
-        dashboardButton = (Button) findViewById(R.id.dashboardButton);
+        dashboardImageButton = $(R.id.dashboardImageButton);
+        dashboardButton = $(R.id.dashboardButton);
         dashboardImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -169,8 +169,8 @@ public class VehicleActivity extends AppCompatActivity {
             }
         });
 
-        calendarImageButton = (ImageButton) findViewById(R.id.calendarImageButton);
-        calendarButton = (Button) findViewById(R.id.calendarButton);
+        calendarImageButton = $(R.id.calendarImageButton);
+        calendarButton = $(R.id.calendarButton);
         calendarImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -185,12 +185,12 @@ public class VehicleActivity extends AppCompatActivity {
         });
 
 
-        selectedVehicleTextView = (Button) findViewById(R.id.selectedVehicleTextView);
-        selectedVehicleImageView = (ImageView) findViewById(R.id.selectedVehicleImageView);
-        vehicleLayout = (LinearLayout) findViewById(R.id.vehicleLayout);
-        editVehicleImageButton = (ImageButton) findViewById(R.id.editVehicleImageButton);
-        addImageButton = (ImageButton) findViewById(R.id.addImageButton);
-        manageImageButton = (ImageButton) findViewById(R.id.manageImageButton);
+        selectedVehicleTextView = $(R.id.selectedVehicleTextView);
+        selectedVehicleImageView = $(R.id.selectedVehicleImageView);
+        vehicleLayout = $(R.id.vehicleLayout);
+        editVehicleImageButton = $(R.id.editVehicleImageButton);
+        addImageButton = $(R.id.addImageButton);
+        manageImageButton = $(R.id.manageImageButton);
 
         vehiclesDB = new TreeMap<>((o1, o2) -> o2.compareTo(o1));
 
@@ -239,8 +239,8 @@ public class VehicleActivity extends AppCompatActivity {
         });
 
 
-        inboxImageButton = (ImageButton) findViewById(R.id.inboxImageButton);
-        inboxButton = (Button) findViewById(R.id.inboxButton);
+        inboxImageButton = $(R.id.inboxImageButton);
+        inboxButton = $(R.id.inboxButton);
         inboxImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -504,4 +504,7 @@ public class VehicleActivity extends AppCompatActivity {
         void onError(@NonNull String errorMessage);
     }
 
+    private <T extends View> T $(int id){
+        return (T) findViewById(id);
+    }
 }

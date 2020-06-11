@@ -48,9 +48,9 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
 
 
 <androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/save"
+    android:id="@+id/mainDiv"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="0dp"
     android:background="@drawable/wc0bg_light"
     app:layout_constraintTop_toBottomOf="@id/backImageButton"
     app:layout_constraintVertical_bias="0.0"
@@ -63,17 +63,16 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="0dp"
-    android:layout_marginTop="8dp"
     android:fadingEdge="vertical"
     android:scrollbars="vertical"
-    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toTopOf="@id/saveImageButton"
     app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.0"
     app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintVertical_bias="1.0">
+    app:layout_constraintVertical_bias="0.0">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mainDiv"
+        android:id="@+id/infoDiv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/wc0bg_light">
@@ -118,7 +117,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 app:layout_constraintDimensionRatio="1:1"
                 app:srcCompat="@drawable/share_vehicle0search" />
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/searchEditText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -128,12 +127,17 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 android:layout_marginTop="8dp"
                 android:ems="10"
                 android:textSize="16sp"
-                android:inputType="textPersonName"
                 android:textColor="#000000"
                 android:autoText="true"
                 android:background="@null"
+                android:textColorLink="#ffffff"
+                android:popupBackground="#ffffff"
                 android:hint="SEARCH COMPANY NAME / ID"
                 android:textColorHint="#ffffff"
+                android:completionThreshold="1"
+                android:imeOptions="actionSearch"
+                android:inputType="textAutoComplete"
+                android:dropDownAnchor="@id/imageView1"
                 app:layout_constraintBottom_toBottomOf="@+id/imageView1"
                 app:layout_constraintEnd_toEndOf="@+id/imageView1"
                 app:layout_constraintStart_toEndOf="@+id/searchImageView"
@@ -168,7 +172,6 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 android:id="@+id/companyNameTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Company Name"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -181,7 +184,6 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 android:id="@+id/companyIDTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Company ID"
                 android:textColor="#007BA4"
                 android:textSize="14sp"
                 app:layout_constraintVertical_bias="0.0"
@@ -206,6 +208,20 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/companyIDTextView" />
+
+            <ImageButton
+                android:id="@+id/cancelImageButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@null"
+                android:padding="8dp"
+                android:visibility="invisible"
+                app:layout_constraintTop_toTopOf="@id/companyNameTextView"
+                app:layout_constraintBottom_toBottomOf="@id/companyIDTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                android:src="@drawable/create_user0nopass"
+                android:scaleType="fitXY"/>
 
             <com.example.wisecarapp.SwitchButton
                 android:id="@+id/shareSwitchButton"
@@ -643,32 +659,31 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 app:layout_constraintEnd_toEndOf="@id/visibilitySwitchButton"
                 app:layout_constraintTop_toBottomOf="@id/visibilityTextView"/>
 
-            <ImageButton
-                android:id="@+id/saveImageButton"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginEnd="32dp"
-                android:layout_marginBottom="8dp"
-                android:alpha="0.5"
-                android:clickable="false"
-                android:cropToPadding="false"
-                android:padding="0dp"
-                android:scaleType="fitXY"
-                android:background="@null"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/recordCheckBox"
-                app:layout_constraintWidth_percent="0.1"
-                app:srcCompat="@drawable/vehicle0save_2" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>
+
+    <ImageButton
+        android:id="@+id/saveImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="8dp"
+        android:alpha="0.5"
+        android:clickable="false"
+        android:cropToPadding="false"
+        android:padding="0dp"
+        android:scaleType="fitXY"
+        android:background="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="0.1"
+        app:srcCompat="@drawable/vehicle0save_2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -87,10 +87,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        usernameEditText = (EditText) findViewById(R.id.usernameEditText);
-        passwordEditText = (EditText) findViewById(R.id.passwordEditText);
-        signInImageButton = (ImageButton) findViewById(R.id.signInImageButton);
-        createUserImageButton = (ImageButton) findViewById(R.id.createUserImageButton);
+        usernameEditText = $(R.id.usernameEditText);
+        passwordEditText = $(R.id.passwordEditText);
+        signInImageButton = $(R.id.signInImageButton);
+        createUserImageButton = $(R.id.createUserImageButton);
 
         signInImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,6 +166,10 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(LoginActivity.this, CreateUserActivity.class));
             }
         });
+    }
+
+    private <T extends View> T $(int id){
+        return (T) findViewById(id);
     }
 
 }
