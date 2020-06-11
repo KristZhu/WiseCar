@@ -154,13 +154,10 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_service_records);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
-                intent.putExtra("vehicleID", vehicleID);
-                startActivity(intent);
-            }
+        backImageButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
+            intent.putExtra("vehicleID", vehicleID);
+            startActivity(intent);
         });
 
         SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy");
@@ -171,27 +168,24 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
 
-        getRecordIdentifier(new recordIdentifierCallback() {
-            @Override
-            public void onSuccess(@NonNull String returnedIdentifier, String returnedRecord_id) {
+        getRecordIdentifier((returnedIdentifier, returnedRecord_id) -> {
 
-                Log.e("identifier", identifier);
-                Log.e("record_id", record_id);
+            Log.e("identifier", identifier);
+            Log.e("record_id", record_id);
 //                identifier = returnedIdentifier;
 //                record_id = returnedRecord_id;
 
-                String idToBeShown = "ID: " + record_id;
+            String idToBeShown = "ID: " + record_id;
 
-                int width = qrImageView.getWidth();
-                int height = qrImageView.getHeight();
+            int width = qrImageView.getWidth();
+            int height = qrImageView.getHeight();
 
-                serviceIDTextView.setText(idToBeShown);
-                identifierTextView.setText(returnedIdentifier);
+            serviceIDTextView.setText(idToBeShown);
+            identifierTextView.setText(returnedIdentifier);
 
-                File qrCodeFile = QRCode.from(IP_HOST + scanQRCode + identifier).to(ImageType.PNG).withSize(width, height).file();
-                qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
-                qrImageView.setImageBitmap(qrCodeBitmap);
-            }
+            File qrCodeFile = QRCode.from(IP_HOST + scanQRCode + identifier).to(ImageType.PNG).withSize(width, height).file();
+            qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
+            qrImageView.setImageBitmap(qrCodeBitmap);
         });
 
         serviceIDTextView = $(R.id.serviceIDTextView);
@@ -201,85 +195,73 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         identifierTextView = $(R.id.identifierTextView);
         resetButton = $(R.id.resetButton);
 
-        resetButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                qrImageView.setImageBitmap(qrCodeBitmap);
-            }
+        resetButton.setOnClickListener((v) -> {
+            qrImageView.setImageBitmap(qrCodeBitmap);
         });
 
-        uploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "upload record: ");
-            }
+        uploadButton.setOnClickListener((v) -> {
+            Log.d(TAG, "upload record: ");
         });
-        cameraImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
-                AlertDialog alertDialog = new AlertDialog.Builder(ServiceRecordsActivity.this)
-                        .setTitle("How to upload? ")
-                        .setIcon(R.mipmap.ic_launcher)
-                        .setItems(ways, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Log.d(TAG, "onClick: " + ways[i]);
-                                if (i == 0) {  //take photo
-                                    int permissionCheckCamera = ContextCompat.checkSelfPermission(ServiceRecordsActivity.this, Manifest.permission.CAMERA);
-                                    int permissionCheckStorage = ContextCompat.checkSelfPermission(ServiceRecordsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                                    Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
-                                    Log.d(TAG, "onClickPermissionCheckStorage: " + permissionCheckStorage);
+        cameraImageButton.setOnClickListener(v -> {
+            final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
+            AlertDialog alertDialog = new AlertDialog.Builder(ServiceRecordsActivity.this)
+                    .setTitle("How to upload? ")
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setItems(ways, (dialogInterface, i) -> {
+                        Log.d(TAG, "onClick: " + ways[i]);
+                        if (i == 0) {  //take photo
+                            int permissionCheckCamera = ContextCompat.checkSelfPermission(ServiceRecordsActivity.this, Manifest.permission.CAMERA);
+                            int permissionCheckStorage = ContextCompat.checkSelfPermission(ServiceRecordsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                            Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
+                            Log.d(TAG, "onClickPermissionCheckStorage: " + permissionCheckStorage);
 
-                                    // solve android 7.0 problem
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                                        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                                        StrictMode.setVmPolicy(builder.build());
-                                        builder.detectFileUriExposure();
-                                    }
-
-                                    if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
-                                        ActivityCompat.requestPermissions(
-                                                ServiceRecordsActivity.this,
-                                                new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                MULTI_PERMISSION_CODE
-                                        );
-                                    } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestCamera: ");
-                                        ActivityCompat.requestPermissions(
-                                                ServiceRecordsActivity.this,
-                                                new String[]{Manifest.permission.CAMERA},
-                                                PERMISSION_CAMERA_REQUEST_CODE
-                                        );
-                                    } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                        ActivityCompat.requestPermissions(
-                                                ServiceRecordsActivity.this,
-                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                        );
-                                    } else {
-                                        beforeStartCamera();
-                                    }
-                                } else if (i == 1) {   //upload from phone
-                                    if (ContextCompat.checkSelfPermission(ServiceRecordsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                                        Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                        ActivityCompat.requestPermissions(
-                                                ServiceRecordsActivity.this,
-                                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                                PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                        );
-                                    } else {
-                                        beforeStartStorage();
-                                    }
-                                } else {
-                                    //cancel
-                                }
+                            // solve android 7.0 problem
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                                StrictMode.setVmPolicy(builder.build());
+                                builder.detectFileUriExposure();
                             }
-                        }).create();
-                alertDialog.show();
-            }
+
+                            if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                                Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
+                                ActivityCompat.requestPermissions(
+                                        ServiceRecordsActivity.this,
+                                        new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        MULTI_PERMISSION_CODE
+                                );
+                            } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
+                                Log.d(TAG, "onClickPermissionRequestCamera: ");
+                                ActivityCompat.requestPermissions(
+                                        ServiceRecordsActivity.this,
+                                        new String[]{Manifest.permission.CAMERA},
+                                        PERMISSION_CAMERA_REQUEST_CODE
+                                );
+                            } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                                Log.d(TAG, "onClickPermissionRequestStorage: ");
+                                ActivityCompat.requestPermissions(
+                                        ServiceRecordsActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
+                                );
+                            } else {
+                                beforeStartCamera();
+                            }
+                        } else if (i == 1) {   //upload from phone
+                            if (ContextCompat.checkSelfPermission(ServiceRecordsActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                                Log.d(TAG, "onClickPermissionRequestStorage: ");
+                                ActivityCompat.requestPermissions(
+                                        ServiceRecordsActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
+                                );
+                            } else {
+                                beforeStartStorage();
+                            }
+                        } else {
+                            //cancel
+                        }
+                    }).create();
+            alertDialog.show();
         });
 
 
@@ -296,145 +278,112 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         lightsCheckBox = $(R.id.lightsCheckBox);
 
         dateEditText.setInputType(InputType.TYPE_NULL);
-        dateEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        dateEditText.setOnClickListener(v -> {
+            dateEditText.setText("");
+            date = null;
+            Calendar c = Calendar.getInstance();
+            new TimePickerDialog(ServiceRecordsActivity.this, (view, hour, minute) -> {
+                if (date == null)
+                    ; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
+                else {
+                    StringBuffer time = new StringBuffer();
+                    time.append(", ");
+                    time.append(hour >= 10 ? hour : "0" + hour);
+                    time.append(":");
+                    time.append(minute >= 10 ? minute : "0" + minute);
+                    time.append("  ");
+                    date = new Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
+                    dateEditText.append(time);
+                    Log.d(TAG, "date: " + date);
+                }
+            }, 0, 0, true).show();
+            new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
+                date = intToDate(year, monthOfYear, dayOfMonth);
+                SimpleDateFormat format1 = new SimpleDateFormat("ddMMM yyyy");
+                String str = format1.format(date);
+                dateEditText.append(str + ", ");
+            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+        });
+        dateEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
                 dateEditText.setText("");
-                date = null;
                 Calendar c = Calendar.getInstance();
-                new TimePickerDialog(ServiceRecordsActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hour, int minute) {
-                        if (date == null)
-                            ; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
-                        else {
-                            StringBuffer time = new StringBuffer();
-                            time.append(", ");
-                            time.append(hour >= 10 ? hour : "0" + hour);
-                            time.append(":");
-                            time.append(minute >= 10 ? minute : "0" + minute);
-                            time.append("  ");
-                            date = new Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
-                            dateEditText.append(time);
-                            Log.d(TAG, "date: " + date);
-                        }
+                new TimePickerDialog(ServiceRecordsActivity.this, (view, hour, minute) -> {
+                    if (date == null)
+                        return; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
+                    else {
+                        StringBuffer time = new StringBuffer();
+                        time.append(hour >= 10 ? hour : "0" + hour);
+                        time.append(":");
+                        time.append(minute >= 10 ? minute : "0" + minute);
+                        time.append("  ");
+                        date = new Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
+                        dateEditText.append(time);
+                        Log.d(TAG, "date: " + date);
                     }
                 }, 0, 0, true).show();
-                new DatePickerDialog(ServiceRecordsActivity.this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        date = intToDate(year, monthOfYear, dayOfMonth);
-                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                        String str = format.format(date);
-                        dateEditText.append(str + ", ");
-                    }
+                new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
+                    date = intToDate(year, monthOfYear, dayOfMonth);
+                    SimpleDateFormat format12 = new SimpleDateFormat("ddMMM yyyy");
+                    String str = format12.format(date);
+                    dateEditText.append(str + ", ");
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-        dateEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    dateEditText.setText("");
-                    Calendar c = Calendar.getInstance();
-                    new TimePickerDialog(ServiceRecordsActivity.this, new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker view, int hour, int minute) {
-                            if (date == null)
-                                return; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
-                            else {
-                                StringBuffer time = new StringBuffer();
-                                time.append(hour >= 10 ? hour : "0" + hour);
-                                time.append(":");
-                                time.append(minute >= 10 ? minute : "0" + minute);
-                                time.append("  ");
-                                date = new Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
-                                dateEditText.append(time);
-                                Log.d(TAG, "date: " + date);
-                            }
-                        }
-                    }, 0, 0, true).show();
-                    new DatePickerDialog(ServiceRecordsActivity.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                            date = intToDate(year, monthOfYear, dayOfMonth);
-                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                            String str = format.format(date);
-                            dateEditText.append(str + ", ");
-                        }
-                    }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-                }
             }
         });
 
         nextDateEditText.setInputType(InputType.TYPE_NULL);
-        nextDateEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Calendar c = Calendar.getInstance();
-                new DatePickerDialog(ServiceRecordsActivity.this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        nextDate = intToDate(year, monthOfYear, dayOfMonth);
-                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                        String str = format.format(nextDate);
-                        nextDateEditText.setText(str);
-                    }
-                }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-            }
+        nextDateEditText.setOnClickListener(v -> {
+            Calendar c = Calendar.getInstance();
+            new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
+                nextDate = intToDate(year, monthOfYear, dayOfMonth);
+                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy");
+                String str = format13.format(nextDate);
+                nextDateEditText.setText(str);
+            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
-        nextDateEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    Calendar c = Calendar.getInstance();
-                    new DatePickerDialog(ServiceRecordsActivity.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                            nextDate = intToDate(year, monthOfYear, dayOfMonth);
-                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                            String str = format.format(nextDate);
-                            nextDateEditText.setText(str);
-                        }
-                    }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-                }
+        nextDateEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                Calendar c = Calendar.getInstance();
+                new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
+                    nextDate = intToDate(year, monthOfYear, dayOfMonth);
+                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy");
+                    String str = format14.format(nextDate);
+                    nextDateEditText.setText(str);
+                }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
 
 
         saveImageButton = $(R.id.saveImageButton);
-        saveImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Log.d(TAG, "userID" + UserInfo.getUserID());
-                //Log.d(TAG, "vehicle" + vehicle);
-                Log.d(TAG, "date: " + date);
-                Log.d(TAG, "centre: " + centre);
-                Log.d(TAG, "refNo: " + refNo);
-                Log.d(TAG, "isOil: " + isOil);
-                Log.d(TAG, "isBrake：" + isBrake);
-                Log.d(TAG, "isBattery: " + isBattery);
-                Log.d(TAG, "isCooling: " + isCooling);
-                Log.d(TAG, "isLights:" + isLights);
-                Log.d(TAG, "notes: " + notes);
-                Log.d(TAG, "nextDate: " + nextDate);
-                Log.d(TAG, "nextDistance: " + nextDistance);
+        saveImageButton.setOnClickListener(v -> {
+            //Log.d(TAG, "userID" + UserInfo.getUserID());
+            //Log.d(TAG, "vehicle" + vehicle);
+            Log.d(TAG, "date: " + date);
+            Log.d(TAG, "centre: " + centre);
+            Log.d(TAG, "refNo: " + refNo);
+            Log.d(TAG, "isOil: " + isOil);
+            Log.d(TAG, "isBrake：" + isBrake);
+            Log.d(TAG, "isBattery: " + isBattery);
+            Log.d(TAG, "isCooling: " + isCooling);
+            Log.d(TAG, "isLights:" + isLights);
+            Log.d(TAG, "notes: " + notes);
+            Log.d(TAG, "nextDate: " + nextDate);
+            Log.d(TAG, "nextDistance: " + nextDistance);
 
-                try {
-                    if (Double.parseDouble(nextDistance) <= 0) throw new Exception();
-                    if (nextDate.after(new java.util.Date())) {
+            try {
+                if (Double.parseDouble(nextDistance) <= 0) throw new Exception();
+                if (nextDate.after(new Date())) {
 
-                        // Write INSERTIONG here
-                        uploadServiceRecord();
+                    // Write INSERTIONG here
+                    uploadServiceRecord();
 
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Please enter correct next service date", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), "Please enter correct next service distance", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please enter correct next service date", Toast.LENGTH_SHORT).show();
                 }
-
+            } catch (Exception e) {
+                Toast.makeText(getApplicationContext(), "Please enter correct next service distance", Toast.LENGTH_SHORT).show();
             }
+
         });
 
     }
@@ -707,80 +656,76 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             servicesOptions += "5";
         }
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpPost postRequest = new HttpPost(IP_HOST + ADD_SERVICE_RECORD);
+        Thread thread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + ADD_SERVICE_RECORD);
 
-                MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
-                DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
-                try {
-                    reqEntity.addPart("record_id", new StringBody(serviceIDTextView.getText().toString().substring(4)));
-                    Log.e("recordID in request", serviceIDTextView.getText().toString().substring(4));
+            try {
+                reqEntity.addPart("record_id", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+                Log.e("recordID in request", serviceIDTextView.getText().toString().substring(4));
 
-                    reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-                    reqEntity.addPart("service_date", new StringBody(format.format(date)));
-                    reqEntity.addPart("service_center", new StringBody(centre));
-                    reqEntity.addPart("service_ref", new StringBody(refNo));
-                    reqEntity.addPart("service_option_ids", new StringBody(servicesOptions));
-                    reqEntity.addPart("service_notes", new StringBody(notes));
-                    reqEntity.addPart("next_service_date", new StringBody(format.format(nextDate)));
-                    reqEntity.addPart("next_service_odometer", new StringBody(nextDistance));
+                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+                reqEntity.addPart("service_date", new StringBody(format.format(date)));
+                reqEntity.addPart("service_center", new StringBody(centre));
+                reqEntity.addPart("service_ref", new StringBody(refNo));
+                reqEntity.addPart("service_option_ids", new StringBody(servicesOptions));
+                reqEntity.addPart("service_notes", new StringBody(notes));
+                reqEntity.addPart("next_service_date", new StringBody(format.format(nextDate)));
+                reqEntity.addPart("next_service_odometer", new StringBody(nextDistance));
 
-                    if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
-                        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                        Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
-                        toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                        byte[] qrbyteArray = stream.toByteArray();
-                        ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
-                        reqEntity.addPart("document", recordBody);
-                    }
-                    reqEntity.addPart("service_record_identifier", new StringBody(identifierTextView.getText().toString()));
-                    Log.e("recordID in request", identifierTextView.getText().toString());
-
-
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    try {
-                        reqEntity.addPart("logo", new StringBody("image error"));
-                    } catch (UnsupportedEncodingException ex) {
-                        ex.printStackTrace();
-                    }
+                if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] qrbyteArray = stream.toByteArray();
+                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
+                    reqEntity.addPart("document", recordBody);
                 }
+                reqEntity.addPart("service_record_identifier", new StringBody(identifierTextView.getText().toString()));
+                Log.e("recordID in request", identifierTextView.getText().toString());
 
-                postRequest.setEntity(reqEntity);
-                HttpResponse response = null;
-                StringBuilder s = new StringBuilder();
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 try {
-                    response = httpClient.execute(postRequest);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                    String sResponse;
-                    while ((sResponse = reader.readLine()) != null) {
-                        s = s.append(sResponse);
-                    }
-                    if (s.toString().contains("success")) {
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
-                                intent.putExtra("vehicleID", vehicleID);
-                                startActivity(intent);
-                            }
-                        });
-                    }
-                    Log.e("response", s.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    reqEntity.addPart("logo", new StringBody("image error"));
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
                 }
-
-                postRequest.abort();
-                httpClient.getConnectionManager().shutdown();
-
             }
+
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("success")) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
+                            intent.putExtra("vehicleID", vehicleID);
+                            startActivity(intent);
+                        }
+                    });
+                }
+                Log.e("response", s.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
 
         });
         thread.start();
@@ -790,43 +735,37 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 
         String URL = IP_HOST + GET_RECORD_IDENTIFIER + vehicle.getMake_name() + "-" + vehicle.getRegistration_no() + "/" + currentDate;
 
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.e("Response: ", response.toString());
-                JSONObject jsonObject = response;
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONObject jsonObject = response;
 
-                identifier = jsonObject.optString("identifier");
-                record_id = jsonObject.optString("record_id");
+            identifier = jsonObject.optString("identifier");
+            record_id = jsonObject.optString("record_id");
 
-                if (callbacks != null)
-                    callbacks.onSuccess(identifier, record_id);
+            if (callbacks != null)
+                callbacks.onSuccess(identifier, record_id);
 
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        }, error -> {
 
 //                Log.e("ERROR!!!", error.toString());
 //                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
 
-                NetworkResponse networkResponse = error.networkResponse;
-                if (networkResponse != null && networkResponse.data != null) {
-                    String JSONError = new String(networkResponse.data);
-                    JSONObject messageJO;
-                    String message = "";
-                    try {
-                        messageJO = new JSONObject(JSONError);
-                        message = messageJO.optString("message");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Log.e("Error", message);
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
 //                    if (callbacks != null)
 //                        callbacks.onError(message);
-                }
-
             }
+
         });
 
         Volley.newRequestQueue(ServiceRecordsActivity.this).add(objectRequest);

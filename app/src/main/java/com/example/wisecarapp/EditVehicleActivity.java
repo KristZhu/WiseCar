@@ -159,11 +159,8 @@ public class EditVehicleActivity extends AppCompatActivity {
 
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class));
-            }
+        backImageButton.setOnClickListener((v) -> {
+            startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class));
         });
 
     }
@@ -172,52 +169,46 @@ public class EditVehicleActivity extends AppCompatActivity {
 
         String URL = IP_HOST + GET_SERVICE + vehicle_id;
 
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.e("Response: ", response.toString());
-                JSONArray jsonArray;
-                JSONObject jsonObject;
-                try {
-                    jsonArray = response.getJSONArray("service_list");
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        jsonObject = jsonArray.getJSONObject(i);
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONArray jsonArray;
+            JSONObject jsonObject;
+            try {
+                jsonArray = response.getJSONArray("service_list");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
 
-                        services.add(jsonObject.optInt("service_id"));
+                    services.add(jsonObject.optInt("service_id"));
 
 //                        Log.e("service id", String.valueOf(jsonObject.optInt("service_id")));
-                    }
-
-                    if (callbacks != null)
-                        callbacks.onSuccess(services);
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+
+                if (callbacks != null)
+                    callbacks.onSuccess(services);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        }, error -> {
 
 //                Log.e("ERROR!!!", error.toString());
 //                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
 
-                NetworkResponse networkResponse = error.networkResponse;
-                if (networkResponse != null && networkResponse.data != null) {
-                    String JSONError = new String(networkResponse.data);
-                    JSONObject messageJO;
-                    String message = "";
-                    try {
-                        messageJO = new JSONObject(JSONError);
-                        message = messageJO.optString("message");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Log.e("No service", message);
-                    if (callbacks != null)
-                        callbacks.onError(message);
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
+                Log.e("No service", message);
+                if (callbacks != null)
+                    callbacks.onError(message);
             }
+
         });
 
         Volley.newRequestQueue(EditVehicleActivity.this).add(objectRequest);

@@ -92,105 +92,90 @@ public class CreateUserActivity2 extends AppCompatActivity {
         postCodeEditText = $(R.id.postCodeEditText);
         createImageButton = $(R.id.createImageButton);
 
-        dobEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        dobEditText.setOnClickListener(v -> {
+            Calendar c = Calendar.getInstance();
+            new DatePickerDialog(CreateUserActivity2.this, (view, year, monthOfYear, dayOfMonth) -> {
+                dob = intToDate(year, monthOfYear, dayOfMonth);
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                String str = format.format(dob);
+                dobEditText.setText(str);
+            }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
+        });
+        dobEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
                 Calendar c = Calendar.getInstance();
-                new DatePickerDialog(CreateUserActivity2.this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        dob = intToDate(year, monthOfYear, dayOfMonth);
-                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                        String str = format.format(dob);
-                        dobEditText.setText(str);
-                    }
+                new DatePickerDialog(CreateUserActivity2.this, (view, year, monthOfYear, dayOfMonth) -> {
+                    dob = intToDate(year, monthOfYear, dayOfMonth);
+                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                    String str = format.format(dob);
+                    dobEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
-        dobEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    Calendar c = Calendar.getInstance();
-                    new DatePickerDialog(CreateUserActivity2.this, new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                            dob = intToDate(year, monthOfYear, dayOfMonth);
-                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
-                            String str = format.format(dob);
-                            dobEditText.setText(str);
-                        }
-                    }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
 
-                }
             }
         });
 
 
-        createImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                firstName = firstNameEditText.getText().toString();
-                lastName = lastNameEditText.getText().toString();
-                licence = licenceEditText.getText().toString();
-                address1 = address1EditText.getText().toString();
-                address2 = address2EditText.getText().toString();
-                country = countryEditText.getText().toString();
-                state = stateEditText.getText().toString();
-                postCode = postCodeEditText.getText().toString();
+        createImageButton.setOnClickListener(v -> {
+            firstName = firstNameEditText.getText().toString();
+            lastName = lastNameEditText.getText().toString();
+            licence = licenceEditText.getText().toString();
+            address1 = address1EditText.getText().toString();
+            address2 = address2EditText.getText().toString();
+            country = countryEditText.getText().toString();
+            state = stateEditText.getText().toString();
+            postCode = postCodeEditText.getText().toString();
 
-                Log.d(TAG, "--------------------Create User------------------");
-                Log.d(TAG, "userImg: " + userImg);
-                Log.d(TAG, "username: " + username);
-                Log.d(TAG, "userEmail: " + userEmail);
-                Log.d(TAG, "password: " + password);
-                Log.d(TAG, "FName: " + firstName);
-                Log.d(TAG, "LName: " + lastName);
-                Log.d(TAG, "dob: " + dob);
-                Log.d(TAG, "licence: " + licence);
-                Log.d(TAG, "address1: " + address1);
-                Log.d(TAG, "address2: " + address2);
-                Log.d(TAG, "country: " + country);
-                Log.d(TAG, "state: " + state);
-                Log.d(TAG, "postCode: " + postCode);
+            Log.d(TAG, "--------------------Create User------------------");
+            Log.d(TAG, "userImg: " + userImg);
+            Log.d(TAG, "username: " + username);
+            Log.d(TAG, "userEmail: " + userEmail);
+            Log.d(TAG, "password: " + password);
+            Log.d(TAG, "FName: " + firstName);
+            Log.d(TAG, "LName: " + lastName);
+            Log.d(TAG, "dob: " + dob);
+            Log.d(TAG, "licence: " + licence);
+            Log.d(TAG, "address1: " + address1);
+            Log.d(TAG, "address2: " + address2);
+            Log.d(TAG, "country: " + country);
+            Log.d(TAG, "state: " + state);
+            Log.d(TAG, "postCode: " + postCode);
 
 
-                if (!username.equals("")
-                        && !userEmail.equals("")
-                        && !password.equals("")
-                        && !firstName.equals("")
-                        && !lastName.equals("")
-                        && dob != null && dob.before(new java.util.Date())
-                        && !licence.equals("")
-                        && !address1.equals("")
-                        && !country.equals("")
-                        && !state.equals("") && !postCode.equals("")
-                ) {
+            if (!username.equals("")
+                    && !userEmail.equals("")
+                    && !password.equals("")
+                    && !firstName.equals("")
+                    && !lastName.equals("")
+                    && dob != null && dob.before(new java.util.Date())
+                    && !licence.equals("")
+                    && !address1.equals("")
+                    && !country.equals("")
+                    && !state.equals("") && !postCode.equals("")
+            ) {
 
-                    uploadByHttpClient();
+                uploadByHttpClient();
 
-                } else {
-                    if (firstName.equals(""))
-                        Toast.makeText(getApplicationContext(), "Please enter first name", Toast.LENGTH_LONG).show();
-                    else if (lastName.equals(""))
-                        Toast.makeText(getApplicationContext(), "Please enter last name", Toast.LENGTH_LONG).show();
-                    else if (dob == null || dob.compareTo(new java.util.Date()) > 0)
-                        Toast.makeText(getApplicationContext(), "Please select date of birth correctly", Toast.LENGTH_LONG).show();
-                    else if (licence.equals(""))
-                        Toast.makeText(getApplicationContext(), "Please enter driver licence", Toast.LENGTH_LONG).show();
-                    else if (address1.equals(""))
-                        Toast.makeText(getApplicationContext(), "Please enter address", Toast.LENGTH_LONG).show();
-                    else if (country.equals(""))
-                        Toast.makeText(getApplicationContext(), "Please enter country", Toast.LENGTH_LONG).show();
-                    else if (state.equals(""))
-                        Toast.makeText(getApplicationContext(), "Please enter state", Toast.LENGTH_LONG).show();
-                    else if (postCode.equals(""))
-                        Toast.makeText(getApplicationContext(), "Please enter post code", Toast.LENGTH_LONG).show();
-                    else
-                        Toast.makeText(getApplicationContext(), "Creation fail", Toast.LENGTH_LONG).show();
-                }
-
+            } else {
+                if (firstName.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please enter first name", Toast.LENGTH_LONG).show();
+                else if (lastName.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please enter last name", Toast.LENGTH_LONG).show();
+                else if (dob == null || dob.compareTo(new java.util.Date()) > 0)
+                    Toast.makeText(getApplicationContext(), "Please select date of birth correctly", Toast.LENGTH_LONG).show();
+                else if (licence.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please enter driver licence", Toast.LENGTH_LONG).show();
+                else if (address1.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please enter address", Toast.LENGTH_LONG).show();
+                else if (country.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please enter country", Toast.LENGTH_LONG).show();
+                else if (state.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please enter state", Toast.LENGTH_LONG).show();
+                else if (postCode.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please enter post code", Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(getApplicationContext(), "Creation fail", Toast.LENGTH_LONG).show();
             }
+
         });
 
     }
