@@ -714,62 +714,58 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         });
 
-        Thread checkingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpPost postRequest = new HttpPost(IP_HOST + SHARE_CHECK);
+        Thread checkingThread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + SHARE_CHECK);
 
-                MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 
-                try {
-                    reqEntity.addPart("cust_id", new StringBody(companyID));
+            try {
+                reqEntity.addPart("cust_id", new StringBody(companyID));
 //                    reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-                    reqEntity.addPart("vehicle_id", new StringBody("303"));
-                    reqEntity.addPart("share", new StringBody(shareChecked));
-                    reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
-                    reqEntity.addPart("recurring", new StringBody(recurringChecked));
-                    if (recurringChecked.equals("1")) {
-                        reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
-                        reqEntity.addPart("recurring_days", new StringBody(recurringDays));
-                    }
-                    reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
-                    if (visibilityChecked.equals("1")) {
-                        reqEntity.addPart("visible_service_ids", new StringBody("24"));
-                    }
-                    reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
-                    reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
-
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                reqEntity.addPart("vehicle_id", new StringBody("303"));
+                reqEntity.addPart("share", new StringBody(shareChecked));
+                reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
+                reqEntity.addPart("recurring", new StringBody(recurringChecked));
+                if (recurringChecked.equals("1")) {
+                    reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
+                    reqEntity.addPart("recurring_days", new StringBody(recurringDays));
                 }
-
-                postRequest.setEntity(reqEntity);
-                HttpResponse response = null;
-                StringBuilder s = new StringBuilder();
-                try {
-                    response = httpClient.execute(postRequest);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                    String sResponse;
-                    while ((sResponse = reader.readLine()) != null) {
-                        s = s.append(sResponse);
-                    }
-                    if (s.toString().contains("validated")) {
-                        submitingThread.start();
-                    }
-                    Log.e("response", s.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
+                reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
+                if (visibilityChecked.equals("1")) {
+                    reqEntity.addPart("visible_service_ids", new StringBody("24"));
                 }
+                reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
+                reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
 
-                postRequest.abort();
-                httpClient.getConnectionManager().shutdown();
-
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("validated")) {
+                    submitingThread.start();
+                }
+                Log.e("response", s.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
 
         });
         checkingThread.start();
