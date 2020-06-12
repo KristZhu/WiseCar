@@ -129,26 +129,20 @@ public class VehicleActivity extends AppCompatActivity {
         }
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String[] ways = new String[]{"Yes", "No"};
-                AlertDialog alertDialog = new AlertDialog.Builder(VehicleActivity.this)
-                        .setTitle("Are you sure you want to log out? ")
-                        .setIcon(R.mipmap.ic_launcher)
-                        .setItems(ways, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Log.d(TAG, "onClick: " + ways[i]);
-                                if (i == 0) {  //log out
-                                    startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
-                                } else {
-                                    //cancel
-                                }
-                            }
-                        }).create();
-                alertDialog.show();
-            }
+        backImageButton.setOnClickListener(v -> {
+            final String[] ways = new String[]{"Yes", "No"};
+            AlertDialog alertDialog = new AlertDialog.Builder(VehicleActivity.this)
+                    .setTitle("Are you sure you want to log out? ")
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setItems(ways, (dialogInterface, i) -> {
+                        Log.d(TAG, "onClick: " + ways[i]);
+                        if (i == 0) {  //log out
+                            startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
+                        } else {
+                            //cancel
+                        }
+                    }).create();
+            alertDialog.show();
         });
 
         settingImageButton = $(R.id.settingImageButton);
@@ -156,33 +150,13 @@ public class VehicleActivity extends AppCompatActivity {
 
         dashboardImageButton = $(R.id.dashboardImageButton);
         dashboardButton = $(R.id.dashboardButton);
-        dashboardImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startDashboard();
-            }
-        });
-        dashboardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startDashboard();
-            }
-        });
+        dashboardImageButton.setOnClickListener(v -> startDashboard());
+        dashboardButton.setOnClickListener(v -> startDashboard());
 
         calendarImageButton = $(R.id.calendarImageButton);
         calendarButton = $(R.id.calendarButton);
-        calendarImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startCalendar();
-            }
-        });
-        calendarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startCalendar();
-            }
-        });
+        calendarImageButton.setOnClickListener(v -> startCalendar());
+        calendarButton.setOnClickListener(v -> startCalendar());
 
 
         selectedVehicleTextView = $(R.id.selectedVehicleTextView);
@@ -194,8 +168,9 @@ public class VehicleActivity extends AppCompatActivity {
 
         vehiclesDB = new TreeMap<>((o1, o2) -> o2.compareTo(o1));
 
-        //this user either just log in or really has no vehicles
-        //get vehicle data from db and store locally
+        //get vehicle data from db and store locally only when there is no vehicle locally
+        //it is because this user either just log in or really has no vehicles
+        //every time the user adds a new vehicle, it will add to local, and upload to db. so no need to get data from db later.
         if(UserInfo.getVehicles()==null || UserInfo.getVehicles().size()==0) {
             returnVehicles(user_id, new vehicleMapCallbacks() {
                 @Override
@@ -224,35 +199,17 @@ public class VehicleActivity extends AppCompatActivity {
 
 
 
-        addImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addVehicle();
-            }
-        });
+        addImageButton.setOnClickListener(v -> addVehicle());
 
-        manageImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //manageVehicle();
-            }
+        manageImageButton.setOnClickListener(v -> {
+            //manageVehicle();
         });
 
 
         inboxImageButton = $(R.id.inboxImageButton);
         inboxButton = $(R.id.inboxButton);
-        inboxImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startInbox();
-            }
-        });
-        inboxButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startInbox();
-            }
-        });
+        inboxImageButton.setOnClickListener(v -> startInbox());
+        inboxButton.setOnClickListener(v -> startInbox());
 
     }
 
@@ -274,12 +231,7 @@ public class VehicleActivity extends AppCompatActivity {
         for (String vehicleID : vehicles.keySet()) {
             selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
             selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
-            editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    editVehicle(vehicleID);
-                }
-            });
+            editVehicleImageButton.setOnClickListener(v -> editVehicle(vehicleID));
             break;
         }
 
@@ -291,19 +243,16 @@ public class VehicleActivity extends AppCompatActivity {
             params.setMargins(0, 0, 16, 0);
             imageView.setLayoutParams(params);
             vehicleLayout.addView(imageView);
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "onClickVehicle: " + vehicle);
-                    selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-                    selectedVehicleImageView.setImageBitmap(vehicle.getImage());
-                    editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            editVehicle(vehicleID);
-                        }
-                    });
-                }
+            imageView.setOnClickListener(v -> {
+                Log.d(TAG, "onClickVehicle: " + vehicle);
+                selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
+                selectedVehicleImageView.setImageBitmap(vehicle.getImage());
+                editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        editVehicle(vehicleID);
+                    }
+                });
             });
             //vehicleImageViews.put(vehicles.get(vehicleID).getRegistration_no(), imageView);
         }
@@ -311,20 +260,11 @@ public class VehicleActivity extends AppCompatActivity {
 
     private void editVehicle(String vehicleID) {
         Log.d(TAG, "editVehicleID: " + vehicleID);
+        //the new added vehicle does not have ID locally. so its id = "a" (temp)
+        //if the user wants to edit, the id must be synchronized with db
         returnVehicles(user_id, new vehicleMapCallbacks() {
             @Override
             public void onSuccess(@NonNull Map<String, Vehicle> value) {
-                    /*
-                        for(String vehicleDBid: vehiclesDB.keySet()) {
-                            if(UserInfo.getVehicles().containsKey(vehicleDBid)) continue;
-                            Log.d(TAG, "syc from DB, new added vehicle id in DB: " + vehicleDBid);
-                            Vehicle newVehicleLocal = UserInfo.getVehicles().get("a");
-                            UserInfo.getVehicles().remove("a");
-                            UserInfo.getVehicles().put(vehicleDBid, newVehicleLocal);
-                            passID[0] = vehicleDBid;
-                            break;
-                        }
-                    */
                 UserInfo.setVehicles(vehiclesDB);
                 Log.d(TAG, "editVehicle, vehicle DB: " + vehiclesDB);
 
@@ -378,41 +318,35 @@ public class VehicleActivity extends AppCompatActivity {
     private void loadUserEmailImg(String user_id, @Nullable final userImageCallback imageCallback, @Nullable final userEmailCallback emailCallback) {
         String URL = IP_HOST + GET_IMG_EMAIL + user_id;
 
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.e("Response", response.toString());
-                byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
-                ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
-                Log.e("image bitmap method: ", ImgBitmap==null ? "null img" : ImgBitmap.toString());
-                email_address = response.optString("email_address");
-                if (ImgBitmap == null) {
-                    Log.e("No image: ", "this user has no image");
-                }
-                if (ImgBitmap != null)
-                    imageCallback.onSuccess(ImgBitmap);
-                if (emailCallback != null)
-                    emailCallback.onSuccess(email_address);
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response", response.toString());
+            byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
+            ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+            Log.e("image bitmap method: ", ImgBitmap==null ? "null img" : ImgBitmap.toString());
+            email_address = response.optString("email_address");
+            if (ImgBitmap == null) {
+                Log.e("No image: ", "this user has no image");
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("ERROR!!!", error.toString());
-                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+            if (ImgBitmap != null)
+                imageCallback.onSuccess(ImgBitmap);
+            if (emailCallback != null)
+                emailCallback.onSuccess(email_address);
+        }, error -> {
+            Log.e("ERROR!!!", error.toString());
+            Log.e("ERROR!!!", String.valueOf(error.networkResponse));
 
-                NetworkResponse networkResponse = error.networkResponse;
-                if (networkResponse != null && networkResponse.data != null) {
-                    String JSONError = new String(networkResponse.data);
-                    JSONObject messageJO;
-                    String message = "";
-                    try {
-                        messageJO = new JSONObject(JSONError);
-                        message = messageJO.optString("message");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Log.e("JSON ERROR MESSAGE!!!", message);
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+                Log.e("JSON ERROR MESSAGE!!!", message);
             }
         });
 
@@ -436,63 +370,57 @@ public class VehicleActivity extends AppCompatActivity {
 
         String URL = IP_HOST + GET_VEHICLE_LIST + user_id;
 
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Log.e("Response: ", response.toString());
-                JSONArray jsonArray;
-                JSONObject jsonObject;
-                try {
-                    jsonArray = response.getJSONArray("vehicle_list");
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        jsonObject = jsonArray.getJSONObject(i);
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONArray jsonArray;
+            JSONObject jsonObject;
+            try {
+                jsonArray = response.getJSONArray("vehicle_list");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
 
-                        Vehicle vehicle = new Vehicle();
+                    Vehicle vehicle = new Vehicle();
 
-                        vehicle.setRegistration_no(jsonObject.optString("registration_no"));
-                        vehicle.setMake_name(jsonObject.optString("make_name"));
-                        vehicle.setModel_name(jsonObject.optString("model_name"));
-                        vehicle.setMake_year(jsonObject.optString("make_year"));
-                        vehicle.setDescription(jsonObject.optString("description"));
-                        vehicle.setUser_id(jsonObject.optInt("user_id"));
-                        vehicle.setUser_name(jsonObject.optString("user_name"));
-                        vehicle.setImage(jsonObject.optString("image"));
-                        vehicle.setState_name(jsonObject.optString("state_name"));
-                        vehicle.setVehicle_id(jsonObject.optString("vehicle_id"));
+                    vehicle.setRegistration_no(jsonObject.optString("registration_no"));
+                    vehicle.setMake_name(jsonObject.optString("make_name"));
+                    vehicle.setModel_name(jsonObject.optString("model_name"));
+                    vehicle.setMake_year(jsonObject.optString("make_year"));
+                    vehicle.setDescription(jsonObject.optString("description"));
+                    vehicle.setUser_id(jsonObject.optInt("user_id"));
+                    vehicle.setUser_name(jsonObject.optString("user_name"));
+                    vehicle.setImage(jsonObject.optString("image"));
+                    vehicle.setState_name(jsonObject.optString("state_name"));
+                    vehicle.setVehicle_id(jsonObject.optString("vehicle_id"));
 
-                        vehiclesDB.put(vehicle.getVehicle_id(), vehicle);
+                    vehiclesDB.put(vehicle.getVehicle_id(), vehicle);
 
-                    }
-                    if (callbacks != null)
-                        callbacks.onSuccess(vehiclesDB);
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+                if (callbacks != null)
+                    callbacks.onSuccess(vehiclesDB);
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+        }, error -> {
 
 //                Log.e("ERROR!!!", error.toString());
 //                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
 
-                NetworkResponse networkResponse = error.networkResponse;
-                if (networkResponse != null && networkResponse.data != null) {
-                    String JSONError = new String(networkResponse.data);
-                    JSONObject messageJO;
-                    String message = "";
-                    try {
-                        messageJO = new JSONObject(JSONError);
-                        message = messageJO.optString("message");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    Log.e("No vehicle: ", message);
-                    if (callbacks != null)
-                        callbacks.onError(message);
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
+                Log.e("No vehicle: ", message);
+                if (callbacks != null)
+                    callbacks.onError(message);
             }
+
         });
 
         Volley.newRequestQueue(VehicleActivity.this).add(objectRequest);

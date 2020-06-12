@@ -52,7 +52,6 @@ public class EditVehicleActivity extends AppCompatActivity {
 
     private LinearLayout servicesLayout;
 
-
     private static List<Integer> services;
 
     @Override
@@ -62,6 +61,8 @@ public class EditVehicleActivity extends AppCompatActivity {
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         if (vehicleID.equals("a")) {
+            //id = "a" means the vehicle is newly added and it is a fake id, and synchronizing process is not finished
+            //jump back to VehicleActivity to wait for synchronizing
             for (String newID : UserInfo.getVehicles().keySet()) {
                 UserInfo.setVehicles(null);
                 Toast.makeText(EditVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
@@ -94,8 +95,9 @@ public class EditVehicleActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@NonNull List<Integer> value) {
                 Log.e("service list", String.valueOf(services));
+                vehicle.setServices(services);
 
-                servicesLayout = (LinearLayout) findViewById(R.id.servicesLayout);
+                servicesLayout = $(R.id.servicesLayout);
                 //int column = 3;
                 int column = 2;
                 for (int i = 0; i < services.size(); i += column) {
@@ -110,12 +112,7 @@ public class EditVehicleActivity extends AppCompatActivity {
                         switch (services.get(i + j)) {
                             case 1:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0service_button));
-                                imageViews[j].setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        startServiceRecords(vehicleID);
-                                    }
-                                });
+                                imageViews[j].setOnClickListener(v -> startServiceRecords(vehicleID));
                                 break;
                             case 2:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0driver_button));

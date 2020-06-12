@@ -36,6 +36,7 @@ class Vehicle implements Comparable<Vehicle> {
     private String user_name;
     private Bitmap image;
     private String state_name;
+    private List<Integer> services;
 
     public Vehicle() {}
 
@@ -142,6 +143,14 @@ class Vehicle implements Comparable<Vehicle> {
 
     public void setState_name(String state_name) {
         this.state_name = state_name;
+    }
+
+    public List<Integer> getServices() {
+        return services;
+    }
+
+    public void setServices(List<Integer> services) {
+        this.services = services;
     }
 
     @NonNull
