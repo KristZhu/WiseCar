@@ -669,8 +669,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         try {
             reqEntity.addPart("cust_id", new StringBody(companyID));
-//            reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-            reqEntity.addPart("vehicle_id", new StringBody("303"));
+            reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
             reqEntity.addPart("share", new StringBody(shareChecked));
             reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
             reqEntity.addPart("recurring", new StringBody(recurringChecked));
