@@ -132,7 +132,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         //NEW = (boolean) this.getIntent().getSerializableExtra("NEW");
         NEW = true;
-        if(!NEW) {
+        if (!NEW) {
 
         }
 
@@ -149,7 +149,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         companyNameTextView = $(R.id.companyNameTextView);
         cancelImageButton = $(R.id.cancelImageButton);
 
-        if(NEW) {
+        if (NEW) {
             final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
             returnCompanies(new companiesCallbacks() {
                 @Override
@@ -214,7 +214,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         shareDiv = $(R.id.shareDiv);
         shareSwitchButton = $(R.id.shareSwitchButton);
-        if(NEW) {
+        if (NEW) {
             isShare = false;
         } else {
             isShare = true;
@@ -224,7 +224,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         shareSwitchButton.setOnToggleChanged(isOn -> {
             Log.d(TAG, "share: " + isOn);
             isShare = isOn;
-            if(isOn) shareDiv.setVisibility(View.VISIBLE);
+            if (isOn) shareDiv.setVisibility(View.VISIBLE);
             else shareDiv.setVisibility(View.GONE);
         });
 
@@ -235,11 +235,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         endEditText = $(R.id.endEditText);
         endEditText.setInputType(InputType.TYPE_NULL);
 
-        if(!NEW) {
+        if (!NEW) {
             //date =
             //start =
             //end =
-            date = intToDate(2020,6,12);
+            date = intToDate(2020, 6, 12);
             start = new Date(intToDate(1970, 1, 1).getTime() + (10 * 60 + 30) * 60 * 1000); //10:30
             end = new Date(intToDate(1970, 1, 1).getTime() + (22 * 60 + 15) * 60 * 1000);   //22:15
             SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy");
@@ -323,12 +323,12 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         recurringSwitchButton = $(R.id.recurringSwitchButton);
         recurringDiv = $(R.id.recurringDiv);
-        if(NEW) {
+        if (NEW) {
             isRecurring = false;
         } else {
             //isRecurring =
             isRecurring = true;
-            if(isRecurring) {
+            if (isRecurring) {
                 recurringSwitchButton.setToggleOn(true);
                 recurringDiv.setVisibility(View.VISIBLE);
             }
@@ -342,7 +342,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         endDateEditText = $(R.id.endDateEditText);
         endDateEditText.setInputType(InputType.TYPE_NULL);
-        weekdayCheckBox = new CheckBox[] {
+        weekdayCheckBox = new CheckBox[]{
                 $(R.id.sunCheckBox),
                 $(R.id.monCheckBox),
                 $(R.id.tueCheckBox),
@@ -352,16 +352,16 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 $(R.id.satCheckBox)
         };
         isWeekday = new boolean[7];
-        if(!NEW) {
+        if (!NEW) {
             //endDate =
-            endDate = intToDate(2020,7,1);
+            endDate = intToDate(2020, 7, 1);
             SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
             String str = format.format(endDate);
             endDateEditText.setText(str);
             //isWeekday =
-            isWeekday = new boolean[] {false, true, true, true, true, true, false};
-            for(int i=0; i<7; i++) {
-                if(isWeekday[i]) weekdayCheckBox[i].setChecked(true);
+            isWeekday = new boolean[]{false, true, true, true, true, true, false};
+            for (int i = 0; i < 7; i++) {
+                if (isWeekday[i]) weekdayCheckBox[i].setChecked(true);
                 else weekdayCheckBox[i].setChecked(false);
             }
         }
@@ -391,12 +391,12 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         visibilitySwitchButton = $(R.id.visibilitySwitchButton);
         recordCheckBox = $(R.id.recordCheckBox);
         registrationCheckBox = $(R.id.registrationCheckBox);
-        if(NEW) {
+        if (NEW) {
             isVisibility = false;
         } else {
             //isVisibility =
             isVisibility = true;
-            if(isVisibility) {
+            if (isVisibility) {
                 visibilitySwitchButton.setToggleOn(true);
                 recordCheckBox.setVisibility(View.VISIBLE);
                 registrationCheckBox.setVisibility(View.VISIBLE);
@@ -405,7 +405,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         visibilitySwitchButton.setOnToggleChanged(isOn -> {
             Log.d(TAG, "recurring: " + isOn);
             isVisibility = isOn;
-            if(isOn) {
+            if (isOn) {
                 recordCheckBox.setVisibility(View.VISIBLE);
                 registrationCheckBox.setVisibility(View.VISIBLE);
             } else {
@@ -416,7 +416,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         saveImageButton = $(R.id.saveImageButton);
-        if(!NEW) {
+        if (!NEW) {
             saveImageButton.setAlpha(1.0f);
             saveImageButton.setClickable(true);
         }
@@ -427,7 +427,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Log.d(TAG, "companyID: " + companyID);
             Log.d(TAG, "isShare: " + isShare);
 
-            if(isShare) {
+            if (isShare) {
                 Log.d(TAG, "date: " + date);
                 Log.d(TAG, "start: " + format.format(start));
                 Log.d(TAG, "end: " + format.format(end));
@@ -444,7 +444,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                 if (isRecurring) {
                     Log.d(TAG, "endDate: " + endDate);
-                    for(int i=0; i<7; i++) {
+                    for (int i = 0; i < 7; i++) {
                         isWeekday[i] = weekdayCheckBox[i].isChecked();
                         Log.d(TAG, "isWeekday" + i + ": " + isWeekday[i]);
                     }
@@ -493,7 +493,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                 }
                 Log.d(TAG, "isVisibility: " + isVisibility);
-                if(isVisibility) {
+                if (isVisibility) {
                     isRecord = recordCheckBox.isChecked();
                     isRegistration = registrationCheckBox.isChecked();
                     Log.d(TAG, "isRecord: " + isRecord);
@@ -564,16 +564,16 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
             if (isShare
-                    &&companyName != null && companyName.length() > 0
+                    && companyName != null && companyName.length() > 0
                     && companyID != null && companyID.length() > 0
                     && date != null
                     && start != null
                     && end != null
                     && (!isRecurring || endDate != null)
-                ) {
-                    saveImageButton.setAlpha(1.0f);
-                    saveImageButton.setClickable(true);
-            } else if(!isShare && !NEW) {
+            ) {
+                saveImageButton.setAlpha(1.0f);
+                saveImageButton.setClickable(true);
+            } else if (!isShare && !NEW) {
                 saveImageButton.setAlpha(1.0f);
                 saveImageButton.setClickable(true);
             } else {
@@ -643,8 +643,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
     private void shareVehicleCheck() {
 
-        for(int i=0; i<7; i++) {
-            if(isWeekday[i]) recurringDays += i;
+        for (int i = 0; i < 7; i++) {
+            if (isWeekday[i]) recurringDays += i;
         }
 
         if (isShare) {
@@ -663,39 +663,40 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             visibilityChecked += "0";
         }
 
+        MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+
+        try {
+            reqEntity.addPart("cust_id", new StringBody(companyID));
+//            reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+            reqEntity.addPart("vehicle_id", new StringBody("303"));
+            reqEntity.addPart("share", new StringBody(shareChecked));
+            reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
+            reqEntity.addPart("recurring", new StringBody(recurringChecked));
+            if (recurringChecked.equals("1")) {
+                reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
+                reqEntity.addPart("recurring_days", new StringBody(recurringDays));
+            }
+            reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
+            if (visibilityChecked.equals("1")) {
+//                StringBuilder servicesSB = new StringBuilder();
+//                for (int i : vehicle.getServices()) servicesSB.append(i);
+//                reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
+                reqEntity.addPart("visible_service_ids", new StringBody("12"));
+            }
+            reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
+            reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         Thread submitingThread = new Thread(() -> {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost postRequest = new HttpPost(IP_HOST + SUBMIT_SHARE_VEHICLE);
-
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-
-            try {
-                reqEntity.addPart("cust_id", new StringBody(companyID));
-                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-                reqEntity.addPart("share", new StringBody(shareChecked));
-                reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
-                reqEntity.addPart("recurring", new StringBody(recurringChecked));
-                if (recurringChecked.equals("1")) {
-                    reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
-                    reqEntity.addPart("recurring_days", new StringBody(recurringDays));
-                }
-                reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
-                if (visibilityChecked.equals("1")) {
-                    StringBuilder servicesSB = new StringBuilder();
-                    for(int i: vehicle.getServices()) servicesSB.append(i);
-                    reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
-                }
-                reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
-                reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
-
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
             postRequest.setEntity(reqEntity);
             HttpResponse response = null;
             StringBuilder s = new StringBuilder();
@@ -716,6 +717,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
                 Log.e("response", s.toString());
+                Log.e("share_id", s.toString().substring(s.indexOf("id") + 3));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -728,36 +730,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         Thread checkingThread = new Thread(() -> {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost postRequest = new HttpPost(IP_HOST + SHARE_CHECK);
-
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-
-            try {
-                reqEntity.addPart("cust_id", new StringBody(companyID));
-                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-                reqEntity.addPart("share", new StringBody(shareChecked));
-                reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
-                reqEntity.addPart("recurring", new StringBody(recurringChecked));
-                if (recurringChecked.equals("1")) {
-                    reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
-                    reqEntity.addPart("recurring_days", new StringBody(recurringDays));
-                }
-                reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
-                if (visibilityChecked.equals("1")) {
-                    StringBuilder servicesSB = new StringBuilder();
-                    for(int i: vehicle.getServices()) servicesSB.append(i);
-                    reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
-                }
-                reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
-                reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
-
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
             postRequest.setEntity(reqEntity);
             HttpResponse response = null;
             StringBuilder s = new StringBuilder();
