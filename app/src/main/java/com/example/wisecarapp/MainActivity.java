@@ -14,6 +14,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //startActivity(new Intent(MainActivity.this, LoginActivity.class));
         startActivity(new Intent(MainActivity.this, SharedVehiclesActivity.class));
+//        startActivity(new Intent(MainActivity.this, ShareVehicleDetailActivity.class));
     }
 
 }
