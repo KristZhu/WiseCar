@@ -74,6 +74,9 @@ public class AddVehicleActivity extends AppCompatActivity {
 
     private static final String TAG = "addVehicle";
 
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String ADD_VEHICLE = "/api/v1/vehicles/";
+
     private ImageView vehicleImageView;
     private Uri vehicleImageUri;
     private Bitmap vehicleImageBitmap;
@@ -92,6 +95,9 @@ public class AddVehicleActivity extends AppCompatActivity {
     private String year = "2020";
     private String state = "1";
 
+    private CheckBox[] servicesCheckBox;
+    private boolean[] isServices;
+    /*
     private CheckBox serviceCheckBox;
     private boolean services;
     private CheckBox registrationCheckBox;
@@ -106,12 +112,8 @@ public class AddVehicleActivity extends AppCompatActivity {
     private boolean toll;
     private CheckBox fuelCheckBox;
     private boolean fuel;
-
-    private final String IP_HOST = "http://54.206.19.123:3000";
-    private final String ADD_VEHICLE = "/api/v1/vehicles/";
-
+     */
     private String servicesChoice = "";
-    List<Integer> servicesList = new ArrayList<>();
 
     private ImageButton backImageButton;
     private Button uploadButton;
@@ -168,13 +170,15 @@ public class AddVehicleActivity extends AppCompatActivity {
         makeEditText = $(R.id.makeEditText);
         modelEditText = $(R.id.modelEditText);
         descriptionEditText = $(R.id.descriptionEditText);
-        serviceCheckBox = $(R.id.serviceCheckBox);
-        registrationCheckBox = $(R.id.registrationCheckBox);
-        driverCheckBox = $(R.id.driverCheckBox);
-        parkingCheckBox = $(R.id.parkingCheckBox);
-        insuranceCheckBox = $(R.id.insuranceCheckBox);
-        tollCheckBox = $(R.id.tollCheckBox);
-        fuelCheckBox = $(R.id.fuelCheckBox);
+        servicesCheckBox = new CheckBox[] {
+            $(R.id.serviceCheckBox),
+            $(R.id.registrationCheckBox),
+            $(R.id.driverCheckBox),
+            $(R.id.parkingCheckBox),
+            $(R.id.insuranceCheckBox),
+            $(R.id.tollCheckBox),
+            $(R.id.fuelCheckBox)
+        };
         saveImageButton = $(R.id.saveImageButton);
 
         backImageButton = $(R.id.backImageButton);
@@ -263,6 +267,13 @@ public class AddVehicleActivity extends AppCompatActivity {
             registration_no = rcEditText.getText().toString();
             description = descriptionEditText.getText().toString();
 
+            if(isServices == null) {
+                isServices = new boolean[7];
+                for (int i=0; i<7; i++){
+                    isServices[i] = servicesCheckBox[i].isChecked();
+                }
+            }
+
 
             Log.d(TAG, "--------------------Add Vehicle------------------");
             Log.d(TAG, "userID: " + UserInfo.getUserID());
@@ -270,13 +281,13 @@ public class AddVehicleActivity extends AppCompatActivity {
             Log.d(TAG, "make: " + make);
             Log.d(TAG, "model: " + model);
             Log.d(TAG, "description: " + description);
-            Log.d(TAG, "service: " + services);
-            Log.d(TAG, "registration: " + registration);
-            Log.d(TAG, "driver: " + driver);
-            Log.d(TAG, "parking: " + parking);
-            Log.d(TAG, "insurance: " + insurance);
-            Log.d(TAG, "toll: " + toll);
-            Log.d(TAG, "fuel: " + fuel);
+            Log.d(TAG, "service: " + isServices[0]);
+            Log.d(TAG, "registration: " + isServices[1]);
+            Log.d(TAG, "driver: " + isServices[2]);
+            Log.d(TAG, "parking: " + isServices[3]);
+            Log.d(TAG, "insurance: " + isServices[4]);
+            Log.d(TAG, "toll: " + isServices[5]);
+            Log.d(TAG, "fuel: " + isServices[6]);
 
             if (UserInfo.getVehicles() == null)
                 UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
@@ -446,13 +457,10 @@ public class AddVehicleActivity extends AppCompatActivity {
             if (registration_no != null && make != null && model != null && description != null
                     && registration_no.length() > 0 && make.length() > 0 && model.length() > 0 && description.length() > 0
             ) {
-                services = serviceCheckBox.isChecked();
-                registration = registrationCheckBox.isChecked();
-                driver = driverCheckBox.isChecked();
-                parking = parkingCheckBox.isChecked();
-                insurance = insuranceCheckBox.isChecked();
-                toll = tollCheckBox.isChecked();
-                fuel = fuelCheckBox.isChecked();
+                if(isServices == null) isServices = new boolean[7];
+                for (int i=0; i<7; i++){
+                    isServices[i] = servicesCheckBox[i].isChecked();
+                }
                 saveImageButton.setAlpha(1.0f);
                 saveImageButton.setClickable(true);
             } else {
@@ -488,34 +496,10 @@ public class AddVehicleActivity extends AppCompatActivity {
 
         final String[] vehicle_id = {""};
 
-        if (services) {
-            servicesChoice += "1";
-            servicesList.add(1);
+        for(int i=0; i<isServices.length; i++) {
+            if(isServices[i]) servicesChoice += i+1;
         }
-        if (registration) {
-            servicesChoice += "2";
-            servicesList.add(2);
-        }
-        if (driver) {
-            servicesChoice += "3";
-            servicesList.add(3);
-        }
-        if (parking) {
-            servicesChoice += "4";
-            servicesList.add(4);
-        }
-        if (insurance) {
-            servicesChoice += "5";
-            servicesList.add(5);
-        }
-        if (toll) {
-            servicesChoice += "6";
-            servicesList.add(6);
-        }
-        if (fuel) {
-            servicesChoice += "7";
-            servicesList.add(7);
-        }
+        Log.d(TAG, "uploadVehicleInfoByHttpClient: servicesChoice: " + servicesChoice);
 
         Thread thread = new Thread(() -> {
             HttpClient httpClient = new DefaultHttpClient();
