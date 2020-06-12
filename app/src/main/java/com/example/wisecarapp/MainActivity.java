@@ -13,7 +13,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //startActivity(new Intent(MainActivity.this, LoginActivity.class));
-        startActivity(new Intent(MainActivity.this, ShareVehicleDetailActivity.class));
+        startActivity(new Intent(MainActivity.this, SharedVehiclesActivity.class));
     }
 
 }

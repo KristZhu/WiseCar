@@ -73,10 +73,13 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private String vehicleID;
     private Vehicle vehicle;
 
+    private boolean NEW;  //new add or edit
+
     private ImageButton backImageButton;
     private ImageButton saveImageButton;
 
     private AutoCompleteTextView searchEditText;
+    private ImageButton addImageButton;
     private TextView companyNameTextView;
     private String companyName;
     private TextView companyIDTextView;
@@ -85,7 +88,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private static Map<String, String> companies = new HashMap<>(); //<ID, Name>
 
     private SwitchButton shareSwitchButton;
-    private boolean isShare = false;
+    private boolean isShare;
+    private ConstraintLayout shareDiv;
     private EditText dateEditText;
     private java.util.Date date;
     private EditText startEditText;
@@ -98,20 +102,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private ConstraintLayout recurringDiv;
     private EditText endDateEditText;
     private java.util.Date endDate;
-    private CheckBox monCheckBox;
-    private boolean isMon;
-    private CheckBox tueCheckBox;
-    private boolean isTue;
-    private CheckBox wedCheckBox;
-    private boolean isWed;
-    private CheckBox thuCheckBox;
-    private boolean isThu;
-    private CheckBox friCheckBox;
-    private boolean isFri;
-    private CheckBox satCheckBox;
-    private boolean isSat;
-    private CheckBox sunCheckBox;
-    private boolean isSun;
+    private CheckBox[] weekdayCheckBox;
+    private boolean[] isWeekday;    //0: Sun, 6: Sat
 
     private SwitchButton visibilitySwitchButton;
     private boolean isVisibility = false;
@@ -119,6 +111,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private boolean isRecord;
     private CheckBox registrationCheckBox;
     private boolean isRegistration;
+
+
     private String recurringDays = "";
     private String shareChecked = "";
     private String recurringChecked = "";
@@ -136,6 +130,12 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
 
+        //NEW = (boolean) this.getIntent().getSerializableExtra("NEW");
+        NEW = true;
+        if(!NEW) {
+
+        }
+
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> {
             Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
@@ -144,49 +144,88 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         });
 
         searchEditText = $(R.id.searchEditText);
+        addImageButton = $(R.id.addImageButton);
         companyIDTextView = $(R.id.companyIDTextView);
         companyNameTextView = $(R.id.companyNameTextView);
         cancelImageButton = $(R.id.cancelImageButton);
 
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
-        returnCompanies(new companiesCallbacks() {
-            @Override
-            public void onSuccess(@NonNull Map<String, String> value) {
-                Log.d(TAG, "companies: " + companies);
-                for (String id : companies.keySet()) {
-                    adapter.add(id + ": " + companies.get(id));
+        if(NEW) {
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
+            returnCompanies(new companiesCallbacks() {
+                @Override
+                public void onSuccess(@NonNull Map<String, String> value) {
+                    Log.d(TAG, "companies: " + companies);
+                    for (String id : companies.keySet()) {
+                        adapter.add(id + ": " + companies.get(id));
+                    }
+                    searchEditText.setAdapter(adapter);
+                    searchEditText.setOnItemClickListener((parent, view, position, id) -> {
+                        String temp = searchEditText.getText().toString();
+                        companyID = temp.substring(0, temp.indexOf(":"));
+                        companyIDTextView.setText("Company ID: " + companyID);
+                        companyName = companies.get(companyID);
+                        companyNameTextView.setText(companyName);
+                        cancelImageButton.setVisibility(View.VISIBLE);
+                    });
+                    /*
+                    addImageButton.setOnClickListener(v -> {
+                        String temp = searchEditText.getText().toString();
+                        try {
+                            if(companies.containsKey(companyID)) {
+                                companyIDTextView.setText("Company ID: " + companyID);
+                                companyName = companies.get(companyID);
+                                companyNameTextView.setText(companyName);
+                                cancelImageButton.setVisibility(View.VISIBLE);
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Please enter correct company id or name", Toast.LENGTH_LONG).show();
+                            }
+                        } catch (Exception e) {
+                            Toast.makeText(getApplicationContext(), "Please enter correct company id or name", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    */
                 }
-                searchEditText.setAdapter(adapter);
-                searchEditText.setOnItemClickListener((parent, view, position, id) -> {
-                    String temp = searchEditText.getText().toString();
-                    companyID = temp.substring(0, temp.indexOf(":"));
-                    companyIDTextView.setText("Company ID: " + companyID);
-                    companyName = companies.get(companyID);
-                    companyNameTextView.setText(companyName);
-                    cancelImageButton.setVisibility(View.VISIBLE);
-                });
-            }
 
-            @Override
-            public void onError(@NonNull String errorMessage) {
+                @Override
+                public void onError(@NonNull String errorMessage) {
 
-            }
-        });
+                }
+            });
 
-        cancelImageButton.setOnClickListener(v -> {
-            companyName = "";
-            companyID = "";
-            companyNameTextView.setText("");
-            companyIDTextView.setText("");
-            searchEditText.setText("");
-            cancelImageButton.setVisibility(View.INVISIBLE);
-        });
+            cancelImageButton.setOnClickListener(v -> {
+                companyName = "";
+                companyID = "";
+                companyNameTextView.setText("");
+                companyIDTextView.setText("");
+                searchEditText.setText("");
+                cancelImageButton.setVisibility(View.INVISIBLE);
+            });
+
+        } else {
+            //companyName =
+            companyName = "test";
+            //companyID =
+            companyID = "123";
+            companyNameTextView.setText(companyName);
+            companyIDTextView.setText(companyID);
+            searchEditText.setInputType(InputType.TYPE_NULL);
+        }
 
 
+        shareDiv = $(R.id.shareDiv);
         shareSwitchButton = $(R.id.shareSwitchButton);
+        if(NEW) {
+            isShare = false;
+        } else {
+            isShare = true;
+            shareSwitchButton.setToggleOn(true);    //default ON for edit, OFF for new
+            shareDiv.setVisibility(View.VISIBLE);
+        }
         shareSwitchButton.setOnToggleChanged(isOn -> {
             Log.d(TAG, "share: " + isOn);
             isShare = isOn;
+            if(isOn) shareDiv.setVisibility(View.VISIBLE);
+            else shareDiv.setVisibility(View.GONE);
         });
 
         dateEditText = $(R.id.dateEditText);
@@ -195,6 +234,23 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         startEditText.setInputType(InputType.TYPE_NULL);
         endEditText = $(R.id.endEditText);
         endEditText.setInputType(InputType.TYPE_NULL);
+
+        if(!NEW) {
+            //date =
+            //start =
+            //end =
+            date = intToDate(2020,6,12);
+            start = new Date(intToDate(1970, 1, 1).getTime() + (10 * 60 + 30) * 60 * 1000); //10:30
+            end = new Date(intToDate(1970, 1, 1).getTime() + (22 * 60 + 15) * 60 * 1000);   //22:15
+            SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy");
+            SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm");
+            String str = formatDate.format(date);
+            dateEditText.setText(str);
+            str = formatTime.format(start);
+            startEditText.setText(str);
+            str = formatTime.format(end);
+            endEditText.setText(str);
+        }
 
         dateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
@@ -267,7 +323,16 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         recurringSwitchButton = $(R.id.recurringSwitchButton);
         recurringDiv = $(R.id.recurringDiv);
-        //switchButton.setToggleOn(true);
+        if(NEW) {
+            isRecurring = false;
+        } else {
+            //isRecurring =
+            isRecurring = true;
+            if(isRecurring) {
+                recurringSwitchButton.setToggleOn(true);
+                recurringDiv.setVisibility(View.VISIBLE);
+            }
+        }
         recurringSwitchButton.setOnToggleChanged(isOn -> {
             Log.d(TAG, "recurring: " + isOn);
             isRecurring = isOn;
@@ -277,6 +342,29 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         endDateEditText = $(R.id.endDateEditText);
         endDateEditText.setInputType(InputType.TYPE_NULL);
+        weekdayCheckBox = new CheckBox[] {
+                $(R.id.sunCheckBox),
+                $(R.id.monCheckBox),
+                $(R.id.tueCheckBox),
+                $(R.id.wedCheckBox),
+                $(R.id.thuCheckBox),
+                $(R.id.friCheckBox),
+                $(R.id.satCheckBox)
+        };
+        isWeekday = new boolean[7];
+        if(!NEW) {
+            //endDate =
+            endDate = intToDate(2020,7,1);
+            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+            String str = format.format(endDate);
+            endDateEditText.setText(str);
+            //isWeekday =
+            isWeekday = new boolean[] {false, true, true, true, true, true, false};
+            for(int i=0; i<7; i++) {
+                if(isWeekday[i]) weekdayCheckBox[i].setChecked(true);
+                else weekdayCheckBox[i].setChecked(false);
+            }
+        }
         endDateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
@@ -299,68 +387,73 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             }
         });
 
-        monCheckBox = $(R.id.monCheckBox);
-        tueCheckBox = $(R.id.tueCheckBox);
-        wedCheckBox = $(R.id.wedCheckBox);
-        thuCheckBox = $(R.id.thuCheckBox);
-        friCheckBox = $(R.id.friCheckBox);
-        satCheckBox = $(R.id.satCheckBox);
-        sunCheckBox = $(R.id.sunCheckBox);
-
 
         visibilitySwitchButton = $(R.id.visibilitySwitchButton);
-        //switchButton.setToggleOn(true);
+        recordCheckBox = $(R.id.recordCheckBox);
+        registrationCheckBox = $(R.id.registrationCheckBox);
+        if(NEW) {
+            isVisibility = false;
+        } else {
+            //isVisibility =
+            isVisibility = true;
+            if(isVisibility) {
+                visibilitySwitchButton.setToggleOn(true);
+                recordCheckBox.setVisibility(View.VISIBLE);
+                registrationCheckBox.setVisibility(View.VISIBLE);
+            }
+        }
         visibilitySwitchButton.setOnToggleChanged(isOn -> {
             Log.d(TAG, "recurring: " + isOn);
             isVisibility = isOn;
+            if(isOn) {
+                recordCheckBox.setVisibility(View.VISIBLE);
+                registrationCheckBox.setVisibility(View.VISIBLE);
+            } else {
+                recordCheckBox.setVisibility(View.GONE);
+                registrationCheckBox.setVisibility(View.GONE);
+            }
         });
-
-        recordCheckBox = $(R.id.recordCheckBox);
-        registrationCheckBox = $(R.id.registrationCheckBox);
 
 
         saveImageButton = $(R.id.saveImageButton);
+        if(!NEW) {
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        }
         saveImageButton.setOnClickListener(v -> {
             SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 
             Log.d(TAG, "companyName: " + companyName);
             Log.d(TAG, "companyID: " + companyID);
             Log.d(TAG, "isShare: " + isShare);
-            Log.d(TAG, "date: " + date);
-            Log.d(TAG, "start: " + format.format(start));
-            Log.d(TAG, "end: " + format.format(end));
-            Log.d(TAG, "isRecurring: " + isRecurring);
 
-            if (date.before(new Date())) {
-                Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
-                return;
-            }
-            if (start.after(end)) {
-                Toast.makeText(getApplicationContext(), "Please enter correct time", Toast.LENGTH_LONG).show();
-                return;
-            }
+            if(isShare) {
+                Log.d(TAG, "date: " + date);
+                Log.d(TAG, "start: " + format.format(start));
+                Log.d(TAG, "end: " + format.format(end));
+                Log.d(TAG, "isRecurring: " + isRecurring);
 
-            if (isRecurring) {
-                isMon = monCheckBox.isChecked();
-                isTue = tueCheckBox.isChecked();
-                isWed = wedCheckBox.isChecked();
-                isThu = thuCheckBox.isChecked();
-                isFri = friCheckBox.isChecked();
-                isSat = satCheckBox.isChecked();
-                isSun = sunCheckBox.isChecked();
-                Log.d(TAG, "endDate: " + endDate);
-                Log.d(TAG, "isMon: " + isMon);
-                Log.d(TAG, "isTue: " + isTue);
-                Log.d(TAG, "isWed: " + isWed);
-                Log.d(TAG, "isThu: " + isThu);
-                Log.d(TAG, "isFri: " + isFri);
-                Log.d(TAG, "isSat: " + isSat);
-                Log.d(TAG, "isSun: " + isSun);
-                if (endDate == null || endDate.before(date)) {
-                    Toast.makeText(getApplicationContext(), "Please enter correct end date", Toast.LENGTH_LONG).show();
+                if (date.before(new Date())) {
+                    Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (start.after(end)) {
+                    Toast.makeText(getApplicationContext(), "Please enter correct time", Toast.LENGTH_LONG).show();
                     return;
                 }
 
+                if (isRecurring) {
+                    Log.d(TAG, "endDate: " + endDate);
+                    for(int i=0; i<7; i++) {
+                        isWeekday[i] = weekdayCheckBox[i].isChecked();
+                        Log.d(TAG, "isWeekday" + i + ": " + isWeekday[i]);
+                    }
+                    if (endDate == null || endDate.before(date)) {
+                        Toast.makeText(getApplicationContext(), "Please enter correct end date", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                /*
                 List<Date> allDays = new LinkedList<>();
                 Date d = new Date(date.getTime());
                 while (d.before(new Date(endDate.getTime() + 24 * 60 * 60 * 1000))) {
@@ -396,12 +489,18 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                 Log.d(TAG, "all shared days: " + allDays);
 
+                 */
+
+                }
+                Log.d(TAG, "isVisibility: " + isVisibility);
+                if(isVisibility) {
+                    isRecord = recordCheckBox.isChecked();
+                    isRegistration = registrationCheckBox.isChecked();
+                    Log.d(TAG, "isRecord: " + isRecord);
+                    Log.d(TAG, "isRegistration: " + isRegistration);
+                }
             }
-            Log.d(TAG, "isVisibility: " + isVisibility);
-            isRecord = recordCheckBox.isChecked();
-            isRegistration = registrationCheckBox.isChecked();
-            Log.d(TAG, "isRecord: " + isRecord);
-            Log.d(TAG, "isRegistration: " + isRegistration);
+
 
             shareVehicleCheck();
 
@@ -464,12 +563,17 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            if (companyName != null && companyName.length() > 0
+            if (isShare
+                    &&companyName != null && companyName.length() > 0
                     && companyID != null && companyID.length() > 0
                     && date != null
                     && start != null
                     && end != null
-            ) {
+                    && (!isRecurring || endDate != null)
+                ) {
+                    saveImageButton.setAlpha(1.0f);
+                    saveImageButton.setClickable(true);
+            } else if(!isShare && !NEW) {
                 saveImageButton.setAlpha(1.0f);
                 saveImageButton.setClickable(true);
             } else {
@@ -539,27 +643,10 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
     private void shareVehicleCheck() {
 
-        if (isSun) {
-            recurringDays += "0";
+        for(int i=0; i<7; i++) {
+            if(isWeekday[i]) recurringDays += i;
         }
-        if (isMon) {
-            recurringDays += "1";
-        }
-        if (isTue) {
-            recurringDays += "2";
-        }
-        if (isWed) {
-            recurringDays += "3";
-        }
-        if (isThu) {
-            recurringDays += "4";
-        }
-        if (isFri) {
-            recurringDays += "5";
-        }
-        if (isSat) {
-            recurringDays += "6";
-        }
+
         if (isShare) {
             shareChecked += "1";
         } else {
@@ -586,7 +673,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
             try {
                 reqEntity.addPart("cust_id", new StringBody(companyID));
-//                    reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
                 reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
                 reqEntity.addPart("share", new StringBody(shareChecked));
                 reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
@@ -597,7 +683,9 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 }
                 reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
                 if (visibilityChecked.equals("1")) {
-                    reqEntity.addPart("visible_service_ids", new StringBody("24"));
+                    StringBuilder servicesSB = new StringBuilder();
+                    for(int i: vehicle.getServices()) servicesSB.append(i);
+                    reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
                 }
                 reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
                 reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
@@ -647,7 +735,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
             try {
                 reqEntity.addPart("cust_id", new StringBody(companyID));
-//                    reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
                 reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
                 reqEntity.addPart("share", new StringBody(shareChecked));
                 reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
@@ -658,7 +745,9 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 }
                 reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
                 if (visibilityChecked.equals("1")) {
-                    reqEntity.addPart("visible_service_ids", new StringBody("24"));
+                    StringBuilder servicesSB = new StringBuilder();
+                    for(int i: vehicle.getServices()) servicesSB.append(i);
+                    reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
                 }
                 reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
                 reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
