@@ -1,5 +1,7 @@
 package com.example.wisecarapp;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -21,8 +23,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class SharedVehiclesActivity extends AppCompatActivity {
 
@@ -36,6 +52,11 @@ public class SharedVehiclesActivity extends AppCompatActivity {
     private ImageView vehicleImageView;
 
     private LinearLayout shareLayout;
+
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_SHARED_LIST = "/api/v1/sharevehicle/sharedcompanylist/";
+
+    private static Map<Integer, Share> shareMap = new HashMap<>();
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("ResourceType")
@@ -56,6 +77,20 @@ public class SharedVehiclesActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+
+        String tempVehicleID = "303";
+        returnSharedList(tempVehicleID, new sharedCallbacks() {
+            @Override
+            public void onSuccess(@NonNull Map<Integer, Share> value) {
+                Log.e("map", String.valueOf(shareMap.size()));
+            }
+
+            @Override
+            public void onError(@NonNull String errorMessage) {
+
+            }
+        });
+
         headerTextView = $(R.id.headerTextView);
         //headerTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
 
@@ -64,8 +99,9 @@ public class SharedVehiclesActivity extends AppCompatActivity {
 
         shareLayout = $(R.id.sharesLayout);
         List<Integer> shares = new LinkedList<>();
-        shares.add(1); shares.add(2);
-        for(int share: shares) {
+        shares.add(1);
+        shares.add(2);
+        for (int share : shares) {
             ConstraintLayout shareLineLayout = new ConstraintLayout(SharedVehiclesActivity.this);
             ConstraintSet set = new ConstraintSet();
 
@@ -111,7 +147,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
             shareLineLayout.addView(companyTextView);
 
             //if(share.isShare) {
-            if(true) {
+            if (true) {
                 TextView startTextView = new TextView(SharedVehiclesActivity.this);
                 startTextView.setId(3);
                 startTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
@@ -175,4 +211,84 @@ public class SharedVehiclesActivity extends AppCompatActivity {
     private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
+
+    private void returnSharedList(String vehicleID, @Nullable final sharedCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_SHARED_LIST + vehicleID;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("Response", response.toString());
+                JSONArray jsonArray;
+                JSONObject jsonObject;
+                try {
+                    jsonArray = response.getJSONArray("result");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        jsonObject = jsonArray.getJSONObject(i);
+
+                        Share share = new Share();
+
+                        share.setShare_id(jsonObject.optInt("share_id"));
+                        share.setRecurring_flag(jsonObject.optString("recurring_flag"));
+                        if (jsonObject.optString("recurring_flag").equals("1")) {
+                            try {
+                                share.setRecurring_end_date(jsonObject.optString("recurring_end_date"));
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        share.setRecurring_days(jsonObject.optString("recurring_days"));
+                        share.setCust_id(jsonObject.optInt("cust_id"));
+                        share.setCompany_name(jsonObject.optString("company_name"));
+                        try {
+                            share.setStart_time(jsonObject.optString("start_time"));
+                            share.setEnd_time(jsonObject.optString("end_time"));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        shareMap.put(share.getShare_id(), share);
+
+                    }
+                    if (callbacks != null)
+                        callbacks.onSuccess(shareMap);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+//                Log.e("ERROR!!!", error.toString());
+//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.data != null) {
+                    String JSONError = new String(networkResponse.data);
+                    JSONObject messageJO;
+                    String message = "";
+                    try {
+                        messageJO = new JSONObject(JSONError);
+                        message = messageJO.optString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (callbacks != null)
+                        callbacks.onError(message);
+                }
+
+            }
+        });
+
+        Volley.newRequestQueue(SharedVehiclesActivity.this).add(objectRequest);
+    }
+
+    public interface sharedCallbacks {
+        void onSuccess(@NonNull Map<Integer, Share> value);
+
+        void onError(@NonNull String errorMessage);
+    }
+
 }
