@@ -69,6 +69,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private final String GET_COMPANY_LIST = "/api/v1/customers/customer/list";
     private final String SUBMIT_SHARE_VEHICLE = "/api/v1/sharevehicle/submit";
     private final String SHARE_CHECK = "/api/v1/sharevehicle/check";
+    private final String EDIT_SHARE = "/api/v1/sharevehicle/update";
+    private final String GET_HISTORY = "/api/v1/sharevehicle/sharedetailapp/";
 
     private String vehicleID;
     private Vehicle vehicle;
@@ -118,6 +120,10 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private String recurringChecked = "";
     private String visibilityChecked = "";
 
+    private Map<Integer, Boolean> serviceList = new HashMap<>();
+
+    String shareId = "10";     // HARDCODE
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,7 +139,17 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         //NEW = (boolean) this.getIntent().getSerializableExtra("NEW");
         NEW = true;
         if (!NEW) {
+            returnFormerSharingDetails(shareId, new formerSharingCallbacks() {
+                @Override
+                public void onSuccess(@NonNull Map<Integer, Boolean> value) {
+                    
+                }
 
+                @Override
+                public void onError(@NonNull String errorMessage) {
+
+                }
+            });
         }
 
         backImageButton = $(R.id.backImageButton);
@@ -501,7 +517,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 }
             }
 
-
             shareVehicleCheck();
 
         });
@@ -752,6 +767,147 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         });
         checkingThread.start();
+    }
+
+
+    private void editShare() {
+
+        MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+
+        try {
+            reqEntity.addPart("cust_id", new StringBody(companyID));
+            reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+            reqEntity.addPart("share", new StringBody(shareChecked));
+            reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
+            reqEntity.addPart("recurring", new StringBody(recurringChecked));
+            if (recurringChecked.equals("1")) {
+                reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
+                reqEntity.addPart("recurring_days", new StringBody(recurringDays));
+            }
+            reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
+            if (visibilityChecked.equals("1")) {
+//                StringBuilder servicesSB = new StringBuilder();
+//                for (int i : vehicle.getServices()) servicesSB.append(i);
+//                reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
+                reqEntity.addPart("visible_service_ids", new StringBody("12"));
+            }
+            reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
+            reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
+            if (isShare == false) {
+                reqEntity.addPart("mode", new StringBody("0"));
+            } else {
+                reqEntity.addPart("mode", new StringBody("1"));
+            }
+            reqEntity.addPart("share_id", new StringBody(shareId));
+
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Thread Thread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + EDIT_SHARE);
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("success")) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+//                    Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
+//                    startActivity(intent);
+                }
+                Log.e("response", s.toString());
+                Log.e("new_share_id", s.toString().substring(s.indexOf("id") + 3));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
+
+        });
+
+        Thread.start();
+    }
+
+    private void returnFormerSharingDetails(String share_id, @Nullable final formerSharingCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_HISTORY + share_id;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response", response.toString());
+            JSONObject jsonObject = response;
+            JSONArray jsonArray;
+            try {
+                Share share = new Share();
+                share.setCust_id(jsonObject.optString("cust_id"));
+                share.setCompany_name(jsonObject.optString("company_name"));
+                isShare = jsonObject.optString("share_active") == "1" ? true : false;
+                share.setRecurring(jsonObject.optString("recurring_flag") == "1" ? true : false);
+                share.setRecurring_days(jsonObject.optString("recurring_days"));
+                try {
+                    share.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(jsonObject.optString("date")));
+                    share.setStart_time(jsonObject.optString("start_time"));
+                    share.setEnd_time(jsonObject.optString("end_time"));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                jsonArray = response.getJSONArray("service_list");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+
+                    serviceList.put(jsonObject.optInt("service_id"), jsonObject.optInt("is_visible") == 1 ? true : false);
+
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(serviceList);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }, error -> {
+
+//                Log.e("ERROR!!!", error.toString());
+//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if (callbacks != null)
+                    callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(ShareVehicleDetailActivity.this).add(objectRequest);
+    }
+
+    public interface formerSharingCallbacks {
+        void onSuccess(@NonNull Map<Integer, Boolean> value);
+
+        void onError(@NonNull String errorMessage);
     }
 
 }

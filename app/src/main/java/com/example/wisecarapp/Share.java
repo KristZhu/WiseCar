@@ -12,9 +12,19 @@ class Share {
     private boolean[] recurring_days;
     private String cust_id;
     private String company_name;
-    private String company_id;
+//    private String company_id;
     private Date start_time;
     private Date end_time;
+
+    private Date date;
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
 
     public String getShare_id() {
         return share_id;
@@ -48,6 +58,12 @@ class Share {
         this.recurring_days = recurring_days;
     }
 
+    public void setRecurring_days(String days){
+        for(int i = 0; i < days.length(); i++){
+            recurring_days[days.charAt(i)] = true;
+        }
+    }
+
     public String getCust_id() {
         return cust_id;
     }
@@ -64,13 +80,13 @@ class Share {
         this.company_name = company_name;
     }
 
-    public String getCompany_id() {
-        return company_id;
-    }
-
-    public void setCompany_id(String company_id) {
-        this.company_id = company_id;
-    }
+//    public String getCompany_id() {
+//        return company_id;
+//    }
+//
+//    public void setCompany_id(String company_id) {
+//        this.company_id = company_id;
+//    }
 
     public Date getStart_time() {
         return start_time;

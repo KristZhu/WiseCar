@@ -48,6 +48,8 @@ public class SharedVehiclesActivity extends AppCompatActivity {
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_SHARED_LIST = "/api/v1/sharevehicle/sharedcompanylist/";
 
+    private final String GET_HISTORY = "/api/v1/sharevehicle/sharedetailapp/";
+
     private String vehicleID;
     private Vehicle vehicle;
 
@@ -120,7 +122,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                     shareLineLayout.addView(editImageButton);
 
                     String companyName = shares.get(shareID).getCompany_name();
-                    String companyID = shares.get(shareID).getCompany_id();
+                    String companyID = shares.get(shareID).getCust_id();
                     TextView companyTextView = new TextView(SharedVehiclesActivity.this);
                     companyTextView.setId(2);
                     companyTextView.setAutoSizeTextTypeUniformWithConfiguration(14, 30, 1, TypedValue.COMPLEX_UNIT_SP);
@@ -155,7 +157,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                         TextView endTextView = new TextView(SharedVehiclesActivity.this);
                         endTextView.setId(4);
                         endTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-                        startTextView.setText("End   " + formatTime.format(shares.get(shareID).getEnd_time()));
+                        endTextView.setText("End   " + formatTime.format(shares.get(shareID).getEnd_time()));
                         set.connect(endTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 16);
                         set.connect(endTextView.getId(), ConstraintSet.END, editImageButton.getId(), ConstraintSet.START, 8);
                         set.connect(endTextView.getId(), ConstraintSet.TOP, startTextView.getId(), ConstraintSet.BOTTOM);
@@ -168,18 +170,32 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                         recurringTextView.setId(5);
                         recurringTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         StringBuilder sb = new StringBuilder();
-                        if(shares.get(shareID).isRecurring()) {
+                        if (shares.get(shareID).isRecurring()) {
                             sb.append("Recurring: ");
-                            for(int i=0; i<7; i++) {
-                                if(shares.get(shareID).getRecurring_days()[i]) {
+                            for (int i = 0; i < 7; i++) {
+                                if (shares.get(shareID).getRecurring_days()[i]) {
                                     switch (i) {
-                                        case 0: sb.append("Sun, "); break;
-                                        case 1: sb.append("Mon, "); break;
-                                        case 2: sb.append("Tue, "); break;
-                                        case 3: sb.append("Wed, "); break;
-                                        case 4: sb.append("Thu, "); break;
-                                        case 5: sb.append("Fri, "); break;
-                                        case 6: sb.append("Sat, "); break;
+                                        case 0:
+                                            sb.append("Sun, ");
+                                            break;
+                                        case 1:
+                                            sb.append("Mon, ");
+                                            break;
+                                        case 2:
+                                            sb.append("Tue, ");
+                                            break;
+                                        case 3:
+                                            sb.append("Wed, ");
+                                            break;
+                                        case 4:
+                                            sb.append("Thu, ");
+                                            break;
+                                        case 5:
+                                            sb.append("Fri, ");
+                                            break;
+                                        case 6:
+                                            sb.append("Sat, ");
+                                            break;
                                     }
                                 }
                             }
@@ -261,12 +277,11 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                         share.setRecurring(false);
                     }
                     String recurringDaysStr = jsonObject.optString("recurring_days");
-                    boolean recurringDays[] = new boolean[] {false, false, false, false, false, false, false};
-                    for(char c: recurringDaysStr.toCharArray()) recurringDays[c-'0'] = true;
+                    boolean recurringDays[] = new boolean[]{false, false, false, false, false, false, false};
+                    for (char c : recurringDaysStr.toCharArray()) recurringDays[c - '0'] = true;
                     share.setRecurring_days(recurringDays);
                     share.setCust_id(jsonObject.optString("cust_id"));
                     share.setCompany_name(jsonObject.optString("company_name"));
-                    //share.setCompany_id
                     try {
                         share.setStart_time(jsonObject.optString("start_time"));
                         share.setEnd_time(jsonObject.optString("end_time"));
