@@ -234,8 +234,10 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             isRecurring = false;
             isVisibility = false;
 
-            for(int i: vehicle.getServices()) servicesVisibility.put(i, true);
+//            for(int i: vehicle.getServices()) servicesVisibility.put(i, true);
 
+            servicesVisibility.put(1, true);
+            servicesVisibility.put(2, false);
 
         } else {    //!NEW
             shareID = (String) this.getIntent().getStringExtra("shareID");
@@ -244,6 +246,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 public void onSuccess(Share share) {
 
                     companyNameTextView.setText(companyName);
+
                     companyIDTextView.setText(custID);
                     searchEditText.setInputType(InputType.TYPE_NULL);
 
