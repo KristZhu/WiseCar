@@ -142,7 +142,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             returnFormerSharingDetails(shareId, new formerSharingCallbacks() {
                 @Override
                 public void onSuccess(@NonNull Map<Integer, Boolean> value) {
-                    
+
                 }
 
                 @Override
