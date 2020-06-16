@@ -64,10 +64,10 @@ public class ShareVehicleListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shared_vehicles);
 
-        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        vehicleID = "303";
+        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicleID = "303";
         Log.d(TAG, "vehicleID: " + vehicleID);
-        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
 
         backImageButton = $(R.id.backImageButton);
@@ -78,10 +78,10 @@ public class ShareVehicleListActivity extends AppCompatActivity {
         });
 
         headerTextView = $(R.id.headerTextView);
-        //headerTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
+        headerTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
 
         vehicleImageView = $(R.id.vehicleImageView);
-        //vehicleImageView.setImageBitmap(vehicle.getImage());
+        vehicleImageView.setImageBitmap(vehicle.getImage());
 
 
         shareLayout = $(R.id.sharesLayout);

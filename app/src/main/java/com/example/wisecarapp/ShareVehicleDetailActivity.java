@@ -121,13 +121,13 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_vehicle_detail);
 
-        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        vehicleID = "303";
+        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicleID = "303";
         Log.d(TAG, "vehicleID: " + vehicleID);
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
-        //NEW = (boolean) this.getIntent().getSerializableExtra("NEW");
-        NEW = true;
+        NEW = (boolean) this.getIntent().getSerializableExtra("NEW");
+        //NEW = true;
         Log.d(TAG, "NEW: " + NEW);
 
 
