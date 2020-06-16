@@ -42,8 +42,6 @@ public class EditVehicleActivity extends AppCompatActivity {
     private String vehicleID;
     private Vehicle vehicle;
 
-    private static List<Integer> services;
-
     private ImageButton backImageButton;
 
     private ImageView vehicleImageView;
@@ -77,11 +75,6 @@ public class EditVehicleActivity extends AppCompatActivity {
 
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
-        services = new ArrayList<>();
-
-        // intent vehicle_id to service record. (Do not know if it is written by mistake)
-        //Intent intent = new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class);
-        //intent.putExtra("vehicle_id", vehicleID);
 
         vehicleImageView = $(R.id.vehicleImageView);
         vehicleImageView.setImageBitmap(vehicle.getImage());
@@ -93,12 +86,14 @@ public class EditVehicleActivity extends AppCompatActivity {
 
         makeRegistrationNoTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
 
-
         loadServices(vehicle.getVehicle_id(), new servicesListCallbacks() {
             @Override
-            public void onSuccess(@NonNull List<Integer> value) {
+            public void onSuccess(@NonNull List<Integer> serviceList) {
+                List<Integer> services = new ArrayList<>(serviceList);
                 Log.e("service list", String.valueOf(services));
                 vehicle.setServices(services);
+                //for(int i: services) vehicle.getServices().add(i);
+                Log.d(TAG, "services: " + UserInfo.getVehicles().get(vehicleID).getServices());
 
                 servicesLayout = $(R.id.servicesLayout);
                 //int column = 3;
@@ -107,8 +102,6 @@ public class EditVehicleActivity extends AppCompatActivity {
                     ConstraintLayout servicesLineLayout = new ConstraintLayout(EditVehicleActivity.this);
                     ConstraintSet set = new ConstraintSet();
                     ImageView[] imageViews = new ImageView[Math.min(services.size() - i, column)];
-                    Log.d(TAG, "i: " + i);
-                    Log.d(TAG, "imageViews.length: " + imageViews.length);
                     for (int j = 0; j < imageViews.length; j++) {
                         imageViews[j] = new ImageView(EditVehicleActivity.this);
                         imageViews[j].setId(j);
@@ -149,27 +142,25 @@ public class EditVehicleActivity extends AppCompatActivity {
                     servicesLayout.addView(servicesLineLayout);
                 }
 
+                shareImageButton = $(R.id.shareImageButton);
+                shareImageButton.setOnClickListener(v -> {
+                    UserInfo.getVehicles().get(vehicleID).setServices(services);    //have no idea why I must do this. But if not, services==null. Makes no senses...
+                    Log.d(TAG, "before share user services: " + UserInfo.getVehicles().get(vehicleID).getServices());
+                    Log.d(TAG, "before share services: " + services);
+                    Log.d(TAG, "before share servicesList: " + serviceList);
+                    shareVehicle(vehicleID);
+                });
+
             }
 
             @Override
             public void onError(@NonNull String errorMessage) {
-                Log.e("No service", String.valueOf(services));
+                Log.e("No service", errorMessage);
             }
         });
 
-
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener((v) -> {
-            startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class));
-        });
-
-        shareImageButton = $(R.id.shareImageButton);
-        shareImageButton.setOnClickListener(v -> {
-            Log.d(TAG, "share: " + vehicleID);
-            Intent intent = new Intent(EditVehicleActivity.this, ShareVehicleListActivity.class);
-            intent.putExtra("vehicleID", vehicleID);
-            startActivity(intent);
-        });
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class)));
 
     }
 
@@ -182,13 +173,12 @@ public class EditVehicleActivity extends AppCompatActivity {
             JSONArray jsonArray;
             JSONObject jsonObject;
             try {
+                List<Integer> services = new ArrayList<>();
                 jsonArray = response.getJSONArray("service_list");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
 
                     services.add(jsonObject.optInt("service_id"));
-
-//                        Log.e("service id", String.valueOf(jsonObject.optInt("service_id")));
                 }
 
                 if (callbacks != null)
@@ -232,6 +222,14 @@ public class EditVehicleActivity extends AppCompatActivity {
     private void startServiceRecords(String vehicleID) {
         Log.d(TAG, "ServiceRecordsVehicleID: " + vehicleID);
         Intent intent = new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class);
+        intent.putExtra("vehicleID", vehicleID);
+        startActivity(intent);
+    }
+
+    private void shareVehicle(String vehicleID) {
+        Log.d(TAG, "shared vehicle ID: " + vehicleID);
+        Log.d(TAG, "shared vehicle services: " + UserInfo.getVehicles().get(vehicleID).getServices());
+        Intent intent = new Intent(EditVehicleActivity.this, ShareVehicleListActivity.class);
         intent.putExtra("vehicleID", vehicleID);
         startActivity(intent);
     }

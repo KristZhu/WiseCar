@@ -274,6 +274,13 @@ public class AddVehicleActivity extends AppCompatActivity {
                 }
             }
 
+            boolean tempB = false;
+            for(boolean b: isServices) tempB = tempB || b;
+            if(!tempB) {
+                Toast.makeText(AddVehicleActivity.this, "please select at least one service", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
 
             Log.d(TAG, "--------------------Add Vehicle------------------");
             Log.d(TAG, "userID: " + UserInfo.getUserID());

@@ -37,7 +37,7 @@ import java.util.Map;
 
 public class ShareVehicleListActivity extends AppCompatActivity {
 
-    private final static String TAG = "SharedVehicles";
+    private final static String TAG = "ShareVehicleList";
 
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_SHARED_LIST = "/api/v1/sharevehicle/sharedcompanylist/";
@@ -55,20 +55,20 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
     private ImageButton shareImageButton;
 
-    private static Map<String, Share> shares = new HashMap<>(); //key: id
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_shared_vehicles);
+        setContentView(R.layout.activity_share_vehicle_list);
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         //vehicleID = "303";
         Log.d(TAG, "vehicleID: " + vehicleID);
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
+        Log.d(TAG, "services: " + vehicle.getServices());
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> {
@@ -87,7 +87,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
         shareLayout = $(R.id.sharesLayout);
         returnSharedList(vehicleID, new sharedCallbacks() {
             @Override
-            public void onSuccess(@NonNull Map<String, Share> value) {
+            public void onSuccess(@NonNull Map<String, Share> shares) {
                 Log.e("map", String.valueOf(shares.size()));
 
                 for (String shareID : shares.keySet()) {
@@ -133,8 +133,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
                     set.constrainPercentHeight(companyTextView.getId(), 0.3f);
                     shareLineLayout.addView(companyTextView);
 
-                    //if(share.isShare) {
-                    if (true) {
+                    if(shares.get(shareID).isShare()) {
                         SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy");
                         SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm");
 
@@ -272,8 +271,11 @@ public class ShareVehicleListActivity extends AppCompatActivity {
             Log.e("Response", response.toString());
             JSONArray jsonArray;
             JSONObject jsonObject;
+
+            Map<String, Share> shares = new HashMap<>();  //key: id
             try {
                 jsonArray = response.getJSONArray("result");
+
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
 
