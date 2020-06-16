@@ -17,23 +17,17 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -58,9 +52,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -303,7 +295,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
+            Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
             intent.putExtra("vehicleID", vehicleID);
             startActivity(intent);
         });
@@ -696,7 +688,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
                         }
                     });
-                    Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
+                    Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
                     startActivity(intent);
                 }
                 Log.e("response", s.toString());
@@ -796,7 +788,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
                         }
                     });
-//                    Intent intent = new Intent(ShareVehicleDetailActivity.this, SharedVehiclesActivity.class);
+//                    Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
 //                    startActivity(intent);
                 }
                 Log.e("response", s.toString());
