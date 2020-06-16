@@ -59,6 +59,8 @@ public class SharedVehiclesActivity extends AppCompatActivity {
 
     private LinearLayout shareLayout;
 
+    private ImageButton shareImageButton;
+
     private static Map<String, Share> shares = new HashMap<>(); //key: id
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -113,7 +115,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                     editImageButton.setPadding(0, 0, 0, 0);
                     editImageButton.setScaleType(ImageView.ScaleType.FIT_XY);
                     editImageButton.setBackground(null);
-                    editImageButton.setOnClickListener(v -> editVehicle(shareID));
+                    editImageButton.setOnClickListener(v -> editShare(shareID));
                     set.connect(editImageButton.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 32);
                     set.connect(editImageButton.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
                     set.connect(editImageButton.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
@@ -122,11 +124,11 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                     shareLineLayout.addView(editImageButton);
 
                     String companyName = shares.get(shareID).getCompany_name();
-                    String companyID = shares.get(shareID).getCust_id();
+                    String custID = shares.get(shareID).getCust_id();
                     TextView companyTextView = new TextView(SharedVehiclesActivity.this);
                     companyTextView.setId(2);
                     companyTextView.setAutoSizeTextTypeUniformWithConfiguration(14, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-                    String temp = companyName + " - <font color='#00FFFF'>" + companyID + "</font>";
+                    String temp = companyName + " - <font color='#00FFFF'>" + custID + "</font>";
                     companyTextView.setText(Html.fromHtml(temp));
                     companyTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
                     set.connect(companyTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 8);
@@ -239,10 +241,29 @@ public class SharedVehiclesActivity extends AppCompatActivity {
             }
         });
 
+        shareImageButton = $(R.id.shareImageButton);
+        shareImageButton.setOnClickListener(v -> {
+            addShare();
+        });
+
     }
 
-    private void editVehicle(String shareID) {
-        Log.d(TAG, "editVehicle: " + shareID);
+    private void addShare() {
+        Log.d(TAG, "addShare: " + vehicleID);
+        Intent intent = new Intent(SharedVehiclesActivity.this, ShareVehicleDetailActivity.class);
+        intent.putExtra("vehicleID", vehicleID);
+        intent.putExtra("NEW", true);
+        startActivity(intent);
+    }
+
+    private void editShare(String shareID) {
+        Log.d(TAG, "editShare: " + vehicleID);
+        Log.d(TAG, "editShare: shareID: " + shareID);
+        Intent intent = new Intent(SharedVehiclesActivity.this, ShareVehicleDetailActivity.class);
+        intent.putExtra("vehicleID", vehicleID);
+        intent.putExtra("shareID", shareID);
+        intent.putExtra("NEW", false);
+        startActivity(intent);
     }
 
     private <T extends View> T $(int id) {
@@ -264,27 +285,24 @@ public class SharedVehiclesActivity extends AppCompatActivity {
 
                     Share share = new Share();
 
-                    share.setShare_id(jsonObject.optString("share_id"));
-                    String recurring_flag = jsonObject.optString("recurring_flag");
-                    if (recurring_flag.equals("1")) {
-                        share.setRecurring(true);
-                        try {
-                            share.setRecurring_end_date(jsonObject.optString("recurring_end_date"));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        share.setRecurring(false);
-                    }
-                    String recurringDaysStr = jsonObject.optString("recurring_days");
-                    boolean recurringDays[] = new boolean[]{false, false, false, false, false, false, false};
-                    for (char c : recurringDaysStr.toCharArray()) recurringDays[c - '0'] = true;
-                    share.setRecurring_days(recurringDays);
-                    share.setCust_id(jsonObject.optString("cust_id"));
-                    share.setCompany_name(jsonObject.optString("company_name"));
                     try {
-                        share.setStart_time(jsonObject.optString("start_time"));
-                        share.setEnd_time(jsonObject.optString("end_time"));
+                        share.setShare_id(jsonObject.optString("share_id"));
+                        String recurring_flag = jsonObject.optString("recurring_flag");
+                        if (recurring_flag.equals("1")) {
+                            share.setRecurring(true);
+                            share.setRecurring_end_date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonObject.optString("recurring_end_date")));
+                            String recurringDaysStr = jsonObject.optString("recurring_days");
+                            boolean[] recurringDays = new boolean[] {false, false, false, false, false, false, false};
+                            for (char c : recurringDaysStr.toCharArray()) recurringDays[c-'0'] = true;
+                            share.setRecurring_days(recurringDays);
+                        } else {
+                            share.setRecurring(false);
+                            share.setDate(new SimpleDateFormat("yyyy-MM-dd").parse(jsonObject.optString("date")));
+                        }
+                        share.setCust_id(jsonObject.optString("cust_id"));
+                        share.setCompany_name(jsonObject.optString("company_name"));
+                        share.setStart_time(new SimpleDateFormat("HH:mm:ss").parse(jsonObject.optString("start_time")));
+                        share.setEnd_time(new SimpleDateFormat("HH:mm:ss").parse(jsonObject.optString("end_time")));
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
