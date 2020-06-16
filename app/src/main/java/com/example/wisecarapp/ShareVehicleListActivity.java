@@ -8,7 +8,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -17,7 +16,6 @@ import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,8 +23,6 @@ import android.widget.TextView;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -37,11 +33,9 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
-public class SharedVehiclesActivity extends AppCompatActivity {
+public class ShareVehicleListActivity extends AppCompatActivity {
 
     private final static String TAG = "SharedVehicles";
 
@@ -78,7 +72,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> {
-            Intent intent = new Intent(SharedVehiclesActivity.this, EditVehicleActivity.class);
+            Intent intent = new Intent(ShareVehicleListActivity.this, EditVehicleActivity.class);
             intent.putExtra("vehicleID", vehicleID);
             startActivity(intent);
         });
@@ -97,10 +91,10 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                 Log.e("map", String.valueOf(shares.size()));
 
                 for (String shareID : shares.keySet()) {
-                    ConstraintLayout shareLineLayout = new ConstraintLayout(SharedVehiclesActivity.this);
+                    ConstraintLayout shareLineLayout = new ConstraintLayout(ShareVehicleListActivity.this);
                     ConstraintSet set = new ConstraintSet();
 
-                    ImageView bgImageView = new ImageView(SharedVehiclesActivity.this);
+                    ImageView bgImageView = new ImageView(ShareVehicleListActivity.this);
                     bgImageView.setId(0);
                     bgImageView.setBackgroundColor(0xFF89D0D5);
                     set.connect(bgImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 16);
@@ -109,7 +103,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                     set.setDimensionRatio(bgImageView.getId(), "4.3:1");
                     shareLineLayout.addView(bgImageView);
 
-                    ImageButton editImageButton = new ImageButton(SharedVehiclesActivity.this);
+                    ImageButton editImageButton = new ImageButton(ShareVehicleListActivity.this);
                     editImageButton.setId(1);
                     editImageButton.setImageDrawable(getResources().getDrawable(R.drawable.share_vehicle0edit));
                     editImageButton.setPadding(0, 0, 0, 0);
@@ -125,7 +119,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
 
                     String companyName = shares.get(shareID).getCompany_name();
                     String custID = shares.get(shareID).getCust_id();
-                    TextView companyTextView = new TextView(SharedVehiclesActivity.this);
+                    TextView companyTextView = new TextView(ShareVehicleListActivity.this);
                     companyTextView.setId(2);
                     companyTextView.setAutoSizeTextTypeUniformWithConfiguration(14, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                     String temp = companyName + " - <font color='#00FFFF'>" + custID + "</font>";
@@ -144,7 +138,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                         SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy");
                         SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm");
 
-                        TextView startTextView = new TextView(SharedVehiclesActivity.this);
+                        TextView startTextView = new TextView(ShareVehicleListActivity.this);
                         startTextView.setId(3);
                         startTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         startTextView.setText("Start " + formatTime.format(shares.get(shareID).getStart_time()));
@@ -156,7 +150,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                         set.constrainPercentHeight(startTextView.getId(), 0.2f);
                         shareLineLayout.addView(startTextView);
 
-                        TextView endTextView = new TextView(SharedVehiclesActivity.this);
+                        TextView endTextView = new TextView(ShareVehicleListActivity.this);
                         endTextView.setId(4);
                         endTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         endTextView.setText("End   " + formatTime.format(shares.get(shareID).getEnd_time()));
@@ -168,7 +162,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                         set.constrainPercentHeight(endTextView.getId(), 0.2f);
                         shareLineLayout.addView(endTextView);
 
-                        TextView recurringTextView = new TextView(SharedVehiclesActivity.this);
+                        TextView recurringTextView = new TextView(ShareVehicleListActivity.this);
                         recurringTextView.setId(5);
                         recurringTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         StringBuilder sb = new StringBuilder();
@@ -215,7 +209,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
                         shareLineLayout.addView(recurringTextView);
 
                     } else {
-                        TextView offTextView = new TextView(SharedVehiclesActivity.this);
+                        TextView offTextView = new TextView(ShareVehicleListActivity.this);
                         offTextView.setId(6);
                         offTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         offTextView.setText("OFF");
@@ -250,7 +244,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
 
     private void addShare() {
         Log.d(TAG, "addShare: " + vehicleID);
-        Intent intent = new Intent(SharedVehiclesActivity.this, ShareVehicleDetailActivity.class);
+        Intent intent = new Intent(ShareVehicleListActivity.this, ShareVehicleDetailActivity.class);
         intent.putExtra("vehicleID", vehicleID);
         intent.putExtra("NEW", true);
         startActivity(intent);
@@ -259,7 +253,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
     private void editShare(String shareID) {
         Log.d(TAG, "editShare: " + vehicleID);
         Log.d(TAG, "editShare: shareID: " + shareID);
-        Intent intent = new Intent(SharedVehiclesActivity.this, ShareVehicleDetailActivity.class);
+        Intent intent = new Intent(ShareVehicleListActivity.this, ShareVehicleDetailActivity.class);
         intent.putExtra("vehicleID", vehicleID);
         intent.putExtra("shareID", shareID);
         intent.putExtra("NEW", false);
@@ -337,7 +331,7 @@ public class SharedVehiclesActivity extends AppCompatActivity {
 
         });
 
-        Volley.newRequestQueue(SharedVehiclesActivity.this).add(objectRequest);
+        Volley.newRequestQueue(ShareVehicleListActivity.this).add(objectRequest);
     }
 
     public interface sharedCallbacks {

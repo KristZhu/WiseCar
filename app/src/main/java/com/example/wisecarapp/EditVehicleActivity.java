@@ -42,6 +42,8 @@ public class EditVehicleActivity extends AppCompatActivity {
     private String vehicleID;
     private Vehicle vehicle;
 
+    private static List<Integer> services;
+
     private ImageButton backImageButton;
 
     private ImageView vehicleImageView;
@@ -52,7 +54,8 @@ public class EditVehicleActivity extends AppCompatActivity {
 
     private LinearLayout servicesLayout;
 
-    private static List<Integer> services;
+    private ImageButton shareImageButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,6 +161,14 @@ public class EditVehicleActivity extends AppCompatActivity {
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener((v) -> {
             startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class));
+        });
+
+        shareImageButton = $(R.id.shareImageButton);
+        shareImageButton.setOnClickListener(v -> {
+            Log.d(TAG, "share: " + vehicleID);
+            Intent intent = new Intent(EditVehicleActivity.this, ShareVehicleListActivity.class);
+            intent.putExtra("vehicleID", vehicleID);
+            startActivity(intent);
         });
 
     }
