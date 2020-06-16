@@ -639,34 +639,18 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                     app:layout_constraintTop_toTopOf="@+id/visibilityTextView"
                     app:layout_constraintStart_toStartOf="parent"/>
 
-                <CheckBox
-                    android:id="@+id/recordCheckBox"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/visibilityDiv"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:button="@drawable/vehicle0checkbox_style_2"
-                    android:checked="true"
-                    android:text="Service Record"
                     android:visibility="gone"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="@id/visibilityTextView"
-                    app:layout_constraintEnd_toEndOf="@id/visibilitySwitchButton"
-                    app:layout_constraintTop_toBottomOf="@id/visibilityTextView"/>
+                    android:orientation="vertical"
+                    app:layout_constraintTop_toBottomOf="@id/visibilityTextView"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
 
-                <CheckBox
-                    android:id="@+id/registrationCheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:button="@drawable/vehicle0checkbox_style_2"
-                    android:checked="true"
-                    android:text="Registration"
-                    android:layout_marginStart="16dp"
-                    android:visibility="gone"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@id/recordCheckBox"
-                    app:layout_constraintEnd_toEndOf="@id/visibilitySwitchButton"
-                    app:layout_constraintTop_toBottomOf="@id/visibilityTextView"/>
+
+                </LinearLayout>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

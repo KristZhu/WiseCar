@@ -3,20 +3,33 @@ package com.example.wisecarapp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 class Share {
 
+    private boolean isShare;
     private String share_id;
+    private String cust_id;
+    //    private String company_id;
+    private String company_name;
     private boolean recurring;
     private Date recurring_end_date;
     private boolean[] recurring_days;
-    private String cust_id;
-    private String company_name;
-//    private String company_id;
     private Date start_time;
     private Date end_time;
-
     private Date date;
+    private Map<Integer, Boolean> servicesVisibility = new TreeMap<>();   //value: visibility
+
+
+    public boolean isShare() {
+        return isShare;
+    }
+
+    public void setShare(boolean share) {
+        isShare = share;
+    }
 
     public Date getDate() {
         return date;
@@ -46,8 +59,8 @@ class Share {
         return recurring_end_date;
     }
 
-    public void setRecurring_end_date(String recurring_end_date) throws ParseException {
-        this.recurring_end_date = new SimpleDateFormat("yyyy-MM-dd").parse(recurring_end_date);
+    public void setRecurring_end_date(Date recurring_end_date) {
+        this.recurring_end_date = recurring_end_date;
     }
 
     public boolean[] getRecurring_days() {
@@ -56,12 +69,6 @@ class Share {
 
     public void setRecurring_days(boolean[] recurring_days) {
         this.recurring_days = recurring_days;
-    }
-
-    public void setRecurring_days(String days){
-        for(int i = 0; i < days.length(); i++){
-            recurring_days[days.charAt(i)] = true;
-        }
     }
 
     public String getCust_id() {
@@ -92,15 +99,23 @@ class Share {
         return start_time;
     }
 
-    public void setStart_time(String start_time) throws ParseException {
-        this.start_time = new SimpleDateFormat("HH:mm:ss").parse(start_time);
+    public void setStart_time(Date start_time) {
+        this.start_time = start_time;
     }
 
     public Date getEnd_time() {
         return end_time;
     }
 
-    public void setEnd_time(String end_time) throws ParseException {
-        this.end_time = new SimpleDateFormat("HH:mm:ss").parse(end_time);
+    public void setEnd_time(Date end_time) {
+        this.end_time = end_time;
+    }
+
+    public Map<Integer, Boolean> getServicesVisibility() {
+        return servicesVisibility;
+    }
+
+    public void setServicesVisibility(Map<Integer, Boolean> servicesVisibility) {
+        this.servicesVisibility = servicesVisibility;
     }
 }
