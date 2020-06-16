@@ -145,9 +145,9 @@ public class EditVehicleActivity extends AppCompatActivity {
                 shareImageButton = $(R.id.shareImageButton);
                 shareImageButton.setOnClickListener(v -> {
                     UserInfo.getVehicles().get(vehicleID).setServices(services);    //have no idea why I must do this. But if not, services==null. Makes no senses...
-                    Log.d(TAG, "before share user services: " + UserInfo.getVehicles().get(vehicleID).getServices());
-                    Log.d(TAG, "before share services: " + services);
-                    Log.d(TAG, "before share servicesList: " + serviceList);
+                    //Log.d(TAG, "before share user services: " + UserInfo.getVehicles().get(vehicleID).getServices());
+                    //Log.d(TAG, "before share services: " + services);
+                    //Log.d(TAG, "before share servicesList: " + serviceList);
                     shareVehicle(vehicleID);
                 });
 
