@@ -253,21 +253,31 @@
             android:id="@+id/shareImageButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="32dp"
-            android:layout_marginBottom="8dp"
             android:cropToPadding="false"
             android:padding="0dp"
             android:scaleType="fitXY"
             android:background="@null"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintBottom_toBottomOf="@id/saveImageButton"
+            app:layout_constraintDimensionRatio="1.1:1"
             app:layout_constraintEnd_toStartOf="@id/saveImageButton"
-            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.1"
-            app:srcCompat="@drawable/vehicle0save_1" />
+            app:layout_constraintTop_toTopOf="@id/saveImageButton"
+            app:layout_constraintWidth_percent="0.11"
+            app:srcCompat="@drawable/share_vehicle0share_icon" />
+
+        <ImageView
+            android:id="@+id/bottomDividing"
+            android:layout_width="2dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toStartOf="@id/saveImageButton"
+            app:layout_constraintTop_toTopOf="@id/saveImageButton"
+            app:layout_constraintBottom_toBottomOf="@id/saveImageButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="15dp"
+            android:background="#ffffff"
+            android:alpha="0.5" />
 
         <ImageButton
             android:id="@+id/saveImageButton"
@@ -283,7 +293,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.1"
