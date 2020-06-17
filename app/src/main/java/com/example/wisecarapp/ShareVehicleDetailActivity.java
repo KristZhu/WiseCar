@@ -169,7 +169,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
 
 
-        if (NEW) {
+        if(NEW) {
 
             final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
             returnCompanies(new companiesCallbacks() {
@@ -227,7 +227,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             isVisibility = false;
 
             Log.d(TAG, "new share services: " + vehicle.getServices());
-            for (int i : vehicle.getServices()) servicesVisibility.put(i, true);
+            for(int i: vehicle.getServices()) servicesVisibility.put(i, true);
 
 
         } else {    //edit
@@ -243,7 +243,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     searchEditText.setInputType(InputType.TYPE_NULL);
 
                     isShare = share.isShare();
-                    if (isShare) {
+                    if(isShare) {
                         shareSwitchButton.setToggleOn(true);
                         shareDiv.setVisibility(View.VISIBLE);
 
@@ -277,11 +277,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                         List<Map.Entry<Integer, Boolean>> servicesList = new ArrayList<>(servicesVisibility.entrySet());
                         Log.d(TAG, "servicesVisibility: " + servicesVisibility);
-                        for (int i = 0; i < servicesList.size(); i += 2) {
+                        for(int i = 0; i < servicesList.size(); i += 2) {
                             ConstraintLayout servicesLineLayout = new ConstraintLayout(ShareVehicleDetailActivity.this);
                             ConstraintSet set = new ConstraintSet();
                             CheckBox[] checkBoxes = new CheckBox[Math.min(servicesVisibility.size() - i, 2)];
-                            for (int j = 0; j < checkBoxes.length; j++) {
+                            for(int j = 0; j < checkBoxes.length; j++) {
                                 checkBoxes[j] = new CheckBox(getApplicationContext());
                                 checkBoxes[j].setId(j);
                                 checkBoxes[j].setButtonDrawable(getResources().getDrawable(R.drawable.vehicle0checkbox_style_2));
@@ -337,8 +337,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         }
 
                         isVisibility = false;
-                        for (int i : servicesVisibility.keySet()) {
-                            if (servicesVisibility.get(i)) { //has visible
+                        for(int i: servicesVisibility.keySet()) {
+                            if(servicesVisibility.get(i)) { //has visible
                                 isVisibility = true;
                                 visibilitySwitchButton.setToggleOn(true);
                                 visibilityDiv.setVisibility(View.VISIBLE);
@@ -350,7 +350,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                     saveImageButton.setAlpha(1.0f);
                     saveImageButton.setClickable(true);
-
+                    
                 }
 
                 @Override
@@ -405,7 +405,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 time.append(hour >= 10 ? hour : "0" + hour);
                 time.append(":");
                 time.append(minute >= 10 ? minute : "0" + minute);
-                start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
+                start = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
                 startEditText.setText(time);
             }, 0, 0, true).show();
         });
@@ -416,7 +416,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     time.append(hour >= 10 ? hour : "0" + hour);
                     time.append(":");
                     time.append(minute >= 10 ? minute : "0" + minute);
-                    start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                    start = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                     startEditText.setText(time);
                 }, 0, 0, true).show();
             }
@@ -428,7 +428,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 time.append(hour >= 10 ? hour : "0" + hour);
                 time.append(":");
                 time.append(minute >= 10 ? minute : "0" + minute);
-                end = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                end = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                 endEditText.setText(time);
             }, 0, 0, true).show();
         });
@@ -439,7 +439,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     time.append(hour >= 10 ? hour : "0" + hour);
                     time.append(":");
                     time.append(minute >= 10 ? minute : "0" + minute);
-                    end = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                    end = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                     endEditText.setText(time);
                 }, 0, 0, true).show();
             }
@@ -479,11 +479,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         List<Map.Entry<Integer, Boolean>> servicesList = new ArrayList<>(servicesVisibility.entrySet());
         Log.d(TAG, "servicesVisibility: " + servicesVisibility);
-        for (int i = 0; i < servicesList.size(); i += 2) {
+        for(int i = 0; i < servicesList.size(); i += 2) {
             ConstraintLayout servicesLineLayout = new ConstraintLayout(ShareVehicleDetailActivity.this);
             ConstraintSet set = new ConstraintSet();
             CheckBox[] checkBoxes = new CheckBox[Math.min(servicesVisibility.size() - i, 2)];
-            for (int j = 0; j < checkBoxes.length; j++) {
+            for(int j = 0; j < checkBoxes.length; j++) {
                 checkBoxes[j] = new CheckBox(getApplicationContext());
                 checkBoxes[j].setId(j);
                 checkBoxes[j].setButtonDrawable(getResources().getDrawable(R.drawable.vehicle0checkbox_style_2));
@@ -547,7 +547,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         saveImageButton.setOnClickListener(v -> {
-            SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 
             Log.d(TAG, "companyName: " + companyName);
             Log.d(TAG, "custID: " + custID);
@@ -555,11 +554,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
             if (isShare) {
                 Log.d(TAG, "date: " + date);
-                Log.d(TAG, "start: " + format.format(start));
-                Log.d(TAG, "end: " + format.format(end));
+                Log.d(TAG, "start: " + start);
+                Log.d(TAG, "end: " + end);
                 Log.d(TAG, "isRecurring: " + isRecurring);
 
-                if (date.before(new Date())) {
+                if (date.compareTo(new Date(new Date().getTime() - 24*60*60*1000)) < 0) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
                     Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -576,7 +575,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         day = day || isWeekday[i];
                         Log.d(TAG, "isWeekday" + i + ": " + isWeekday[i]);
                     }
-                    if (!day) {
+                    if(!day) {
                         Toast.makeText(getApplicationContext(), "Please choose at least one day for recurring, or switch recurring off", Toast.LENGTH_LONG).show();
                         return;
                     }
@@ -591,9 +590,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 if (isVisibility) {
                     Log.d(TAG, "visibility: " + servicesVisibility);
                     boolean visible = false;
-                    for (int i : servicesVisibility.keySet())
-                        visible = visible || servicesVisibility.get(i);
-                    if (!visible) {
+                    for(int i: servicesVisibility.keySet()) visible = visible || servicesVisibility.get(i);
+                    if(!visible) {
                         Toast.makeText(getApplicationContext(), "Please choose at least one service visible, or switch service visibility off", Toast.LENGTH_LONG).show();
                         return;
                     }
@@ -603,11 +601,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
             }
 
-            if (NEW) {
-                shareVehicleCheck();
-            } else {
-                editShare();
-            }
+            if(NEW) shareVehicleCheck();
+            else editShare();
 
         });
 
@@ -703,8 +698,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
             if (visibilityChecked.equals("1")) {
                 StringBuilder servicesSB = new StringBuilder();
-                for (int i : servicesVisibility.keySet())
-                    if (servicesVisibility.get(i)) servicesSB.append(i);
+                for (int i : servicesVisibility.keySet()) if(servicesVisibility.get(i)) servicesSB.append(i);
                 reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
             }
             reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
@@ -730,11 +724,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     s = s.append(sResponse);
                 }
                 if (s.toString().contains("success")) {
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
                     Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
                     intent.putExtra("vehicleID", vehicleID);
                     startActivity(intent);
@@ -798,8 +788,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
             if (visibilityChecked.equals("1")) {
                 StringBuilder servicesSB = new StringBuilder();
-                for (int i : servicesVisibility.keySet())
-                    if (servicesVisibility.get(i)) servicesSB.append(i);
+                for (int i : servicesVisibility.keySet()) if(servicesVisibility.get(i)) servicesSB.append(i);
                 reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
             }
             reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
@@ -831,12 +820,9 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     s = s.append(sResponse);
                 }
                 if (s.toString().contains("success")) {
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
                     Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
+                    intent.putExtra("vehicleID", vehicleID);
                     startActivity(intent);
                 }
                 Log.e("response", s.toString());
@@ -867,14 +853,14 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 share.setCompany_name(jsonObject.optString("company_name"));
                 share.setShare(jsonObject.optInt("share_active") == 1);
 
-                if (share.isShare()) {
+                if(share.isShare()) {
                     share.setRecurring(jsonObject.optInt("recurring_flag") == 1);
-                    if (share.isRecurring()) {
+                    if(share.isRecurring()) {
                         share.setRecurring_end_date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonObject.optString("recurring_end_date")));
-                        share.setRecurring_end_date(intToDate(2020, 12 - 1, 6));
+                        //share.setRecurring_end_date(intToDate(2020,12-1,6));
                         String recurringDaysStr = jsonObject.optString("recurring_days");
-                        boolean[] recurringDays = new boolean[]{false, false, false, false, false, false, false};
-                        for (char c : recurringDaysStr.toCharArray()) recurringDays[c - '0'] = true;
+                        boolean[] recurringDays = new boolean[] {false, false, false, false, false, false, false};
+                        for (char c : recurringDaysStr.toCharArray()) recurringDays[c-'0'] = true;
                         share.setRecurring_days(recurringDays);
                         Log.d(TAG, "recurring days str: " + recurringDaysStr);
                         Log.d(TAG, "recurring days: " + recurringDays[0] + recurringDays[1] + recurringDays[2] + recurringDays[3] + recurringDays[4] + recurringDays[5] + recurringDays[6]);
