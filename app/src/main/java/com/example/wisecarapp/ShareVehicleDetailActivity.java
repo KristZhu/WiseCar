@@ -121,13 +121,14 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_vehicle_detail);
 
-        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        vehicleID = "303";
+        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+//        vehicleID = "303";
+
         Log.d(TAG, "vehicleID: " + vehicleID);
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
-        //NEW = (boolean) this.getIntent().getSerializableExtra("NEW");
-        NEW = true;
+        NEW = (boolean) this.getIntent().getSerializableExtra("NEW");
+//        NEW = true;
         Log.d(TAG, "NEW: " + NEW);
 
 
@@ -169,7 +170,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
 
 
-        if(NEW) {
+        if (NEW) {
 
             final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
             returnCompanies(new companiesCallbacks() {
@@ -243,7 +244,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     searchEditText.setInputType(InputType.TYPE_NULL);
 
                     isShare = share.isShare();
-                    if(isShare) {
+                    if (isShare) {
                         shareSwitchButton.setToggleOn(true);
                         shareDiv.setVisibility(View.VISIBLE);
                     }
@@ -282,7 +283,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                     saveImageButton.setAlpha(1.0f);
                     saveImageButton.setClickable(true);
-                    
+
                 }
 
                 @Override
@@ -411,11 +412,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         List<Map.Entry<Integer, Boolean>> servicesList = new ArrayList<>(servicesVisibility.entrySet());
         Log.d(TAG, "servicesVisibility: " + servicesVisibility);
-        for(int i = 0; i < servicesList.size(); i += 2) {
+        for (int i = 0; i < servicesList.size(); i += 2) {
             ConstraintLayout servicesLineLayout = new ConstraintLayout(ShareVehicleDetailActivity.this);
             ConstraintSet set = new ConstraintSet();
             CheckBox[] checkBoxes = new CheckBox[Math.min(servicesVisibility.size() - i, 2)];
-            for(int j = 0; j < checkBoxes.length; j++) {
+            for (int j = 0; j < checkBoxes.length; j++) {
                 checkBoxes[j] = new CheckBox(getApplicationContext());
                 checkBoxes[j].setId(j);
                 checkBoxes[j].setButtonDrawable(getResources().getDrawable(R.drawable.vehicle0checkbox_style_2));
@@ -788,8 +789,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
                         }
                     });
-//                    Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
-//                    startActivity(intent);
+                    Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
+                    startActivity(intent);
                 }
                 Log.e("response", s.toString());
                 Log.e("new_share_id", s.toString().substring(s.indexOf("id") + 3));
@@ -820,14 +821,18 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 share.setCompany_name(jsonObject.optString("company_name"));
                 share.setShare(jsonObject.optString("share_active") == "1" ? true : false);
                 share.setRecurring(jsonObject.optString("recurring_flag") == "1" ? true : false);
-                share.setRecurring_end_date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonObject.optString("recurring_end_date")));
-                share.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(jsonObject.optString("date")));
+                if (jsonObject.optString("recurring_flag") == "1") {
+                    share.setRecurring_end_date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonObject.optString("recurring_end_date")));
+                }
+                if (jsonObject.optString("recurring_flag") == "0") {
+                    share.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(jsonObject.optString("date")));
+                }
                 share.setStart_time(new SimpleDateFormat("HH:mm:ss").parse(jsonObject.optString("start_time")));
                 share.setEnd_time(new SimpleDateFormat("HH:mm:ss").parse(jsonObject.optString("end_time")));
 
                 String recurringDaysStr = jsonObject.optString("recurring_day");
-                boolean[] recurringDays = new boolean[] {false, false, false, false, false, false, false};
-                for (char c : recurringDaysStr.toCharArray()) recurringDays[c-'0'] = true;
+                boolean[] recurringDays = new boolean[]{false, false, false, false, false, false, false};
+                for (char c : recurringDaysStr.toCharArray()) recurringDays[c - '0'] = true;
                 share.setRecurring_days(recurringDays);
 
                 jsonArray = response.getJSONArray("service_list");
