@@ -9,7 +9,7 @@ import java.util.TreeMap;
 
 class Share {
 
-    private boolean isShare;
+    private boolean isShare = true;
     private String share_id;
     private String cust_id;
     //    private String company_id;
