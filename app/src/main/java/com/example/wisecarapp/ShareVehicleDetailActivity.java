@@ -405,7 +405,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 time.append(hour >= 10 ? hour : "0" + hour);
                 time.append(":");
                 time.append(minute >= 10 ? minute : "0" + minute);
-                start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
+                start = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
                 startEditText.setText(time);
             }, 0, 0, true).show();
         });
@@ -416,7 +416,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     time.append(hour >= 10 ? hour : "0" + hour);
                     time.append(":");
                     time.append(minute >= 10 ? minute : "0" + minute);
-                    start = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                    start = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                     startEditText.setText(time);
                 }, 0, 0, true).show();
             }
@@ -428,7 +428,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 time.append(hour >= 10 ? hour : "0" + hour);
                 time.append(":");
                 time.append(minute >= 10 ? minute : "0" + minute);
-                end = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                end = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                 endEditText.setText(time);
             }, 0, 0, true).show();
         });
@@ -439,7 +439,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     time.append(hour >= 10 ? hour : "0" + hour);
                     time.append(":");
                     time.append(minute >= 10 ? minute : "0" + minute);
-                    end = new Date(intToDate(1970, 1, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                    end = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                     endEditText.setText(time);
                 }, 0, 0, true).show();
             }
@@ -547,7 +547,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         saveImageButton.setOnClickListener(v -> {
-            SimpleDateFormat format = new SimpleDateFormat("HH:mm");
 
             Log.d(TAG, "companyName: " + companyName);
             Log.d(TAG, "custID: " + custID);
@@ -555,11 +554,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
             if (isShare) {
                 Log.d(TAG, "date: " + date);
-                Log.d(TAG, "start: " + format.format(start));
-                Log.d(TAG, "end: " + format.format(end));
+                Log.d(TAG, "start: " + start);
+                Log.d(TAG, "end: " + end);
                 Log.d(TAG, "isRecurring: " + isRecurring);
 
-                if (date.before(new Date())) {
+                if (date.compareTo(new Date(new Date().getTime() - 24*60*60*1000)) < 0) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
                     Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -602,7 +601,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
             }
 
-            shareVehicleCheck();
+            if(NEW) shareVehicleCheck();
+            else editShare();
 
         });
 
@@ -724,11 +724,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     s = s.append(sResponse);
                 }
                 if (s.toString().contains("success")) {
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
                     Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
                     intent.putExtra("vehicleID", vehicleID);
                     startActivity(intent);
@@ -824,13 +820,10 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     s = s.append(sResponse);
                 }
                 if (s.toString().contains("success")) {
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-//                    Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
-//                    startActivity(intent);
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
+                    Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
+                    intent.putExtra("vehicleID", vehicleID);
+                    startActivity(intent);
                 }
                 Log.e("response", s.toString());
                 Log.e("new_share_id", s.toString().substring(s.indexOf("id") + 3));
@@ -863,8 +856,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 if(share.isShare()) {
                     share.setRecurring(jsonObject.optInt("recurring_flag") == 1);
                     if(share.isRecurring()) {
-                        //share.setRecurring_end_date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonObject.optString("recurring_end_date")));
-                        share.setRecurring_end_date(intToDate(2020,12-1,6));
+                        share.setRecurring_end_date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonObject.optString("recurring_end_date")));
+                        //share.setRecurring_end_date(intToDate(2020,12-1,6));
                         String recurringDaysStr = jsonObject.optString("recurring_days");
                         boolean[] recurringDays = new boolean[] {false, false, false, false, false, false, false};
                         for (char c : recurringDaysStr.toCharArray()) recurringDays[c-'0'] = true;
