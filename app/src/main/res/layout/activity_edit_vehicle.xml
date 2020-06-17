@@ -267,7 +267,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.1"
-            app:srcCompat="@drawable/vehicle0save_1" />
+            app:srcCompat="@drawable/share_vehicle0share_icon" />
 
         <ImageButton
             android:id="@+id/saveImageButton"
