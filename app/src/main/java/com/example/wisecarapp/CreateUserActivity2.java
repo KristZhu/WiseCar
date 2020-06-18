@@ -35,7 +35,9 @@ import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Locale;
 
 
 public class CreateUserActivity2 extends AppCompatActivity {
@@ -96,7 +98,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(CreateUserActivity2.this, (view, year, monthOfYear, dayOfMonth) -> {
                 dob = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format.format(dob);
                 dobEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -106,7 +108,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(CreateUserActivity2.this, (view, year, monthOfYear, dayOfMonth) -> {
                     dob = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(dob);
                     dobEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -126,7 +128,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
             postCode = postCodeEditText.getText().toString();
 
             Log.d(TAG, "--------------------Create User------------------");
-            Log.d(TAG, "userImg: " + userImg);
+            Log.d(TAG, "userImg: " + Arrays.toString(userImg));
             Log.d(TAG, "username: " + username);
             Log.d(TAG, "userEmail: " + userEmail);
             Log.d(TAG, "password: " + password);
@@ -189,7 +191,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
     }
 
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if (v != null && (v instanceof EditText)) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
@@ -205,13 +207,14 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert manager != null;
             manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
     private static java.util.Date strToDate(String str) {
         if (str == null || str.length() == 0) return null;
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         java.util.Date date = null;
         try {
             date = format.parse(str);
@@ -222,15 +225,15 @@ public class CreateUserActivity2 extends AppCompatActivity {
     }
 
     private static java.util.Date intToDate(int year, int month, int day) {
-        StringBuffer sb = new StringBuffer();
-        if (day < 10) sb.append("0" + day);
+        StringBuilder sb = new StringBuilder();
+        if (day < 10) sb.append("0").append(day);
         else sb.append(day);
         sb.append("/");
         month++;
-        if (month < 10) sb.append("0" + month);
+        if (month < 10) sb.append("0").append(month);
         else sb.append(month);
-        sb.append("/" + year);
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        sb.append("/").append(year);
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         java.util.Date date = null;
         try {
             date = format.parse(sb.toString());
@@ -248,7 +251,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 HttpPost postRequest = new HttpPost(IP_HOST + CREATE_USER);
 
                 MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-                DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 try {
                     reqEntity.addPart("user_name", new StringBody(username));
                     reqEntity.addPart("first_name", new StringBody(firstName));
