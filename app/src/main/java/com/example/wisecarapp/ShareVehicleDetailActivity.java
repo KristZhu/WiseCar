@@ -561,7 +561,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Log.d(TAG, "end: " + end);
                 Log.d(TAG, "isRecurring: " + isRecurring);
 
-                if (date.compareTo(new Date(new Date().getTime() - 24*60*60*1000)) < 0) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
+                if (date.before(new Date(new Date().getTime() - 24*60*60*1000))) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
                     Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -1000,14 +1000,14 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     }
 
     private static java.util.Date intToDate(int year, int month, int day) {
-        StringBuffer sb = new StringBuffer();
-        if (day < 10) sb.append("0" + day);
+        StringBuilder sb = new StringBuilder();
+        if (day < 10) sb.append("0").append(day);
         else sb.append(day);
         sb.append("/");
         month++;
-        if (month < 10) sb.append("0" + month);
+        if (month < 10) sb.append("0").append(month);
         else sb.append(month);
-        sb.append("/" + year);
+        sb.append("/").append(year);
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         java.util.Date date = null;
         try {
