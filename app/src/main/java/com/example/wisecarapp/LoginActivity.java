@@ -58,12 +58,13 @@ public class LoginActivity extends AppCompatActivity {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
+            assert v != null;
             hideSoftInput(v.getWindowToken());
         }
         return super.dispatchTouchEvent(ev);
     }
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v != null && (v instanceof EditText)) {
+        if(v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
@@ -78,6 +79,7 @@ public class LoginActivity extends AppCompatActivity {
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert manager != null;
             manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }

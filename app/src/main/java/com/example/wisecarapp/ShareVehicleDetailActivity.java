@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -54,6 +55,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -173,6 +175,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
             final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
             returnCompanies(new companiesCallbacks() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onSuccess(@NonNull Map<String, String> value) {
                     Log.d(TAG, "companies: " + companies);
@@ -250,8 +253,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         date = share.getDate();
                         start = share.getStart_time();
                         end = share.getEnd_time();
-                        SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy");
-                        SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm");
+                        SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                        SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
                         dateEditText.setText(formatDate.format(date));
                         startEditText.setText(formatTime.format(start));
                         endEditText.setText(formatTime.format(end));
@@ -263,7 +266,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                             recurringDiv.setVisibility(View.VISIBLE);
 
                             endDate = share.getRecurring_end_date();
-                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                             endDateEditText.setText(format.format(endDate));
                             isWeekday = share.getRecurring_days();
                             for (int i = 0; i < 7; i++) {
@@ -381,7 +384,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format.format(date);
                 dateEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -391,7 +394,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(date);
                     dateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -458,7 +461,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 endDate = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format.format(endDate);
                 endDateEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -468,7 +471,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     endDate = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(endDate);
                     endDateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -683,8 +686,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         }
 
         MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
         try {
             reqEntity.addPart("cust_id", new StringBody(custID));
@@ -774,8 +777,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private void editShare() {
 
         MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
         try {
             reqEntity.addPart("cust_id", new StringBody(custID));
@@ -846,6 +849,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         String URL = IP_HOST + GET_HISTORY + share_id;
 
+        @SuppressLint("SimpleDateFormat")
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response", response.toString());
             Share share = new Share();
@@ -942,7 +946,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     }
 
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if (v != null && (v instanceof EditText)) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
@@ -958,13 +962,14 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert manager != null;
             manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
     private static java.util.Date strToDate(String str) {
         if (str == null || str.length() == 0) return null;
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         java.util.Date date = null;
         try {
             date = format.parse(str);
@@ -983,7 +988,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         if (month < 10) sb.append("0" + month);
         else sb.append(month);
         sb.append("/" + year);
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         java.util.Date date = null;
         try {
             date = format.parse(sb.toString());
