@@ -735,7 +735,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
                 Log.e("response", s.toString());
-                Log.e("share_id", s.toString().substring(s.indexOf("id") + 3));
+                Log.e("share_id", s.toString().substring(s.indexOf("id") + 4));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -775,6 +775,26 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
     private void editShare() {
+
+        for (int i = 0; i < 7; i++) {
+            if (isWeekday[i]) recurringDays += i;
+        }
+
+        if (isShare) {
+            shareChecked += "1";
+        } else {
+            shareChecked += "0";
+        }
+        if (isRecurring) {
+            recurringChecked += "1";
+        } else {
+            recurringChecked += "0";
+        }
+        if (isVisibility) {
+            visibilityChecked += "1";
+        } else {
+            visibilityChecked += "0";
+        }
 
         MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -832,7 +852,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
                 Log.e("response", s.toString());
-                Log.e("new_share_id", s.toString().substring(s.indexOf("id") + 3));
+                Log.e("new_share_id", s.toString().substring(s.indexOf("id") + 4));
             } catch (IOException e) {
                 e.printStackTrace();
             }
