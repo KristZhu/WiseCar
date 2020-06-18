@@ -8,6 +8,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -173,6 +174,7 @@ public class VehicleActivity extends AppCompatActivity {
         //every time the user adds a new vehicle, it will add to local, and upload to db. so no need to get data from db later.
         if(UserInfo.getVehicles()==null || UserInfo.getVehicles().size()==0) {
             returnVehicles(user_id, new vehicleMapCallbacks() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onSuccess(@NonNull Map<String, Vehicle> value) {
                     UserInfo.setVehicles(vehiclesDB);

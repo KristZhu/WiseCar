@@ -83,6 +83,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServiceRecordsActivity extends AppCompatActivity {
@@ -160,7 +161,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
         currentDate = format.format(Calendar.getInstance().getTime());
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
@@ -284,7 +285,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new TimePickerDialog(ServiceRecordsActivity.this, (view, hour, minute) -> {
                 if (date == null)
-                    ; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
+                    return; //user should see DatePickerDialog first, and set date first. If user click back / cancel and skip date, time set should not be allowed.
                 else {
                     StringBuffer time = new StringBuffer();
                     time.append(", ");
@@ -299,7 +300,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             }, 0, 0, true).show();
             new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format1 = new SimpleDateFormat("ddMMM yyyy");
+                SimpleDateFormat format1 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format1.format(date);
                 dateEditText.append(str + ", ");
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -324,7 +325,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                 }, 0, 0, true).show();
                 new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format12 = new SimpleDateFormat("ddMMM yyyy");
+                    SimpleDateFormat format12 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format12.format(date);
                     dateEditText.append(str + ", ");
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -336,7 +337,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 nextDate = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy");
+                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format13.format(nextDate);
                 nextDateEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -346,7 +347,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     nextDate = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy");
+                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format14.format(nextDate);
                     nextDateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -587,7 +588,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     }
 
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if (v != null && (v instanceof EditText)) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
@@ -603,13 +604,14 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert manager != null;
             manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
     private static java.util.Date strToDate(String str) {
         if (str == null || str.length() == 0) return null;
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         java.util.Date date = null;
         try {
             date = format.parse(str);
@@ -628,7 +630,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         if (month < 10) sb.append("0" + month);
         else sb.append(month);
         sb.append("/" + year);
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         java.util.Date date = null;
         try {
             date = format.parse(sb.toString());
@@ -662,7 +664,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 
             MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
                 reqEntity.addPart("record_id", new StringBody(serviceIDTextView.getText().toString().substring(4)));

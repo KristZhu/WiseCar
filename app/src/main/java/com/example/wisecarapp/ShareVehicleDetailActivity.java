@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -54,6 +55,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -169,10 +171,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
 
 
-        if(NEW) {
+        if (NEW) {
 
             final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
             returnCompanies(new companiesCallbacks() {
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void onSuccess(@NonNull Map<String, String> value) {
                     Log.d(TAG, "companies: " + companies);
@@ -227,7 +230,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             isVisibility = false;
 
             Log.d(TAG, "new share services: " + vehicle.getServices());
-            for(int i: vehicle.getServices()) servicesVisibility.put(i, true);
+            for (int i : vehicle.getServices()) servicesVisibility.put(i, true);
 
 
         } else {    //edit
@@ -243,15 +246,15 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     searchEditText.setInputType(InputType.TYPE_NULL);
 
                     isShare = share.isShare();
-                    if(isShare) {
+                    if (isShare) {
                         shareSwitchButton.setToggleOn(true);
                         shareDiv.setVisibility(View.VISIBLE);
 
                         date = share.getDate();
                         start = share.getStart_time();
                         end = share.getEnd_time();
-                        SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy");
-                        SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm");
+                        SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                        SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
                         dateEditText.setText(formatDate.format(date));
                         startEditText.setText(formatTime.format(start));
                         endEditText.setText(formatTime.format(end));
@@ -263,7 +266,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                             recurringDiv.setVisibility(View.VISIBLE);
 
                             endDate = share.getRecurring_end_date();
-                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                             endDateEditText.setText(format.format(endDate));
                             isWeekday = share.getRecurring_days();
                             for (int i = 0; i < 7; i++) {
@@ -277,11 +280,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                         List<Map.Entry<Integer, Boolean>> servicesList = new ArrayList<>(servicesVisibility.entrySet());
                         Log.d(TAG, "servicesVisibility: " + servicesVisibility);
-                        for(int i = 0; i < servicesList.size(); i += 2) {
+                        for (int i = 0; i < servicesList.size(); i += 2) {
                             ConstraintLayout servicesLineLayout = new ConstraintLayout(ShareVehicleDetailActivity.this);
                             ConstraintSet set = new ConstraintSet();
                             CheckBox[] checkBoxes = new CheckBox[Math.min(servicesVisibility.size() - i, 2)];
-                            for(int j = 0; j < checkBoxes.length; j++) {
+                            for (int j = 0; j < checkBoxes.length; j++) {
                                 checkBoxes[j] = new CheckBox(getApplicationContext());
                                 checkBoxes[j].setId(j);
                                 checkBoxes[j].setButtonDrawable(getResources().getDrawable(R.drawable.vehicle0checkbox_style_2));
@@ -337,8 +340,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         }
 
                         isVisibility = false;
-                        for(int i: servicesVisibility.keySet()) {
-                            if(servicesVisibility.get(i)) { //has visible
+                        for (int i : servicesVisibility.keySet()) {
+                            if (servicesVisibility.get(i)) { //has visible
                                 isVisibility = true;
                                 visibilitySwitchButton.setToggleOn(true);
                                 visibilityDiv.setVisibility(View.VISIBLE);
@@ -350,7 +353,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                     saveImageButton.setAlpha(1.0f);
                     saveImageButton.setClickable(true);
-                    
+
                 }
 
                 @Override
@@ -381,7 +384,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format.format(date);
                 dateEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -391,7 +394,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(date);
                     dateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -458,7 +461,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 endDate = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format.format(endDate);
                 endDateEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -468,7 +471,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     endDate = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(endDate);
                     endDateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -479,11 +482,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         List<Map.Entry<Integer, Boolean>> servicesList = new ArrayList<>(servicesVisibility.entrySet());
         Log.d(TAG, "servicesVisibility: " + servicesVisibility);
-        for(int i = 0; i < servicesList.size(); i += 2) {
+        for (int i = 0; i < servicesList.size(); i += 2) {
             ConstraintLayout servicesLineLayout = new ConstraintLayout(ShareVehicleDetailActivity.this);
             ConstraintSet set = new ConstraintSet();
             CheckBox[] checkBoxes = new CheckBox[Math.min(servicesVisibility.size() - i, 2)];
-            for(int j = 0; j < checkBoxes.length; j++) {
+            for (int j = 0; j < checkBoxes.length; j++) {
                 checkBoxes[j] = new CheckBox(getApplicationContext());
                 checkBoxes[j].setId(j);
                 checkBoxes[j].setButtonDrawable(getResources().getDrawable(R.drawable.vehicle0checkbox_style_2));
@@ -575,7 +578,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         day = day || isWeekday[i];
                         Log.d(TAG, "isWeekday" + i + ": " + isWeekday[i]);
                     }
-                    if(!day) {
+                    if (!day) {
                         Toast.makeText(getApplicationContext(), "Please choose at least one day for recurring, or switch recurring off", Toast.LENGTH_LONG).show();
                         return;
                     }
@@ -590,8 +593,9 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 if (isVisibility) {
                     Log.d(TAG, "visibility: " + servicesVisibility);
                     boolean visible = false;
-                    for(int i: servicesVisibility.keySet()) visible = visible || servicesVisibility.get(i);
-                    if(!visible) {
+                    for (int i : servicesVisibility.keySet())
+                        visible = visible || servicesVisibility.get(i);
+                    if (!visible) {
                         Toast.makeText(getApplicationContext(), "Please choose at least one service visible, or switch service visibility off", Toast.LENGTH_LONG).show();
                         return;
                     }
@@ -682,8 +686,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         }
 
         MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
         try {
             reqEntity.addPart("cust_id", new StringBody(custID));
@@ -698,7 +702,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
             if (visibilityChecked.equals("1")) {
                 StringBuilder servicesSB = new StringBuilder();
-                for (int i : servicesVisibility.keySet()) if(servicesVisibility.get(i)) servicesSB.append(i);
+                for (int i : servicesVisibility.keySet())
+                    if (servicesVisibility.get(i)) servicesSB.append(i);
                 reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
             }
             reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
@@ -772,8 +777,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private void editShare() {
 
         MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
         try {
             reqEntity.addPart("cust_id", new StringBody(custID));
@@ -788,7 +793,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
             if (visibilityChecked.equals("1")) {
                 StringBuilder servicesSB = new StringBuilder();
-                for (int i : servicesVisibility.keySet()) if(servicesVisibility.get(i)) servicesSB.append(i);
+                for (int i : servicesVisibility.keySet())
+                    if (servicesVisibility.get(i)) servicesSB.append(i);
                 reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
             }
             reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
@@ -843,6 +849,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         String URL = IP_HOST + GET_HISTORY + share_id;
 
+        @SuppressLint("SimpleDateFormat")
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response", response.toString());
             Share share = new Share();
@@ -853,14 +860,13 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 share.setCompany_name(jsonObject.optString("company_name"));
                 share.setShare(jsonObject.optInt("share_active") == 1);
 
-                if(share.isShare()) {
+                if (share.isShare()) {
                     share.setRecurring(jsonObject.optInt("recurring_flag") == 1);
                     if(share.isRecurring()) {
                         share.setRecurring_end_date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonObject.optString("recurring_end_date")));
-                        //share.setRecurring_end_date(intToDate(2020,12-1,6));
                         String recurringDaysStr = jsonObject.optString("recurring_days");
-                        boolean[] recurringDays = new boolean[] {false, false, false, false, false, false, false};
-                        for (char c : recurringDaysStr.toCharArray()) recurringDays[c-'0'] = true;
+                        boolean[] recurringDays = new boolean[]{false, false, false, false, false, false, false};
+                        for (char c : recurringDaysStr.toCharArray()) recurringDays[c - '0'] = true;
                         share.setRecurring_days(recurringDays);
                         Log.d(TAG, "recurring days str: " + recurringDaysStr);
                         Log.d(TAG, "recurring days: " + recurringDays[0] + recurringDays[1] + recurringDays[2] + recurringDays[3] + recurringDays[4] + recurringDays[5] + recurringDays[6]);
@@ -940,7 +946,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     }
 
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if (v != null && (v instanceof EditText)) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
@@ -956,13 +962,14 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            assert manager != null;
             manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 
     private static java.util.Date strToDate(String str) {
         if (str == null || str.length() == 0) return null;
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         java.util.Date date = null;
         try {
             date = format.parse(str);
@@ -981,7 +988,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         if (month < 10) sb.append("0" + month);
         else sb.append(month);
         sb.append("/" + year);
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         java.util.Date date = null;
         try {
             date = format.parse(sb.toString());
