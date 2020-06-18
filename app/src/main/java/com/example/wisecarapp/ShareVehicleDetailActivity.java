@@ -561,7 +561,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Log.d(TAG, "end: " + end);
                 Log.d(TAG, "isRecurring: " + isRecurring);
 
-                if (date.compareTo(new Date(new Date().getTime() - 24*60*60*1000)) < 0) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
+                if (date.before(new Date(new Date().getTime() - 24*60*60*1000))) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
                     Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
                     return;
                 }

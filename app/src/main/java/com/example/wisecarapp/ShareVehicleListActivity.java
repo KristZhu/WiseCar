@@ -32,6 +32,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    @SuppressLint("ResourceType")
+    @SuppressLint({"ResourceType", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +86,6 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
         shareLayout = $(R.id.sharesLayout);
         returnSharedList(vehicleID, new sharedCallbacks() {
-            @SuppressLint("SetTextI18n")
             @Override
             public void onSuccess(@NonNull Map<String, Share> shares) {
                 Log.e("map", String.valueOf(shares.size()));
@@ -107,7 +107,21 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
                     ImageButton editImageButton = new ImageButton(ShareVehicleListActivity.this);
                     editImageButton.setId(1);
-                    editImageButton.setImageDrawable(getResources().getDrawable(R.drawable.share_vehicle0edit));
+                    if(shares.get(shareID).isRecurring()) {
+                        if(shares.get(shareID).getRecurring_end_date().after(new Date())) {
+                            editImageButton.setImageDrawable(getResources().getDrawable(R.drawable.share_vehicle0edit));
+                        } else {
+                            editImageButton.setImageDrawable(getResources().getDrawable(R.drawable.share_vehicle0finished));
+                            editImageButton.setClickable(false);
+                        }
+                    } else {
+                        if(shares.get(shareID).getDate().after(new Date())) {
+                            editImageButton.setImageDrawable(getResources().getDrawable(R.drawable.share_vehicle0edit));
+                        } else {
+                            editImageButton.setImageDrawable(getResources().getDrawable(R.drawable.share_vehicle0finished));
+                            editImageButton.setClickable(false);
+                        }
+                    }
                     editImageButton.setPadding(0, 0, 0, 0);
                     editImageButton.setScaleType(ImageView.ScaleType.FIT_XY);
                     editImageButton.setBackground(null);
