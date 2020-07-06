@@ -11,15 +11,14 @@ class Share {
 
     private boolean isShare = true;
     private String share_id;
-    private String cust_id;
-    //    private String company_id;
+    private String cust_id; // company ID
     private String company_name;
     private boolean recurring;
-    private Date recurring_end_date;
-    private boolean[] recurring_days;
     private Date start_time;
     private Date end_time;
-    private Date date;
+    private Date date;  // start date without time, or simply the date
+    private Date recurring_end_date;
+    private boolean[] recurring_days;   //[0]: Sunday
     private Map<Integer, Boolean> servicesVisibility = new TreeMap<>();   //value: visibility
 
 
