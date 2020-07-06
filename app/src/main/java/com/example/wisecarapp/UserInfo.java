@@ -13,6 +13,7 @@ class UserInfo {
     private static String userEmail;
     private static Bitmap userImg;
     private static Map<String, Vehicle> vehicles = new TreeMap<>((o1, o2) -> o2.compareTo(o1));   //key: ID
+    private static RecordLog currLog;
 
     public static void clear() {
         setUserID(null);
@@ -62,4 +63,11 @@ class UserInfo {
         UserInfo.vehicles = vehicles;
     }
 
+    public static RecordLog getCurrLog() {
+        return currLog;
+    }
+
+    public static void setCurrLog(RecordLog currLog) {
+        UserInfo.currLog = currLog;
+    }
 }

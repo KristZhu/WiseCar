@@ -182,9 +182,7 @@ public class AddVehicleActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> {
-            startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
-        });
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class)));
 
         uploadButton.setOnClickListener(v -> {
             final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
