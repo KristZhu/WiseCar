@@ -1,5 +1,7 @@
 package com.example.wisecarapp;
 
+import android.graphics.Bitmap;
+
 import java.util.Date;
 
 class RecordLog {
@@ -11,6 +13,9 @@ class RecordLog {
     private int countPause;
     private int mins;
     private double km;
+    private String custID;
+    private String companyName;
+    private Bitmap companyLogo;
 
     public RecordLog(Date date, Date startTime) {
         this.date = date;
@@ -81,5 +86,44 @@ class RecordLog {
 
     public void setKm(double km) {
         this.km = km;
+    }
+
+    public String getCustID() {
+        return custID;
+    }
+
+    public void setCustID(String custID) {
+        this.custID = custID;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public Bitmap getCompanyLogo() {
+        return companyLogo;
+    }
+
+    public void setCompanyLogo(Bitmap companyLogo) {
+        this.companyLogo = companyLogo;
+    }
+
+    @Override
+    public String toString() {
+        return "RecordLog{" +
+                "date=" + date +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", recording=" + recording +
+                ", countPause=" + countPause +
+                ", mins=" + mins +
+                ", km=" + km +
+                ", custID='" + custID + '\'' +
+                ", companyName='" + companyName + '\'' +
+                '}';
     }
 }
