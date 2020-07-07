@@ -87,7 +87,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
         shareLayout = $(R.id.sharesLayout);
         returnSharedList(vehicleID, new sharedCallbacks() {
             @Override
-            public void onSuccess(@NonNull Map<String, Share> shares) {
+            public void onSuccess(@NonNull Map<String, Share> shares) { //key: shareID
                 Log.e("map", String.valueOf(shares.size()));
 
                 for (String shareID : shares.keySet()) {
