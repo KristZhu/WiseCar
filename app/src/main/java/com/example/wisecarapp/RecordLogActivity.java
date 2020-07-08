@@ -354,10 +354,11 @@ public class RecordLogActivity extends AppCompatActivity {
                     Log.d(TAG, "timer: pause");
                     this.cancel();
                 } else {
+                    Log.d(TAG, "timer: currLog: " + UserInfo.getCurrLog());
                     duration += 1000;
                     String minDuration = duration/(60 * 1000)>=10 ? ""+ duration/(60 * 1000) : "0"+ duration/(60 * 1000);
                     String secDuration = duration/1000>=10 ? ""+ duration/1000 : "0"+ duration/1000;
-                    timeDistanceTextView.setText( minDuration + ":" + secDuration + "  经度" + (int)longitude + "纬度" + (int)latitude + "km: " + UserInfo.getCurrLog().getKm());
+                    timeDistanceTextView.setText( minDuration + ":" + secDuration + "  经度" + (int)longitude + "纬度" + (int)latitude + "km: " + (int)UserInfo.getCurrLog().getKm());
                 }
             }
         }, 1000, 1000);
@@ -368,7 +369,8 @@ public class RecordLogActivity extends AppCompatActivity {
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0resume));
         timeDistanceTextView.setTextColor(0xffa5a6a3);
 
-        Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
+        //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
+        if(locationManager!=null) locationManager.removeUpdates(locationListener);
     }
 
     private void ending() {
@@ -376,7 +378,8 @@ public class RecordLogActivity extends AppCompatActivity {
         timeDistanceTextView.setText("");
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
 
-        Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
+        //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
+        if(locationManager!=null) locationManager.removeUpdates(locationListener);
     }
 
     private void finishRecord() {   //write to log
@@ -388,6 +391,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
     @SuppressLint("HandlerLeak")
     private void startLocation() {
+        //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, true);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         assert locationManager != null;
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -402,7 +406,7 @@ public class RecordLogActivity extends AppCompatActivity {
     }
 
     @SuppressLint("MissingPermission")  //only when permitted will this function be called
-    private void toggleGPS() {
+    private void toggleGPS() {  //This method is never tested!!
         Log.d(TAG, "toggleGPS: ");
         Intent gpsIntent = new Intent();
         gpsIntent.setClassName("com.android.settings", "com.android.settings.widget.SettingsAppWidgetProvider");
@@ -423,14 +427,21 @@ public class RecordLogActivity extends AppCompatActivity {
 
     @SuppressLint("MissingPermission")  //only when permitted will this function be called
     private void getLocation() {
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Log.d(TAG, "location: " + location);
+        if(UserInfo.getCurrLog()!=null && !UserInfo.getCurrLog().isPausing()) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
+            Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Log.d(TAG, "location: " + location);
+        } else {
+            locationManager.removeUpdates(locationListener);
+        }
+        /*
         if (location != null) {
             latitude = location.getLatitude();
             longitude = location.getLongitude();
         } else {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
         }
+         */
     }
 
     LocationListener locationListener = new LocationListener() {
@@ -453,28 +464,29 @@ public class RecordLogActivity extends AppCompatActivity {
         @Override
         public void onLocationChanged(Location location) {
             if (location != null) {
-                Log.e("Map", "Location changed : Lat: " + location.getLatitude() + " Lon: " + location.getLongitude());
+                Log.e("Map", "Location changed : Lat: " + location.getLatitude() + " Lng: " + location.getLongitude());
                 double distance = getDistance(longitude, latitude, location.getLongitude(), location.getLatitude());
                 Log.d(TAG, "distance(m): " + distance);
                 UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distance/1000.0);
+                Log.d(TAG, "km: " + UserInfo.getCurrLog().getKm());
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
             }
         }
     };
 
-    private static final  double EARTH_RADIUS = 6378137;    //equator radius
-    private static double rad(double d){
-        return d * Math.PI / 180.0;
-    }
     private double getDistance(double lon1, double lat1, double lon2, double lat2) {
         double radLat1 = rad(lat1);
         double radLat2 = rad(lat2);
         double a = radLat1 - radLat2;
         double b = rad(lon1) - rad(lon2);
         double s = 2 *Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2)+Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
+        double EARTH_RADIUS = 6378137;
         s = s * EARTH_RADIUS;
         return s;   //in meter not km
+    }
+    private double rad(double d){
+        return d * Math.PI / 180.0;
     }
 
     public boolean dispatchTouchEvent(MotionEvent ev) {
