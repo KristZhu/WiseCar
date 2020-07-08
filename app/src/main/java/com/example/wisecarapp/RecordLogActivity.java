@@ -3,10 +3,16 @@ package com.example.wisecarapp;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Layout;
@@ -79,21 +85,21 @@ public class RecordLogActivity extends AppCompatActivity {
         //......
 
         companyTextView = $(R.id.companyTextView);
-        if(shares!=null) {
-            for(Share share: shares) {
-                if(share.isShare()) {
+        if (shares != null) {
+            for (Share share : shares) {
+                if (share.isShare()) {
                     SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
-                    if(share.isRecurring()) {
+                    if (share.isRecurring()) {
                         Calendar c = Calendar.getInstance();
                         c.setTime(new Date());
-                        if(share.getDate().before(new Date())
-                                && new Date((share.getDate().getTime() + 24*60*60*1000-1)).after(new Date())
-                                && share.getRecurring_days()[c.get(Calendar.DAY_OF_WEEK)-1]) {
+                        if (share.getDate().before(new Date())
+                                && new Date((share.getDate().getTime() + 24 * 60 * 60 * 1000 - 1)).after(new Date())
+                                && share.getRecurring_days()[c.get(Calendar.DAY_OF_WEEK) - 1]) {
                             currShare = share;
                             break;
                         }
                     } else {
-                        if(fmt.format(share.getDate()).equals(fmt.format(new Date()))) {
+                        if (fmt.format(share.getDate()).equals(fmt.format(new Date()))) {
                             currShare = share;
                             break;
                         }
@@ -101,7 +107,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 }
             }
         }
-        if(currShare==null) {
+        if (currShare == null) {
             companyTextView.setTextColor(0xdb0a00);
             companyTextView.setText("Not shared with any companies");
         } else {
@@ -114,11 +120,11 @@ public class RecordLogActivity extends AppCompatActivity {
         endImageButton = $(R.id.endImageButton);
         timeDistanceTextView = $(R.id.timeDistanceTextView);
 
-        if(UserInfo.getCurrLog()==null || UserInfo.getCurrLog().getRecording()==0) {
+        if (UserInfo.getCurrLog() == null || UserInfo.getCurrLog().getRecording() == 0) {
             ending();
-        } else if(UserInfo.getCurrLog().getRecording()==1) {
+        } else if (UserInfo.getCurrLog().getRecording() == 1) {
             recording();
-        } else if(UserInfo.getCurrLog().getRecording()==2) {
+        } else if (UserInfo.getCurrLog().getRecording() == 2) {
             pausing();
         } else {
             Log.d(TAG, "recording state error");
@@ -127,7 +133,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
         startImageButton.setOnClickListener(v -> {
             UserInfo.getCurrLog().setRecording(1);
-            if(UserInfo.getCurrLog()==null) {
+            if (UserInfo.getCurrLog() == null) {
                 Calendar c = Calendar.getInstance();
                 c.setTime(new Date());
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault());
@@ -144,20 +150,20 @@ public class RecordLogActivity extends AppCompatActivity {
         });
 
         pauseResumeImageButton.setOnClickListener(v -> {
-            if(UserInfo.getCurrLog()==null || UserInfo.getCurrLog().getRecording()==0) {
+            if (UserInfo.getCurrLog() == null || UserInfo.getCurrLog().getRecording() == 0) {
                 Toast.makeText(getApplicationContext(), "Please start the record first", Toast.LENGTH_LONG).show();
             }
-            if(UserInfo.getCurrLog().getRecording()==1) {    //pause
+            if (UserInfo.getCurrLog().getRecording() == 1) {    //pause
                 UserInfo.getCurrLog().setRecording(2);
                 pausing();
-            } else if(UserInfo.getCurrLog().getRecording()==2) { //resume
+            } else if (UserInfo.getCurrLog().getRecording() == 2) { //resume
                 UserInfo.getCurrLog().setRecording(1);
                 recording();
             }
         });
 
         endImageButton.setOnClickListener(v -> {
-            if(UserInfo.getCurrLog()==null || UserInfo.getCurrLog().getRecording()==0) {
+            if (UserInfo.getCurrLog() == null || UserInfo.getCurrLog().getRecording() == 0) {
                 Toast.makeText(getApplicationContext(), "Please start the record first", Toast.LENGTH_LONG).show();
             }
             UserInfo.getCurrLog().setRecording(0);
@@ -167,7 +173,7 @@ public class RecordLogActivity extends AppCompatActivity {
         });
 
         logsDiv = $(R.id.logsDiv);
-        for(RecordLog log: logs) {
+        for (RecordLog log : logs) {
 
             ConstraintLayout logLineLayout = new ConstraintLayout(RecordLogActivity.this);
             ConstraintSet set = new ConstraintSet();
@@ -192,7 +198,6 @@ public class RecordLogActivity extends AppCompatActivity {
             set.setDimensionRatio(dateImageView.getId(), "1:1");
             set.setHorizontalBias(dateImageView.getId(), 0.0f);
             logLineLayout.addView(dateImageView);
-
 
 
             set.applyTo(logLineLayout);
@@ -253,7 +258,8 @@ public class RecordLogActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
+
 }

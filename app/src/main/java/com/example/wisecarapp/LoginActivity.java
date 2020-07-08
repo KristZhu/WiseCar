@@ -168,4 +168,52 @@ public class LoginActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
+    private void blockchainTest() {
+        String URL = "http://13.236.209.122:3000/api/v1/servicerecords/blockchaininvoke";
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("identifier", "10210826n");
+            jsonParam.put("record_type", "service_record");
+            jsonParam.put("service_center", "BMW adelaide");
+            jsonParam.put("service_date", "2020-07-06");
+            jsonParam.put("vehicle_registration", "1212");
+            jsonParam.put("ecrypt_hash", "test");
+            jsonParam.put("service_file_location", "some path");
+            jsonParam.put("service_options", "1234");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("Response", response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("ERROR!!!", error.toString());
+                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.data != null) {
+                    String JSONError = new String(networkResponse.data);
+                    JSONObject messageJO;
+                    String message = "";
+                    try {
+                        messageJO = new JSONObject(JSONError);
+                        message = messageJO.optString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("JSON ERROR MESSAGE!!!", message);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        Volley.newRequestQueue(LoginActivity.this).add(objectRequest);
+    }
+
 }
