@@ -12,12 +12,13 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -29,7 +30,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.text.Html;
-import android.text.Layout;
+import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -46,6 +47,8 @@ import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -53,13 +56,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -73,7 +77,9 @@ public class RecordLogActivity extends AppCompatActivity {
     private final static String TAG = "RecordLogActivity";
 
     private final String IP_HOST = "http://54.206.19.123:3000";
-    private final String GET_SHARED_LIST = "/api/v1/sharevehicle/sharedcompanylist/";
+    private final String GET_CURRENT_SHARE = "/api/v1/drivelog/currentsharedetail";
+    private final String GET_LOG_BY_VID = "/api/v1/drivelog/recentlogbyvid";
+    private final String GET_LOG_BY_COMPANY = "/api/v1/drivelog/recentlogbycompany";
 
     private String vehicleID;
     private Vehicle vehicle;
@@ -100,6 +106,18 @@ public class RecordLogActivity extends AppCompatActivity {
 
     private LinearLayout logsDiv;
 
+    private String current_share_cust_id;
+    private String current_share_company_name;
+    private String current_share_claim_rate;
+    private String current_share_share_id;
+    private String current_share_start_time;
+    private String current_share_end_time;
+    private Bitmap current_share_company_logo;
+
+    private String customer_id;
+
+    private List<RecordLog> recentLogList = new ArrayList<>();
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint({"SetTextI18n", "Assert", "ResourceType"})
@@ -107,6 +125,32 @@ public class RecordLogActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_log);
+
+        queryRecentLogsByVehicleID(new logsCallbacks(){
+
+            @Override
+            public void onSuccess(@NonNull List<RecordLog> value) {
+                Log.e("list size", String.valueOf(recentLogList.size()));
+            }
+
+            @Override
+            public void onError(@NonNull String errorMessage) {
+
+            }
+        });
+
+        queryRecentLogsByCompany(customer_id, new companyLogsCallbacks(){
+
+            @Override
+            public void onSuccess(@NonNull List<RecordLog> value) {
+                Log.e("list size", String.valueOf(recentLogList.size()));
+            }
+
+            @Override
+            public void onError(@NonNull String errorMessage) {
+
+            }
+        });
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         //vehicleID = "303";
@@ -162,21 +206,21 @@ public class RecordLogActivity extends AppCompatActivity {
         });
 
         companyTextView = $(R.id.companyTextView);
-        if(shares!=null) {
-            for(Share share: shares) {
-                if(share.isShare()) {
+        if (shares != null) {
+            for (Share share : shares) {
+                if (share.isShare()) {
                     SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
-                    if(share.isRecurring()) {
+                    if (share.isRecurring()) {
                         Calendar c = Calendar.getInstance();
                         c.setTime(new Date());
-                        if(share.getDate().before(new Date())
-                                && new Date((share.getDate().getTime() + 24*60*60*1000-1)).after(new Date())
-                                && share.getRecurring_days()[c.get(Calendar.DAY_OF_WEEK)-1]) {
+                        if (share.getDate().before(new Date())
+                                && new Date((share.getDate().getTime() + 24 * 60 * 60 * 1000 - 1)).after(new Date())
+                                && share.getRecurring_days()[c.get(Calendar.DAY_OF_WEEK) - 1]) {
                             currShare = share;
                             break;
                         }
                     } else {
-                        if(fmt.format(share.getDate()).equals(fmt.format(new Date()))) {
+                        if (fmt.format(share.getDate()).equals(fmt.format(new Date()))) {
                             currShare = share;
                             break;
                         }
@@ -184,7 +228,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 }
             }
         }
-        if(currShare==null) {
+        if (currShare == null) {
             companyTextView.setTextColor(0xffdb0a00);
             companyTextView.setText("Not shared with any companies");
         } else {
@@ -197,16 +241,16 @@ public class RecordLogActivity extends AppCompatActivity {
         endImageButton = $(R.id.endImageButton);
         timeDistanceTextView = $(R.id.timeDistanceTextView);
 
-        if(UserInfo.getCurrLog()==null) {
+        if (UserInfo.getCurrLog() == null) {
             ending();
-        } else if(UserInfo.getCurrLog().isPausing()) {
+        } else if (UserInfo.getCurrLog().isPausing()) {
             pausing();
         } else {
             recording();
         }
 
         startImageButton.setOnClickListener(v -> {
-            if(UserInfo.getCurrLog()==null) {
+            if (UserInfo.getCurrLog() == null) {
                 Calendar c = Calendar.getInstance();
                 c.setTime(new Date());
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault());
@@ -225,7 +269,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 Log.d(TAG, "onClickPermissionCheckFineLocation: " + permissionCheckFineLocation);
                 Log.d(TAG, "onClickPermissionCheckCoarseLocation: " + permissionCheckCoarseLocation);
 
-                if(permissionCheckFineLocation == PackageManager.PERMISSION_DENIED || permissionCheckCoarseLocation == PackageManager.PERMISSION_DENIED) {  //first time using this function, or denied before
+                if (permissionCheckFineLocation == PackageManager.PERMISSION_DENIED || permissionCheckCoarseLocation == PackageManager.PERMISSION_DENIED) {  //first time using this function, or denied before
                     ActivityCompat.requestPermissions(
                             RecordLogActivity.this,
                             new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
@@ -242,22 +286,22 @@ public class RecordLogActivity extends AppCompatActivity {
         });
 
         pauseResumeImageButton.setOnClickListener(v -> {
-            if(UserInfo.getCurrLog()==null) {
+            if (UserInfo.getCurrLog() == null) {
                 Toast.makeText(getApplicationContext(), "Please start a record first", Toast.LENGTH_LONG).show();
                 return;
             }
-            if(UserInfo.getCurrLog().isPausing()) {    //resume
+            if (UserInfo.getCurrLog().isPausing()) {    //resume
                 UserInfo.getCurrLog().setPausing(false);
                 recording();
             } else { //pause
                 UserInfo.getCurrLog().setPausing(true);
-                UserInfo.getCurrLog().setCountPause(UserInfo.getCurrLog().getCountPause()+1);
+                UserInfo.getCurrLog().setCountPause(UserInfo.getCurrLog().getCountPause() + 1);
                 pausing();
             }
         });
 
         endImageButton.setOnClickListener(v -> {
-            if(UserInfo.getCurrLog()==null) {
+            if (UserInfo.getCurrLog() == null) {
                 Toast.makeText(getApplicationContext(), "Please start a record first", Toast.LENGTH_LONG).show();
                 return;
             }
@@ -275,7 +319,7 @@ public class RecordLogActivity extends AppCompatActivity {
         switch (requestCode) {
             case 0:
                 Log.d(TAG, "onRequestPermissionsResult?");
-                if(grantResults[0] == 0) {
+                if (grantResults[0] == 0) {
                     Log.d(TAG, "Permit");
                     recording();
                 } else {
@@ -296,18 +340,18 @@ public class RecordLogActivity extends AppCompatActivity {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                if(UserInfo.getCurrLog()==null) {
+                if (UserInfo.getCurrLog() == null) {
                     Log.d(TAG, "timer: end");
                     this.cancel();
-                } else if(UserInfo.getCurrLog().isPausing()) {
+                } else if (UserInfo.getCurrLog().isPausing()) {
                     Log.d(TAG, "timer: pause");
                     this.cancel();
                 } else {
                     Log.d(TAG, "timer: currLog: " + UserInfo.getCurrLog());
                     duration += 1000;
-                    String minDuration = duration/(60 * 1000)>=10 ? ""+ duration/(60 * 1000) : "0"+ duration/(60 * 1000);
-                    String secDuration = duration/1000>=10 ? ""+ duration/1000 : "0"+ duration/1000;
-                    timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int)(UserInfo.getCurrLog().getKm()*10)/10.0 + "km");
+                    String minDuration = duration / (60 * 1000) >= 10 ? "" + duration / (60 * 1000) : "0" + duration / (60 * 1000);
+                    String secDuration = duration / 1000 >= 10 ? "" + duration / 1000 : "0" + duration / 1000;
+                    timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
                 }
             }
         }, 1000, 1000);
@@ -320,7 +364,7 @@ public class RecordLogActivity extends AppCompatActivity {
         timeDistanceTextView.setText(timeDistanceTextView.getText().toString() + " (paused)");
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
-        if(locationManager!=null) locationManager.removeUpdates(locationListener);
+        if (locationManager != null) locationManager.removeUpdates(locationListener);
     }
 
     private void ending() {
@@ -329,13 +373,13 @@ public class RecordLogActivity extends AppCompatActivity {
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
-        if(locationManager!=null) locationManager.removeUpdates(locationListener);
+        if (locationManager != null) locationManager.removeUpdates(locationListener);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void finishRecord() {   //write to log
         Log.d(TAG, "finishRecord: ");
-        UserInfo.getCurrLog().setMins((int)duration/(60 * 1000));
+        UserInfo.getCurrLog().setMins((int) duration / (60 * 1000));
         duration = 0;
 
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -387,7 +431,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
     @SuppressLint("MissingPermission")  //only when permitted will this function be called
     private void getLocation() {
-        if(UserInfo.getCurrLog()!=null && !UserInfo.getCurrLog().isPausing()) {
+        if (UserInfo.getCurrLog() != null && !UserInfo.getCurrLog().isPausing()) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
             Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             Log.d(TAG, "location: " + location);
@@ -410,16 +454,19 @@ public class RecordLogActivity extends AppCompatActivity {
         public void onStatusChanged(String provider, int status, Bundle extras) {
 
         }
+
         // Provider被enable时触发此函数，比如GPS被打开
         @Override
         public void onProviderEnabled(String provider) {
             Log.e(TAG, provider);
         }
+
         // Provider被disable时触发此函数，比如GPS被关闭
         @Override
         public void onProviderDisabled(String provider) {
             Log.e(TAG, provider);
         }
+
         // 当坐标改变时触发此函数，如果Provider传进相同的坐标，它就不会被触发
         @Override
         public void onLocationChanged(Location location) {
@@ -427,7 +474,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 Log.e("Map", "Location changed : Lat: " + location.getLatitude() + " Lng: " + location.getLongitude());
                 double distance = getDistance(longitude, latitude, location.getLongitude(), location.getLatitude());
                 Log.d(TAG, "distance(m): " + distance);
-                UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distance/1000.0);
+                UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distance / 1000.0);
                 Log.d(TAG, "km: " + UserInfo.getCurrLog().getKm());
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
@@ -440,12 +487,13 @@ public class RecordLogActivity extends AppCompatActivity {
         double radLat2 = rad(lat2);
         double a = radLat1 - radLat2;
         double b = rad(lon1) - rad(lon2);
-        double s = 2 *Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2)+Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
+        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
         double EARTH_RADIUS = 6378137;
         s = s * EARTH_RADIUS;
         return s;   //in meter not km
     }
-    private double rad(double d){
+
+    private double rad(double d) {
         return d * Math.PI / 180.0;
     }
 
@@ -493,7 +541,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
         TextView timeDistanceTextView = new TextView(RecordLogActivity.this);
         timeDistanceTextView.setId(3);
-        timeDistanceTextView.setText(log.getMins() + "Mins, " + (int)(log.getKm()*10)/10.0 + "KM");
+        timeDistanceTextView.setText(log.getMins() + "Mins, " + (int) (log.getKm() * 10) / 10.0 + "KM");
         set.connect(timeDistanceTextView.getId(), ConstraintSet.TOP, dateImageView.getId(), ConstraintSet.TOP);
         set.connect(timeDistanceTextView.getId(), ConstraintSet.BOTTOM, dateImageView.getId(), ConstraintSet.BOTTOM);
         set.connect(timeDistanceTextView.getId(), ConstraintSet.START, dateImageView.getId(), ConstraintSet.END, 16);
@@ -525,7 +573,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
         ImageView companyLogoImageView = new ImageView(RecordLogActivity.this);
         companyLogoImageView.setId(5);
-        if(log.getCustID()!=null) companyLogoImageView.setImageBitmap(log.getCompanyLogo());
+        if (log.getCustID() != null) companyLogoImageView.setImageBitmap(log.getCompanyLogo());
         set.connect(companyLogoImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
         set.connect(companyLogoImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
         set.connect(companyLogoImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
@@ -568,7 +616,263 @@ public class RecordLogActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
+
+    private void getShareByCurrentTime() {
+
+        String URL = IP_HOST + GET_CURRENT_SHARE;
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("vehicle_id", vehicleID);
+            // !!!HARD CODED!!!
+            // HERE NEEDS A TIME
+            jsonParam.put("current_date_time", "2020-07-08 11:57:00");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("Response", response.toString());
+                if (!response.toString().contains("The vehicle has no current share at the moment.")) {
+                    current_share_cust_id = response.optString("cust_id");
+                    current_share_company_name = response.optString("company_name");
+                    current_share_claim_rate = response.optString("claim_rate");
+                    current_share_share_id = response.optString("share_id");
+                    current_share_start_time = response.optString("start_time");
+                    current_share_end_time = response.optString("end_time");
+
+                    byte[] logoBase64 = Base64.decode(response.optString("company_logo"), Base64.DEFAULT);
+                    current_share_company_logo = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("ERROR!!!", error.toString());
+                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.data != null) {
+                    String JSONError = new String(networkResponse.data);
+                    JSONObject messageJO;
+                    String message = "";
+                    try {
+                        messageJO = new JSONObject(JSONError);
+                        message = messageJO.optString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("JSON ERROR MESSAGE!!!", message);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+    }
+
+    private void queryRecentLogsByVehicleID(@Nullable final logsCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_LOG_BY_VID;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("vehicle_id", vehicleID);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("Response", response.toString());
+                JSONObject jsonObject;
+                DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                DateFormat formatTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+
+                try {
+                    JSONArray jsonArray = response.getJSONArray("recent_logs");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        jsonObject = jsonArray.getJSONObject(i);
+                        RecordLog log;
+                        if (jsonObject.toString().contains("customer_id")) {
+
+                            byte[] logoBase64 = Base64.decode(response.optString("company_logo"), Base64.DEFAULT);
+
+                            log = new RecordLog(
+                                    formatDate.parse(jsonObject.optString("log_start_date_time").split(" ")[0]),
+                                    formatTime.parse(jsonObject.optString("log_start_date_time").split(" ")[1]),
+                                    formatTime.parse(jsonObject.optString("log_end_date_time").split(" ")[1]),
+                                    jsonObject.optInt("paused_time"),
+                                    jsonObject.optInt("total_travel_time"),
+                                    jsonObject.optDouble("km_travelled"),
+                                    jsonObject.optDouble("claim_rate"),
+                                    jsonObject.optString("share_id"),
+                                    jsonObject.optString("customer_id"),
+                                    jsonObject.optString("company_name"),
+                                    BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length),
+                                    jsonObject.optString("location_log")
+                            );
+                        } else {
+                            log = new RecordLog(
+                                    formatDate.parse(jsonObject.optString("log_start_date_time").split(" ")[0]),
+                                    formatTime.parse(jsonObject.optString("log_start_date_time").split(" ")[1]),
+                                    formatTime.parse(jsonObject.optString("log_end_date_time").split(" ")[1]),
+                                    jsonObject.optInt("paused_time"),
+                                    jsonObject.optInt("total_travel_time"),
+                                    jsonObject.optDouble("km_travelled"),
+                                    jsonObject.optString("location_log")
+                            );
+                        }
+                        recentLogList.add(log);
+                    }
+                    if (callbacks != null)
+                        callbacks.onSuccess(recentLogList);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("ERROR!!!", error.toString());
+                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.data != null) {
+                    String JSONError = new String(networkResponse.data);
+                    JSONObject messageJO;
+                    String message = "";
+                    try {
+                        messageJO = new JSONObject(JSONError);
+                        message = messageJO.optString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("JSON ERROR MESSAGE!!!", message);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+
+    }
+
+    public interface logsCallbacks {
+        void onSuccess(@NonNull List<RecordLog> value);
+
+        void onError(@NonNull String errorMessage);
+    }
+
+    private void queryRecentLogsByCompany(String customer_id, @Nullable final companyLogsCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_LOG_BY_COMPANY;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("customer_id", customer_id);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("Response", response.toString());
+                JSONObject jsonObject;
+                DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                DateFormat formatTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+
+                try {
+                    JSONArray jsonArray = response.getJSONArray("recent_logs");
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        jsonObject = jsonArray.getJSONObject(i);
+                        RecordLog log;
+                        if (jsonObject.toString().contains("customer_id")) {
+
+                            byte[] logoBase64 = Base64.decode(response.optString("image"), Base64.DEFAULT);
+
+                            log = new RecordLog(
+                                    formatDate.parse(jsonObject.optString("log_start_date_time").split(" ")[0]),
+                                    formatTime.parse(jsonObject.optString("log_start_date_time").split(" ")[1]),
+                                    formatTime.parse(jsonObject.optString("log_stop_date_time").split(" ")[1]),
+                                    jsonObject.optInt("paused_times"),
+                                    jsonObject.optInt("total_travel_times"),
+                                    jsonObject.optDouble("km_travel"),
+                                    jsonObject.optDouble("claim_rate"),
+                                    jsonObject.optString("share_id"),
+                                    jsonObject.optString("customer_id"),
+                                    jsonObject.optString("company_name"),
+                                    BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length),
+                                    jsonObject.optString("location_log")
+                            );
+                        } else {
+                            log = new RecordLog(
+                                    formatDate.parse(jsonObject.optString("log_start_date_time").split(" ")[0]),
+                                    formatTime.parse(jsonObject.optString("log_start_date_time").split(" ")[1]),
+                                    formatTime.parse(jsonObject.optString("log_stop_date_time").split(" ")[1]),
+                                    jsonObject.optInt("paused_times"),
+                                    jsonObject.optInt("total_travel_times"),
+                                    jsonObject.optDouble("km_travel"),
+                                    jsonObject.optString("location_log")
+                            );
+                        }
+                        recentLogList.add(log);
+                    }
+                    if (callbacks != null)
+                        callbacks.onSuccess(recentLogList);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("ERROR!!!", error.toString());
+                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.data != null) {
+                    String JSONError = new String(networkResponse.data);
+                    JSONObject messageJO;
+                    String message = "";
+                    try {
+                        messageJO = new JSONObject(JSONError);
+                        message = messageJO.optString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("JSON ERROR MESSAGE!!!", message);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+
+    }
+
+    public interface companyLogsCallbacks {
+        void onSuccess(@NonNull List<RecordLog> value);
+
+        void onError(@NonNull String errorMessage);
+    }
+
 }
