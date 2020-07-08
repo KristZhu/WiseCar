@@ -19,7 +19,7 @@ class Share {
     private Date date;  // start date without time, or simply the date
     private Date recurring_end_date;
     private boolean[] recurring_days;   //[0]: Sunday
-    private Map<Integer, Boolean> servicesVisibility = new TreeMap<>();   //value: visibility
+    private Map<Integer, Boolean> servicesVisibility = new TreeMap<>();   //key: service seq; value: visibility
 
 
     public boolean isShare() {
