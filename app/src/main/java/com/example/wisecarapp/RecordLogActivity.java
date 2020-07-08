@@ -1,7 +1,6 @@
 package com.example.wisecarapp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -11,11 +10,12 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -27,7 +27,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.text.Html;
-import android.text.Layout;
+import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -44,23 +44,21 @@ import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Period;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -70,7 +68,8 @@ public class RecordLogActivity extends AppCompatActivity {
     private final static String TAG = "RecordLogActivity";
 
     private final String IP_HOST = "http://54.206.19.123:3000";
-    private final String GET_SHARED_LIST = "/api/v1/sharevehicle/sharedcompanylist/";
+    private final String GET_CURRENT_SHARE = "/api/v1/drivelog/currentsharedetail";
+    private final String GET_LOG_BY_VID = "/api/v1/drivelog/recentlogbyvid";
 
     private String vehicleID;
     private Vehicle vehicle;
@@ -97,6 +96,14 @@ public class RecordLogActivity extends AppCompatActivity {
 
     private LinearLayout logsDiv;
 
+    private String current_share_cust_id;
+    private String current_share_company_name;
+    private String current_share_claim_rate;
+    private String current_share_share_id;
+    private String current_share_start_time;
+    private String current_share_end_time;
+    private Bitmap current_share_company_logo;
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint({"SetTextI18n", "Assert", "ResourceType"})
@@ -105,6 +112,7 @@ public class RecordLogActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_log);
 
+        getShareByCurrentTime();
 
 
         logs = new HashSet<>();
@@ -125,21 +133,21 @@ public class RecordLogActivity extends AppCompatActivity {
         //......
 
         companyTextView = $(R.id.companyTextView);
-        if(shares!=null) {
-            for(Share share: shares) {
-                if(share.isShare()) {
+        if (shares != null) {
+            for (Share share : shares) {
+                if (share.isShare()) {
                     SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
-                    if(share.isRecurring()) {
+                    if (share.isRecurring()) {
                         Calendar c = Calendar.getInstance();
                         c.setTime(new Date());
-                        if(share.getDate().before(new Date())
-                                && new Date((share.getDate().getTime() + 24*60*60*1000-1)).after(new Date())
-                                && share.getRecurring_days()[c.get(Calendar.DAY_OF_WEEK)-1]) {
+                        if (share.getDate().before(new Date())
+                                && new Date((share.getDate().getTime() + 24 * 60 * 60 * 1000 - 1)).after(new Date())
+                                && share.getRecurring_days()[c.get(Calendar.DAY_OF_WEEK) - 1]) {
                             currShare = share;
                             break;
                         }
                     } else {
-                        if(fmt.format(share.getDate()).equals(fmt.format(new Date()))) {
+                        if (fmt.format(share.getDate()).equals(fmt.format(new Date()))) {
                             currShare = share;
                             break;
                         }
@@ -147,7 +155,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 }
             }
         }
-        if(currShare==null) {
+        if (currShare == null) {
             companyTextView.setTextColor(0xffdb0a00);
             companyTextView.setText("Not shared with any companies");
         } else {
@@ -160,16 +168,16 @@ public class RecordLogActivity extends AppCompatActivity {
         endImageButton = $(R.id.endImageButton);
         timeDistanceTextView = $(R.id.timeDistanceTextView);
 
-        if(UserInfo.getCurrLog()==null) {
+        if (UserInfo.getCurrLog() == null) {
             ending();
-        } else if(UserInfo.getCurrLog().isPausing()) {
+        } else if (UserInfo.getCurrLog().isPausing()) {
             pausing();
         } else {
             recording();
         }
 
         startImageButton.setOnClickListener(v -> {
-            if(UserInfo.getCurrLog()==null) {
+            if (UserInfo.getCurrLog() == null) {
                 Calendar c = Calendar.getInstance();
                 c.setTime(new Date());
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault());
@@ -187,7 +195,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 Log.d(TAG, "onClickPermissionCheckFineLocation: " + permissionCheckFineLocation);
                 Log.d(TAG, "onClickPermissionCheckCoarseLocation: " + permissionCheckCoarseLocation);
 
-                if(permissionCheckFineLocation == PackageManager.PERMISSION_DENIED || permissionCheckCoarseLocation == PackageManager.PERMISSION_DENIED) {  //first time using this function, or denied before
+                if (permissionCheckFineLocation == PackageManager.PERMISSION_DENIED || permissionCheckCoarseLocation == PackageManager.PERMISSION_DENIED) {  //first time using this function, or denied before
                     ActivityCompat.requestPermissions(
                             RecordLogActivity.this,
                             new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
@@ -204,11 +212,11 @@ public class RecordLogActivity extends AppCompatActivity {
         });
 
         pauseResumeImageButton.setOnClickListener(v -> {
-            if(UserInfo.getCurrLog()==null) {
+            if (UserInfo.getCurrLog() == null) {
                 Toast.makeText(getApplicationContext(), "Please start a record first", Toast.LENGTH_LONG).show();
                 return;
             }
-            if(UserInfo.getCurrLog().isPausing()) {    //resume
+            if (UserInfo.getCurrLog().isPausing()) {    //resume
                 UserInfo.getCurrLog().setPausing(false);
                 recording();
             } else { //pause
@@ -218,7 +226,7 @@ public class RecordLogActivity extends AppCompatActivity {
         });
 
         endImageButton.setOnClickListener(v -> {
-            if(UserInfo.getCurrLog()==null) {
+            if (UserInfo.getCurrLog() == null) {
                 Toast.makeText(getApplicationContext(), "Please start a record first", Toast.LENGTH_LONG).show();
                 return;
             }
@@ -228,7 +236,7 @@ public class RecordLogActivity extends AppCompatActivity {
         });
 
         logsDiv = $(R.id.logsDiv);
-        for(RecordLog log: logs) {
+        for (RecordLog log : logs) {
             Log.d(TAG, "log: " + log);
 
             ConstraintLayout logLineLayout = new ConstraintLayout(RecordLogActivity.this);
@@ -302,7 +310,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
             ImageView companyLogoImageView = new ImageView(RecordLogActivity.this);
             companyLogoImageView.setId(5);
-            if(log.getCustID()!=null) companyLogoImageView.setImageBitmap(log.getCompanyLogo());
+            if (log.getCustID() != null) companyLogoImageView.setImageBitmap(log.getCompanyLogo());
             set.connect(companyLogoImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
             set.connect(companyLogoImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
             set.connect(companyLogoImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
@@ -326,7 +334,7 @@ public class RecordLogActivity extends AppCompatActivity {
         switch (requestCode) {
             case 0:
                 Log.d(TAG, "onRequestPermissionsResult?");
-                if(grantResults[0] == 0) {
+                if (grantResults[0] == 0) {
                     Log.d(TAG, "Permit");
                     recording();
                 } else {
@@ -347,17 +355,17 @@ public class RecordLogActivity extends AppCompatActivity {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                if(UserInfo.getCurrLog()==null) {
+                if (UserInfo.getCurrLog() == null) {
                     Log.d(TAG, "timer: end");
                     this.cancel();
-                } else if(UserInfo.getCurrLog().isPausing()) {
+                } else if (UserInfo.getCurrLog().isPausing()) {
                     Log.d(TAG, "timer: pause");
                     this.cancel();
                 } else {
                     duration += 1000;
-                    String minDuration = duration/(60 * 1000)>=10 ? ""+ duration/(60 * 1000) : "0"+ duration/(60 * 1000);
-                    String secDuration = duration/1000>=10 ? ""+ duration/1000 : "0"+ duration/1000;
-                    timeDistanceTextView.setText( minDuration + ":" + secDuration + "  经度" + (int)longitude + "纬度" + (int)latitude + "km: " + UserInfo.getCurrLog().getKm());
+                    String minDuration = duration / (60 * 1000) >= 10 ? "" + duration / (60 * 1000) : "0" + duration / (60 * 1000);
+                    String secDuration = duration / 1000 >= 10 ? "" + duration / 1000 : "0" + duration / 1000;
+                    timeDistanceTextView.setText(minDuration + ":" + secDuration + "  经度" + (int) longitude + "纬度" + (int) latitude + "km: " + UserInfo.getCurrLog().getKm());
                 }
             }
         }, 1000, 1000);
@@ -381,9 +389,9 @@ public class RecordLogActivity extends AppCompatActivity {
 
     private void finishRecord() {   //write to log
         Log.d(TAG, "finishRecord: ");
-        UserInfo.getCurrLog().setMins((int)duration/(60 * 1000));
+        UserInfo.getCurrLog().setMins((int) duration / (60 * 1000));
         duration = 0;
-        
+
     }
 
     @SuppressLint("HandlerLeak")
@@ -439,16 +447,19 @@ public class RecordLogActivity extends AppCompatActivity {
         public void onStatusChanged(String provider, int status, Bundle extras) {
 
         }
+
         // Provider被enable时触发此函数，比如GPS被打开
         @Override
         public void onProviderEnabled(String provider) {
             Log.e(TAG, provider);
         }
+
         // Provider被disable时触发此函数，比如GPS被关闭
         @Override
         public void onProviderDisabled(String provider) {
             Log.e(TAG, provider);
         }
+
         // 当坐标改变时触发此函数，如果Provider传进相同的坐标，它就不会被触发
         @Override
         public void onLocationChanged(Location location) {
@@ -456,23 +467,25 @@ public class RecordLogActivity extends AppCompatActivity {
                 Log.e("Map", "Location changed : Lat: " + location.getLatitude() + " Lon: " + location.getLongitude());
                 double distance = getDistance(longitude, latitude, location.getLongitude(), location.getLatitude());
                 Log.d(TAG, "distance(m): " + distance);
-                UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distance/1000.0);
+                UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distance / 1000.0);
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
             }
         }
     };
 
-    private static final  double EARTH_RADIUS = 6378137;    //equator radius
-    private static double rad(double d){
+    private static final double EARTH_RADIUS = 6378137;    //equator radius
+
+    private static double rad(double d) {
         return d * Math.PI / 180.0;
     }
+
     private double getDistance(double lon1, double lat1, double lon2, double lat2) {
         double radLat1 = rad(lat1);
         double radLat2 = rad(lat2);
         double a = radLat1 - radLat2;
         double b = rad(lon1) - rad(lon2);
-        double s = 2 *Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2)+Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
+        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) + Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)));
         s = s * EARTH_RADIUS;
         return s;   //in meter not km
     }
@@ -506,7 +519,122 @@ public class RecordLogActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
+
+    private void getShareByCurrentTime() {
+
+        String URL = IP_HOST + GET_CURRENT_SHARE;
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("current_date_time", "2020-07-08 11:57:00");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("Response", response.toString());
+                if(!response.toString().contains("The vehicle has no current share at the moment.")){
+                    current_share_cust_id = response.optString("cust_id");
+                    current_share_company_name = response.optString("company_name");
+                    current_share_claim_rate = response.optString("claim_rate");
+                    current_share_share_id = response.optString("share_id");
+                    current_share_start_time = response.optString("start_time");
+                    current_share_end_time = response.optString("end_time");
+
+                    byte[] logoBase64 = Base64.decode(response.optString("company_logo"), Base64.DEFAULT);
+                    current_share_company_logo = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("ERROR!!!", error.toString());
+                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.data != null) {
+                    String JSONError = new String(networkResponse.data);
+                    JSONObject messageJO;
+                    String message = "";
+                    try {
+                        messageJO = new JSONObject(JSONError);
+                        message = messageJO.optString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("JSON ERROR MESSAGE!!!", message);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+    }
+
+    private void queryRecentLogsByVehicleID() {
+
+        String URL = IP_HOST + GET_LOG_BY_VID;
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("vehicle_id", vehicleID);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.e("Response", response.toString());
+                if(!response.toString().contains("The vehicle has no current share at the moment.")){
+//                    cust_id = response.optString("cust_id");
+//                    company_name = response.optString("company_name");
+//                    claim_rate = response.optString("claim_rate");
+//                    share_id = response.optString("share_id");
+//                    start_time = response.optString("start_time");
+//                    end_time = response.optString("end_time");
+
+                    byte[] logoBase64 = Base64.decode(response.optString("company_logo"), Base64.DEFAULT);
+                    current_share_company_logo = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("ERROR!!!", error.toString());
+                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+                NetworkResponse networkResponse = error.networkResponse;
+                if (networkResponse != null && networkResponse.data != null) {
+                    String JSONError = new String(networkResponse.data);
+                    JSONObject messageJO;
+                    String message = "";
+                    try {
+                        messageJO = new JSONObject(JSONError);
+                        message = messageJO.optString("message");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("JSON ERROR MESSAGE!!!", message);
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+
+    }
+
 }
