@@ -3,6 +3,7 @@ package com.example.wisecarapp;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -14,6 +15,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
@@ -87,6 +89,7 @@ public class RecordLogActivity extends AppCompatActivity {
     private ImageButton backImageButton;
 
     private AutoCompleteTextView searchEditText;
+    private ImageButton fliterImageButton;
 
     private TextView companyTextView;
 
@@ -118,8 +121,45 @@ public class RecordLogActivity extends AppCompatActivity {
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(RecordLogActivity.this, VehicleActivity.class)));
 
+        logsDiv = $(R.id.logsDiv);
+        for(RecordLog log: logs) addRecentLog(log);
+
         searchEditText = $(R.id.searchEditText);
         //......
+
+        fliterImageButton = $(R.id.fliterImageButton);
+        fliterImageButton.setOnClickListener(v -> {
+
+            ConstraintLayout layout = new ConstraintLayout(this);
+            layout.setMinHeight(200);
+            ConstraintSet set = new ConstraintSet();
+            EditText startDuration = new EditText(this);
+            startDuration.setId(1);
+            set.connect(startDuration.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+            set.connect(startDuration.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+            set.connect(startDuration.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+            set.connect(startDuration.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+            set.setHorizontalBias(startDuration.getId(), 0.0f);
+            set.constrainPercentWidth(startDuration.getId(), 0.5f);
+            layout.addView(startDuration);
+            set.applyTo(layout);
+
+            new AlertDialog.Builder(this).setTitle("Fliter")
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .setView(layout)
+                    .setPositiveButton("Confirm", (dialog, which) -> {
+                        String input = startDuration.getText().toString();
+                        if (input.equals("")) {
+
+                        } else {
+                            Log.d(TAG, input);
+                        }
+                    }).setNegativeButton("Cancel", null).show();
+
+
+            logsDiv.removeAllViews();
+            //re add
+        });
 
         companyTextView = $(R.id.companyTextView);
         if(shares!=null) {
@@ -226,9 +266,6 @@ public class RecordLogActivity extends AppCompatActivity {
             UserInfo.setCurrLog(null);
         });
 
-        logsDiv = $(R.id.logsDiv);
-        for(RecordLog log: logs) addRecentLog(log);
-
     }
 
     @Override
@@ -309,6 +346,7 @@ public class RecordLogActivity extends AppCompatActivity {
         }
         Log.d(TAG, "finishRecord: currLog: " + UserInfo.getCurrLog());
         addRecentLog(UserInfo.getCurrLog());
+        //vehicle.getLogs().add(UserInfo.getCurrLog());
     }
 
     @SuppressLint("HandlerLeak")
