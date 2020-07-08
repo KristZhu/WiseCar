@@ -32,6 +32,19 @@ class RecordLog {
         this.km = 2.7;
     }
 
+    public RecordLog(Date date, Date startTime, Date endTime, boolean pausing, int countPause, int mins, double km, String custID, String companyName, Bitmap companyLogo) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.pausing = pausing;
+        this.countPause = countPause;
+        this.mins = mins;
+        this.km = km;
+        this.custID = custID;
+        this.companyName = companyName;
+        this.companyLogo = companyLogo;
+    }
+
     public Date getDate() {
         return date;
     }

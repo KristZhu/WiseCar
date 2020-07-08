@@ -54,6 +54,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Period;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,7 +83,6 @@ public class RecordLogActivity extends AppCompatActivity {
 
     private Set<Share> shares;  //从数据库返回
     private Share currShare;
-    private Set<RecordLog> logs;    //从数据库返回
 
     private ImageButton backImageButton;
 
@@ -105,18 +105,15 @@ public class RecordLogActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_record_log);
 
-
-
-        logs = new HashSet<>();
-        logs.add(new RecordLog());
-        logs.add(new RecordLog());
-        logs.add(new RecordLog());
-
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         //vehicleID = "303";
         Log.d(TAG, "vehicleID: " + vehicleID);
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
+
+        //List<RecordLog> logs = DB.get...
+        List<RecordLog> logs = new ArrayList<>();
+        //vehicle.setLogs(logs);
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(RecordLogActivity.this, VehicleActivity.class)));
@@ -178,6 +175,7 @@ public class RecordLogActivity extends AppCompatActivity {
                     Date date = dateFormat.parse(dateFormat.format(new Date()));
                     Date startTime = timeFormat.parse(timeFormat.format(new Date()));
                     UserInfo.setCurrLog(new RecordLog(date, startTime));
+                    Log.d(TAG, "new currLog: " + UserInfo.getCurrLog());
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
@@ -213,6 +211,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 recording();
             } else { //pause
                 UserInfo.getCurrLog().setPausing(true);
+                UserInfo.getCurrLog().setCountPause(UserInfo.getCurrLog().getCountPause()+1);
                 pausing();
             }
         });
@@ -228,94 +227,7 @@ public class RecordLogActivity extends AppCompatActivity {
         });
 
         logsDiv = $(R.id.logsDiv);
-        for(RecordLog log: logs) {
-            Log.d(TAG, "log: " + log);
-
-            ConstraintLayout logLineLayout = new ConstraintLayout(RecordLogActivity.this);
-            ConstraintSet set = new ConstraintSet();
-
-            ImageView bgImageView = new ImageView(RecordLogActivity.this);
-            bgImageView.setId(0);
-            bgImageView.setBackground(getResources().getDrawable(R.drawable.record_log0line));
-            set.connect(bgImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 16);
-            set.connect(bgImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
-            set.connect(bgImageView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
-            set.setDimensionRatio(bgImageView.getId(), "4.3:1");
-            logLineLayout.addView(bgImageView);
-
-            ImageView dateImageView = new ImageView(RecordLogActivity.this);
-            dateImageView.setId(1);
-            dateImageView.setImageDrawable(getResources().getDrawable(R.drawable.record_log0date));
-            set.connect(dateImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-            set.connect(dateImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
-            set.connect(dateImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 32);
-            set.connect(dateImageView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
-            set.constrainPercentWidth(dateImageView.getId(), 0.18f);
-            set.setDimensionRatio(dateImageView.getId(), "1:1");
-            set.setHorizontalBias(dateImageView.getId(), 0.0f);
-            logLineLayout.addView(dateImageView);
-
-            TextView dateTextView = new TextView(RecordLogActivity.this);
-            dateTextView.setId(2);
-            dateTextView.setText(new SimpleDateFormat("dd MMM", Locale.getDefault()).format(log.getDate()));
-            set.connect(dateTextView.getId(), ConstraintSet.TOP, dateImageView.getId(), ConstraintSet.TOP);
-            set.connect(dateTextView.getId(), ConstraintSet.BOTTOM, dateImageView.getId(), ConstraintSet.BOTTOM);
-            set.connect(dateTextView.getId(), ConstraintSet.START, dateImageView.getId(), ConstraintSet.START);
-            set.connect(dateTextView.getId(), ConstraintSet.END, dateImageView.getId(), ConstraintSet.END);
-            set.constrainPercentHeight(dateTextView.getId(), 0.3f);
-            dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-            dateTextView.setTextColor(0xffffffff);
-            dateTextView.setGravity(Gravity.CENTER);
-            logLineLayout.addView(dateTextView);
-
-            TextView timeDistanceTextView = new TextView(RecordLogActivity.this);
-            timeDistanceTextView.setId(3);
-            timeDistanceTextView.setText(log.getMins() + "Mins, " + log.getKm() + "KM");
-            set.connect(timeDistanceTextView.getId(), ConstraintSet.TOP, dateImageView.getId(), ConstraintSet.TOP);
-            set.connect(timeDistanceTextView.getId(), ConstraintSet.BOTTOM, dateImageView.getId(), ConstraintSet.BOTTOM);
-            set.connect(timeDistanceTextView.getId(), ConstraintSet.START, dateImageView.getId(), ConstraintSet.END, 16);
-            set.connect(timeDistanceTextView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
-            set.constrainPercentHeight(timeDistanceTextView.getId(), 0.28f);
-            set.setVerticalBias(timeDistanceTextView.getId(), 0.0f);
-            timeDistanceTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-            timeDistanceTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-            timeDistanceTextView.setTextColor(0xff000000);
-            logLineLayout.addView(timeDistanceTextView);
-
-            TextView logInfoTextView = new TextView(RecordLogActivity.this);
-            logInfoTextView.setId(4);
-            StringBuilder sb = new StringBuilder();
-            SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-            sb.append("Start Time: ").append(fmt.format(log.getStartTime())).append("<br/>");
-            sb.append("End Time: ").append(fmt.format(log.getEndTime())).append("<br/>");
-            sb.append("Paused: ").append(log.getCountPause());
-            logInfoTextView.setText(Html.fromHtml(sb.toString()));
-            set.connect(logInfoTextView.getId(), ConstraintSet.TOP, timeDistanceTextView.getId(), ConstraintSet.BOTTOM);
-            set.connect(logInfoTextView.getId(), ConstraintSet.BOTTOM, dateImageView.getId(), ConstraintSet.BOTTOM);
-            set.connect(logInfoTextView.getId(), ConstraintSet.START, dateImageView.getId(), ConstraintSet.END, 32);
-            set.connect(logInfoTextView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
-            set.setVerticalBias(logInfoTextView.getId(), 0.0f);
-            logInfoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-            logInfoTextView.setTextColor(0xff47b5be);
-            logInfoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-            logLineLayout.addView(logInfoTextView);
-
-            ImageView companyLogoImageView = new ImageView(RecordLogActivity.this);
-            companyLogoImageView.setId(5);
-            if(log.getCustID()!=null) companyLogoImageView.setImageBitmap(log.getCompanyLogo());
-            set.connect(companyLogoImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
-            set.connect(companyLogoImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
-            set.connect(companyLogoImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
-            set.connect(companyLogoImageView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 16);
-            set.constrainPercentWidth(companyLogoImageView.getId(), 0.18f);
-            set.setDimensionRatio(companyLogoImageView.getId(), "1:1");
-            set.setHorizontalBias(companyLogoImageView.getId(), 1.0f);
-            logLineLayout.addView(companyLogoImageView);
-
-            set.applyTo(logLineLayout);
-            logsDiv.addView(logLineLayout);
-
-        }
+        for(RecordLog log: logs) addRecentLog(log);
 
     }
 
@@ -358,7 +270,7 @@ public class RecordLogActivity extends AppCompatActivity {
                     duration += 1000;
                     String minDuration = duration/(60 * 1000)>=10 ? ""+ duration/(60 * 1000) : "0"+ duration/(60 * 1000);
                     String secDuration = duration/1000>=10 ? ""+ duration/1000 : "0"+ duration/1000;
-                    timeDistanceTextView.setText( minDuration + ":" + secDuration + "  经度" + (int)longitude + "纬度" + (int)latitude + "km: " + (int)UserInfo.getCurrLog().getKm());
+                    timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int)(UserInfo.getCurrLog().getKm()*10)/10.0 + "km");
                 }
             }
         }, 1000, 1000);
@@ -368,6 +280,7 @@ public class RecordLogActivity extends AppCompatActivity {
         Log.d(TAG, "pausing: ");
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0resume));
         timeDistanceTextView.setTextColor(0xffa5a6a3);
+        timeDistanceTextView.setText(timeDistanceTextView.getText().toString() + " (paused)");
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
         if(locationManager!=null) locationManager.removeUpdates(locationListener);
@@ -382,11 +295,20 @@ public class RecordLogActivity extends AppCompatActivity {
         if(locationManager!=null) locationManager.removeUpdates(locationListener);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void finishRecord() {   //write to log
         Log.d(TAG, "finishRecord: ");
         UserInfo.getCurrLog().setMins((int)duration/(60 * 1000));
         duration = 0;
-        
+
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        try {
+            UserInfo.getCurrLog().setEndTime(timeFormat.parse(timeFormat.format(new Date())));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, "finishRecord: currLog: " + UserInfo.getCurrLog());
+        addRecentLog(UserInfo.getCurrLog());
     }
 
     @SuppressLint("HandlerLeak")
@@ -487,6 +409,96 @@ public class RecordLogActivity extends AppCompatActivity {
     }
     private double rad(double d){
         return d * Math.PI / 180.0;
+    }
+
+    @SuppressLint("ResourceType")
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void addRecentLog(RecordLog log) {
+        Log.d(TAG, "add recent log: " + log);
+
+        ConstraintLayout logLineLayout = new ConstraintLayout(RecordLogActivity.this);
+        ConstraintSet set = new ConstraintSet();
+
+        ImageView bgImageView = new ImageView(RecordLogActivity.this);
+        bgImageView.setId(0);
+        bgImageView.setBackground(getResources().getDrawable(R.drawable.record_log0line));
+        set.connect(bgImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 16);
+        set.connect(bgImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+        set.connect(bgImageView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+        set.setDimensionRatio(bgImageView.getId(), "4.3:1");
+        logLineLayout.addView(bgImageView);
+
+        ImageView dateImageView = new ImageView(RecordLogActivity.this);
+        dateImageView.setId(1);
+        dateImageView.setImageDrawable(getResources().getDrawable(R.drawable.record_log0date));
+        set.connect(dateImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+        set.connect(dateImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+        set.connect(dateImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 32);
+        set.connect(dateImageView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+        set.constrainPercentWidth(dateImageView.getId(), 0.18f);
+        set.setDimensionRatio(dateImageView.getId(), "1:1");
+        set.setHorizontalBias(dateImageView.getId(), 0.0f);
+        logLineLayout.addView(dateImageView);
+
+        TextView dateTextView = new TextView(RecordLogActivity.this);
+        dateTextView.setId(2);
+        dateTextView.setText(new SimpleDateFormat("dd MMM", Locale.getDefault()).format(log.getDate()));
+        set.connect(dateTextView.getId(), ConstraintSet.TOP, dateImageView.getId(), ConstraintSet.TOP);
+        set.connect(dateTextView.getId(), ConstraintSet.BOTTOM, dateImageView.getId(), ConstraintSet.BOTTOM);
+        set.connect(dateTextView.getId(), ConstraintSet.START, dateImageView.getId(), ConstraintSet.START);
+        set.connect(dateTextView.getId(), ConstraintSet.END, dateImageView.getId(), ConstraintSet.END);
+        set.constrainPercentHeight(dateTextView.getId(), 0.3f);
+        dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        dateTextView.setTextColor(0xffffffff);
+        dateTextView.setGravity(Gravity.CENTER);
+        logLineLayout.addView(dateTextView);
+
+        TextView timeDistanceTextView = new TextView(RecordLogActivity.this);
+        timeDistanceTextView.setId(3);
+        timeDistanceTextView.setText(log.getMins() + "Mins, " + (int)(log.getKm()*10)/10.0 + "KM");
+        set.connect(timeDistanceTextView.getId(), ConstraintSet.TOP, dateImageView.getId(), ConstraintSet.TOP);
+        set.connect(timeDistanceTextView.getId(), ConstraintSet.BOTTOM, dateImageView.getId(), ConstraintSet.BOTTOM);
+        set.connect(timeDistanceTextView.getId(), ConstraintSet.START, dateImageView.getId(), ConstraintSet.END, 16);
+        set.connect(timeDistanceTextView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+        set.constrainPercentHeight(timeDistanceTextView.getId(), 0.28f);
+        set.setVerticalBias(timeDistanceTextView.getId(), 0.0f);
+        timeDistanceTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        timeDistanceTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        timeDistanceTextView.setTextColor(0xff000000);
+        logLineLayout.addView(timeDistanceTextView);
+
+        TextView logInfoTextView = new TextView(RecordLogActivity.this);
+        logInfoTextView.setId(4);
+        StringBuilder sb = new StringBuilder();
+        SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        sb.append("Start Time: ").append(fmt.format(log.getStartTime())).append("<br/>");
+        sb.append("End Time: ").append(fmt.format(log.getEndTime())).append("<br/>");
+        sb.append("Paused: ").append(log.getCountPause());
+        logInfoTextView.setText(Html.fromHtml(sb.toString()));
+        set.connect(logInfoTextView.getId(), ConstraintSet.TOP, timeDistanceTextView.getId(), ConstraintSet.BOTTOM);
+        set.connect(logInfoTextView.getId(), ConstraintSet.BOTTOM, dateImageView.getId(), ConstraintSet.BOTTOM);
+        set.connect(logInfoTextView.getId(), ConstraintSet.START, dateImageView.getId(), ConstraintSet.END, 32);
+        set.connect(logInfoTextView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END);
+        set.setVerticalBias(logInfoTextView.getId(), 0.0f);
+        logInfoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        logInfoTextView.setTextColor(0xff47b5be);
+        logInfoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        logLineLayout.addView(logInfoTextView);
+
+        ImageView companyLogoImageView = new ImageView(RecordLogActivity.this);
+        companyLogoImageView.setId(5);
+        if(log.getCustID()!=null) companyLogoImageView.setImageBitmap(log.getCompanyLogo());
+        set.connect(companyLogoImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
+        set.connect(companyLogoImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
+        set.connect(companyLogoImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
+        set.connect(companyLogoImageView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 16);
+        set.constrainPercentWidth(companyLogoImageView.getId(), 0.18f);
+        set.setDimensionRatio(companyLogoImageView.getId(), "1:1");
+        set.setHorizontalBias(companyLogoImageView.getId(), 1.0f);
+        logLineLayout.addView(companyLogoImageView);
+
+        set.applyTo(logLineLayout);
+        logsDiv.addView(logLineLayout);
     }
 
     public boolean dispatchTouchEvent(MotionEvent ev) {

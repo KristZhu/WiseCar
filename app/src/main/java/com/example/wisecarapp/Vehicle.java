@@ -1,27 +1,11 @@
 package com.example.wisecarapp;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Base64;
-import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 class Vehicle implements Comparable<Vehicle> {
@@ -38,6 +22,7 @@ class Vehicle implements Comparable<Vehicle> {
     private Bitmap image;
     private String state_name;
     private List<Integer> services;
+    private List<RecordLog> logs;
 
     public Vehicle() {}
 
@@ -152,6 +137,14 @@ class Vehicle implements Comparable<Vehicle> {
 
     public void setServices(List<Integer> services) {
         this.services = services;
+    }
+
+    public List<RecordLog> getLogs() {
+        return logs;
+    }
+
+    public void setLogs(List<RecordLog> logs) {
+        this.logs = logs;
     }
 
     @NonNull
