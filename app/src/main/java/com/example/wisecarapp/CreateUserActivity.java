@@ -206,7 +206,7 @@ public class CreateUserActivity extends AppCompatActivity {
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
                                 );
-                            } else {
+                            } else {    //already permitted
                                 beforeStartCamera();
                             }
                         } else if(i==1) {   //upload from phone
