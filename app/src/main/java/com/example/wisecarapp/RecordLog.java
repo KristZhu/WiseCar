@@ -9,10 +9,10 @@ class RecordLog {
     private Date date;
     private Date startTime;
     private Date endTime;
-    private int recording;  //0:end; 1:recording; 2:pause
-    private int countPause;
-    private int mins;
-    private double km;
+    private boolean pausing = false;
+    private int countPause = 0;
+    private int mins = 0;
+    private double km = 0;
     private String custID;
     private String companyName;
     private Bitmap companyLogo;
@@ -26,7 +26,7 @@ class RecordLog {
         this.date = new Date();
         this.startTime = new Date(1000);
         this.endTime = new Date(1000000);
-        this.recording = 0;
+        this.pausing = false;
         this.countPause = 1;
         this.mins = 10;
         this.km = 2.7;
@@ -56,12 +56,12 @@ class RecordLog {
         this.endTime = endTime;
     }
 
-    public int getRecording() {
-        return recording;
+    public boolean isPausing() {
+        return pausing;
     }
 
-    public void setRecording(int recording) {
-        this.recording = recording;
+    public void setPausing(boolean pausing) {
+        this.pausing = pausing;
     }
 
     public int getCountPause() {
@@ -118,7 +118,7 @@ class RecordLog {
                 "date=" + date +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
-                ", recording=" + recording +
+                ", pausing=" + pausing +
                 ", countPause=" + countPause +
                 ", mins=" + mins +
                 ", km=" + km +
