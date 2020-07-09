@@ -26,9 +26,15 @@ class RecordLog {
 
     private boolean pausing = false;
 
-    public RecordLog(Date date, Date startTime) {
+    public RecordLog(String vehicleID, String custID, Date date, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
+        this.vehicleID = vehicleID;
+        this.custID = custID;
         this.date = date;
         this.startTime = startTime;
+        this.claimRate = claimRate;
+        this.shareID = shareID;
+        this.companyName = companyName;
+        this.companyLogo = companyLogo;
     }
 
     public RecordLog() {
