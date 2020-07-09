@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -112,6 +113,7 @@ public class EditVehicleActivity extends AppCompatActivity {
                                 break;
                             case 2:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0driver_button));
+                                imageViews[j].setOnClickListener(v -> startRecordlog(vehicleID));
                                 break;
                             case 3:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0registration_button));
@@ -222,6 +224,13 @@ public class EditVehicleActivity extends AppCompatActivity {
     private void startServiceRecords(String vehicleID) {
         Log.d(TAG, "ServiceRecordsVehicleID: " + vehicleID);
         Intent intent = new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class);
+        intent.putExtra("vehicleID", vehicleID);
+        startActivity(intent);
+    }
+
+    private void startRecordlog(String vehicleID) {
+        Log.d(TAG, "RecordLogVehicleID: " + vehicleID);
+        Intent intent = new Intent(EditVehicleActivity.this, RecordLogActivity.class);
         intent.putExtra("vehicleID", vehicleID);
         startActivity(intent);
     }

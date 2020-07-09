@@ -2,24 +2,39 @@ package com.example.wisecarapp;
 
 import android.graphics.Bitmap;
 
+import org.json.JSONArray;
+
 import java.util.Date;
+import java.util.List;
 
 class RecordLog {
 
+    private String vehicleID;
+    private String custID;
     private Date date;
     private Date startTime;
     private Date endTime;
-    private boolean pausing = false;
+    private double claimRate;
+    private double km = 0;
     private int countPause = 0;
     private int mins = 0;
-    private double km = 0;
-    private String custID;
+    private String logJSON;   //JSONArray
+    private String shareID;
+
     private String companyName;
     private Bitmap companyLogo;
 
-    public RecordLog(Date date, Date startTime) {
+    private boolean pausing = false;
+
+    public RecordLog(String vehicleID, String custID, Date date, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
+        this.vehicleID = vehicleID;
+        this.custID = custID;
         this.date = date;
         this.startTime = startTime;
+        this.claimRate = claimRate;
+        this.shareID = shareID;
+        this.companyName = companyName;
+        this.companyLogo = companyLogo;
     }
 
     public RecordLog() {
@@ -32,7 +47,7 @@ class RecordLog {
         this.km = 2.7;
     }
 
-    public RecordLog(Date date, Date startTime, Date endTime, boolean pausing, int countPause, int mins, double km, String custID, String companyName, Bitmap companyLogo) {
+    public RecordLog(Date date, Date startTime, Date endTime, boolean pausing, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -40,9 +55,52 @@ class RecordLog {
         this.countPause = countPause;
         this.mins = mins;
         this.km = km;
+        this.claimRate = claimRate;
+        this.shareID = shareID;
         this.custID = custID;
         this.companyName = companyName;
         this.companyLogo = companyLogo;
+    }
+
+    public RecordLog(Date date, Date startTime, Date endTime, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.countPause = countPause;
+        this.mins = mins;
+        this.km = km;
+        this.claimRate = claimRate;
+        this.shareID = shareID;
+        this.custID = custID;
+        this.companyName = companyName;
+        this.companyLogo = companyLogo;
+        this.logJSON = logJSON;
+    }
+
+    public RecordLog(Date date, Date startTime, Date endTime, int countPause, int mins, double km, String logJSON) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.countPause = countPause;
+        this.mins = mins;
+        this.km = km;
+        this.logJSON = logJSON;
+    }
+
+    public String getVehicleID() {
+        return vehicleID;
+    }
+
+    public void setVehicleID(String vehicleID) {
+        this.vehicleID = vehicleID;
+    }
+
+    public String getCustID() {
+        return custID;
+    }
+
+    public void setCustID(String custID) {
+        this.custID = custID;
     }
 
     public Date getDate() {
@@ -69,12 +127,20 @@ class RecordLog {
         this.endTime = endTime;
     }
 
-    public boolean isPausing() {
-        return pausing;
+    public double getClaimRate() {
+        return claimRate;
     }
 
-    public void setPausing(boolean pausing) {
-        this.pausing = pausing;
+    public void setClaimRate(double claimRate) {
+        this.claimRate = claimRate;
+    }
+
+    public double getKm() {
+        return km;
+    }
+
+    public void setKm(double km) {
+        this.km = km;
     }
 
     public int getCountPause() {
@@ -93,20 +159,20 @@ class RecordLog {
         this.mins = mins;
     }
 
-    public double getKm() {
-        return km;
+    public String getLogJSON() {
+        return logJSON;
     }
 
-    public void setKm(double km) {
-        this.km = km;
+    public void setLogJSON(String logJSON) {
+        this.logJSON = logJSON;
     }
 
-    public String getCustID() {
-        return custID;
+    public String getShareID() {
+        return shareID;
     }
 
-    public void setCustID(String custID) {
-        this.custID = custID;
+    public void setShareID(String shareID) {
+        this.shareID = shareID;
     }
 
     public String getCompanyName() {
@@ -125,18 +191,31 @@ class RecordLog {
         this.companyLogo = companyLogo;
     }
 
+    public boolean isPausing() {
+        return pausing;
+    }
+
+    public void setPausing(boolean pausing) {
+        this.pausing = pausing;
+    }
+
     @Override
     public String toString() {
         return "RecordLog{" +
-                "date=" + date +
+                "vehicleID='" + vehicleID + '\'' +
+                ", custID='" + custID + '\'' +
+                ", date=" + date +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
-                ", pausing=" + pausing +
+                ", claimRate=" + claimRate +
+                ", km=" + km +
                 ", countPause=" + countPause +
                 ", mins=" + mins +
-                ", km=" + km +
-                ", custID='" + custID + '\'' +
+                ", logJSON='" + logJSON + '\'' +
+                ", shareID='" + shareID + '\'' +
                 ", companyName='" + companyName + '\'' +
+                ", companyLogo=" + companyLogo +
+                ", pausing=" + pausing +
                 '}';
     }
 }

@@ -24,7 +24,9 @@ class Vehicle implements Comparable<Vehicle> {
     private List<Integer> services;
     private List<RecordLog> logs;
 
-    public Vehicle() {}
+    public Vehicle() {
+
+    }
 
     public Vehicle(String registration_no, String make_name, String model_name, String make_year, String state, String description, Bitmap image) {
         this.registration_no = registration_no;
