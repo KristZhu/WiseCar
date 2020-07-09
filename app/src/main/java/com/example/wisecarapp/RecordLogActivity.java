@@ -648,8 +648,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-//            jsonParam.put("vehicle_id", vehicleID);
-            jsonParam.put("vehicle_id", "164");
+            jsonParam.put("vehicle_id", vehicleID);
 
         } catch (JSONException e) {
             e.printStackTrace();
