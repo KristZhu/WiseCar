@@ -3,8 +3,10 @@ package com.example.wisecarapp;
 import android.graphics.Bitmap;
 
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 class RecordLog {
 
@@ -213,8 +215,6 @@ class RecordLog {
                 ", logJSON='" + logJSON + '\'' +
                 ", shareID='" + shareID + '\'' +
                 ", companyName='" + companyName + '\'' +
-                ", companyLogo=" + companyLogo +
-                ", pausing=" + pausing +
                 '}';
     }
 }

@@ -78,6 +78,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 
 public class RecordLogActivity extends AppCompatActivity {
 
@@ -155,21 +156,21 @@ public class RecordLogActivity extends AppCompatActivity {
                 Log.d(TAG, "logs: " + logs);
                 vehicle.setLogs(logs);
                 for (RecordLog log : logs) addRecordLog(log);
-
                 searchEditText.setAdapter(fliterAdapter);
-                searchEditText.setOnItemClickListener((parent, view, position, id) -> {
-                    String temp = searchEditText.getText().toString();
-                    Log.d(TAG, "searchEditText: " + temp);
-                });
             }
 
             @Override
-            public void onError(@NonNull List value) {
-
+            public void onError(@NonNull List<RecordLog> logs) {
                 // Here is when there is no log, an empty List is returned.
-
+                Log.d(TAG, "not logs");
             }
 
+        });
+
+        searchEditText.setAdapter(fliterAdapter);
+        searchEditText.setOnItemClickListener((parent, view, position, id) -> {
+            String temp = searchEditText.getText().toString();
+            Log.d(TAG, "searchEditText: " + temp);
         });
 
 /*
@@ -271,6 +272,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
             logsDiv.removeAllViews();
             for (RecordLog log : vehicle.getLogs()) addRecordLog(log);
+            searchEditText.setAdapter(fliterAdapter);
 
         });
 
@@ -333,7 +335,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                locations = new HashMap<>();
+                locations = new TreeMap<>();
 
                 int permissionCheckFineLocation = ContextCompat.checkSelfPermission(RecordLogActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
                 int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(RecordLogActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -476,14 +478,10 @@ public class RecordLogActivity extends AppCompatActivity {
 
         Log.d(TAG, "finishRecord: currLog: " + UserInfo.getCurrLog());
         addRecordLog(UserInfo.getCurrLog());
+        if(vehicle.getLogs()==null) vehicle.setLogs(new ArrayList<RecordLog>());
         vehicle.getLogs().add(UserInfo.getCurrLog());
 
         //add UserInfo.getCurrLog() to DB
-        //start and end time use the following:
-        Log.d(TAG, "start time: " + new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getStartTime().getTime()));
-        Log.d(TAG, "end time: " + new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getEndTime().getTime()));
-        //others use UserInfo.getCurrLog().get...
-
         DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String URL = IP_HOST + SAVE_LOG;
 
@@ -619,9 +617,9 @@ public class RecordLogActivity extends AppCompatActivity {
         public void onLocationChanged(Location location) {
             if (location != null) {
                 Log.e("Map", "Location changed : Lat: " + location.getLatitude() + " Lng: " + location.getLongitude());
-                double distance = getDistance(longitude, latitude, location.getLongitude(), location.getLatitude());
-                Log.d(TAG, "distance(m): " + distance);
-                UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distance / 1000.0);
+                double distanceSinceLastSec = getDistance(longitude, latitude, location.getLongitude(), location.getLatitude());
+                Log.d(TAG, "distance(m): " + distanceSinceLastSec);
+                UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distanceSinceLastSec / 1000.0);
                 Log.d(TAG, "km: " + UserInfo.getCurrLog().getKm());
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
@@ -945,12 +943,6 @@ public class RecordLogActivity extends AppCompatActivity {
 
     }
 
-    public interface logsCallbacks {
-        void onSuccess(@NonNull List<RecordLog> value);
-
-        void onError(@NonNull List value);
-    }
-
     private void queryRecordLogsByCompany(String customer_id, @Nullable final logsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_LOG_BY_COMPANY;
@@ -1032,6 +1024,12 @@ public class RecordLogActivity extends AppCompatActivity {
         });
         Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
 
+    }
+
+    public interface logsCallbacks {
+        void onSuccess(@NonNull List<RecordLog> value);
+
+        void onError(@NonNull List<RecordLog> value);
     }
 
     private static java.util.Date intToDate(int year, int month, int day) {

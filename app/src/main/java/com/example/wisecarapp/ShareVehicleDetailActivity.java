@@ -402,7 +402,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             }
         });
 
-        startEditText.setOnClickListener((v) -> {
+        startEditText.setOnClickListener(v -> {
             new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
                 StringBuffer time = new StringBuffer();
                 time.append(hour >= 10 ? hour : "0" + hour);
@@ -425,7 +425,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             }
         });
 
-        endEditText.setOnClickListener((v) -> {
+        endEditText.setOnClickListener(v -> {
             new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
                 StringBuffer time = new StringBuffer();
                 time.append(hour >= 10 ? hour : "0" + hour);
