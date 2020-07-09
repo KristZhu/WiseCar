@@ -131,23 +131,24 @@ public class RecordLogActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onError(@NonNull String errorMessage) {
-
+            public void onError(@NonNull List value) {
+                Log.e("null list", String.valueOf(value.size()));
             }
+
         });
 
-        queryRecentLogsByCompany(customer_id, new companyLogsCallbacks(){
-
-            @Override
-            public void onSuccess(@NonNull List<RecordLog> value) {
-                Log.e("list size", String.valueOf(recentLogList.size()));
-            }
-
-            @Override
-            public void onError(@NonNull String errorMessage) {
-
-            }
-        });
+//        queryRecentLogsByCompany(customer_id, new companyLogsCallbacks(){
+//
+//            @Override
+//            public void onSuccess(@NonNull List<RecordLog> value) {
+//                Log.e("list size", String.valueOf(recentLogList.size()));
+//            }
+//
+//            @Override
+//            public void onError(@NonNull String errorMessage) {
+//
+//            }
+//        });
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         //vehicleID = "303";
@@ -647,7 +648,8 @@ public class RecordLogActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("vehicle_id", vehicleID);
+//            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("vehicle_id", "164");
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -709,8 +711,7 @@ public class RecordLogActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("ERROR!!!", error.toString());
-                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+                Log.e("ERROR", String.valueOf(error.networkResponse));
 
                 NetworkResponse networkResponse = error.networkResponse;
                 if (networkResponse != null && networkResponse.data != null) {
@@ -723,8 +724,11 @@ public class RecordLogActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    Log.e("JSON ERROR MESSAGE!!!", message);
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                    Log.e("JSON ERROR MESSAGE", message);
+                    if (callbacks != null && message.equals("The vehicle has no driver logs"))
+                        callbacks.onError(recentLogList);
+                    else
+                        Toast.makeText(getApplicationContext(), "Network error!", Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -736,7 +740,7 @@ public class RecordLogActivity extends AppCompatActivity {
     public interface logsCallbacks {
         void onSuccess(@NonNull List<RecordLog> value);
 
-        void onError(@NonNull String errorMessage);
+        void onError(@NonNull List value);
     }
 
     private void queryRecentLogsByCompany(String customer_id, @Nullable final companyLogsCallbacks callbacks) {
