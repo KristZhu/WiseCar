@@ -87,6 +87,8 @@ public class RecordLogActivity extends AppCompatActivity {
     private final String GET_CURRENT_SHARE = "/api/v1/drivelog/currentsharedetail";
     private final String GET_LOG_BY_VID = "/api/v1/drivelog/recentlogbyvid";
     private final String GET_LOG_BY_COMPANY = "/api/v1/drivelog/recentlogbycompany";
+    private final String SAVE_LOG = "/api/v1/drivelog/savedrivelog";
+
 
     private String vehicleID;
     private Vehicle vehicle;
@@ -147,12 +149,12 @@ public class RecordLogActivity extends AppCompatActivity {
         miniMin = -1;
         maxMin = -1;
 
-        queryRecordLogsByVehicleID(vehicleID, new logsCallbacks(){
+        queryRecordLogsByVehicleID(vehicleID, new logsCallbacks() {
             @Override
             public void onSuccess(@NonNull List<RecordLog> logs) {
                 Log.d(TAG, "logs: " + logs);
                 vehicle.setLogs(logs);
-                for(RecordLog log: logs) addRecordLog(log);
+                for (RecordLog log : logs) addRecordLog(log);
 
                 searchEditText.setAdapter(fliterAdapter);
                 searchEditText.setOnItemClickListener((parent, view, position, id) -> {
@@ -160,24 +162,29 @@ public class RecordLogActivity extends AppCompatActivity {
                     Log.d(TAG, "searchEditText: " + temp);
                 });
             }
+
             @Override
-            public void onError(@NonNull String errorMessage) {
+            public void onError(@NonNull List value) {
+
+                // Here is when there is no log, an empty List is returned.
 
             }
+
         });
 
-        /*
-        queryRecordLogsByCompany(customer_id, new companyLogsCallbacks(){
+/*
+        queryRecordLogsByCompany(customer_id, new logsCallbacks() {
             @Override
             public void onSuccess(@NonNull List<RecordLog> value) {
-                Log.e("list size", String.valueOf(recentLogList.size()));
-            }
-            @Override
-            public void onError(@NonNull String errorMessage) {
 
             }
+
+            @Override
+            public void onError(@NonNull List value) {
+                // No log for the company
+            }
         });
-         */
+*/
 
         fliterImageButton = $(R.id.fliterImageButton);
         fliterImageButton.setOnClickListener(v -> {
@@ -242,10 +249,10 @@ public class RecordLogActivity extends AppCompatActivity {
                     .setView(view)
                     .setPositiveButton("Confirm", (dialog, which) -> {
                         try {
-                            miniMin = miniMinEditText.getText().length()==0 ? -1 : Integer.parseInt(miniMinEditText.getText().toString());
-                            maxMin = maxMinEditText.getText().length()==0 ? -1 : Integer.parseInt(maxMinEditText.getText().toString());
-                            miniDistance = miniDistanceEditText.getText().length()==0 ? -1 : Double.parseDouble(miniDistanceEditText.getText().toString());
-                            maxDistance = maxDistanceEditText.getText().length()==0 ? -1 : Double.parseDouble(maxDistanceEditText.getText().toString());
+                            miniMin = miniMinEditText.getText().length() == 0 ? -1 : Integer.parseInt(miniMinEditText.getText().toString());
+                            maxMin = maxMinEditText.getText().length() == 0 ? -1 : Integer.parseInt(maxMinEditText.getText().toString());
+                            miniDistance = miniDistanceEditText.getText().length() == 0 ? -1 : Double.parseDouble(miniDistanceEditText.getText().toString());
+                            maxDistance = maxDistanceEditText.getText().length() == 0 ? -1 : Double.parseDouble(maxDistanceEditText.getText().toString());
                             Log.d(TAG, "alert: ");
                             Log.d(TAG, "miniDate: " + miniDate);
                             Log.d(TAG, "maxDate: " + maxDate);
@@ -253,7 +260,8 @@ public class RecordLogActivity extends AppCompatActivity {
                             Log.d(TAG, "maxMin: " + maxMin);
                             Log.d(TAG, "minDistance: " + miniDistance);
                             Log.d(TAG, "maxDistance: " + maxDistance);
-                            if(miniDate.after(maxDate) || miniDistance>maxDistance || miniMin>maxMin) throw new Exception();
+                            if (miniDate.after(maxDate) || miniDistance > maxDistance || miniMin > maxMin)
+                                throw new Exception();
                         } catch (Exception e) {
                             Toast.makeText(getApplicationContext(), "Please enter correct info", Toast.LENGTH_LONG).show();
                             e.printStackTrace();
@@ -262,7 +270,7 @@ public class RecordLogActivity extends AppCompatActivity {
                     }).setNegativeButton("Cancel", null).show();
 
             logsDiv.removeAllViews();
-            for(RecordLog log: vehicle.getLogs()) addRecordLog(log);
+            for (RecordLog log : vehicle.getLogs()) addRecordLog(log);
 
         });
 
@@ -283,7 +291,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 currCompanyLogo = companyLogo;
                 currCompanyName = companyName;
 
-                if(custID==null) {
+                if (custID == null) {
                     companyTextView.setTextColor(0xffdb0a00);
                     companyTextView.setText("Not shared with any companies");
                 } else {
@@ -416,7 +424,7 @@ public class RecordLogActivity extends AppCompatActivity {
                     String secDuration = duration / 1000 >= 10 ? "" + duration / 1000 : "0" + duration / 1000;
                     timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
 
-                    if(duration % (30*1000) == 0) { //save log every 30s
+                    if (duration % (30 * 1000) == 0) { //save log every 30s
                         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
                         String time = format.format(new Date());
                         Log.d(TAG, "send log every 30s: ");
@@ -471,10 +479,58 @@ public class RecordLogActivity extends AppCompatActivity {
         vehicle.getLogs().add(UserInfo.getCurrLog());
 
         //add UserInfo.getCurrLog() to DB
-            //start and end time use the following:
-            Log.d(TAG, "start time: " + new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getStartTime().getTime()));
-            Log.d(TAG, "end time: " + new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getEndTime().getTime()));
-            //others use UserInfo.getCurrLog().get...
+        //start and end time use the following:
+        Log.d(TAG, "start time: " + new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getStartTime().getTime()));
+        Log.d(TAG, "end time: " + new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getEndTime().getTime()));
+        //others use UserInfo.getCurrLog().get...
+
+        DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String URL = IP_HOST + SAVE_LOG;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("customer_id", UserInfo.getCurrLog().getCustID());
+            jsonParam.put("log_start_time", formatDate.format(new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getStartTime().getTime())));
+            jsonParam.put("log_end_time", formatDate.format(new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getEndTime().getTime())));
+            jsonParam.put("claim_rate", UserInfo.getCurrLog().getClaimRate());
+            jsonParam.put("km_travelled", UserInfo.getCurrLog().getKm());
+            jsonParam.put("paused_time", UserInfo.getCurrLog().getCountPause());
+            jsonParam.put("total_travel_time", UserInfo.getCurrLog().getMins());
+            jsonParam.put("location_logs", UserInfo.getCurrLog().getLogJSON());
+            jsonParam.put("share_id", UserInfo.getCurrLog().getShareID());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Save response", response.toString());
+            if(response.optString("message").equals("success")) {
+                Toast.makeText(getApplicationContext(), "Log successfully saved", Toast.LENGTH_LONG).show();
+                Log.e("Log id", response.optString("log_id"));
+            }
+
+        }, error -> {
+            Log.e("ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+
     }
 
     @SuppressLint("HandlerLeak")
@@ -586,12 +642,13 @@ public class RecordLogActivity extends AppCompatActivity {
     private void addRecordLog(RecordLog log) {
         Log.d(TAG, "add record log: " + log);
 
-        if(miniDate!=null && log.getDate().before(miniDate)) return;
-        if(maxDate!=null && log.getDate().after(new Date(maxDate.getTime() + 24*60*60*1000-1))) return;
-        if(miniMin>=0 && log.getMins()<miniMin) return;
-        if(maxMin>=0 && log.getMins()>maxMin) return;
-        if(miniDistance>=0 && log.getKm()<miniDistance) return;
-        if(maxDistance>=0 && log.getKm()>maxDistance) return;
+        if (miniDate != null && log.getDate().before(miniDate)) return;
+        if (maxDate != null && log.getDate().after(new Date(maxDate.getTime() + 24 * 60 * 60 * 1000 - 1)))
+            return;
+        if (miniMin >= 0 && log.getMins() < miniMin) return;
+        if (maxMin >= 0 && log.getMins() > maxMin) return;
+        if (miniDistance >= 0 && log.getKm() < miniDistance) return;
+        if (maxDistance >= 0 && log.getKm() > maxDistance) return;
 
         Log.d(TAG, "addRecordLog: the log fulfills fliter: " + log);
         fliterAdapter.add(log);
@@ -755,7 +812,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 byte[] logoBase64 = Base64.decode(response.optString("company_logo"), Base64.DEFAULT);
                 current_share_company_logo = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
 
-                if(callbacks!=null) {
+                if (callbacks != null) {
                     callbacks.onSuccess(current_share_cust_id, current_share_company_name, current_share_claim_rate, current_share_share_id, current_share_start_time, current_share_end_time, current_share_company_logo);
                 }
 
@@ -794,6 +851,7 @@ public class RecordLogActivity extends AppCompatActivity {
     private void queryRecordLogsByVehicleID(String vehicleID, @Nullable final logsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_LOG_BY_VID;
+        List<RecordLog> logs = new ArrayList<>();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -811,7 +869,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
             try {
                 JSONArray jsonArray = response.getJSONArray("recent_logs");
-                List<RecordLog> logs = new ArrayList<>();
+
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
                     RecordLog log;
@@ -855,8 +913,7 @@ public class RecordLogActivity extends AppCompatActivity {
             }
 
         }, error -> {
-            Log.e("ERROR!!!", error.toString());
-            Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+            Log.e("ERROR", String.valueOf(error.networkResponse));
 
             NetworkResponse networkResponse = error.networkResponse;
             if (networkResponse != null && networkResponse.data != null) {
@@ -869,8 +926,11 @@ public class RecordLogActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.e("JSON ERROR MESSAGE!!!", message);
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                Log.e("JSON ERROR MESSAGE", message);
+                if (callbacks != null && message.equals("The vehicle has no driver logs"))
+                    callbacks.onError(logs);
+                else
+                    Toast.makeText(getApplicationContext(), "Network error!", Toast.LENGTH_LONG).show();
             }
 
         });
@@ -881,15 +941,17 @@ public class RecordLogActivity extends AppCompatActivity {
     public interface logsCallbacks {
         void onSuccess(@NonNull List<RecordLog> value);
 
-        void onError(@NonNull String errorMessage);
+        void onError(@NonNull List value);
     }
 
-    private void queryRecordLogsByCompany(String customer_id, @Nullable final companyLogsCallbacks callbacks) {
+    private void queryRecordLogsByCompany(String customer_id, @Nullable final logsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_LOG_BY_COMPANY;
+        List<RecordLog> logs = new ArrayList<>();
 
         final JSONObject jsonParam = new JSONObject();
         try {
+            jsonParam.put("vehicle_id", vehicleID);
             jsonParam.put("customer_id", customer_id);
 
         } catch (JSONException e) {
@@ -904,7 +966,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
             try {
                 JSONArray jsonArray = response.getJSONArray("recent_logs");
-                List<RecordLog> logs = new ArrayList<>();
+
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
                     RecordLog log;
@@ -948,8 +1010,7 @@ public class RecordLogActivity extends AppCompatActivity {
             }
 
         }, error -> {
-            Log.e("ERROR!!!", error.toString());
-            Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+            Log.e("ERROR", String.valueOf(error.networkResponse));
 
             NetworkResponse networkResponse = error.networkResponse;
             if (networkResponse != null && networkResponse.data != null) {
@@ -962,19 +1023,16 @@ public class RecordLogActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Log.e("JSON ERROR MESSAGE!!!", message);
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                Log.e("JSON ERROR MESSAGE", message);
+                if (callbacks != null && message.equals("The vehicle has no drive log for the input company"))
+                    callbacks.onError(logs);
+                else
+                    Toast.makeText(getApplicationContext(), "Network error!", Toast.LENGTH_LONG).show();
             }
 
         });
         Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
 
-    }
-
-    public interface companyLogsCallbacks {
-        void onSuccess(@NonNull List<RecordLog> value);
-
-        void onError(@NonNull String errorMessage);
     }
 
     private static java.util.Date intToDate(int year, int month, int day) {

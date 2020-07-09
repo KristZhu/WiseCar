@@ -2,7 +2,6 @@ package com.example.wisecarapp;
 
 import android.graphics.Bitmap;
 
-import org.json.JSONArray;
 
 import java.util.Date;
 import java.util.List;
