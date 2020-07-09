@@ -23,6 +23,8 @@ class RecordLog {
     private String companyName;
     private Bitmap companyLogo;
 
+    private String timestamp;
+
     private boolean pausing = false;
 
     public RecordLog(String vehicleID, String custID, Date date, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
@@ -34,6 +36,18 @@ class RecordLog {
         this.shareID = shareID;
         this.companyName = companyName;
         this.companyLogo = companyLogo;
+    }
+
+    public RecordLog(String vehicleID, String custID, Date date, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo, String timestamp) {
+        this.vehicleID = vehicleID;
+        this.custID = custID;
+        this.date = date;
+        this.startTime = startTime;
+        this.claimRate = claimRate;
+        this.shareID = shareID;
+        this.companyName = companyName;
+        this.companyLogo = companyLogo;
+        this.timestamp = timestamp;
     }
 
     public RecordLog() {
@@ -198,6 +212,14 @@ class RecordLog {
         this.pausing = pausing;
     }
 
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
     @Override
     public String toString() {
         return "RecordLog{" +
@@ -215,6 +237,7 @@ class RecordLog {
                 ", companyName='" + companyName + '\'' +
                 ", companyLogo=" + companyLogo +
                 ", pausing=" + pausing +
+                ", timestamp=" + timestamp +
                 '}';
     }
 }

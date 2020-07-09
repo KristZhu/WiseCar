@@ -78,6 +78,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 
 public class RecordLogActivity extends AppCompatActivity {
 
@@ -333,7 +334,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                locations = new HashMap<>();
+                locations = new TreeMap<>();
 
                 int permissionCheckFineLocation = ContextCompat.checkSelfPermission(RecordLogActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
                 int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(RecordLogActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -470,9 +471,18 @@ public class RecordLogActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         Log.d(TAG, "finishRecord: locations: " + locations);
         //convert the locations into UserInfo.getCurrLog.logJSON in proper way
+        String StringJSON = "[";
+        for (Date date : locations.keySet()) {
+            StringJSON += "{time_stamp:\"" + formatDate.format(date) + "\", latitude:\"" + locations.get(date)[0] + "\", longitude:\"" + locations.get(date)[1] + "\"},";
+        }
+        StringJSON = StringJSON.substring(0, StringJSON.length() - 1);
+        StringJSON += "]";
+        Log.e(TAG, StringJSON);
+        UserInfo.getCurrLog().setLogJSON(StringJSON);
 
         Log.d(TAG, "finishRecord: currLog: " + UserInfo.getCurrLog());
         addRecordLog(UserInfo.getCurrLog());
@@ -484,7 +494,7 @@ public class RecordLogActivity extends AppCompatActivity {
         Log.d(TAG, "end time: " + new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getEndTime().getTime()));
         //others use UserInfo.getCurrLog().get...
 
-        DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
         String URL = IP_HOST + SAVE_LOG;
 
         final JSONObject jsonParam = new JSONObject();
