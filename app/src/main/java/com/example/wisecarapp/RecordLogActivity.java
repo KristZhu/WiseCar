@@ -506,7 +506,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Save response", response.toString());
-            if(response.optString("message").equals("success")) {
+            if (response.optString("message").equals("success")) {
                 Toast.makeText(getApplicationContext(), "Log successfully saved", Toast.LENGTH_LONG).show();
                 Log.e("Log id", response.optString("log_id"));
             }
@@ -880,10 +880,10 @@ public class RecordLogActivity extends AppCompatActivity {
                         log = new RecordLog(
                                 formatDate.parse(jsonObject.optString("log_start_date_time").split(" ")[0]),
                                 formatTime.parse(jsonObject.optString("log_start_date_time").split(" ")[1]),
-                                formatTime.parse(jsonObject.optString("log_end_date_time").split(" ")[1]),
-                                jsonObject.optInt("paused_time"),
-                                jsonObject.optInt("total_travel_time"),
-                                jsonObject.optDouble("km_travelled"),
+                                formatTime.parse(jsonObject.optString("log_stop_date_time").split(" ")[1]),
+                                jsonObject.optInt("paused_times"),
+                                jsonObject.optInt("total_travel_times"),
+                                jsonObject.optDouble("km_travel"),
                                 jsonObject.optDouble("claim_rate"),
                                 jsonObject.optString("share_id"),
                                 jsonObject.optString("customer_id"),
@@ -895,10 +895,10 @@ public class RecordLogActivity extends AppCompatActivity {
                         log = new RecordLog(
                                 formatDate.parse(jsonObject.optString("log_start_date_time").split(" ")[0]),
                                 formatTime.parse(jsonObject.optString("log_start_date_time").split(" ")[1]),
-                                formatTime.parse(jsonObject.optString("log_end_date_time").split(" ")[1]),
-                                jsonObject.optInt("paused_time"),
-                                jsonObject.optInt("total_travel_time"),
-                                jsonObject.optDouble("km_travelled"),
+                                formatTime.parse(jsonObject.optString("log_stop_date_time").split(" ")[1]),
+                                jsonObject.optInt("paused_times"),
+                                jsonObject.optInt("total_travel_times"),
+                                jsonObject.optDouble("km_travel"),
                                 jsonObject.optString("location_log")
                         );
                     }
@@ -964,41 +964,33 @@ public class RecordLogActivity extends AppCompatActivity {
             DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             DateFormat formatTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
+            String company_name = response.optString("company_name");
+            String returned_customer_id = response.optString("customer_id");
+            byte[] logoBase64 = Base64.decode(response.optString("image"), Base64.DEFAULT);
+            String claim_rate = response.optString("claim_rate");
+
             try {
                 JSONArray jsonArray = response.getJSONArray("recent_logs");
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
                     RecordLog log;
-                    if (jsonObject.toString().contains("customer_id")) {
 
-                        byte[] logoBase64 = Base64.decode(response.optString("image"), Base64.DEFAULT);
+                    log = new RecordLog(
+                            formatDate.parse(jsonObject.optString("log_start_date_time").split(" ")[0]),
+                            formatTime.parse(jsonObject.optString("log_start_date_time").split(" ")[1]),
+                            formatTime.parse(jsonObject.optString("log_stop_date_time").split(" ")[1]),
+                            jsonObject.optInt("paused_times"),
+                            jsonObject.optInt("total_travel_times"),
+                            jsonObject.optDouble("km_travel"),
+                            jsonObject.optDouble(claim_rate),
+                            jsonObject.optString("share_id"),
+                            jsonObject.optString(returned_customer_id),
+                            jsonObject.optString(company_name),
+                            BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length),
+                            jsonObject.optString("location_log")
+                    );
 
-                        log = new RecordLog(
-                                formatDate.parse(jsonObject.optString("log_start_date_time").split(" ")[0]),
-                                formatTime.parse(jsonObject.optString("log_start_date_time").split(" ")[1]),
-                                formatTime.parse(jsonObject.optString("log_stop_date_time").split(" ")[1]),
-                                jsonObject.optInt("paused_times"),
-                                jsonObject.optInt("total_travel_times"),
-                                jsonObject.optDouble("km_travel"),
-                                jsonObject.optDouble("claim_rate"),
-                                jsonObject.optString("share_id"),
-                                jsonObject.optString("customer_id"),
-                                jsonObject.optString("company_name"),
-                                BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length),
-                                jsonObject.optString("location_log")
-                        );
-                    } else {
-                        log = new RecordLog(
-                                formatDate.parse(jsonObject.optString("log_start_date_time").split(" ")[0]),
-                                formatTime.parse(jsonObject.optString("log_start_date_time").split(" ")[1]),
-                                formatTime.parse(jsonObject.optString("log_stop_date_time").split(" ")[1]),
-                                jsonObject.optInt("paused_times"),
-                                jsonObject.optInt("total_travel_times"),
-                                jsonObject.optDouble("km_travel"),
-                                jsonObject.optString("location_log")
-                        );
-                    }
                     logs.add(log);
                 }
                 if (callbacks != null)
