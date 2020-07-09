@@ -490,15 +490,22 @@ public class RecordLogActivity extends AppCompatActivity {
         final JSONObject jsonParam = new JSONObject();
         try {
             jsonParam.put("vehicle_id", vehicleID);
-            jsonParam.put("customer_id", UserInfo.getCurrLog().getCustID());
             jsonParam.put("log_start_time", formatDate.format(new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getStartTime().getTime())));
             jsonParam.put("log_end_time", formatDate.format(new Date(UserInfo.getCurrLog().getDate().getTime() + UserInfo.getCurrLog().getEndTime().getTime())));
-            jsonParam.put("claim_rate", UserInfo.getCurrLog().getClaimRate());
             jsonParam.put("km_travelled", UserInfo.getCurrLog().getKm());
             jsonParam.put("paused_time", UserInfo.getCurrLog().getCountPause());
             jsonParam.put("total_travel_time", UserInfo.getCurrLog().getMins());
             jsonParam.put("location_logs", UserInfo.getCurrLog().getLogJSON());
-            jsonParam.put("share_id", UserInfo.getCurrLog().getShareID());
+
+            if (UserInfo.getCurrLog().getCustID() != null) {
+                jsonParam.put("customer_id", UserInfo.getCurrLog().getCustID());
+                jsonParam.put("claim_rate", UserInfo.getCurrLog().getClaimRate());
+                jsonParam.put("share_id", UserInfo.getCurrLog().getShareID());
+            } else {
+                jsonParam.put("customer_id", "");
+                jsonParam.put("claim_rate", "");
+                jsonParam.put("share_id", "");
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();
