@@ -472,9 +472,18 @@ public class RecordLogActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         Log.d(TAG, "finishRecord: locations: " + locations);
         //convert the locations into UserInfo.getCurrLog.logJSON in proper way
+        String StringJSON = "[";
+        for (Date date : locations.keySet()) {
+            StringJSON += "{time_stamp:\"" + formatDate.format(date) + "\", latitude:\"" + locations.get(date)[0] + "\", longitude:\"" + locations.get(date)[1] + "\"},";
+        }
+        StringJSON = StringJSON.substring(0, StringJSON.length() - 1);
+        StringJSON += "]";
+        Log.e(TAG, StringJSON);
+        UserInfo.getCurrLog().setLogJSON(StringJSON);
 
         Log.d(TAG, "finishRecord: currLog: " + UserInfo.getCurrLog());
         addRecordLog(UserInfo.getCurrLog());
@@ -482,7 +491,7 @@ public class RecordLogActivity extends AppCompatActivity {
         vehicle.getLogs().add(UserInfo.getCurrLog());
 
         //add UserInfo.getCurrLog() to DB
-        DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
         String URL = IP_HOST + SAVE_LOG;
 
         final JSONObject jsonParam = new JSONObject();
