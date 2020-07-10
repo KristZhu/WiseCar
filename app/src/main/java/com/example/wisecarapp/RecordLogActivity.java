@@ -178,14 +178,14 @@ public class RecordLogActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@NonNull Map<String, String> companies) {
                 Log.d(TAG, "companies: " + companies);
-                for (String id : companies.keySet()) {
-                    adapter.add(id + ": " + companies.get(id));
+                for (String name : companies.keySet()) {
+                    adapter.add(name);
                 }
                 searchEditText.setAdapter(adapter);
                 searchEditText.setOnItemClickListener((parent, view, position, id) -> {
                     cancelImageButton.setVisibility(View.VISIBLE);
-                    String temp = searchEditText.getText().toString();
-                    String customer_id = temp.substring(0, temp.indexOf(":"));
+                    String companyName = searchEditText.getText().toString();
+                    String customer_id = companies.get(companyName);
                     queryRecordLogsByCompany(customer_id, new logsCallbacks() {
                         @Override
                         public void onSuccess(@NonNull Set<RecordLog> logs) {
@@ -213,6 +213,9 @@ public class RecordLogActivity extends AppCompatActivity {
             logsDiv.removeAllViews();
             for (RecordLog log : vehicle.getLogs()) showRecordLog(log);
         });
+
+        /*
+        *depreciated function
 
         fliterImageButton = $(R.id.fliterImageButton);
         fliterImageButton.setOnClickListener(v -> { //currently both company and fliterAlertDialog fliter is not supposed. Only one.
@@ -306,6 +309,8 @@ public class RecordLogActivity extends AppCompatActivity {
                     }).setNegativeButton("Cancel", null).show();
 
         });
+
+         */
 
         companyTextView = $(R.id.companyTextView);
         getShareByTime(vehicleID, new Date(), new shareCallbacks() {
@@ -429,6 +434,9 @@ public class RecordLogActivity extends AppCompatActivity {
 
     private void recording() {
         Log.d(TAG, "recording: ");
+        startImageButton.setAlpha(0.5f);
+        pauseResumeImageButton.setAlpha(1.0f);
+        endImageButton.setAlpha(1.0f);
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
         timeDistanceTextView.setTextColor(0xff007ba4);
 
@@ -472,6 +480,9 @@ public class RecordLogActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void pausing() {
         Log.d(TAG, "pausing: ");
+        startImageButton.setAlpha(0.5f);
+        pauseResumeImageButton.setAlpha(1.0f);
+        endImageButton.setAlpha(1.0f);
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0resume));
         timeDistanceTextView.setTextColor(0xffa5a6a3);
         timeDistanceTextView.setText(timeDistanceTextView.getText().toString() + " (paused)");
@@ -481,6 +492,9 @@ public class RecordLogActivity extends AppCompatActivity {
     }
 
     private void ending() {
+        startImageButton.setAlpha(1.0f);
+        pauseResumeImageButton.setAlpha(0.5f);
+        endImageButton.setAlpha(0.5f);
         Log.d(TAG, "ending: ");
         timeDistanceTextView.setText("");
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
@@ -503,7 +517,7 @@ public class RecordLogActivity extends AppCompatActivity {
         DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String StringJSON = "[";
         for (Date date : locations.keySet()) {
-            StringJSON += "{\\\"" + formatDate.format(date) + "\\\":\\\"" + locations.get(date)[0] + "," + locations.get(date)[1] + "\\\"},";
+            StringJSON += "{\"" + formatDate.format(date) + "\":\"" + locations.get(date)[0] + "," + locations.get(date)[1] + "\"},";
         }
         StringJSON = StringJSON.substring(0, StringJSON.length() - 1);
         StringJSON += "]";
@@ -1081,7 +1095,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 jsonArray = response.getJSONArray("company_list");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    companies.put(jsonObject.optString("cust_id"), jsonObject.optString("company_name"));
+                    companies.put(jsonObject.optString("company_name"), jsonObject.optString("cust_id"));
                 }
                 if (callbacks != null)
                     callbacks.onSuccess(companies);

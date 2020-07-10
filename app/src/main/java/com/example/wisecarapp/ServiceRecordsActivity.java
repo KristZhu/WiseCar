@@ -31,6 +31,7 @@ import android.os.StrictMode;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.InputType;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -68,6 +69,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -84,6 +86,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServiceRecordsActivity extends AppCompatActivity {
@@ -141,6 +145,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private final String ADD_SERVICE_RECORD = "/api/v1/servicerecords/";
     private final String GET_RECORD_IDENTIFIER = "/api/v1/servicerecords/identifier/";
     private final String scanQRCode = "/api/v1/servicerecords/upload?identifier=";
+    private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
+    private final String INVOKE_BLOCKCHAIN = "/api/v1/servicerecords/blockchaininvoke";
 
     private String servicesOptions = "";
     private String currentDate = "";
@@ -712,6 +718,17 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                     s = s.append(sResponse);
                 }
                 if (s.toString().contains("success")) {
+
+                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
+                        invokeBlockchain(identifierTextView.getText().toString(),
+                                format.format(date),
+                                centre,
+                                vehicle.getRegistration_no(),
+                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
+                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2),
+                                servicesOptions);
+                    }
+
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
@@ -731,6 +748,52 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 
         });
         thread.start();
+    }
+
+    private void invokeBlockchain(String identifier, String service_date, String service_center, String vehicle_registration, String encrypt_hash, String s3_temp_path, String service_options) {
+
+        String URL = BLOCKCHAIN_IP + INVOKE_BLOCKCHAIN;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("identifier", identifier);
+            jsonParam.put("record_type", "service_record");
+            jsonParam.put("service_date", service_date);
+            jsonParam.put("service_center", service_center);
+            jsonParam.put("vehicle_registration", vehicle_registration);
+            jsonParam.put("ecrypt_hash", encrypt_hash);
+            jsonParam.put("service_file_location", s3_temp_path);
+            jsonParam.put("service_options", service_options);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+
+            Log.e("Blockchain Response", response.toString());
+            Log.e("Blockchain submission", response.optString("message"));
+
+        }, error -> {
+            Log.e("Blockchain ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(ServiceRecordsActivity.this).add(objectRequest);
+
     }
 
     private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
@@ -779,7 +842,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 //        void onError(@NonNull String errorMessage);
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 

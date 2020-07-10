@@ -112,7 +112,9 @@
             app:layout_constraintStart_toEndOf="@+id/searchImageView"
             app:layout_constraintTop_toTopOf="@+id/imageView1" />
 
+        <!-- depreciated -->
         <ImageButton
+            android:visibility="gone"
             android:id="@+id/fliterImageButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -130,7 +132,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:srcCompat="@drawable/record_log0cancel"
-            android:visibility="gone"
+            android:visibility="invisible"
             android:padding="0dp"
             android:background="@null"
             android:scaleType="fitXY"

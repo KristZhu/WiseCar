@@ -132,7 +132,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 android:background="@null"
                 android:textColorLink="#ffffff"
                 android:popupBackground="#ffffff"
-                android:hint="SEARCH COMPANY NAME / ID"
+                android:hint="SEARCH COMPANY NAME"
                 android:textColorHint="#ffffff"
                 android:completionThreshold="1"
                 android:imeOptions="actionSearch"
@@ -173,6 +173,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
+                android:padding="4dp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -180,8 +181,11 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0"/>
 
+            <!-- depreciated -->
             <TextView
                 android:id="@+id/companyIDTextView"
+                android:text="id"
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="#007BA4"
@@ -207,7 +211,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/companyIDTextView" />
+                app:layout_constraintTop_toBottomOf="@id/companyNameTextView" />
 
             <ImageButton
                 android:id="@+id/cancelImageButton"
