@@ -64,7 +64,8 @@ class RecordLog implements Comparable<RecordLog> {
         this.companyLogo = companyLogo;
     }
 
-    public RecordLog(Date startTime, Date endTime, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON, String timestamp) {
+    public RecordLog(String vehicleID, Date startTime, Date endTime, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON, String timestamp) {
+        this.vehicleID = vehicleID;
         this.startTime = startTime;
         this.endTime = endTime;
         this.countPause = countPause;
@@ -79,7 +80,8 @@ class RecordLog implements Comparable<RecordLog> {
         this.timestamp = timestamp;
     }
 
-    public RecordLog(Date startTime, Date endTime, int countPause, int mins, double km, String logJSON, String timestamp) {
+    public RecordLog(String vehicleID, Date startTime, Date endTime, int countPause, int mins, double km, String logJSON, String timestamp) {
+        this.vehicleID = vehicleID;
         this.startTime = startTime;
         this.endTime = endTime;
         this.countPause = countPause;
