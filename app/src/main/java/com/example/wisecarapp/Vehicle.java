@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 class Vehicle implements Comparable<Vehicle> {
 
@@ -22,7 +23,7 @@ class Vehicle implements Comparable<Vehicle> {
     private Bitmap image;
     private String state_name;
     private List<Integer> services;
-    private List<RecordLog> logs;
+    private Set<RecordLog> logs;
 
     public Vehicle() {
 
@@ -141,11 +142,11 @@ class Vehicle implements Comparable<Vehicle> {
         this.services = services;
     }
 
-    public List<RecordLog> getLogs() {
+    public Set<RecordLog> getLogs() {
         return logs;
     }
 
-    public void setLogs(List<RecordLog> logs) {
+    public void setLogs(Set<RecordLog> logs) {
         this.logs = logs;
     }
 

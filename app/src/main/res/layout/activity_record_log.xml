@@ -116,7 +116,7 @@
             android:id="@+id/fliterImageButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:srcCompat="@drawable/share_vehicle0add"
+            app:srcCompat="@drawable/record_log0fliter"
             android:padding="0dp"
             android:background="@null"
             android:scaleType="fitXY"

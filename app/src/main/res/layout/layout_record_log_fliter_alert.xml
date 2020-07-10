@@ -103,7 +103,7 @@
             android:layout_marginStart="32dp"
             app:layout_constraintWidth_percent="0.4"
             app:layout_constraintHorizontal_bias="0.0"
-            android:hint="mini Distance" />
+            android:hint="mini KM" />
 
         <EditText
             android:id="@+id/maxDistance"
@@ -116,7 +116,7 @@
             android:layout_marginStart="32dp"
             app:layout_constraintWidth_percent="0.4"
             app:layout_constraintHorizontal_bias="1.0"
-            android:hint="max Distance" />
+            android:hint="max KM" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
