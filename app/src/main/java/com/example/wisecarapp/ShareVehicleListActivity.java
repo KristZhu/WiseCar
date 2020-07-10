@@ -316,6 +316,10 @@ public class ShareVehicleListActivity extends AppCompatActivity {
                         share.setCompany_name(jsonObject.optString("company_name"));
                         share.setStart_time(new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).parse(jsonObject.optString("start_time")));
                         share.setEnd_time(new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).parse(jsonObject.optString("end_time")));
+                        if(jsonObject.optString("share_active").equals("0"))
+                            share.setShare(false);
+                        else
+                            share.setShare(true);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
