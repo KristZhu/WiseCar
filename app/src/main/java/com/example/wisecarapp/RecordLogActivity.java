@@ -90,6 +90,7 @@ public class RecordLogActivity extends AppCompatActivity {
     private final String GET_LOG_BY_VID = "/api/v1/drivelog/recentlogbyvid";
     private final String GET_LOG_BY_COMPANY = "/api/v1/drivelog/recentlogbycompany";
     private final String SAVE_LOG = "/api/v1/drivelog/savedrivelog";
+    private final String GET_COMPANY_LIST = "/api/v1/customers/customer/list";
 
     private String vehicleID;
     private Vehicle vehicle;
@@ -110,7 +111,7 @@ public class RecordLogActivity extends AppCompatActivity {
     private int maxMin;
     private double miniDistance;
     private double maxDistance;
-    ArrayAdapter<RecordLog> fliterAdapter;
+    ArrayAdapter<String> fliterAdapter;
 
     private TextView companyTextView;
     private String currCustID;
@@ -168,15 +169,15 @@ public class RecordLogActivity extends AppCompatActivity {
             @Override
             public void onError(@NonNull Set<RecordLog> logs) {
                 // Here is when there is no log, an empty List is returned.
-                Log.d(TAG, "not logs");
+                Log.d(TAG, "no logs");
             }
 
         });
 
         searchEditText.setAdapter(fliterAdapter);
         searchEditText.setOnItemClickListener((parent, view, position, id) -> {
-            String temp = searchEditText.getText().toString();
-            Log.d(TAG, "searchEditText: " + temp);
+            String logStr = searchEditText.getText().toString();
+            Log.d(TAG, "searchEditText: " + logStr);
         });
 
 /*
@@ -191,10 +192,29 @@ public class RecordLogActivity extends AppCompatActivity {
                 // No log for the company
             }
         });
-*/
+
+        returnCompanies(new companiesCallbacks() {
+            @Override
+            public void onSuccess(@NonNull Map<String, String> companies) {
+                //key: custID; value: companyName
+            }
+
+            @Override
+            public void onError(@NonNull String errorMessage) {
+
+            }
+        });
+
+ */
 
         fliterImageButton = $(R.id.fliterImageButton);
         fliterImageButton.setOnClickListener(v -> {
+            miniDate = null;
+            maxDate = null;
+            miniDistance = -1;
+            maxDistance = -1;
+            miniMin = -1;
+            maxMin = -1;
 
             LayoutInflater factory = LayoutInflater.from(this);
             @SuppressLint("InflateParams") View view = factory.inflate(R.layout.layout_record_log_fliter_alert, null);
@@ -666,7 +686,14 @@ public class RecordLogActivity extends AppCompatActivity {
         if (maxDistance >= 0 && log.getKm() > maxDistance) return;
 
         Log.d(TAG, "addRecordLog: the log fulfills fliter: " + log);
-        fliterAdapter.add(log);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        String logStr = dateFormat.format(log.getStartTime()) + "  "
+                + timeFormat.format(log.getStartTime()) + " to "
+                + timeFormat.format(log.getEndTime()) + ", "
+                + log.getKm() + "KM";
+        fliterAdapter.add(logStr);
 
         ConstraintLayout logLineLayout = new ConstraintLayout(RecordLogActivity.this);
         ConstraintSet set = new ConstraintSet();
@@ -1039,6 +1066,58 @@ public class RecordLogActivity extends AppCompatActivity {
         void onSuccess(@NonNull Set<RecordLog> value);
 
         void onError(@NonNull Set<RecordLog> value);
+    }
+
+    private void returnCompanies(@Nullable final companiesCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_COMPANY_LIST;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONArray jsonArray;
+            JSONObject jsonObject;
+            Map<String, String> companies = new HashMap<>(); //<ID, Name>
+            try {
+                jsonArray = response.getJSONArray("company_list");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    companies.put(jsonObject.optString("cust_id"), jsonObject.optString("company_name"));
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(companies);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }, error -> {
+
+//                Log.e("ERROR!!!", error.toString());
+//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("No vehicle: ", message);
+                if (callbacks != null)
+                    callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+    }
+
+    public interface companiesCallbacks {
+        void onSuccess(@NonNull Map<String, String> value);
+
+        void onError(@NonNull String errorMessage);
     }
 
     private static java.util.Date intToDate(int year, int month, int day) {

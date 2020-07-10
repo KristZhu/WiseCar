@@ -32,6 +32,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -115,7 +116,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
                             editImageButton.setClickable(false);
                         }
                     } else {
-                        if(shares.get(shareID).getDate().after(new Date())) {
+                        if(new Date(shares.get(shareID).getDate().getTime() + 24*60*60*1000).after(new Date())) {
                             editImageButton.setImageDrawable(getResources().getDrawable(R.drawable.share_vehicle0edit));
                         } else {
                             editImageButton.setImageDrawable(getResources().getDrawable(R.drawable.share_vehicle0finished));

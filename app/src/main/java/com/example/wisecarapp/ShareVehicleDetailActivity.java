@@ -87,7 +87,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private TextView companyIDTextView;
     private String custID;
     private ImageButton cancelImageButton;
-    private static Map<String, String> companies = new HashMap<>(); //<ID, Name>
 
     private SwitchButton shareSwitchButton;
     private boolean isShare;
@@ -173,11 +172,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         if (NEW) {
 
-            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
+            final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
             returnCompanies(new companiesCallbacks() {
                 @SuppressLint("SetTextI18n")
                 @Override
-                public void onSuccess(@NonNull Map<String, String> value) {
+                public void onSuccess(@NonNull Map<String, String> companies) {
                     Log.d(TAG, "companies: " + companies);
                     for (String id : companies.keySet()) {
                         adapter.add(id + ": " + companies.get(id));
@@ -620,6 +619,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Log.e("Response: ", response.toString());
             JSONArray jsonArray;
             JSONObject jsonObject;
+            Map<String, String> companies = new HashMap<>(); //<ID, Name>
             try {
                 jsonArray = response.getJSONArray("company_list");
                 for (int i = 0; i < jsonArray.length(); i++) {
