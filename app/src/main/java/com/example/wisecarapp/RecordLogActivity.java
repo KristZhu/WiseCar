@@ -209,12 +209,6 @@ public class RecordLogActivity extends AppCompatActivity {
 
         fliterImageButton = $(R.id.fliterImageButton);
         fliterImageButton.setOnClickListener(v -> {
-            miniDate = null;
-            maxDate = null;
-            miniDistance = -1;
-            maxDistance = -1;
-            miniMin = -1;
-            maxMin = -1;
 
             LayoutInflater factory = LayoutInflater.from(this);
             @SuppressLint("InflateParams") View view = factory.inflate(R.layout.layout_record_log_fliter_alert, null);
@@ -225,12 +219,19 @@ public class RecordLogActivity extends AppCompatActivity {
             EditText miniDistanceEditText = (EditText) view.findViewById(R.id.miniDistance);
             EditText maxDistanceEditText = (EditText) view.findViewById(R.id.maxDistance);
 
+            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+            if(miniDate != null) miniDateEditText.setText(format.format(miniDate));
+            if(maxDate != null) maxDateEditText.setText(format.format(maxDate));
+            if(miniDistance >= 0) miniDistanceEditText.setText(((int)miniDistance*10)/10.0 + "");
+            if(maxDistance >= 0) maxDistanceEditText.setText(((int)maxDistance*10)/10.0 + "");
+            if(miniMin >= 0) miniMinEditText.setText(miniMin);
+            if(maxMin >= 0) maxMinEditText.setText(maxMin);
+
             miniDateEditText.setInputType(InputType.TYPE_NULL);
             miniDateEditText.setOnClickListener(v1 -> {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(RecordLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
                     miniDate = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(miniDate);
                     miniDateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -240,7 +241,6 @@ public class RecordLogActivity extends AppCompatActivity {
                     Calendar c = Calendar.getInstance();
                     new DatePickerDialog(RecordLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
                         miniDate = intToDate(year, monthOfYear, dayOfMonth);
-                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                         String str = format.format(miniDate);
                         miniDateEditText.setText(str);
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -253,7 +253,6 @@ public class RecordLogActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(RecordLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
                     maxDate = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(maxDate);
                     maxDateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -263,7 +262,6 @@ public class RecordLogActivity extends AppCompatActivity {
                     Calendar c = Calendar.getInstance();
                     new DatePickerDialog(RecordLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
                         maxDate = intToDate(year, monthOfYear, dayOfMonth);
-                        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                         String str = format.format(maxDate);
                         maxDateEditText.setText(str);
                     }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -442,12 +440,15 @@ public class RecordLogActivity extends AppCompatActivity {
                     this.cancel();
                 } else {
                     Log.d(TAG, "timer: currLog: " + UserInfo.getCurrLog());
-                    duration += 1000;
-                    String minDuration = duration / (60 * 1000) >= 10 ? "" + duration / (60 * 1000) : "0" + duration / (60 * 1000);
-                    String secDuration = duration / 1000 >= 10 ? "" + duration / 1000 : "0" + duration / 1000;
-                    timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
+                    duration ++;
+                    long minD = duration / 60;
+                    long secD = duration % 60;
+                    String minDuration = minD>=10 ? ""+minD : "0"+minD;
+                    String secDuration = secD>=10 ? ""+secD : "0"+secD;
+                    timeDistanceTextView.setText(minDuration + ":" + secDuration + ", "
+                            + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
 
-                    if (duration % (30 * 1000) == 1000) { //save log every 30s
+                    if (duration % 30 == 1) { //save log every 30s
                         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
                         String time = format.format(new Date());
                         Log.d(TAG, "send log every 30s: ");
@@ -485,7 +486,7 @@ public class RecordLogActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void finishRecord() {   //write to log
         Log.d(TAG, "finishRecord: ");
-        UserInfo.getCurrLog().setMins((int) duration / (60 * 1000));
+        UserInfo.getCurrLog().setMins((int) duration / 60 );
         duration = 0;
 
         UserInfo.getCurrLog().setEndTime(new Date());
@@ -650,7 +651,7 @@ public class RecordLogActivity extends AppCompatActivity {
                 Log.e("Map", "Location changed : Lat: " + location.getLatitude() + " Lng: " + location.getLongitude());
                 double distanceSinceLastSec = getDistance(longitude, latitude, location.getLongitude(), location.getLatitude());
                 Log.d(TAG, "distance(m): " + distanceSinceLastSec);
-                UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distanceSinceLastSec / 1000.0);
+                UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + ((int)distanceSinceLastSec) / 100 / 10.0);
                 Log.d(TAG, "km: " + UserInfo.getCurrLog().getKm());
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
@@ -765,6 +766,7 @@ public class RecordLogActivity extends AppCompatActivity {
         logLineLayout.addView(logInfoTextView);
 
         if (log.getCustID() != null) {
+            //CircleImageView companyLogoImageView = new CircleImageView(RecordLogActivity.this);
             ImageView companyLogoImageView = new ImageView(RecordLogActivity.this);
             companyLogoImageView.setId(5);
             companyLogoImageView.setImageBitmap(log.getCompanyLogo());
