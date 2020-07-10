@@ -560,7 +560,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Log.d(TAG, "end: " + end);
                 Log.d(TAG, "isRecurring: " + isRecurring);
 
-                if (date.before(new Date(new Date().getTime() - 24*60*60*1000))) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
+                if (date.before(new Date(new Date().getTime() - 24 * 60 * 60 * 1000))) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
                     Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -604,7 +604,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
             }
 
-            if(NEW) shareVehicleCheck();
+            if (NEW) shareVehicleCheck();
             else editShare();
 
         });
@@ -850,9 +850,12 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
                     intent.putExtra("vehicleID", vehicleID);
                     startActivity(intent);
+                    Log.e("response", s.toString());
+                    Log.e("new_share_id", s.toString().substring(s.indexOf("id") + 4));
+                } else if (s.toString().contains("inactivated")) {
+                    Log.e("share_id_inactivated", s.toString().substring(s.indexOf("ed") + 4));
                 }
-                Log.e("response", s.toString());
-                Log.e("new_share_id", s.toString().substring(s.indexOf("id") + 4));
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -882,7 +885,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                 if (share.isShare()) {
                     share.setRecurring(jsonObject.optInt("recurring_flag") == 1);
-                    if(share.isRecurring()) {
+                    if (share.isRecurring()) {
                         share.setRecurring_end_date(new SimpleDateFormat("yyyy-MM-dd").parse(jsonObject.optString("recurring_end_date")));
                         String recurringDaysStr = jsonObject.optString("recurring_days");
                         boolean[] recurringDays = new boolean[]{false, false, false, false, false, false, false};
