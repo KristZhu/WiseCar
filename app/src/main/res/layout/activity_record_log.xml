@@ -101,7 +101,7 @@
             android:background="@null"
             android:textColorLink="#ffffff"
             android:popupBackground="#ffffff"
-            android:hint="Log"
+            android:hint="Search Log By Company"
             android:textColorHint="#ffffff"
             android:completionThreshold="1"
             android:imeOptions="actionSearch"
@@ -121,6 +121,21 @@
             android:background="@null"
             android:scaleType="fitXY"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"/>
+
+        <ImageButton
+            android:id="@+id/cancelImageButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:srcCompat="@drawable/record_log0cancel"
+            android:visibility="gone"
+            android:padding="0dp"
+            android:background="@null"
+            android:scaleType="fitXY"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toStartOf="@id/fliterImageButton"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"/>
