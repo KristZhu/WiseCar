@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.Html;
 import android.text.InputType;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -178,16 +179,14 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(@NonNull Map<String, String> companies) {
                     Log.d(TAG, "companies: " + companies);
-                    for (String id : companies.keySet()) {
-                        adapter.add(id + ": " + companies.get(id));
+                    for (String name : companies.keySet()) {
+                        adapter.add(name);
                     }
                     searchEditText.setAdapter(adapter);
                     searchEditText.setOnItemClickListener((parent, view, position, id) -> {
-                        String temp = searchEditText.getText().toString();
-                        custID = temp.substring(0, temp.indexOf(":"));
-                        companyIDTextView.setText("Company ID: " + custID);
-                        companyName = companies.get(custID);
+                        String companyName = searchEditText.getText().toString();
                         companyNameTextView.setText(companyName);
+                        custID = companies.get(companyName);
                         cancelImageButton.setVisibility(View.VISIBLE);
                     });
                     /*
@@ -619,12 +618,12 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Log.e("Response: ", response.toString());
             JSONArray jsonArray;
             JSONObject jsonObject;
-            Map<String, String> companies = new HashMap<>(); //<ID, Name>
+            Map<String, String> companies = new HashMap<>(); //<Name, ID> for name is not repeatable, and search company name by user
             try {
                 jsonArray = response.getJSONArray("company_list");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    companies.put(jsonObject.optString("cust_id"), jsonObject.optString("company_name"));
+                    companies.put(jsonObject.optString("company_name"), jsonObject.optString("cust_id"));
                 }
                 if (callbacks != null)
                     callbacks.onSuccess(companies);
