@@ -3,16 +3,16 @@ package com.example.wisecarapp;
 import android.graphics.Bitmap;
 
 
+import java.security.spec.ECField;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-class RecordLog {
+class RecordLog implements Comparable<RecordLog> {
 
     private String vehicleID;
     private String custID;
-    private Date date;
     private Date startTime;
     private Date endTime;
     private double claimRate;
@@ -25,14 +25,13 @@ class RecordLog {
     private String companyName;
     private Bitmap companyLogo;
 
-    private String timestamp;
+    private String timestamp = "";
 
     private boolean pausing = false;
 
-    public RecordLog(String vehicleID, String custID, Date date, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
+    public RecordLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
         this.vehicleID = vehicleID;
         this.custID = custID;
-        this.date = date;
         this.startTime = startTime;
         this.claimRate = claimRate;
         this.shareID = shareID;
@@ -40,10 +39,9 @@ class RecordLog {
         this.companyLogo = companyLogo;
     }
 
-    public RecordLog(String vehicleID, String custID, Date date, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo, String timestamp) {
+    public RecordLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo, String timestamp) {
         this.vehicleID = vehicleID;
         this.custID = custID;
-        this.date = date;
         this.startTime = startTime;
         this.claimRate = claimRate;
         this.shareID = shareID;
@@ -52,18 +50,7 @@ class RecordLog {
         this.timestamp = timestamp;
     }
 
-    public RecordLog() {
-        this.date = new Date();
-        this.startTime = new Date(1000);
-        this.endTime = new Date(1000000);
-        this.pausing = false;
-        this.countPause = 1;
-        this.mins = 10;
-        this.km = 2.7;
-    }
-
-    public RecordLog(Date date, Date startTime, Date endTime, boolean pausing, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON) {
-        this.date = date;
+    public RecordLog(Date startTime, Date endTime, boolean pausing, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.pausing = pausing;
@@ -77,8 +64,7 @@ class RecordLog {
         this.companyLogo = companyLogo;
     }
 
-    public RecordLog(Date date, Date startTime, Date endTime, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON) {
-        this.date = date;
+    public RecordLog(Date startTime, Date endTime, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON, String timestamp) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.countPause = countPause;
@@ -90,16 +76,17 @@ class RecordLog {
         this.companyName = companyName;
         this.companyLogo = companyLogo;
         this.logJSON = logJSON;
+        this.timestamp = timestamp;
     }
 
-    public RecordLog(Date date, Date startTime, Date endTime, int countPause, int mins, double km, String logJSON) {
-        this.date = date;
+    public RecordLog(Date startTime, Date endTime, int countPause, int mins, double km, String logJSON, String timestamp) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.countPause = countPause;
         this.mins = mins;
         this.km = km;
         this.logJSON = logJSON;
+        this.timestamp = timestamp;
     }
 
     public String getVehicleID() {
@@ -116,14 +103,6 @@ class RecordLog {
 
     public void setCustID(String custID) {
         this.custID = custID;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
     }
 
     public Date getStartTime() {
@@ -224,20 +203,45 @@ class RecordLog {
 
     @Override
     public String toString() {
-        return "RecordLog{" +
-                "vehicleID='" + vehicleID + '\'' +
-                ", custID='" + custID + '\'' +
-                ", date=" + date +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", claimRate=" + claimRate +
-                ", km=" + km +
-                ", countPause=" + countPause +
-                ", mins=" + mins +
-                ", logJSON='" + logJSON + '\'' +
-                ", shareID='" + shareID + '\'' +
-                ", companyName='" + companyName + '\'' +
-                ", timestamp=" + timestamp +
-                '}';
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.getDefault());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            return dateFormat.format(startTime)
+                    + "  "
+                    + timeFormat.format(startTime)
+                    + " to "
+                    + timeFormat.format(endTime)
+                    + ", "
+                    + km
+                    + "KM";
+        } catch (Exception e) {
+            return "RecordLog{" +
+                    "vehicleID='" + vehicleID + '\'' +
+                    ", custID='" + custID + '\'' +
+                    ", startTime=" + startTime +
+                    ", endTime=" + endTime +
+                    ", claimRate=" + claimRate +
+                    ", km=" + km +
+                    ", countPause=" + countPause +
+                    ", mins=" + mins +
+                    ", logJSON='" + logJSON + '\'' +
+                    ", shareID='" + shareID + '\'' +
+                    ", companyName='" + companyName + '\'' +
+                    ", companyLogo=" + companyLogo +
+                    ", timestamp='" + timestamp + '\'' +
+                    ", pausing=" + pausing +
+                    '}';
+        }
+    }
+
+    @Override
+    public int compareTo(RecordLog o) {
+        try {
+            if (Long.parseLong(o.getTimestamp()) - Long.parseLong(this.getTimestamp())>0) return 1;
+            else if (Long.parseLong(o.getTimestamp()) - Long.parseLong(this.getTimestamp())<0) return -1;
+            else return 0;
+        } catch (Exception e) {
+            return o.getTimestamp().compareTo(this.getTimestamp());
+        }
     }
 }
