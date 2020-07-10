@@ -496,7 +496,7 @@ public class RecordLogActivity extends AppCompatActivity {
         DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         String StringJSON = "[";
         for (Date date : locations.keySet()) {
-            StringJSON += "{time_stamp:\"" + formatDate.format(date) + "\", latitude:\"" + locations.get(date)[0] + "\", longitude:\"" + locations.get(date)[1] + "\"},";
+            StringJSON += "{\\\"" + formatDate.format(date) + "\\\":\\\"" + locations.get(date)[0] + "," + locations.get(date)[1] + "\\\"},";
         }
         StringJSON = StringJSON.substring(0, StringJSON.length() - 1);
         StringJSON += "]";
