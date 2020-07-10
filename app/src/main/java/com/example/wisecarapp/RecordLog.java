@@ -203,35 +203,22 @@ class RecordLog implements Comparable<RecordLog> {
 
     @Override
     public String toString() {
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.getDefault());
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-            return dateFormat.format(startTime)
-                    + "  "
-                    + timeFormat.format(startTime)
-                    + " to "
-                    + timeFormat.format(endTime)
-                    + ", "
-                    + km
-                    + "KM";
-        } catch (Exception e) {
-            return "RecordLog{" +
-                    "vehicleID='" + vehicleID + '\'' +
-                    ", custID='" + custID + '\'' +
-                    ", startTime=" + startTime +
-                    ", endTime=" + endTime +
-                    ", claimRate=" + claimRate +
-                    ", km=" + km +
-                    ", countPause=" + countPause +
-                    ", mins=" + mins +
-                    ", logJSON='" + logJSON + '\'' +
-                    ", shareID='" + shareID + '\'' +
-                    ", companyName='" + companyName + '\'' +
-                    ", companyLogo=" + companyLogo +
-                    ", timestamp='" + timestamp + '\'' +
-                    ", pausing=" + pausing +
-                    '}';
-        }
+        return "RecordLog{" +
+                "vehicleID='" + vehicleID + '\'' +
+                ", custID='" + custID + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", claimRate=" + claimRate +
+                ", km=" + km +
+                ", countPause=" + countPause +
+                ", mins=" + mins +
+                ", logJSON='" + logJSON + '\'' +
+                ", shareID='" + shareID + '\'' +
+                ", companyName='" + companyName + '\'' +
+                ", companyLogo=" + companyLogo +
+                ", timestamp='" + timestamp + '\'' +
+                ", pausing=" + pausing +
+                '}';
     }
 
     @Override
