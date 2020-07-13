@@ -989,18 +989,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         }
     }
 
-    private static java.util.Date strToDate(String str) {
-        if (str == null || str.length() == 0) return null;
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-        java.util.Date date = null;
-        try {
-            date = format.parse(str);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return date;
-    }
-
     private static java.util.Date intToDate(int year, int month, int day) {
         StringBuilder sb = new StringBuilder();
         if (day < 10) sb.append("0").append(day);

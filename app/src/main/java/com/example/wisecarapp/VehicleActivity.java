@@ -18,6 +18,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -46,9 +47,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -63,12 +67,16 @@ public class VehicleActivity extends AppCompatActivity {
     private ImageButton backImageButton;
     private ImageButton settingImageButton;
     private ImageButton editImageButton;
+    private ImageButton licenceImageButton;
+
     private ImageButton dashboardImageButton;
     private Button dashboardButton;
     private ImageButton calendarImageButton;
     private Button calendarButton;
-    private ImageButton inboxImageButton;
-    private Button inboxButton;
+
+    private TextView notifyTextView;
+    Date registrationDue;
+    Date nextService;
 
     private Button selectedVehicleTextView; //use button type only to make the format same as others. it is not clickable
     private ImageView selectedVehicleImageView;
@@ -149,6 +157,11 @@ public class VehicleActivity extends AppCompatActivity {
         settingImageButton = $(R.id.settingImageButton);
         editImageButton = $(R.id.editImageButton);
 
+        licenceImageButton = $(R.id.licenceImageButton);
+        licenceImageButton.setOnClickListener(v -> {
+            startActivity(new Intent(VehicleActivity.this, LicenceActivity.class));
+        });
+
         dashboardImageButton = $(R.id.dashboardImageButton);
         dashboardButton = $(R.id.dashboardButton);
         dashboardImageButton.setOnClickListener(v -> startDashboard());
@@ -159,6 +172,14 @@ public class VehicleActivity extends AppCompatActivity {
         calendarImageButton.setOnClickListener(v -> startCalendar());
         calendarButton.setOnClickListener(v -> startCalendar());
 
+        notifyTextView = $(R.id.notifyTextView);
+        registrationDue = new Date();   //get from DB
+        nextService = new Date();    //get from DB
+        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+        String temp = "<font color='#612a00'>Registration Due - " + format.format(registrationDue) + "</font><br/>"
+                + "<font color='#003c00'>Next Service - " + format.format(nextService) + "</font>";
+        notifyTextView.setText(Html.fromHtml(temp));
+        Log.d(TAG, "notify: " + notifyTextView.getText());
 
         selectedVehicleTextView = $(R.id.selectedVehicleTextView);
         selectedVehicleImageView = $(R.id.selectedVehicleImageView);
@@ -206,12 +227,6 @@ public class VehicleActivity extends AppCompatActivity {
         manageImageButton.setOnClickListener(v -> {
             //manageVehicle();
         });
-
-
-        inboxImageButton = $(R.id.inboxImageButton);
-        inboxButton = $(R.id.inboxButton);
-        inboxImageButton.setOnClickListener(v -> startInbox());
-        inboxButton.setOnClickListener(v -> startInbox());
 
     }
 
