@@ -2,10 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ServiceRecordsActivity"
+    tools:context=".LicenceActivity"
     android:background="@drawable/wc0bg_dark"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
@@ -46,7 +45,6 @@
         app:srcCompat="@drawable/wc0title"
         android:contentDescription="TODO" />
 
-
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
@@ -82,7 +80,7 @@
                 app:layout_constraintVertical_bias="0.0">
 
                 <TextView
-                    android:id="@+id/serviceIDTextView"
+                    android:id="@+id/idTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:layout_constraintStart_toStartOf="parent"
@@ -92,85 +90,78 @@
                     app:layout_constraintVertical_bias="0.0"
                     android:text="ID: 1234567" />
 
-                <ImageView
-                    android:id="@+id/qrImageView"
+                <com.example.wisecarapp.CircleImageView
+                    android:id="@+id/licenceImageView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_centerInParent="true"
-                    android:background="#ffffff"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/serviceIDTextView"
+                    app:layout_constraintTop_toBottomOf="@id/idTextView"
                     app:layout_constraintWidth_default="percent"
-                    app:layout_constraintWidth_percent="0.25" />
+                    app:layout_constraintWidth_percent="0.25"
+                    app:srcCompat="@drawable/licence0camera" />
 
                 <Button
                     android:id="@+id/uploadButton"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_marginBottom="16dp"
                     android:background="@null"
                     android:cropToPadding="false"
                     android:padding="0dp"
                     android:scaleType="fitXY"
                     android:text="Upload Record"
+                    app:layout_constraintVertical_bias="0.0"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="4:1"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/qrImageView"
+                    app:layout_constraintTop_toBottomOf="@+id/licenceImageView"
                     app:layout_constraintWidth_default="percent"
                     app:layout_constraintWidth_percent=".33" />
 
-                <Button
-                    android:id="@+id/resetButton"
+                <ImageView
+                    android:id="@+id/dividing"
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="@null"
-                    android:cropToPadding="false"
-                    android:padding="0dp"
-                    android:scaleType="fitXY"
-                    android:text="Reset QR Code"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintDimensionRatio="4:1"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
+                    android:layout_height="5dp"
+                    android:background="#ffffff"
+                    app:layout_constraintTop_toBottomOf="@id/uploadButton"
+                    app:layout_constraintBottom_toTopOf="@id/activeTextView"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/qrImageView"
-                    app:layout_constraintWidth_default="percent"
-                    app:layout_constraintWidth_percent=".33" />
-
-                <ImageButton
-                    android:id="@+id/cameraImageButton"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="@null"
-                    android:padding="0dp"
-                    android:scaleType="fitXY"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintDimensionRatio="224:199"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="1.0"
-                    app:layout_constraintWidth_percent="0.15"
-                    app:srcCompat="@drawable/vehicle0camera" />
+                    app:layout_constraintEnd_toEndOf="parent" />
 
                 <TextView
-                    android:id="@+id/identifierTextView"
+                    android:id="@+id/activeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TextView"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="@+id/qrImageView"
-                    app:layout_constraintEnd_toEndOf="@+id/qrImageView"
-                    app:layout_constraintStart_toStartOf="@+id/qrImageView"
-                    app:layout_constraintTop_toBottomOf="@+id/serviceIDTextView" />
+                    android:text="Licence Active"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="16dp"
+                    android:padding="4dp"
+                    app:layout_constraintVertical_bias="0.0"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/dividing" />
+
+                <com.example.wisecarapp.SwitchButton
+                    android:id="@+id/activeSwitchButton"
+                    android:layout_height="0dp"
+                    android:layout_width="0dp"
+                    android:layout_marginEnd="16dp"
+                    app:layout_constraintWidth_percent="0.15"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:animate="true"
+                    app:borderWidth="0.8dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/shareTextView"
+                    app:layout_constraintDimensionRatio="45:25"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/activeTextView"
+                    app:layout_constraintStart_toStartOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -192,9 +183,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="Date / Time"
+                    android:text="Licence No"
                     android:textColor="#000000"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -215,7 +206,7 @@
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/dateEditText"
+                    android:id="@+id/numberEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -249,9 +240,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="Service Centre"
+                    android:text="Licence Type"
                     android:textColor="#000000"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -273,7 +264,7 @@
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/centreEditText"
+                    android:id="@+id/typeEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -308,9 +299,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="Service Ref. No"
+                    android:text="Start Date"
                     android:textColor="#000000"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -331,7 +322,7 @@
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/refNoEditText"
+                    android:id="@+id/startDateEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -360,100 +351,49 @@
 
                 <TextView
                     android:id="@+id/textView4"
-                    android:layout_width="85dp"
+                    android:layout_width="100dp"
                     android:layout_height="30dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="Service Options"
+                    android:text="Expires In"
                     android:textColor="#000000"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <CheckBox
-                    android:id="@+id/oilCheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:button="@drawable/vehicle0checkbox_style"
-                    android:checked="true"
-                    android:text="Oil Filter"
-                    android:textColor="#000000"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/textView4"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <CheckBox
-                    android:id="@+id/brakeCheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <ImageView
+                    android:id="@+id/imageView4"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:button="@drawable/vehicle0checkbox_style"
-                    android:checked="true"
-                    android:text="Brake"
-                    android:textColor="#000000"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintBottom_toBottomOf="@+id/oilCheckBox"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/oilCheckBox"
-                    app:layout_constraintTop_toTopOf="@+id/oilCheckBox" />
-
-                <CheckBox
-                    android:id="@+id/batteryCheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginStart="16dp"
-                    android:button="@drawable/vehicle0checkbox_style"
-                    android:checked="true"
-                    android:text="Battery"
-                    android:textColor="#000000"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintBottom_toBottomOf="@+id/brakeCheckBox"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/brakeCheckBox"
-                    app:layout_constraintTop_toTopOf="@+id/brakeCheckBox" />
-
-                <CheckBox
-                    android:id="@+id/coolingCheckBox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:button="@drawable/vehicle0checkbox_style"
-                    android:checked="true"
-                    android:text="Cooling System"
-                    android:textColor="#000000"
+                    android:scaleType="fitXY"
+                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toEndOf="@+id/textView4"
-                    app:layout_constraintTop_toBottomOf="@id/oilCheckBox" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/vehicle0edittext" />
 
-                <CheckBox
-                    android:id="@+id/lightsCheckBox"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    android:layout_width="wrap_content"
+                <EditText
+                    android:id="@+id/expireEditText"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:button="@drawable/vehicle0checkbox_style"
-                    android:checked="true"
-                    android:text="Lights"
+                    android:ems="10"
+                    android:inputType="textPersonName"
                     android:textColor="#000000"
-                    app:layout_constraintBottom_toBottomOf="@+id/coolingCheckBox"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@+id/batteryCheckBox"
-                    app:layout_constraintTop_toTopOf="@+id/coolingCheckBox" />
+                    android:autoText="true"
+                    android:background="@null"
+                    app:layout_constraintBottom_toBottomOf="@+id/imageView4"
+                    app:layout_constraintEnd_toEndOf="@+id/imageView4"
+                    app:layout_constraintStart_toStartOf="@+id/imageView4"
+                    app:layout_constraintTop_toTopOf="@+id/imageView4" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -475,9 +415,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="Notes"
+                    android:text="Expiry Date"
                     android:textColor="#000000"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -498,7 +438,7 @@
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/notesEditText"
+                    android:id="@+id/expiryDateEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -525,124 +465,22 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/rowDiv5">
 
-                <TextView
-                    android:id="@+id/textView6"
-                    android:layout_width="125dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:gravity="center_vertical"
-                    android:text="Next Service Date"
-                    android:textColor="#000000"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageView
-                    android:id="@+id/imageView6"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:scaleType="fitXY"
-                    app:layout_constraintHeight_percent="0.75"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/textView6"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/vehicle0edittext" />
-
-                <EditText
-                    android:id="@+id/nextDateEditText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:ems="10"
-                    android:inputType="textPersonName"
-                    android:textColor="#000000"
-                    android:autoText="true"
-                    android:background="@null"
-                    app:layout_constraintBottom_toBottomOf="@+id/imageView6"
-                    app:layout_constraintEnd_toEndOf="@+id/imageView6"
-                    app:layout_constraintStart_toStartOf="@+id/imageView6"
-                    app:layout_constraintTop_toTopOf="@+id/imageView6" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/rowDiv7"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="#EDEDED"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rowDiv6">
-
-                <TextView
-                    android:id="@+id/textView7"
-                    android:layout_width="125dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:gravity="center_vertical"
-                    android:text="Next Service Distance"
-                    android:textColor="#000000"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <ImageView
-                    android:id="@+id/imageView7"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:scaleType="fitXY"
-                    app:layout_constraintHeight_percent="0.75"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/textView7b"
-                    app:layout_constraintStart_toEndOf="@+id/textView7"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/vehicle0edittext" />
-
-                <EditText
-                    android:id="@+id/nextDistanceEditText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:ems="10"
-                    android:inputType="numberDecimal"
-                    android:textColor="#000000"
-                    android:autoText="true"
-                    android:background="@null"
-                    app:layout_constraintBottom_toBottomOf="@+id/imageView7"
-                    app:layout_constraintEnd_toEndOf="@+id/imageView7"
-                    app:layout_constraintStart_toStartOf="@+id/imageView7"
-                    app:layout_constraintTop_toTopOf="@+id/imageView7" />
-
-                <TextView
-                    android:id="@+id/textView7b"
+                <CheckBox
+                    android:id="@+id/remindCheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
+                    android:button="@drawable/vehicle0checkbox_style"
+                    android:checked="true"
                     android:gravity="center_vertical"
-                    android:text="km"
+                    android:text="Remind me (1 Month)"
                     android:textColor="#000000"
-                    android:textSize="12sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

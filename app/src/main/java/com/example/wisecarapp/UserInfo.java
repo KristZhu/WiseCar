@@ -14,6 +14,7 @@ class UserInfo {
     private static Bitmap userImg;
     private static Map<String, Vehicle> vehicles = new TreeMap<>((o1, o2) -> o2.compareTo(o1));   //key: ID
     private static RecordLog currLog;
+    private static Licence licence;
 
     public static void clear() {
         setUserID(null);
@@ -69,5 +70,13 @@ class UserInfo {
 
     public static void setCurrLog(RecordLog currLog) {
         UserInfo.currLog = currLog;
+    }
+
+    public static Licence getLicence() {
+        return licence;
+    }
+
+    public static void setLicence(Licence licence) {
+        UserInfo.licence = licence;
     }
 }
