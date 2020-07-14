@@ -256,12 +256,11 @@ public class CreateUserActivity extends AppCompatActivity {
                 userEmail = userEmailEditText.getText().toString();
                 password = passwordEditText.getText().toString();
 
-                Intent intent = new Intent(CreateUserActivity.this, CreateUserActivity2.class);
-                intent.putExtra("userImg", userImg);
-                intent.putExtra("username", username);
-                intent.putExtra("userEmail", userEmail);
-                intent.putExtra("password", password);
-                startActivity(intent);
+                startActivity(new Intent(CreateUserActivity.this, CreateUserActivity2.class)
+                        .putExtra("userImg", userImg)
+                        .putExtra("username", username)
+                        .putExtra("userEmail", userEmail)
+                        .putExtra("password", password));
             } else {    //not valid info
                 if(username.equals("")) Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();
                 else if(userEmail.equals("")) Toast.makeText(getApplicationContext(), "Please entry email", Toast.LENGTH_SHORT).show();

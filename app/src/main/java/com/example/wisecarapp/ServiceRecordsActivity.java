@@ -148,8 +148,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/servicerecords/blockchaininvoke";
 
-    private String servicesOptions = "";
-    private String currentDate = "";
+    private String servicesOptions;
+    private String currentDate;
     private String identifier;
     private String record_id;
     private Bitmap qrCodeBitmap;
@@ -160,12 +160,11 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_service_records);
 
+        servicesOptions = "";
+        currentDate = "";
+
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
-            intent.putExtra("vehicleID", vehicleID);
-            startActivity(intent);
-        });
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
         currentDate = format.format(Calendar.getInstance().getTime());
@@ -202,13 +201,10 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         identifierTextView = $(R.id.identifierTextView);
         resetButton = $(R.id.resetButton);
 
-        resetButton.setOnClickListener((v) -> {
-            qrImageView.setImageBitmap(qrCodeBitmap);
-        });
+        resetButton.setOnClickListener((v) -> qrImageView.setImageBitmap(qrCodeBitmap));
 
-        uploadButton.setOnClickListener((v) -> {
-            Log.d(TAG, "upload record: ");
-        });
+        uploadButton.setOnClickListener((v) -> Log.d(TAG, "upload record: "));
+
         cameraImageButton.setOnClickListener(v -> {
             final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
             AlertDialog alertDialog = new AlertDialog.Builder(ServiceRecordsActivity.this)

@@ -28,7 +28,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".LicenceActivity"></activity>
+        <activity android:name=".RegistrationReminderActivity"></activity>
+        <activity android:name=".LicenceActivity" />
         <activity android:name=".RecordLogActivity" />
         <activity android:name=".ShareVehicleDetailActivity" />
         <activity android:name=".ShareVehicleListActivity" />

@@ -363,11 +363,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
-            intent.putExtra("vehicleID", vehicleID);
-            startActivity(intent);
-        });
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID)));
 
 
         shareSwitchButton.setOnToggleChanged(isOn -> {
