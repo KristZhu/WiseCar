@@ -72,11 +72,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
         Log.d(TAG, "services: " + vehicle.getServices());
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ShareVehicleListActivity.this, EditVehicleActivity.class);
-            intent.putExtra("vehicleID", vehicleID);
-            startActivity(intent);
-        });
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleListActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         headerTextView = $(R.id.headerTextView);
         headerTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());

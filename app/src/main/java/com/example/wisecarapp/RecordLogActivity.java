@@ -141,11 +141,7 @@ public class RecordLogActivity extends AppCompatActivity {
         Log.d(TAG, "vehicle: " + vehicle);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> {
-            Intent intent = new Intent(RecordLogActivity.this, EditVehicleActivity.class);
-            intent.putExtra("vehicleID", vehicleID);
-            startActivity(intent);
-        });
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(RecordLogActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         searchEditText = $(R.id.searchEditText);
         cancelImageButton = $(R.id.cancelImageButton);

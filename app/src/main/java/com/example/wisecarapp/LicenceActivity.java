@@ -339,7 +339,7 @@ public class LicenceActivity extends AppCompatActivity {
         typeEditText = $(R.id.typeEditText);
         startDateEditText = $(R.id.startDateEditText);
         expireEditText = $(R.id.expireEditText);
-        expireDateEditText = $(R.id.expiryDateEditText);
+        expireDateEditText = $(R.id.expireDateEditText);
         remindCheckBox = $(R.id.remindCheckBox);
 
         active = false;
