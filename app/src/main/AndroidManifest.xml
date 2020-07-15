@@ -28,7 +28,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".RegistrationReminderActivity"></activity>
+        <activity android:name=".FuelReceiptActivity" />
+        <activity android:name=".ParkingReceiptActivity" />
+        <activity android:name=".InsuranceRecordActivity" />
+        <activity android:name=".RegistrationReminderActivity" />
         <activity android:name=".LicenceActivity" />
         <activity android:name=".RecordLogActivity" />
         <activity android:name=".ShareVehicleDetailActivity" />
