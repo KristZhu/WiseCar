@@ -1,5 +1,7 @@
 package com.example.wisecarapp;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -16,6 +18,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -36,9 +39,34 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import net.glxn.qrgen.android.QRCode;
+import net.glxn.qrgen.core.image.ImageType;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -57,6 +85,7 @@ public class LicenceActivity extends AppCompatActivity {
     private Drawable licenceImageDrawable;
 
     private TextView idTextView;
+    private TextView identifierTextView;
     private Button uploadButton;
 
     private boolean active;
@@ -83,6 +112,17 @@ public class LicenceActivity extends AppCompatActivity {
     private static final int MULTI_PERMISSION_CODE = 0;
     private static final int PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE = 1;
     private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
+
+    private String identifier;
+    private String record_id;
+
+    // TO BE ADJUSTED
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_LICENSE_IDENTIFIER = "/api/v1/driverlicense/identifier/";
+    private final String ADD_LICENSE = "/api/v1/driverlicense";
+    private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
+    private final String INVOKE_BLOCKCHAIN = "/api/v1/driverlicense/blockchaininvoke";
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -266,11 +306,28 @@ public class LicenceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_licence);
 
         backImageButton = $(R.id.backImageButton);
+        identifierTextView = $(R.id.identifierTextView);
+        licenceImageView = $(R.id.licenceImageView);
+
         backImageButton.setOnClickListener(v -> startActivity(new Intent(LicenceActivity.this, VehicleActivity.class)));
 
         idTextView = $(R.id.idTextView);
 
         uploadButton = $(R.id.uploadButton);
+
+        getIdentifier((returnedIdentifier, returnedRecord_id) -> {
+
+            Log.e("license identifier", identifier);
+            Log.e("license record_id", record_id);
+//                identifier = returnedIdentifier;
+//                record_id = returnedRecord_id;
+
+            String idToBeShown = "ID: " + record_id;
+
+            idTextView.setText(idToBeShown);
+            identifierTextView.setText(returnedRecord_id);
+        });
+
         uploadButton.setOnClickListener(v -> {
             final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
             AlertDialog alertDialog3 = new AlertDialog.Builder(LicenceActivity.this)
@@ -404,15 +461,15 @@ public class LicenceActivity extends AppCompatActivity {
             Log.d(TAG, "expireDate: " + expireDate);
             Log.d(TAG, "remind: " + remind);
 
-            if(startDate.after(new Date()) || expireDate.before(new Date()) || startDate.after(expireDate)) {
-                Toast.makeText(getApplicationContext(), "Please select correct date", Toast.LENGTH_SHORT).show();
-                return;
-            }
+//            if(startDate.after(new Date()) || expireDate.before(new Date()) || startDate.after(expireDate)) {
+//                Toast.makeText(getApplicationContext(), "Please select correct date", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
 
             UserInfo.setLicence(new Licence(active, number, type, startDate, expire, expireDate, remind));
 
             //db
-
+            uploadServiceRecord();
 
 
         });
@@ -493,4 +550,201 @@ public class LicenceActivity extends AppCompatActivity {
     private <T extends View> T $(int id){
         return (T) findViewById(id);
     }
+
+
+    private void getIdentifier(@Nullable final recordIdentifierCallback callbacks) {
+
+        String URL = IP_HOST + GET_LICENSE_IDENTIFIER + UserInfo.getUsername() + "/" + UserInfo.getUserID();
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONObject jsonObject = response;
+
+            identifier = jsonObject.optString("identifier");
+            record_id = jsonObject.optString("record_id");
+
+            if (callbacks != null)
+                callbacks.onSuccess(identifier, record_id);
+
+        }, error -> {
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(LicenceActivity.this).add(objectRequest);
+    }
+
+    public interface recordIdentifierCallback {
+        void onSuccess(@NonNull String returnedIdentifier, String returnedRecord_id);
+
+//        void onError(@NonNull String errorMessage);
+    }
+
+    private void uploadServiceRecord() {
+
+        String isActive = "";
+        String isRemind = "";
+
+        if (active) {
+            isActive = "1";
+        }else{
+            isActive += "0";
+        }
+
+        if (remind) {
+            isRemind += "1";
+        }else{
+            isRemind += "0";
+        }
+
+        String finalIsRemind = isRemind;
+        String finalIsActive = isActive;
+
+        Thread thread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + ADD_LICENSE);
+
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            try {
+                reqEntity.addPart("record_id", new StringBody(idTextView.getText().toString().substring(4)));
+                Log.e("recordID in request", idTextView.getText().toString().substring(4));
+
+                reqEntity.addPart("user_id", new StringBody(UserInfo.getUserID()));
+                reqEntity.addPart("license_no", new StringBody(number));
+                reqEntity.addPart("license_type", new StringBody(type));
+                reqEntity.addPart("start_date", new StringBody(format.format(startDate)));
+                reqEntity.addPart("expires_in", new StringBody(expire));
+                reqEntity.addPart("expiry_date", new StringBody(format.format(expireDate)));
+                reqEntity.addPart("remind_me", new StringBody(finalIsRemind));
+                reqEntity.addPart("licence_status", new StringBody(finalIsActive));
+                reqEntity.addPart("driver_license_identifier", new StringBody(identifierTextView.getText().toString()));
+
+                if (licenceImageView.getDrawable() != null) {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Bitmap toBeUploaded = ((BitmapDrawable) licenceImageView.getDrawable()).getBitmap();
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] qrbyteArray = stream.toByteArray();
+                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
+                    reqEntity.addPart("document", recordBody);
+                }
+
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    reqEntity.addPart("logo", new StringBody("image error"));
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("success")) {
+
+                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
+                        invokeBlockchain(identifierTextView.getText().toString(),
+                                number,
+                                type,
+                                format.format(startDate),
+                                format.format(expireDate),
+                                expire,
+                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
+                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(LicenceActivity.this, "success", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(LicenceActivity.this, EditVehicleActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+                }
+                Log.e("response", s.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
+
+        });
+        thread.start();
+    }
+
+    private void invokeBlockchain(String identifier, String license_no, String license_type, String start_date, String expiry_date, String expires_in, String ecrypt_hash, String license_file_location) {
+
+        String URL = BLOCKCHAIN_IP + INVOKE_BLOCKCHAIN;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("identifier", identifier);
+            jsonParam.put("record_type", "license");
+            jsonParam.put("license_no", license_no);
+            jsonParam.put("license_type", license_type);
+            jsonParam.put("start_date", start_date);
+            jsonParam.put("expiry_date", expiry_date);
+            jsonParam.put("expires_in", expires_in);
+            jsonParam.put("ecrypt_hash", ecrypt_hash);
+            jsonParam.put("license_file_location", license_file_location);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+
+            Log.e("Blockchain Response", response.toString());
+            Log.e("Blockchain submission", response.optString("message"));
+
+        }, error -> {
+            Log.e("Blockchain ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(LicenceActivity.this).add(objectRequest);
+
+    }
+
 }

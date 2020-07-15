@@ -1,5 +1,7 @@
 package com.example.wisecarapp;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -15,6 +17,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,14 +37,39 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+
+import net.glxn.qrgen.android.QRCode;
+import net.glxn.qrgen.core.image.ImageType;
 
 public class InsuranceRecordActivity extends AppCompatActivity {
 
@@ -61,7 +89,6 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     private TextView identifierTextView;
     private Button resetButton;
 
-    private String servicesOptions;
     private String currentDate;
     private String identifier;
     private String record_id;
@@ -89,6 +116,16 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
 
 
+
+    // TO BE ADJUSTED
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_INSURANCE_RECORD_IDENTIFIER = "/api/v1/insurancerecords/identifier/";
+    private final String scanQRCode = "/api/v1/insurancerecords/upload?identifier=";
+    private final String ADD_INSURANCE_RECORD = "/api/v1/insurancerecords/";
+    private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
+    private final String INVOKE_BLOCKCHAIN = "/api/v1/insurancerecords/blockchaininvoke";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,12 +139,39 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
 
+        SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+        currentDate = format.format(Calendar.getInstance().getTime());
+
         serviceIDTextView = $(R.id.serviceIDTextView);
         qrImageView = $(R.id.qrImageView);
         uploadButton = $(R.id.uploadButton);
         cameraImageButton = $(R.id.cameraImageButton);
         identifierTextView = $(R.id.identifierTextView);
         resetButton = $(R.id.resetButton);
+
+
+
+        // TO BE ADJUSTED
+
+        getRecordIdentifier((returnedIdentifier, returnedRecord_id) -> {
+
+            Log.e("INSURANCE identifier", identifier);
+            Log.e("INSURANCE record_id", record_id);
+//                identifier = returnedIdentifier;
+//                record_id = returnedRecord_id;
+
+            String idToBeShown = "ID: " + record_id;
+
+            int width = qrImageView.getWidth();
+            int height = qrImageView.getHeight();
+
+            serviceIDTextView.setText(idToBeShown);
+            identifierTextView.setText(returnedIdentifier);
+
+            File qrCodeFile = QRCode.from(IP_HOST + scanQRCode + identifier).to(ImageType.PNG).withSize(width, height).file();
+            qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
+            qrImageView.setImageBitmap(qrCodeBitmap);
+        });
 
         resetButton.setOnClickListener(v -> qrImageView.setImageBitmap(qrCodeBitmap));
 
@@ -235,14 +299,14 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             Log.d(TAG, "end: " + end);
             Log.d(TAG, "type: " + type);
 
-            if(start.before(new Date()) || end.after(new Date()) || start.after(end)) {
-                Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_SHORT).show();
-                return;
-            }
+//            if(start.before(new Date()) || end.after(new Date()) || start.after(end)) {
+//                Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
 
 
             //db
-
+            uploadServiceRecord();
 
 
         });
@@ -495,5 +559,185 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 
     private <T extends View> T $(int id) {
         return (T) findViewById(id);
+    }
+
+
+
+    // TO BE ADJUSTED
+
+    private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
+
+        String URL = IP_HOST + GET_INSURANCE_RECORD_IDENTIFIER + vehicle.getRegistration_no() + "/" + currentDate;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONObject jsonObject = response;
+
+            identifier = jsonObject.optString("identifier");
+            record_id = jsonObject.optString("record_id");
+
+            if (callbacks != null)
+                callbacks.onSuccess(identifier, record_id);
+
+        }, error -> {
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(InsuranceRecordActivity.this).add(objectRequest);
+    }
+
+    public interface recordIdentifierCallback {
+        void onSuccess(@NonNull String returnedIdentifier, String returnedRecord_id);
+
+//        void onError(@NonNull String errorMessage);
+    }
+
+    private void uploadServiceRecord() {
+
+        Thread thread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + ADD_INSURANCE_RECORD);
+
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            try {
+                reqEntity.addPart("record_id", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+                Log.e("recordID in request", serviceIDTextView.getText().toString().substring(4));
+
+                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+                reqEntity.addPart("policy_number", new StringBody(number));
+                reqEntity.addPart("insurer", new StringBody(insurer));
+                reqEntity.addPart("start_of_cover", new StringBody(format.format(start)));
+                reqEntity.addPart("end_of_cover", new StringBody(format.format(end)));
+                reqEntity.addPart("cover_type", new StringBody(type));
+                reqEntity.addPart("insurance_record_identifier", new StringBody(identifierTextView.getText().toString()));
+                Log.e("identifier in request", identifierTextView.getText().toString());
+
+                if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] qrbyteArray = stream.toByteArray();
+                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
+                    reqEntity.addPart("document", recordBody);
+                }
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    reqEntity.addPart("logo", new StringBody("image error"));
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("success")) {
+
+                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
+                        invokeBlockchain(identifierTextView.getText().toString(),
+                                number,
+                                insurer,
+                                format.format(start),
+                                format.format(end),
+                                type,
+                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
+                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(InsuranceRecordActivity.this, "success", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(InsuranceRecordActivity.this, EditVehicleActivity.class);
+                            intent.putExtra("vehicleID", vehicleID);
+                            startActivity(intent);
+                        }
+                    });
+                }
+                Log.e("response", s.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
+
+        });
+        thread.start();
+    }
+
+    private void invokeBlockchain(String identifier, String policy_number, String insurer, String start_of_cover, String end_of_cover, String cover_type, String ecrypt_hash, String insurance_file_location) {
+
+        String URL = BLOCKCHAIN_IP + INVOKE_BLOCKCHAIN;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("identifier", identifier);
+            jsonParam.put("record_type", "insurance");
+            jsonParam.put("policy_number", policy_number);
+            jsonParam.put("insurer", insurer);
+            jsonParam.put("start_of_cover", start_of_cover);
+            jsonParam.put("end_of_cover", end_of_cover);
+            jsonParam.put("cover_type", cover_type);
+            jsonParam.put("ecrypt_hash", ecrypt_hash);
+            jsonParam.put("insurance_file_location", insurance_file_location);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+
+            Log.e("Blockchain Response", response.toString());
+            Log.e("Blockchain submission", response.optString("message"));
+
+        }, error -> {
+            Log.e("Blockchain ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(InsuranceRecordActivity.this).add(objectRequest);
+
     }
 }

@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,14 +31,41 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import net.glxn.qrgen.android.QRCode;
+import net.glxn.qrgen.core.image.ImageType;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -62,7 +90,6 @@ public class RegistrationReminderActivity extends AppCompatActivity {
     private TextView identifierTextView;
     private Button resetButton;
 
-    private String servicesOptions;
     private String currentDate;
     private String identifier;
     private String record_id;
@@ -90,6 +117,14 @@ public class RegistrationReminderActivity extends AppCompatActivity {
     private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
 
 
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_REGISTRATION_RECORD_IDENTIFIER = "/api/v1/registrationrecords/identifier/";
+    private final String scanQRCode = "/api/v1/registrationrecords/upload?identifier=";
+    private final String ADD_REGISTRATION_RECORD = "/api/v1/registrationrecords/";
+    private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
+    private final String INVOKE_BLOCKCHAIN = "/api/v1/registrationrecords/blockchaininvoke";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +138,9 @@ public class RegistrationReminderActivity extends AppCompatActivity {
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
 
+        SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
+        currentDate = format.format(Calendar.getInstance().getTime());
+
         serviceIDTextView = $(R.id.serviceIDTextView);
         qrImageView = $(R.id.qrImageView);
         uploadButton = $(R.id.uploadButton);
@@ -111,6 +149,27 @@ public class RegistrationReminderActivity extends AppCompatActivity {
         resetButton = $(R.id.resetButton);
 
         resetButton.setOnClickListener(v -> qrImageView.setImageBitmap(qrCodeBitmap));
+
+
+        getRecordIdentifier((returnedIdentifier, returnedRecord_id) -> {
+
+            Log.e("registration identifier", identifier);
+            Log.e("registration record_id", record_id);
+//                identifier = returnedIdentifier;
+//                record_id = returnedRecord_id;
+
+            String idToBeShown = "ID: " + record_id;
+
+            int width = qrImageView.getWidth();
+            int height = qrImageView.getHeight();
+
+            serviceIDTextView.setText(idToBeShown);
+            identifierTextView.setText(returnedIdentifier);
+
+            File qrCodeFile = QRCode.from(IP_HOST + scanQRCode + identifier).to(ImageType.PNG).withSize(width, height).file();
+            qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
+            qrImageView.setImageBitmap(qrCodeBitmap);
+        });
 
         uploadButton.setOnClickListener(v -> Log.d(TAG, "upload record: "));
 
@@ -236,15 +295,14 @@ public class RegistrationReminderActivity extends AppCompatActivity {
             Log.d(TAG, "expireDate: " + expireDate);
             Log.d(TAG, "remind: " + remind);
 
-            if(date.before(new Date()) || expireDate.after(new Date()) || date.after(expireDate)) {
-                Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_SHORT).show();
-                return;
-            }
+//            if (date.before(new Date()) || expireDate.after(new Date()) || date.after(expireDate)) {
+//                Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
 
 
             //db
-
-
+            uploadRegistrationRecord();
 
         });
 
@@ -427,10 +485,10 @@ public class RegistrationReminderActivity extends AppCompatActivity {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            if (paymentEditText.getText().toString().length()>0
-                    && dateEditText.getText().toString().length()>0
-                    && expireEditText.getText().toString().length()>0
-                    && expireDateEditText.getText().toString().length()>0
+            if (paymentEditText.getText().toString().length() > 0
+                    && dateEditText.getText().toString().length() > 0
+                    && expireEditText.getText().toString().length() > 0
+                    && expireDateEditText.getText().toString().length() > 0
             ) {     //allow to click saveImageButton
                 try {
                     SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
@@ -495,5 +553,189 @@ public class RegistrationReminderActivity extends AppCompatActivity {
 
     private <T extends View> T $(int id) {
         return (T) findViewById(id);
+    }
+
+
+    // TO BE ADJUSTED
+
+    private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
+
+        String URL = IP_HOST + GET_REGISTRATION_RECORD_IDENTIFIER + vehicle.getRegistration_no() + "/" + currentDate;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONObject jsonObject = response;
+
+            identifier = jsonObject.optString("identifier");
+            record_id = jsonObject.optString("record_id");
+
+            if (callbacks != null)
+                callbacks.onSuccess(identifier, record_id);
+
+        }, error -> {
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(RegistrationReminderActivity.this).add(objectRequest);
+    }
+
+    public interface recordIdentifierCallback {
+        void onSuccess(@NonNull String returnedIdentifier, String returnedRecord_id);
+
+//        void onError(@NonNull String errorMessage);
+    }
+
+    private void uploadRegistrationRecord() {
+
+        String isRemind = "";
+        if (remind) {
+            isRemind += "1";
+        } else {
+            isRemind += "0";
+        }
+
+        String finalIsRemind = isRemind;
+        Thread thread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + ADD_REGISTRATION_RECORD);
+
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            try {
+                reqEntity.addPart("record_id", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+                Log.e("recordID in request", serviceIDTextView.getText().toString().substring(4));
+
+                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+                reqEntity.addPart("payment_no", new StringBody(payment));
+                reqEntity.addPart("registration_date", new StringBody(format.format(date)));
+                reqEntity.addPart("expires_in", new StringBody(expire));
+                reqEntity.addPart("expiry_date", new StringBody(format.format(expireDate)));
+                reqEntity.addPart("registration_reminder", new StringBody(finalIsRemind));
+                reqEntity.addPart("registration_record_identifier", new StringBody(identifier));
+
+                if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] qrbyteArray = stream.toByteArray();
+                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
+                    reqEntity.addPart("document", recordBody);
+                }
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    reqEntity.addPart("logo", new StringBody("image error"));
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("success")) {
+
+                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
+                        invokeBlockchain(identifierTextView.getText().toString(),
+                                payment,
+                                expire,
+                                format.format(date),
+                                format.format(expireDate),
+                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
+                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(RegistrationReminderActivity.this, "success", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(RegistrationReminderActivity.this, EditVehicleActivity.class);
+                            intent.putExtra("vehicleID", vehicleID);
+                            startActivity(intent);
+                        }
+                    });
+                }
+                Log.e("response", s.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
+
+        });
+        thread.start();
+    }
+
+    private void invokeBlockchain(String identifier, String payment_no, String expires_in, String registration_date, String expiry_date, String ecrypt_hash, String registration_file_location) {
+
+        String URL = BLOCKCHAIN_IP + INVOKE_BLOCKCHAIN;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("identifier", identifier);
+            jsonParam.put("record_type", "registration");
+            jsonParam.put("payment_no", payment_no);
+            jsonParam.put("expires_in", expires_in);
+            jsonParam.put("registration_date", registration_date);
+            jsonParam.put("expiry_date", expiry_date);
+            jsonParam.put("ecrypt_hash", ecrypt_hash);
+            jsonParam.put("registration_file_location", registration_file_location);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+
+            Log.e("Blockchain Response", response.toString());
+            Log.e("Blockchain submission", response.optString("message"));
+
+        }, error -> {
+            Log.e("Blockchain ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(RegistrationReminderActivity.this).add(objectRequest);
+
     }
 }
