@@ -241,7 +241,8 @@ public class EditVehicleActivity extends AppCompatActivity {
     }
 
     private void startParkingReceipts(String vehicleID) {
-
+        Log.d(TAG, "ParkingReceiptsVehicleID: " + vehicleID);
+        startActivity(new Intent(EditVehicleActivity.this, ParkingReceiptActivity.class).putExtra("vehicleID", vehicleID));
     }
 
     private void startInsuranceRecord(String vehicleID) {
