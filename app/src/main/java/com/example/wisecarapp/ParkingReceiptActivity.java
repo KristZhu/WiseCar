@@ -48,6 +48,9 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
     private final static String TAG = "Parking Receipt";
 
+    private Vehicle vehicle;
+    private String vehicleID;
+
     private ImageButton backImageButton;
 
     private CircleImageView parkingImageView;
@@ -265,7 +268,13 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(ParkingReceiptActivity.this, VehicleActivity.class)));
 
+        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        Log.d(TAG, "vehicleID: " + vehicleID);
+        vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "vehicle: " + vehicle);
+
         idTextView = $(R.id.idTextView);
+        parkingImageView = $(R.id.parkingImageView);
 
         uploadButton = $(R.id.uploadButton);
         uploadButton.setOnClickListener(v -> {
