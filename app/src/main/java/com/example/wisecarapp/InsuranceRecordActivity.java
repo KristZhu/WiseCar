@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -30,10 +32,15 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +71,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -99,6 +107,11 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     private EditText startEditText;
     private EditText endEditText;
     private EditText typeEditText;
+    //private Spinner typeSpinner;
+    //private AutoCompleteTextView typeEditText;
+    //private ConstraintLayout typeSpinnerDiv;
+    //private EditText thirdPartyType;
+    //private EditText comprehensiveType;
 
     private String number;
     private String insurer;
@@ -243,7 +256,6 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         insurerEditText = $(R.id.insurerEditText);
         startEditText = $(R.id.startEditText);
         endEditText = $(R.id.endEditText);
-        typeEditText = $(R.id.typeEditText);
 
         startEditText.setInputType(InputType.TYPE_NULL);
         startEditText.setOnClickListener(v -> {
@@ -288,6 +300,64 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
+
+        typeEditText = $(R.id.typeEditText);
+        //typeSpinner = $(R.id.typeSpinner);
+        typeEditText.setInputType(InputType.TYPE_NULL);
+        typeEditText.setOnClickListener(v -> {
+            final String[] types = new String[]{"Third Party", "Comprehensive"};
+            AlertDialog alertDialog = new AlertDialog.Builder(InsuranceRecordActivity.this)
+                    //.setTitle("select a cover type")
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setItems(types, (dialogInterface, i) -> typeEditText.setText(types[i]))
+                    .create();
+            alertDialog.show();
+        });
+
+/*
+        typeSpinnerDiv = $(R.id.typeSpinnerDiv);
+        thirdPartyType = $(R.id.thirdPartyType);
+        comprehensiveType = $(R.id.comprehensiveType);
+
+        typeEditText.setInputType(InputType.TYPE_NULL);
+        typeEditText.setOnClickListener(v -> typeSpinnerDiv.setVisibility(View.VISIBLE));
+        thirdPartyType.setInputType(InputType.TYPE_NULL);
+        thirdPartyType.setOnClickListener(v -> {
+            typeSpinnerDiv.setVisibility(View.GONE);
+            typeEditText.setText("Third Party");
+        });
+        comprehensiveType.setInputType(InputType.TYPE_NULL);
+        comprehensiveType.setOnClickListener(v -> {
+            typeSpinnerDiv.setVisibility(View.GONE);
+            typeEditText.setText("Comprehensive");
+        });
+*/
+/*
+        String[] spinnerItems = new String[] {"Third Party", "Comprehensive"};
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, spinnerItems);
+        typeEditText.setAdapter(adapter);
+        typeEditText.setOnItemClickListener((parent, view, position, id) -> {
+            type = typeEditText.getText().toString();
+            typeEditText.setText(type);
+        });
+        typeEditText.setOnClickListener(v -> typeEditText.setText(""));
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.layout_spinner_item, spinnerItems);
+        typeSpinner.setAdapter(adapter);
+        typeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                                  @Override
+                                                  public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                                                      Log.d(TAG, "onItemSelected: " + spinnerItems[pos]);
+
+                                                  }
+                                                  @Override
+                                                  public void onNothingSelected(AdapterView<?> parent) {
+
+                                                  }
+                                              });
+*/
+
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
@@ -490,11 +560,13 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
+            //typeSpinnerDiv.setVisibility(View.GONE);
             if (numberEditText.getText().toString().length()>0
                     && insurerEditText.getText().toString().length()>0
                     && startEditText.getText().toString().length()>0
                     && endEditText.getText().toString().length()>0
                     && typeEditText.getText().toString().length()>0
+                    //&& typeSpinner.
             ) {     //allow to click saveImageButton
                 try {
                     SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());

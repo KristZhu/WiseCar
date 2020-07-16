@@ -305,6 +305,9 @@ public class LicenceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_licence);
 
+        Log.d(TAG, "username: " + UserInfo.getUsername());
+        Log.d(TAG, "userID: " + UserInfo.getUserID());
+
         backImageButton = $(R.id.backImageButton);
         identifierTextView = $(R.id.identifierTextView);
         licenceImageView = $(R.id.licenceImageView);
@@ -312,6 +315,7 @@ public class LicenceActivity extends AppCompatActivity {
         backImageButton.setOnClickListener(v -> startActivity(new Intent(LicenceActivity.this, VehicleActivity.class)));
 
         idTextView = $(R.id.idTextView);
+        licenceImageView = $(R.id.licenceImageView);
 
         uploadButton = $(R.id.uploadButton);
 

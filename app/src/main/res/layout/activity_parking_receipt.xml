@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:context=".ParkingReceiptActivity"
     android:background="@drawable/wc0bg_dark"
-    android:theme="@style/Theme.AppCompat.NoActionBar"
-    tools:context=".InsuranceRecordActivity">
+    android:theme="@style/Theme.AppCompat.NoActionBar">
 
     <ImageButton
         android:id="@+id/backImageButton"
@@ -34,7 +34,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
-        android:contentDescription="TODO"
         app:layout_constraintBottom_toBottomOf="@+id/backImageButton"
         app:layout_constraintDimensionRatio="4:1"
         app:layout_constraintEnd_toEndOf="parent"
@@ -43,8 +42,8 @@
         app:layout_constraintTop_toTopOf="@+id/backImageButton"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.3"
-        app:srcCompat="@drawable/wc0title" />
-
+        app:srcCompat="@drawable/wc0title"
+        android:contentDescription="TODO" />
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -81,95 +80,46 @@
                 app:layout_constraintVertical_bias="0.0">
 
                 <TextView
-                    android:id="@+id/serviceIDTextView"
+                    android:id="@+id/idTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ID: 1234567"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.0" />
+                    app:layout_constraintVertical_bias="0.0"
+                    android:text="ID: 1234567" />
 
-                <ImageView
-                    android:id="@+id/qrImageView"
+                <com.example.wisecarapp.CircleImageView
+                    android:id="@+id/licenceImageView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_centerInParent="true"
-                    android:background="#ffffff"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/serviceIDTextView"
+                    app:layout_constraintTop_toBottomOf="@id/idTextView"
                     app:layout_constraintWidth_default="percent"
-                    app:layout_constraintWidth_percent="0.25" />
+                    app:layout_constraintWidth_percent="0.25"
+                    app:srcCompat="@drawable/licence0camera" />
 
                 <Button
                     android:id="@+id/uploadButton"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_marginBottom="16dp"
                     android:background="@null"
                     android:cropToPadding="false"
                     android:padding="0dp"
                     android:scaleType="fitXY"
                     android:text="Upload Record"
+                    app:layout_constraintVertical_bias="0.0"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="4:1"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/qrImageView"
+                    app:layout_constraintTop_toBottomOf="@+id/licenceImageView"
                     app:layout_constraintWidth_default="percent"
                     app:layout_constraintWidth_percent=".33" />
-
-                <Button
-                    android:id="@+id/resetButton"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="@null"
-                    android:cropToPadding="false"
-                    android:padding="0dp"
-                    android:scaleType="fitXY"
-                    android:text="Reset QR Code"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintDimensionRatio="4:1"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/qrImageView"
-                    app:layout_constraintWidth_default="percent"
-                    app:layout_constraintWidth_percent=".33" />
-
-                <ImageButton
-                    android:id="@+id/cameraImageButton"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="@null"
-                    android:padding="0dp"
-                    android:scaleType="fitXY"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintDimensionRatio="224:199"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="1.0"
-                    app:layout_constraintWidth_percent="0.15"
-                    app:srcCompat="@drawable/vehicle0camera" />
-
-                <TextView
-                    android:id="@+id/identifierTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="TextView"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="@+id/qrImageView"
-                    app:layout_constraintEnd_toEndOf="@+id/qrImageView"
-                    app:layout_constraintStart_toStartOf="@+id/qrImageView"
-                    app:layout_constraintTop_toBottomOf="@+id/serviceIDTextView" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -191,9 +141,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="Policy Number"
+                    android:text="Ticket Reference"
                     android:textColor="#000000"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -206,23 +156,23 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:scaleType="fitXY"
+                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintStart_toEndOf="@+id/textView1"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/numberEditText"
+                    android:id="@+id/referenceEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:autoText="true"
-                    android:background="@null"
                     android:ems="10"
                     android:textColor="#000000"
+                    android:autoText="true"
+                    android:background="@null"
                     app:layout_constraintBottom_toBottomOf="@+id/imageView1"
                     app:layout_constraintEnd_toEndOf="@+id/imageView1"
                     app:layout_constraintStart_toStartOf="@+id/imageView1"
@@ -248,9 +198,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="Insurer"
+                    android:text="Date"
                     android:textColor="#000000"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -264,24 +214,24 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:scaleType="fitXY"
+                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintStart_toEndOf="@+id/textView2"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/insurerEditText"
+                    android:id="@+id/dateEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:autoText="true"
-                    android:background="@null"
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:textColor="#000000"
+                    android:autoText="true"
+                    android:background="@null"
                     app:layout_constraintBottom_toBottomOf="@+id/imageView2"
                     app:layout_constraintEnd_toEndOf="@+id/imageView2"
                     app:layout_constraintStart_toStartOf="@+id/imageView2"
@@ -307,9 +257,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="Start of Cover"
+                    android:text="Total Hours"
                     android:textColor="#000000"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -322,15 +272,15 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:scaleType="fitXY"
+                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintStart_toEndOf="@+id/textView3"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/startEditText"
+                    android:id="@+id/hourEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -338,7 +288,7 @@
                     android:autoText="true"
                     android:background="@null"
                     android:ems="10"
-                    android:inputType="textPersonName"
+                    android:inputType="number"
                     android:textColor="#000000"
                     app:layout_constraintBottom_toBottomOf="@+id/imageView3"
                     app:layout_constraintEnd_toEndOf="@+id/imageView3"
@@ -365,9 +315,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="End of Cover"
+                    android:text="Fees Paid"
                     android:textColor="#000000"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -380,15 +330,15 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:scaleType="fitXY"
+                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintStart_toEndOf="@+id/textView4"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/endEditText"
+                    android:id="@+id/feeEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -396,7 +346,7 @@
                     android:autoText="true"
                     android:background="@null"
                     android:ems="10"
-                    android:inputType="textPersonName"
+                    android:inputType="number"
                     android:textColor="#000000"
                     app:layout_constraintBottom_toBottomOf="@+id/imageView4"
                     app:layout_constraintEnd_toEndOf="@+id/imageView4"
@@ -423,9 +373,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
-                    android:text="Cover Type"
+                    android:text="Notes"
                     android:textColor="#000000"
-                    android:textSize="14sp"
+                    android:textSize="16sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -438,86 +388,58 @@
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
                     android:scaleType="fitXY"
+                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHeight_percent="0.75"
                     app:layout_constraintStart_toEndOf="@+id/textView5"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/typeEditText"
+                    android:id="@+id/notesEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginEnd="16dp"
-                    android:autoText="true"
-                    android:background="@null"
                     android:ems="10"
                     android:inputType="textPersonName"
                     android:textColor="#000000"
+                    android:autoText="true"
+                    android:background="@null"
                     app:layout_constraintBottom_toBottomOf="@+id/imageView5"
                     app:layout_constraintEnd_toEndOf="@+id/imageView5"
                     app:layout_constraintStart_toStartOf="@+id/imageView5"
                     app:layout_constraintTop_toTopOf="@+id/imageView5" />
 
-                <!--
-                <Spinner
-                android:id="@+id/typeSpinner"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:autoText="true"
-                android:background="@null"
-                android:ems="10"
-                android:textColor="#000000"
-                android:padding="0dp"
-                android:popupBackground="#ffffff"
-                app:layout_constraintBottom_toBottomOf="@+id/imageView5"
-                app:layout_constraintEnd_toEndOf="@+id/imageView5"
-                app:layout_constraintStart_toStartOf="@+id/imageView5"
-                app:layout_constraintTop_toTopOf="@+id/imageView5" />
-                -->
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/typeSpinnerDiv"
-                android:visibility="gone"
-                android:layout_width="wrap_content"
+                android:id="@+id/rowDiv6"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#000000"
-                app:layout_constraintBottom_toBottomOf="@id/rowDiv5"
-                app:layout_constraintEnd_toEndOf="@id/rowDiv5"
-                app:layout_constraintStart_toStartOf="@id/rowDiv5"
-                app:layout_constraintHorizontal_bias="0.55">
+                android:layout_marginTop="8dp"
+                android:background="#EDEDED"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rowDiv5">
 
-                <LinearLayout
-                    app:layout_constraintTop_toTopOf="parent"
+                <CheckBox
+                    android:id="@+id/claimableCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:button="@drawable/vehicle0checkbox_style"
+                    android:checked="true"
+                    android:gravity="center_vertical"
+                    android:text="Claimable"
+                    android:textColor="#000000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="#ffffff"
-                    android:orientation="vertical">
-
-                    <EditText
-                        android:id="@+id/thirdPartyType"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Thrid Party"
-                        android:textColor="#000000" />
-
-                    <EditText
-                        android:id="@+id/comprehensiveType"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Comprehensive"
-                        android:textColor="#000000" />
-
-                </LinearLayout>
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -544,11 +466,11 @@
             android:layout_marginEnd="32dp"
             android:layout_marginBottom="8dp"
             android:alpha="0.5"
-            android:background="@null"
             android:clickable="false"
             android:cropToPadding="false"
             android:padding="0dp"
             android:scaleType="fitXY"
+            android:background="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
