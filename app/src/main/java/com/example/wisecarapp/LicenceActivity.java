@@ -641,7 +641,7 @@ public class LicenceActivity extends AppCompatActivity {
                 reqEntity.addPart("license_no", new StringBody(number));
                 reqEntity.addPart("license_type", new StringBody(type));
                 reqEntity.addPart("start_date", new StringBody(format.format(startDate)));
-                reqEntity.addPart("expires_in", new StringBody(expire));
+                reqEntity.addPart("expires_in", new StringBody(String.valueOf(durationYear)));
                 reqEntity.addPart("expiry_date", new StringBody(format.format(expireDate)));
                 reqEntity.addPart("remind_me", new StringBody(finalIsRemind));
                 reqEntity.addPart("licence_status", new StringBody(finalIsActive));
@@ -686,7 +686,7 @@ public class LicenceActivity extends AppCompatActivity {
                                 type,
                                 format.format(startDate),
                                 format.format(expireDate),
-                                expire,
+                                String.valueOf(durationYear),
                                 s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
                                 s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
                     }
