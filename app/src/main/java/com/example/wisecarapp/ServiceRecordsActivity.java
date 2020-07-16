@@ -201,7 +201,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         identifierTextView = $(R.id.identifierTextView);
         resetButton = $(R.id.resetButton);
 
-        resetButton.setOnClickListener((v) -> qrImageView.setImageBitmap(qrCodeBitmap));
+        resetButton.setOnClickListener(v -> qrImageView.setImageBitmap(qrCodeBitmap));
 
         uploadButton.setOnClickListener((v) -> Log.d(TAG, "upload record: "));
 
