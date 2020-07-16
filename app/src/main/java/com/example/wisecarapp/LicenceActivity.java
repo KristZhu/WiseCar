@@ -329,7 +329,7 @@ public class LicenceActivity extends AppCompatActivity {
             String idToBeShown = "ID: " + record_id;
 
             idTextView.setText(idToBeShown);
-            identifierTextView.setText(returnedRecord_id);
+            identifierTextView.setText(returnedIdentifier);
         });
 
         uploadButton.setOnClickListener(v -> {
@@ -640,6 +640,7 @@ public class LicenceActivity extends AppCompatActivity {
                 reqEntity.addPart("remind_me", new StringBody(finalIsRemind));
                 reqEntity.addPart("licence_status", new StringBody(finalIsActive));
                 reqEntity.addPart("driver_license_identifier", new StringBody(identifierTextView.getText().toString()));
+                Log.e("IDENTIFIER", identifierTextView.getText().toString());
 
                 if (licenceImageView.getDrawable() != null) {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -687,7 +688,7 @@ public class LicenceActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(LicenceActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(LicenceActivity.this, EditVehicleActivity.class);
+                            Intent intent = new Intent(LicenceActivity.this, VehicleActivity.class);
                             startActivity(intent);
                         }
                     });

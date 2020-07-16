@@ -61,21 +61,21 @@ public class EditVehicleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_vehicle);
 
-//        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-//        if (vehicleID.equals("a")) {
-//            //id = "a" means the vehicle is newly added and it is a fake id, and synchronizing process is not finished
-//            //jump back to VehicleActivity to wait for synchronizing
-//            for (String newID : UserInfo.getVehicles().keySet()) {
-//                UserInfo.setVehicles(null);
-//                Toast.makeText(EditVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
-//                startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class));
-//                return;
-//            }
-//        }
-//        Log.d(TAG, "vehicleID: " + vehicleID);
-//
-//        vehicle = UserInfo.getVehicles().get(vehicleID);
-//        Log.d(TAG, "vehicle: " + vehicle);
+        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        if (vehicleID.equals("a")) {
+            //id = "a" means the vehicle is newly added and it is a fake id, and synchronizing process is not finished
+            //jump back to VehicleActivity to wait for synchronizing
+            for (String newID : UserInfo.getVehicles().keySet()) {
+                UserInfo.setVehicles(null);
+                Toast.makeText(EditVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class));
+                return;
+            }
+        }
+        Log.d(TAG, "vehicleID: " + vehicleID);
+
+        vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "vehicle: " + vehicle);
 
         vehicleImageView = $(R.id.vehicleImageView);
         vehicleImageView.setImageBitmap(vehicle.getImage());
