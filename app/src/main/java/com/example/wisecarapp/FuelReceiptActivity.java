@@ -48,12 +48,15 @@ public class FuelReceiptActivity extends AppCompatActivity {
 
     private final static String TAG = "Fuel Receipt";
 
+    private Vehicle vehicle;
+    private String vehicleID;
+
     private ImageButton backImageButton;
 
-    private CircleImageView parkingImageView;
-    private Uri parkingImageUri;
-    private Bitmap parkingImageBitmap;
-    private Drawable parkingImageDrawable;
+    private CircleImageView fuelImageView;
+    private Uri fuelImageUri;
+    private Bitmap fuelImageBitmap;
+    private Drawable fuelImageDrawable;
 
     private TextView idTextView;
     private Button uploadButton;
@@ -120,9 +123,9 @@ public class FuelReceiptActivity extends AppCompatActivity {
             case TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
                     Intent intent = new Intent("com.android.camera.action.CROP");
-                    intent.setDataAndType(parkingImageUri, "image/**");
+                    intent.setDataAndType(fuelImageUri, "image/**");
                     intent.putExtra("scale", true);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, parkingImageUri);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, fuelImageUri);
                     startActivityForResult(intent, GROP_PHOTO);
                 }
                 break;
@@ -130,9 +133,9 @@ public class FuelReceiptActivity extends AppCompatActivity {
             case GROP_PHOTO: //剪裁程序 似乎有bug 不确定是不是由于模拟器！
                 if (resultCode == RESULT_OK) {
                     try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(parkingImageUri));
-                        parkingImageView.setImageBitmap(bitmap);
-                        parkingImageBitmap = bitmap;
+                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(fuelImageUri));
+                        fuelImageView.setImageBitmap(bitmap);
+                        fuelImageBitmap = bitmap;
                         //show
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -150,7 +153,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
                 }
                 try {
                     data.putExtra("scale", true);
-                    data.putExtra(MediaStore.EXTRA_OUTPUT, parkingImageUri);
+                    data.putExtra(MediaStore.EXTRA_OUTPUT, fuelImageUri);
                     startActivityForResult(data, GROP_PHOTO);
                 } catch (Exception e) {
                     Log.d(TAG, "cancel choosing photo");
@@ -175,9 +178,9 @@ public class FuelReceiptActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        parkingImageUri = Uri.fromFile(outputImage);
+        fuelImageUri = Uri.fromFile(outputImage);
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, parkingImageUri);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fuelImageUri);
         startActivityForResult(intent, TAKE_PHOTO);
         //active camera
     }
@@ -193,12 +196,12 @@ public class FuelReceiptActivity extends AppCompatActivity {
         }catch(IOException e){
             e.printStackTrace();
         }
-        parkingImageUri = Uri.fromFile(outputImage);
+        fuelImageUri = Uri.fromFile(outputImage);
         Intent intent=new Intent("android.intent.action.GET_CONTENT");
         intent.setType("image/*");
         intent.putExtra("crop",true);
         intent.putExtra("scale",true);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, parkingImageUri);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fuelImageUri);
 
         startActivityForResult(intent,CHOOSE_PHOTO);
     }
@@ -250,8 +253,8 @@ public class FuelReceiptActivity extends AppCompatActivity {
     private void displayImage(String imagePath){
         if(imagePath!=null){
             Bitmap bitmap= BitmapFactory.decodeFile(imagePath);
-            parkingImageView.setImageBitmap(bitmap);
-            parkingImageBitmap = bitmap;
+            fuelImageView.setImageBitmap(bitmap);
+            fuelImageBitmap = bitmap;
         }else{
             Toast.makeText(this,"failed to get image",Toast.LENGTH_SHORT).show();
         }
@@ -266,6 +269,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
         backImageButton.setOnClickListener(v -> startActivity(new Intent(FuelReceiptActivity.this, VehicleActivity.class)));
 
         idTextView = $(R.id.idTextView);
+        fuelImageView = $(R.id.fuelImageView);
 
         uploadButton = $(R.id.uploadButton);
         uploadButton.setOnClickListener(v -> {
