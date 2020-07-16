@@ -207,7 +207,7 @@ public class RegistrationReminderActivity extends AppCompatActivity {
         expireEditText.setInputType(InputType.TYPE_NULL);
         expireEditText.setOnClickListener(v -> {
             final String[] types = new String[]{"1 Month", "2 Month", "3 Month", "4 Month", "5 Month", "6 Month",
-                    "7 Month", "8 Month", "9 Month", "10 Month", "11 Month", "12 Month", };
+                    "7 Month", "8 Month", "9 Month", "10 Month", "11 Month", "12 Month"};
             AlertDialog alertDialog = new AlertDialog.Builder(RegistrationReminderActivity.this)
                     //.setTitle("select a cover type")
                     .setIcon(R.mipmap.ic_launcher)

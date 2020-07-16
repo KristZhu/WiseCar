@@ -9,17 +9,15 @@ class Licence {
     private String number;
     private String type;
     private Date startDate;
-    private String expire;
     private Date expiryDate;
     private boolean remind;
     private Bitmap licenceImg;
 
-    public Licence(boolean active, String number, String type, Date startDate, String expire, Date expiryDate, boolean remind) {
+    public Licence(boolean active, String number, String type, Date startDate, Date expiryDate, boolean remind) {
         this.active = active;
         this.number = number;
         this.type = type;
         this.startDate = startDate;
-        this.expire = expire;
         this.expiryDate = expiryDate;
         this.remind = remind;
     }
@@ -54,14 +52,6 @@ class Licence {
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
-    }
-
-    public String getExpire() {
-        return expire;
-    }
-
-    public void setExpire(String expire) {
-        this.expire = expire;
     }
 
     public Date getExpiryDate() {
