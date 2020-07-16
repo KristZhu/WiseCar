@@ -338,12 +338,13 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         notesEditText = $(R.id.notesEditText);
         claimableCheckBox = $(R.id.claimableCheckBox);
 
+        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         dateEditText.setInputType(InputType.TYPE_NULL);
+        dateEditText.setText(format.format(new Date()));
         dateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ParkingReceiptActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format.format(date);
                 dateEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -353,7 +354,6 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ParkingReceiptActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(date);
                     dateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();

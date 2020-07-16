@@ -251,7 +251,8 @@ public class EditVehicleActivity extends AppCompatActivity {
     }
 
     private void startFuelReceipts(String vehicleID) {
-
+        Log.d(TAG, "FuelReceiptsVehicleID: " + vehicleID);
+        startActivity(new Intent(EditVehicleActivity.this, FuelReceiptActivity.class).putExtra("vehicleID", vehicleID));
     }
 
     private void shareVehicle(String vehicleID) {
