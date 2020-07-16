@@ -102,7 +102,6 @@ public class ParkingReceiptActivity extends AppCompatActivity {
     private CheckBox claimableCheckBox;
     private TextView identifierTextView;
     private TextView sharedTextView;
-    private ImageView licenceImageView;
 
     private ImageButton saveImageButton;
 
@@ -320,7 +319,6 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         uploadButton = $(R.id.uploadButton);
         identifierTextView = $(R.id.identifierTextView);
         sharedTextView = $(R.id.sharedTextView);
-        licenceImageView = $(R.id.licenceImageView);
 
         getIdentifier((returnedIdentifier, returnedRecord_id) -> {
 
@@ -446,7 +444,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
 
             //db
-
+            uploadParkingReceipt();
 
         });
 
@@ -672,9 +670,9 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                 Log.e("IDENTIFIER", identifierTextView.getText().toString());
                 reqEntity.addPart("shared_company_id", new StringBody(sharedTextView.getText().toString()));
 
-                if (licenceImageView.getDrawable() != null) {
+                if (parkingImageView.getDrawable() != null) {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    Bitmap toBeUploaded = ((BitmapDrawable) licenceImageView.getDrawable()).getBitmap();
+                    Bitmap toBeUploaded = ((BitmapDrawable) parkingImageView.getDrawable()).getBitmap();
                     toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] qrbyteArray = stream.toByteArray();
                     ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
@@ -747,7 +745,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
             jsonParam.put("parking_date", parking_date);
             jsonParam.put("fees_paid", fees_paid);
             jsonParam.put("ecrypt_hash", ecrypt_hash);
-            jsonParam.put("license_file_location", parking_file_location);
+            jsonParam.put("parking_file_location", parking_file_location);
 
         } catch (JSONException e) {
             e.printStackTrace();
