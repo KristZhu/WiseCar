@@ -360,6 +360,17 @@ public class FuelReceiptActivity extends AppCompatActivity {
             }
         });
 
+        typeEditText.setInputType(InputType.TYPE_NULL);
+        typeEditText.setOnClickListener(v -> {
+            final String[] types = new String[]{"Unleaded Petrol (ULP)", "Diesel", "Liquefied Petroleum Gas (LPG)", "Electric Vehicle Charge"};
+            AlertDialog alertDialog = new AlertDialog.Builder(FuelReceiptActivity.this)
+                    //.setTitle("select a cover type")
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setItems(types, (dialogInterface, i) -> typeEditText.setText(types[i]))
+                    .create();
+            alertDialog.show();
+        });
+
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
             //parkingImageDrawable = licenceImageView.getDrawable();

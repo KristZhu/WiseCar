@@ -76,7 +76,7 @@ public class RegistrationReminderActivity extends AppCompatActivity {
 
     private String payment;
     private Date date;
-    private String expire;
+    private int durationMonth;
     private Date expireDate;
     private boolean remind;
 
@@ -204,7 +204,23 @@ public class RegistrationReminderActivity extends AppCompatActivity {
             }
         });
 
+        expireEditText.setInputType(InputType.TYPE_NULL);
+        expireEditText.setOnClickListener(v -> {
+            final String[] types = new String[]{"1 Month", "2 Month", "3 Month", "4 Month", "5 Month", "6 Month",
+                    "7 Month", "8 Month", "9 Month", "10 Month", "11 Month", "12 Month", };
+            AlertDialog alertDialog = new AlertDialog.Builder(RegistrationReminderActivity.this)
+                    //.setTitle("select a cover type")
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setItems(types, (dialogInterface, i) -> {
+                        expireEditText.setText(types[i]);
+                        durationMonth = i+1;
+                    })
+                    .create();
+            alertDialog.show();
+        });
+
         expireDateEditText.setInputType(InputType.TYPE_NULL);
+ /*
         expireDateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(RegistrationReminderActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
@@ -225,18 +241,18 @@ public class RegistrationReminderActivity extends AppCompatActivity {
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
-
+*/
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
             //Log.d(TAG, "userID" + UserInfo.getUserID());
             //Log.d(TAG, "vehicle" + vehicle);
             Log.d(TAG, "payment: " + payment);
             Log.d(TAG, "date: " + date);
-            Log.d(TAG, "expire: " + expire);
+            Log.d(TAG, "durationMonth: " + durationMonth);
             Log.d(TAG, "expireDate: " + expireDate);
             Log.d(TAG, "remind: " + remind);
 
-            if(date.before(new Date()) || expireDate.after(new Date()) || date.after(expireDate)) {
+            if(date.after(new Date()) || expireDate.before(new Date()) || date.after(expireDate)) {
                 Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -427,16 +443,28 @@ public class RegistrationReminderActivity extends AppCompatActivity {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
+            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+            if(dateEditText.getText().toString().length()>0 && durationMonth>0) {
+                try {
+                    date = format.parse(dateEditText.getText().toString());
+                    Calendar expireCalendar = Calendar.getInstance();
+                    expireCalendar.setTime(date);
+                    expireCalendar.add(Calendar.MONTH, durationMonth);
+                    expireCalendar.add(Calendar.DAY_OF_MONTH, -1);
+                    expireDate = expireCalendar.getTime();
+                    expireDateEditText.setText(format.format(expireDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
             if (paymentEditText.getText().toString().length()>0
                     && dateEditText.getText().toString().length()>0
                     && expireEditText.getText().toString().length()>0
                     && expireDateEditText.getText().toString().length()>0
             ) {     //allow to click saveImageButton
                 try {
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     payment = paymentEditText.getText().toString();
                     date = format.parse(dateEditText.getText().toString());
-                    expire = expireEditText.getText().toString();
                     expireDate = format.parse(expireDateEditText.getText().toString());
                     remind = remindCheckBox.isChecked();
                 } catch (ParseException e) {
