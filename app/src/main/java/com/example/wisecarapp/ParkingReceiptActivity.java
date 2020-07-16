@@ -74,6 +74,9 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
     private final static String TAG = "Parking Receipt";
 
+    private Vehicle vehicle;
+    private String vehicleID;
+
     private ImageButton backImageButton;
 
     private CircleImageView parkingImageView;
@@ -306,7 +309,13 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(ParkingReceiptActivity.this, VehicleActivity.class)));
 
+        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        Log.d(TAG, "vehicleID: " + vehicleID);
+        vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "vehicle: " + vehicle);
+
         idTextView = $(R.id.idTextView);
+        parkingImageView = $(R.id.parkingImageView);
 
         uploadButton = $(R.id.uploadButton);
         identifierTextView = $(R.id.identifierTextView);
@@ -401,12 +410,13 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         notesEditText = $(R.id.notesEditText);
         claimableCheckBox = $(R.id.claimableCheckBox);
 
+        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         dateEditText.setInputType(InputType.TYPE_NULL);
+        dateEditText.setText(format.format(new Date()));
         dateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ParkingReceiptActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format.format(date);
                 dateEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -416,7 +426,6 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ParkingReceiptActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(date);
                     dateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();

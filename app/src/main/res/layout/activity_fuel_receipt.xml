@@ -91,7 +91,7 @@
                     android:text="ID: 1234567" />
 
                 <com.example.wisecarapp.CircleImageView
-                    android:id="@+id/licenceImageView"
+                    android:id="@+id/fuelImageView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_centerInParent="true"
@@ -117,7 +117,7 @@
                     app:layout_constraintDimensionRatio="4:1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/licenceImageView"
+                    app:layout_constraintTop_toBottomOf="@+id/fuelImageView"
                     app:layout_constraintWidth_default="percent"
                     app:layout_constraintWidth_percent=".33" />
 
