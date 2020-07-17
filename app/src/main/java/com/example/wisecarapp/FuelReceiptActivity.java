@@ -121,7 +121,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
     private final String GET_IF_SHARED = "/api/v1/fuelreceipts/checkcurrentshare";
     private final String ADD_FUEL = "/api/v1/fuelreceipts/";
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
-    private final String INVOKE_BLOCKCHAIN = "/api/v1/fuelreceipts/blockchaininvoke";
+    private final String INVOKE_BLOCKCHAIN = "/api/v1/fuelreceipt/blockchaininvoke";
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -313,6 +313,11 @@ public class FuelReceiptActivity extends AppCompatActivity {
         identifierTextView = $(R.id.identifierTextView);
         sharedTextView = $(R.id.sharedTextView);
 
+        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        Log.d(TAG, "vehicleID: " + vehicleID);
+        vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "vehicle: " + vehicle);
+
         getIdentifier((returnedIdentifier, returnedRecord_id) -> {
 
             Log.e("fuel identifier", identifier);
@@ -450,8 +455,11 @@ public class FuelReceiptActivity extends AppCompatActivity {
 
 
             //db
-
-
+            if (claimable && sharedTextView.getText().toString().equals("")) {
+                Toast.makeText(getApplicationContext(), "This vehicle is currently not shared with any company, please uncheck Claimable.", Toast.LENGTH_SHORT).show();
+            } else {
+                uploadFuelReceipt();
+            }
 
         });
 
@@ -549,7 +557,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
 
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-        String URL = IP_HOST + GET_FUEL_IDENTIFIER + vehicle.getRegistration_no() + "/" + format.format(date);
+        String URL = IP_HOST + GET_FUEL_IDENTIFIER + vehicle.getRegistration_no() + "/" + format.format(new Date());
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -644,7 +652,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
 //        void onError(@NonNull String errorMessage);
     }
 
-    private void uploadParkingReceipt() {
+    private void uploadFuelReceipt() {
 
         String isClaim = "";
 
@@ -724,7 +732,8 @@ public class FuelReceiptActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(FuelReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(FuelReceiptActivity.this, VehicleActivity.class);
+                            Intent intent = new Intent(FuelReceiptActivity.this, EditVehicleActivity.class);
+                            intent.putExtra("vehicleID", vehicleID);
                             startActivity(intent);
                         }
                     });

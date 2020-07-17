@@ -444,7 +444,11 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
 
             //db
-            uploadParkingReceipt();
+            if (claimable && sharedTextView.getText().toString().equals("")) {
+                Toast.makeText(getApplicationContext(), "This vehicle is currently not shared with any company, please uncheck Claimable.", Toast.LENGTH_SHORT).show();
+            } else {
+                uploadParkingReceipt();
+            }
 
         });
 
@@ -541,7 +545,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-        String URL = IP_HOST + GET_PARKING_IDENTIFIER + vehicle.getRegistration_no() + "/" + format.format(date);
+        String URL = IP_HOST + GET_PARKING_IDENTIFIER + vehicle.getRegistration_no() + "/" + format.format(new Date());
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -642,7 +646,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
         if (claimable) {
             isClaim = "1";
-        }else{
+        } else {
             isClaim += "0";
         }
 
@@ -715,7 +719,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(ParkingReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(ParkingReceiptActivity.this, VehicleActivity.class);
+                            Intent intent = new Intent(ParkingReceiptActivity.this, EditVehicleActivity.class);
                             startActivity(intent);
                         }
                     });
