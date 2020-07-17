@@ -313,15 +313,15 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                                         checkBoxes[j].setChecked(servicesVisibility.get(5));
                                         checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(5, isChecked));
                                         break;
+//                                    case 6:
+//                                        checkBoxes[j].setText("Toll");
+//                                        checkBoxes[j].setChecked(servicesVisibility.get(6));
+//                                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(6, isChecked));
+//                                        break;
                                     case 6:
-                                        checkBoxes[j].setText("Toll");
+                                        checkBoxes[j].setText("Fuel");
                                         checkBoxes[j].setChecked(servicesVisibility.get(6));
                                         checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(6, isChecked));
-                                        break;
-                                    case 7:
-                                        checkBoxes[j].setText("Fuel");
-                                        checkBoxes[j].setChecked(servicesVisibility.get(7));
-                                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(7, isChecked));
                                         break;
                                 }
                                 set.connect(checkBoxes[j].getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 16);
@@ -511,15 +511,15 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         checkBoxes[j].setChecked(servicesVisibility.get(5));
                         checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(5, isChecked));
                         break;
+//                    case 6:
+//                        checkBoxes[j].setText("Toll");
+//                        checkBoxes[j].setChecked(servicesVisibility.get(6));
+//                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(6, isChecked));
+//                        break;
                     case 6:
-                        checkBoxes[j].setText("Toll");
+                        checkBoxes[j].setText("Fuel");
                         checkBoxes[j].setChecked(servicesVisibility.get(6));
                         checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(6, isChecked));
-                        break;
-                    case 7:
-                        checkBoxes[j].setText("Fuel");
-                        checkBoxes[j].setChecked(servicesVisibility.get(7));
-                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(7, isChecked));
                         break;
                 }
                 set.connect(checkBoxes[j].getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 16);

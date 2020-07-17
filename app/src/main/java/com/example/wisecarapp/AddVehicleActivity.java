@@ -176,7 +176,7 @@ public class AddVehicleActivity extends AppCompatActivity {
             $(R.id.driverCheckBox),
             $(R.id.parkingCheckBox),
             $(R.id.insuranceCheckBox),
-            $(R.id.tollCheckBox),
+            //$(R.id.tollCheckBox),
             $(R.id.fuelCheckBox)
         };
         saveImageButton = $(R.id.saveImageButton);
@@ -291,8 +291,8 @@ public class AddVehicleActivity extends AppCompatActivity {
             Log.d(TAG, "driver: " + isServices[2]);
             Log.d(TAG, "parking: " + isServices[3]);
             Log.d(TAG, "insurance: " + isServices[4]);
-            Log.d(TAG, "toll: " + isServices[5]);
-            Log.d(TAG, "fuel: " + isServices[6]);
+            //Log.d(TAG, "toll: " + isServices[5]);
+            Log.d(TAG, "fuel: " + isServices[5]);
 
             if (UserInfo.getVehicles() == null)
                 UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
