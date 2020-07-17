@@ -127,10 +127,10 @@ public class EditVehicleActivity extends AppCompatActivity {
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0insurance_button));
                                 imageViews[j].setOnClickListener(v -> startInsuranceRecord(vehicleID));
                                 break;
+                            //case 6:
+                                //imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button));
+                                //break;
                             case 6:
-                                imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button));
-                                break;
-                            case 7:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0fuel_button));
                                 imageViews[j].setOnClickListener(v -> startFuelReceipts(vehicleID));
                                 break;
