@@ -156,12 +156,15 @@ public class VehicleActivity extends AppCompatActivity {
 
         settingImageButton = $(R.id.settingImageButton);
         editImageButton = $(R.id.editImageButton);
+        settingImageButton.setOnClickListener(v -> {
+            //to be implemented
+        });
+        editVehicleImageButton.setOnClickListener(v -> {
+            //to be implemented
+        });
 
         licenceImageButton = $(R.id.licenceImageButton);
-        licenceImageButton.setOnClickListener(v -> {
-
-            startActivity(new Intent(VehicleActivity.this, LicenceActivity.class));
-        });
+        licenceImageButton.setOnClickListener(v -> startActivity(new Intent(VehicleActivity.this, LicenceActivity.class)));
 
         dashboardImageButton = $(R.id.dashboardImageButton);
         dashboardButton = $(R.id.dashboardButton);
@@ -225,7 +228,7 @@ public class VehicleActivity extends AppCompatActivity {
         addImageButton.setOnClickListener(v -> addVehicle());
 
         manageImageButton.setOnClickListener(v -> {
-            //manageVehicle();
+            //to be implementer
         });
 
     }
