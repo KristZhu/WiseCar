@@ -150,7 +150,9 @@
                     app:layout_constraintStart_toEndOf="@+id/userEmailImageView"
                     app:layout_constraintTop_toTopOf="@+id/userEmailImageView" />
 
+                <!-- not implemented for now -->
                 <ImageButton
+                    android:visibility="gone"
                     android:id="@+id/settingImageButton"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -167,7 +169,9 @@
                     app:layout_constraintWidth_percent="0.25"
                     app:srcCompat="@drawable/vehicle0setting" />
 
+                <!-- not implemented for now -->
                 <ImageButton
+                    android:visibility="gone"
                     android:id="@+id/editImageButton"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -188,7 +192,7 @@
                     android:id="@+id/licenceImageButton"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    app:layout_constraintTop_toBottomOf="@id/settingImageButton"
+                    app:layout_constraintTop_toBottomOf="@id/userEmailImageView"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="@id/settingImageButton"
                     app:layout_constraintEnd_toEndOf="@id/editImageButton"
@@ -429,7 +433,9 @@
                     app:layout_constraintHeight_percent="0.1"
                     app:srcCompat="@drawable/vehicle0add" />
 
+                <!-- not implemented for now -->
                 <ImageButton
+                    android:visibility="gone"
                     android:id="@+id/manageImageButton"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
