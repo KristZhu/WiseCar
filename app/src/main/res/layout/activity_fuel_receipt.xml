@@ -121,6 +121,17 @@
                     app:layout_constraintWidth_default="percent"
                     app:layout_constraintWidth_percent=".33" />
 
+                <TextView
+                    android:id="@+id/identifierTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TextView"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="@+id/fuelImageView"
+                    app:layout_constraintEnd_toEndOf="@+id/fuelImageView"
+                    app:layout_constraintStart_toStartOf="@+id/fuelImageView"
+                    app:layout_constraintTop_toTopOf="@+id/fuelImageView" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -440,6 +451,17 @@
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/sharedTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TextView"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/claimableCheckBox"
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

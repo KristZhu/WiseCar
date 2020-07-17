@@ -159,6 +159,7 @@ public class VehicleActivity extends AppCompatActivity {
 
         licenceImageButton = $(R.id.licenceImageButton);
         licenceImageButton.setOnClickListener(v -> {
+
             startActivity(new Intent(VehicleActivity.this, LicenceActivity.class));
         });
 
@@ -193,7 +194,7 @@ public class VehicleActivity extends AppCompatActivity {
         //get vehicle data from db and store locally only when there is no vehicle locally
         //it is because this user either just log in or really has no vehicles
         //every time the user adds a new vehicle, it will add to local, and upload to db. so no need to get data from db later.
-        if(UserInfo.getVehicles()==null || UserInfo.getVehicles().size()==0) {
+        if (UserInfo.getVehicles() == null || UserInfo.getVehicles().size() == 0) {
             returnVehicles(user_id, new vehicleMapCallbacks() {
                 @SuppressLint("SetTextI18n")
                 @Override
@@ -221,7 +222,6 @@ public class VehicleActivity extends AppCompatActivity {
         }
 
 
-
         addImageButton.setOnClickListener(v -> addVehicle());
 
         manageImageButton.setOnClickListener(v -> {
@@ -240,7 +240,7 @@ public class VehicleActivity extends AppCompatActivity {
     }
 
     private void showVehicles(Map<String, Vehicle> vehicles) {
-        assert vehicles.size()>0;
+        assert vehicles.size() > 0;
 
         //vehicleImageViews = new HashMap<>();
 
@@ -286,6 +286,7 @@ public class VehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "editVehicle, vehicle DB: " + vehiclesDB);
 
             }
+
             @Override
             public void onError(@NonNull String errorMessage) {
                 Log.e("return vehicles error: ", errorMessage);
@@ -339,7 +340,7 @@ public class VehicleActivity extends AppCompatActivity {
             Log.e("Response", response.toString());
             byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
             ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
-            Log.e("image bitmap method: ", ImgBitmap==null ? "null img" : ImgBitmap.toString());
+            Log.e("image bitmap method: ", ImgBitmap == null ? "null img" : ImgBitmap.toString());
             email_address = response.optString("email_address");
             if (ImgBitmap == null) {
                 Log.e("No image: ", "this user has no image");
@@ -449,7 +450,7 @@ public class VehicleActivity extends AppCompatActivity {
         void onError(@NonNull String errorMessage);
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 }

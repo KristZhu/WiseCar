@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -30,14 +31,38 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -74,6 +99,8 @@ public class FuelReceiptActivity extends AppCompatActivity {
     private EditText fuelAmountEditText;
     private EditText paidAmountEditText;
     private CheckBox claimableCheckBox;
+    private TextView identifierTextView;
+    private TextView sharedTextView;
 
     private ImageButton saveImageButton;
 
@@ -83,6 +110,18 @@ public class FuelReceiptActivity extends AppCompatActivity {
     private static final int MULTI_PERMISSION_CODE = 0;
     private static final int PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE = 1;
     private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
+
+    private String identifier;
+    private String record_id;
+
+    private String shared_company_id = "";
+
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_FUEL_IDENTIFIER = "/api/v1/fuelreceipts/identifier/";
+    private final String GET_IF_SHARED = "/api/v1/fuelreceipts/checkcurrentshare";
+    private final String ADD_FUEL = "/api/v1/fuelreceipts/";
+    private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
+    private final String INVOKE_BLOCKCHAIN = "/api/v1/fuelreceipt/blockchaininvoke";
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -271,6 +310,33 @@ public class FuelReceiptActivity extends AppCompatActivity {
         idTextView = $(R.id.idTextView);
         fuelImageView = $(R.id.fuelImageView);
 
+        identifierTextView = $(R.id.identifierTextView);
+        sharedTextView = $(R.id.sharedTextView);
+
+        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        Log.d(TAG, "vehicleID: " + vehicleID);
+        vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "vehicle: " + vehicle);
+
+        getIdentifier((returnedIdentifier, returnedRecord_id) -> {
+
+            Log.e("fuel identifier", identifier);
+            Log.e("fuel record_id", record_id);
+//                identifier = returnedIdentifier;
+//                record_id = returnedRecord_id;
+
+            String idToBeShown = "ID: " + record_id;
+
+            idTextView.setText(idToBeShown);
+            identifierTextView.setText(returnedIdentifier);
+        });
+
+        checkIfShared((returnedShared) -> {
+
+            Log.e("companyID", shared_company_id);
+            sharedTextView.setText(returnedShared);
+        });
+
         uploadButton = $(R.id.uploadButton);
         uploadButton.setOnClickListener(v -> {
             final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
@@ -389,8 +455,11 @@ public class FuelReceiptActivity extends AppCompatActivity {
 
 
             //db
-
-
+            if (claimable && sharedTextView.getText().toString().equals("")) {
+                Toast.makeText(getApplicationContext(), "This vehicle is currently not shared with any company, please uncheck Claimable.", Toast.LENGTH_SHORT).show();
+            } else {
+                uploadFuelReceipt();
+            }
 
         });
 
@@ -482,5 +551,249 @@ public class FuelReceiptActivity extends AppCompatActivity {
 
     private <T extends View> T $(int id){
         return (T) findViewById(id);
+    }
+
+    private void getIdentifier(@Nullable final recordIdentifierCallback callbacks) {
+
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        String URL = IP_HOST + GET_FUEL_IDENTIFIER + vehicle.getRegistration_no() + "/" + format.format(new Date());
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONObject jsonObject = response;
+
+            identifier = jsonObject.optString("identifier");
+            record_id = jsonObject.optString("record_id");
+
+            if (callbacks != null)
+                callbacks.onSuccess(identifier, record_id);
+
+        }, error -> {
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(FuelReceiptActivity.this).add(objectRequest);
+    }
+
+    public interface recordIdentifierCallback {
+        void onSuccess(@NonNull String returnedIdentifier, String returnedRecord_id);
+
+//        void onError(@NonNull String errorMessage);
+    }
+
+    private void checkIfShared(@Nullable final sharedCallback callbacks) {
+
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        String URL = IP_HOST + GET_IF_SHARED;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("vehicle_id", vehicle.getVehicle_id());
+            jsonParam.put("current_date_time", format.format(new Date()));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Response: ", response.toString());
+            JSONObject jsonObject = response;
+
+            if (jsonObject.optString("message").equals("success"))
+                shared_company_id = jsonObject.optString("cust_id");
+
+            if (callbacks != null)
+                callbacks.onSuccess(shared_company_id);
+
+        }, error -> {
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(FuelReceiptActivity.this).add(objectRequest);
+    }
+
+    public interface sharedCallback {
+        void onSuccess(@NonNull String returnedCustID);
+
+//        void onError(@NonNull String errorMessage);
+    }
+
+    private void uploadFuelReceipt() {
+
+        String isClaim = "";
+
+        if (claimable) {
+            isClaim = "1";
+        }else{
+            isClaim += "0";
+        }
+
+        String finalIsClaim = isClaim;
+        Thread thread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + ADD_FUEL);
+
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            try {
+                reqEntity.addPart("record_id", new StringBody(idTextView.getText().toString().substring(4)));
+                Log.e("recordID in request", idTextView.getText().toString().substring(4));
+
+                reqEntity.addPart("vehicle_id", new StringBody(vehicle.getVehicle_id()));
+                reqEntity.addPart("invoice_reference", new StringBody(reference));
+                reqEntity.addPart("fuel_date", new StringBody(format.format(date)));
+                reqEntity.addPart("fuel_type", new StringBody(type));
+                reqEntity.addPart("fuel_amount", new StringBody(String.valueOf(fuelAmount)));
+                reqEntity.addPart("paid_amount", new StringBody(String.valueOf(paidAmount)));
+                reqEntity.addPart("claimable", new StringBody(finalIsClaim));
+                reqEntity.addPart("fuel_receipt_identifier", new StringBody(identifierTextView.getText().toString()));
+                Log.e("IDENTIFIER", identifierTextView.getText().toString());
+                reqEntity.addPart("shared_company_id", new StringBody(sharedTextView.getText().toString()));
+
+                if (fuelImageView.getDrawable() != null) {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Bitmap toBeUploaded = ((BitmapDrawable) fuelImageView.getDrawable()).getBitmap();
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] qrbyteArray = stream.toByteArray();
+                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
+                    reqEntity.addPart("document", recordBody);
+                }
+
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    reqEntity.addPart("logo", new StringBody("image error"));
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("success")) {
+
+                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
+                        invokeBlockchain(identifierTextView.getText().toString(),
+                                reference,
+                                type,
+                                format.format(date),
+                                String.valueOf(fuelAmount),
+                                String.valueOf(paidAmount),
+                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
+                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(FuelReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(FuelReceiptActivity.this, EditVehicleActivity.class);
+                            intent.putExtra("vehicleID", vehicleID);
+                            startActivity(intent);
+                        }
+                    });
+                }
+                Log.e("response", s.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
+
+        });
+        thread.start();
+    }
+
+    private void invokeBlockchain(String identifier, String invoice_reference, String fuel_type, String fuel_date, String fuel_amount, String paid_amount, String ecrypt_hash, String fuel_file_location) {
+
+        String URL = BLOCKCHAIN_IP + INVOKE_BLOCKCHAIN;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("identifier", identifier);
+            jsonParam.put("record_type", "fuel");
+            jsonParam.put("invoice_reference", invoice_reference);
+            jsonParam.put("fuel_type", fuel_type);
+            jsonParam.put("fuel_date", fuel_date);
+            jsonParam.put("fuel_amount", fuel_amount);
+            jsonParam.put("paid_amount", paid_amount);
+            jsonParam.put("ecrypt_hash", ecrypt_hash);
+            jsonParam.put("fuel_file_location", fuel_file_location);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+
+            Log.e("Blockchain Response", response.toString());
+            Log.e("Blockchain submission", response.optString("message"));
+
+        }, error -> {
+            Log.e("Blockchain ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(FuelReceiptActivity.this).add(objectRequest);
+
     }
 }

@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -27,17 +28,42 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -74,6 +100,8 @@ public class ParkingReceiptActivity extends AppCompatActivity {
     private EditText feeEditText;
     private EditText notesEditText;
     private CheckBox claimableCheckBox;
+    private TextView identifierTextView;
+    private TextView sharedTextView;
 
     private ImageButton saveImageButton;
 
@@ -84,6 +112,18 @@ public class ParkingReceiptActivity extends AppCompatActivity {
     private static final int PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE = 1;
     private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
 
+    private String identifier;
+    private String record_id;
+
+    private String shared_company_id = "";
+
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_PARKING_IDENTIFIER = "/api/v1/parkingreceipts/identifier/";
+    private final String GET_IF_SHARED = "/api/v1/parkingreceipts/checkcurrentshare";
+    private final String ADD_PARKING = "/api/v1/parkingreceipts/";
+    private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
+    private final String INVOKE_BLOCKCHAIN = "/api/v1/parkingreceipt/blockchaininvoke";
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult: Length: " + grantResults.length);
@@ -91,7 +131,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         switch (requestCode) {
             case 0:
                 Log.d(TAG, "onRequestPermissionsResult: MULTI?");
-                if(grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0){
+                if (grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0) {
                     beforeStartCamera();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
@@ -99,7 +139,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                 break;
             case 1:
                 Log.d(TAG, "onRequestPermissionsResult: STORAGE?");
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     beforeStartStorage();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot upload the image without authorization", Toast.LENGTH_SHORT).show();
@@ -107,7 +147,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                 break;
             case 2:
                 Log.d(TAG, "onRequestPermissionsResult: CAMERA?");
-                if(grantResults[0] == 0) {
+                if (grantResults[0] == 0) {
                     beforeStartCamera();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
@@ -117,7 +157,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onActivityResult(int requestCode,int resultCode,Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case TAKE_PHOTO:
@@ -166,7 +206,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
     }
 
-    private void beforeStartCamera () {
+    private void beforeStartCamera() {
         //create a file object to store picture
         File outputImage = new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
         try {
@@ -186,77 +226,77 @@ public class ParkingReceiptActivity extends AppCompatActivity {
     }
 
 
-    private void beforeStartStorage () {
-        File outputImage = new File(getExternalCacheDir(),"output_image.jpg");
-        try{
-            if(outputImage.exists()){
+    private void beforeStartStorage() {
+        File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+        try {
+            if (outputImage.exists()) {
                 outputImage.delete();
             }
             outputImage.createNewFile();
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         parkingImageUri = Uri.fromFile(outputImage);
-        Intent intent=new Intent("android.intent.action.GET_CONTENT");
+        Intent intent = new Intent("android.intent.action.GET_CONTENT");
         intent.setType("image/*");
-        intent.putExtra("crop",true);
-        intent.putExtra("scale",true);
+        intent.putExtra("crop", true);
+        intent.putExtra("scale", true);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, parkingImageUri);
 
-        startActivityForResult(intent,CHOOSE_PHOTO);
+        startActivityForResult(intent, CHOOSE_PHOTO);
     }
 
-    private void handleImageBeforeKitKat(Intent data){
-        Uri uri=data.getData();
-        String imagePath=getImagePath(uri,null);
+    private void handleImageBeforeKitKat(Intent data) {
+        Uri uri = data.getData();
+        String imagePath = getImagePath(uri, null);
         displayImage(imagePath);
     }
 
     @TargetApi(19)
-    private void handleImageOnKitKat(Intent data){
+    private void handleImageOnKitKat(Intent data) {
         String imagePath = null;
-        Uri uri=data.getData();
-        if(DocumentsContract.isDocumentUri(this,uri)){
+        Uri uri = data.getData();
+        if (DocumentsContract.isDocumentUri(this, uri)) {
             //document type Uri
-            String docId=DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())){
-                String id=docId.split(":")[1];
-                String seletion= MediaStore.Images.Media._ID+"="+id;
-                imagePath=getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,seletion);
-            }else if("com.android.providers.downloads.documents".equals(uri.getAuthority())){
-                Uri contentUri= ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),Long.valueOf(docId));
-                imagePath=getImagePath(contentUri,null);
+            String docId = DocumentsContract.getDocumentId(uri);
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                String id = docId.split(":")[1];
+                String seletion = MediaStore.Images.Media._ID + "=" + id;
+                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, seletion);
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
+                imagePath = getImagePath(contentUri, null);
             }
-        }else if("content".equalsIgnoreCase(uri.getScheme())){
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             //content type Uri
-            imagePath=getImagePath(uri,null);
-        }else if("file".equalsIgnoreCase(uri.getScheme())){
+            imagePath = getImagePath(uri, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             //file type Uri
-            imagePath=uri.getPath();
+            imagePath = uri.getPath();
         }
         displayImage(imagePath);
     }
 
-    private String getImagePath(Uri uri,String selection){
-        String path=null;
+    private String getImagePath(Uri uri, String selection) {
+        String path = null;
         //get real path
-        Cursor cursor=getContentResolver().query(uri,null,selection,null,null);
-        if(cursor!=null){
-            if(cursor.moveToFirst()){
-                path=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             }
             cursor.close();
         }
         return path;
     }
 
-    private void displayImage(String imagePath){
-        if(imagePath!=null){
-            Bitmap bitmap= BitmapFactory.decodeFile(imagePath);
+    private void displayImage(String imagePath) {
+        if (imagePath != null) {
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
             parkingImageView.setImageBitmap(bitmap);
             parkingImageBitmap = bitmap;
-        }else{
-            Toast.makeText(this,"failed to get image",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "failed to get image", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -277,6 +317,28 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         parkingImageView = $(R.id.parkingImageView);
 
         uploadButton = $(R.id.uploadButton);
+        identifierTextView = $(R.id.identifierTextView);
+        sharedTextView = $(R.id.sharedTextView);
+
+        getIdentifier((returnedIdentifier, returnedRecord_id) -> {
+
+            Log.e("parking identifier", identifier);
+            Log.e("parking record_id", record_id);
+//                identifier = returnedIdentifier;
+//                record_id = returnedRecord_id;
+
+            String idToBeShown = "ID: " + record_id;
+
+            idTextView.setText(idToBeShown);
+            identifierTextView.setText(returnedIdentifier);
+        });
+
+        checkIfShared((returnedShared) -> {
+
+            Log.e("companyID", shared_company_id);
+            sharedTextView.setText(returnedShared);
+        });
+
         uploadButton.setOnClickListener(v -> {
             final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
             AlertDialog alertDialog3 = new AlertDialog.Builder(ParkingReceiptActivity.this)
@@ -284,7 +346,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                     .setIcon(R.mipmap.ic_launcher)
                     .setItems(ways, (dialogInterface, i) -> {
                         Log.d(TAG, "onClick: " + ways[i]);
-                        if(i==0) {  //take photo
+                        if (i == 0) {  //take photo
                             int permissionCheckCamera = ContextCompat.checkSelfPermission(ParkingReceiptActivity.this, Manifest.permission.CAMERA);
                             int permissionCheckStorage = ContextCompat.checkSelfPermission(ParkingReceiptActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                             Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
@@ -297,22 +359,21 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                                 builder.detectFileUriExposure();
                             }
 
-                            if(permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                            if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
                                 ActivityCompat.requestPermissions(
                                         ParkingReceiptActivity.this,
                                         new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         MULTI_PERMISSION_CODE
                                 );
-                            }
-                            else if(permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
+                            } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestCamera: ");
                                 ActivityCompat.requestPermissions(
                                         ParkingReceiptActivity.this,
                                         new String[]{Manifest.permission.CAMERA},
                                         PERMISSION_CAMERA_REQUEST_CODE
                                 );
-                            } else if(permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                            } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestStorage: ");
                                 ActivityCompat.requestPermissions(
                                         ParkingReceiptActivity.this,
@@ -322,15 +383,15 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                             } else {    //already permitted
                                 beforeStartCamera();
                             }
-                        } else if(i==1) {   //upload from phone
-                            if(ContextCompat.checkSelfPermission(ParkingReceiptActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                        } else if (i == 1) {   //upload from phone
+                            if (ContextCompat.checkSelfPermission(ParkingReceiptActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestStorage: ");
                                 ActivityCompat.requestPermissions(
                                         ParkingReceiptActivity.this,
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
                                 );
-                            }else{
+                            } else {
                                 beforeStartStorage();
                             }
                         } else {
@@ -383,8 +444,11 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
 
             //db
-
-
+            if (claimable && sharedTextView.getText().toString().equals("")) {
+                Toast.makeText(getApplicationContext(), "This vehicle is currently not shared with any company, please uncheck Claimable.", Toast.LENGTH_SHORT).show();
+            } else {
+                uploadParkingReceipt();
+            }
 
         });
 
@@ -413,12 +477,11 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            if(referenceEditText.getText().toString().length()>0
-                && dateEditText.getText().toString().length()>0
-                && hourEditText.getText().toString().length()>0
-                && feeEditText.getText().toString().length()>0
-                && notesEditText.getText().toString().length()>0)
-            {
+            if (referenceEditText.getText().toString().length() > 0
+                    && dateEditText.getText().toString().length() > 0
+                    && hourEditText.getText().toString().length() > 0
+                    && feeEditText.getText().toString().length() > 0
+                    && notesEditText.getText().toString().length() > 0) {
                 try {
                     date = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).parse(dateEditText.getText().toString());
                 } catch (ParseException e) {
@@ -474,7 +537,250 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
+
+    private void getIdentifier(@Nullable final recordIdentifierCallback callbacks) {
+
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        String URL = IP_HOST + GET_PARKING_IDENTIFIER + vehicle.getRegistration_no() + "/" + format.format(new Date());
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response: ", response.toString());
+            JSONObject jsonObject = response;
+
+            identifier = jsonObject.optString("identifier");
+            record_id = jsonObject.optString("record_id");
+
+            if (callbacks != null)
+                callbacks.onSuccess(identifier, record_id);
+
+        }, error -> {
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(ParkingReceiptActivity.this).add(objectRequest);
+    }
+
+    public interface recordIdentifierCallback {
+        void onSuccess(@NonNull String returnedIdentifier, String returnedRecord_id);
+
+//        void onError(@NonNull String errorMessage);
+    }
+
+    private void checkIfShared(@Nullable final sharedCallback callbacks) {
+
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        String URL = IP_HOST + GET_IF_SHARED;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("vehicle_id", vehicle.getVehicle_id());
+            jsonParam.put("current_date_time", format.format(new Date()));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Response: ", response.toString());
+            JSONObject jsonObject = response;
+
+            if (jsonObject.optString("message").equals("success"))
+                shared_company_id = jsonObject.optString("cust_id");
+
+            if (callbacks != null)
+                callbacks.onSuccess(shared_company_id);
+
+        }, error -> {
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(ParkingReceiptActivity.this).add(objectRequest);
+    }
+
+    public interface sharedCallback {
+        void onSuccess(@NonNull String returnedCustID);
+
+//        void onError(@NonNull String errorMessage);
+    }
+
+    private void uploadParkingReceipt() {
+
+        String isClaim = "";
+
+        if (claimable) {
+            isClaim = "1";
+        } else {
+            isClaim += "0";
+        }
+
+        String finalIsClaim = isClaim;
+        Thread thread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + ADD_PARKING);
+
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            try {
+                reqEntity.addPart("record_id", new StringBody(idTextView.getText().toString().substring(4)));
+                Log.e("recordID in request", idTextView.getText().toString().substring(4));
+
+                reqEntity.addPart("vehicle_id", new StringBody(vehicle.getVehicle_id()));
+                reqEntity.addPart("ticket_reference", new StringBody(reference));
+                reqEntity.addPart("date", new StringBody(format.format(date)));
+                reqEntity.addPart("total_hours", new StringBody(String.valueOf(hour)));
+                reqEntity.addPart("fees_paid", new StringBody(String.valueOf(fee)));
+                reqEntity.addPart("notes", new StringBody(notes));
+                reqEntity.addPart("claimable", new StringBody(finalIsClaim));
+                reqEntity.addPart("parking_receipt_identifier", new StringBody(identifierTextView.getText().toString()));
+                Log.e("IDENTIFIER", identifierTextView.getText().toString());
+                reqEntity.addPart("shared_company_id", new StringBody(sharedTextView.getText().toString()));
+
+                if (parkingImageView.getDrawable() != null) {
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    Bitmap toBeUploaded = ((BitmapDrawable) parkingImageView.getDrawable()).getBitmap();
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] qrbyteArray = stream.toByteArray();
+                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
+                    reqEntity.addPart("document", recordBody);
+                }
+
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    reqEntity.addPart("logo", new StringBody("image error"));
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("success")) {
+
+                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
+                        invokeBlockchain(identifierTextView.getText().toString(),
+                                reference,
+                                String.valueOf(hour),
+                                format.format(date),
+                                String.valueOf(fee),
+                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
+                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(ParkingReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(ParkingReceiptActivity.this, EditVehicleActivity.class);
+                            startActivity(intent);
+                        }
+                    });
+                }
+                Log.e("response", s.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
+
+        });
+        thread.start();
+    }
+
+    private void invokeBlockchain(String identifier, String ticket_reference, String total_hours, String parking_date, String fees_paid, String ecrypt_hash, String parking_file_location) {
+
+        String URL = BLOCKCHAIN_IP + INVOKE_BLOCKCHAIN;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("identifier", identifier);
+            jsonParam.put("record_type", "parking");
+            jsonParam.put("ticket_reference", ticket_reference);
+            jsonParam.put("total_hours", total_hours);
+            jsonParam.put("parking_date", parking_date);
+            jsonParam.put("fees_paid", fees_paid);
+            jsonParam.put("ecrypt_hash", ecrypt_hash);
+            jsonParam.put("parking_file_location", parking_file_location);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+
+            Log.e("Blockchain Response", response.toString());
+            Log.e("Blockchain submission", response.optString("message"));
+
+        }, error -> {
+            Log.e("Blockchain ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(ParkingReceiptActivity.this).add(objectRequest);
+
+    }
+
+
 }

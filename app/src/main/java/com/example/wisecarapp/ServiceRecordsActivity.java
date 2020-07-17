@@ -13,37 +13,30 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.StrictMode;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.InputType;
-import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.io.File;
@@ -52,8 +45,6 @@ import java.io.IOException;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -69,16 +60,12 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -86,9 +73,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ServiceRecordsActivity extends AppCompatActivity {
 
@@ -143,7 +127,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String ADD_SERVICE_RECORD = "/api/v1/servicerecords/";
-    private final String GET_RECORD_IDENTIFIER = "/api/v1/servicerecords/identifier/";
+    private final String GET_SERVICE_RECORD_IDENTIFIER = "/api/v1/servicerecords/identifier/";
     private final String scanQRCode = "/api/v1/servicerecords/upload?identifier=";
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/servicerecords/blockchaininvoke";
@@ -176,8 +160,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 
         getRecordIdentifier((returnedIdentifier, returnedRecord_id) -> {
 
-            Log.e("identifier", identifier);
-            Log.e("record_id", record_id);
+            Log.e("SERVICE identifier", identifier);
+            Log.e("SERVICE record_id", record_id);
 //                identifier = returnedIdentifier;
 //                record_id = returnedRecord_id;
 
@@ -794,7 +778,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 
     private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
 
-        String URL = IP_HOST + GET_RECORD_IDENTIFIER + vehicle.getMake_name() + "-" + vehicle.getRegistration_no() + "/" + currentDate;
+        String URL = IP_HOST + GET_SERVICE_RECORD_IDENTIFIER + vehicle.getRegistration_no() + "/" + currentDate;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -807,9 +791,6 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                 callbacks.onSuccess(identifier, record_id);
 
         }, error -> {
-
-//                Log.e("ERROR!!!", error.toString());
-//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
 
             NetworkResponse networkResponse = error.networkResponse;
             if (networkResponse != null && networkResponse.data != null) {
