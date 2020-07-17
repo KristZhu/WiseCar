@@ -28,7 +28,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -100,7 +99,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
     private EditText feeEditText;
     private EditText notesEditText;
     private CheckBox claimableCheckBox;
-    private TextView identifierTextView;
+    private TextView recordIDTextView;
     private TextView sharedTextView;
 
     private ImageButton saveImageButton;
@@ -317,7 +316,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         parkingImageView = $(R.id.parkingImageView);
 
         uploadButton = $(R.id.uploadButton);
-        identifierTextView = $(R.id.identifierTextView);
+        recordIDTextView = $(R.id.recordIDTextView);
         sharedTextView = $(R.id.sharedTextView);
 
         getIdentifier((returnedIdentifier, returnedRecord_id) -> {
@@ -327,10 +326,10 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 //                identifier = returnedIdentifier;
 //                record_id = returnedRecord_id;
 
-            String idToBeShown = "ID: " + record_id;
+            String idToBeShown = "ID: " + identifier;
 
             idTextView.setText(idToBeShown);
-            identifierTextView.setText(returnedIdentifier);
+            recordIDTextView.setText(returnedRecord_id);
         });
 
         checkIfShared((returnedShared) -> {
@@ -660,8 +659,8 @@ public class ParkingReceiptActivity extends AppCompatActivity {
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
-                reqEntity.addPart("record_id", new StringBody(idTextView.getText().toString().substring(4)));
-                Log.e("recordID in request", idTextView.getText().toString().substring(4));
+                reqEntity.addPart("parking_receipt_identifier", new StringBody(idTextView.getText().toString().substring(4)));
+                Log.e("identifier in request", idTextView.getText().toString().substring(4));
 
                 reqEntity.addPart("vehicle_id", new StringBody(vehicle.getVehicle_id()));
                 reqEntity.addPart("ticket_reference", new StringBody(reference));
@@ -670,8 +669,8 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                 reqEntity.addPart("fees_paid", new StringBody(String.valueOf(fee)));
                 reqEntity.addPart("notes", new StringBody(notes));
                 reqEntity.addPart("claimable", new StringBody(finalIsClaim));
-                reqEntity.addPart("parking_receipt_identifier", new StringBody(identifierTextView.getText().toString()));
-                Log.e("IDENTIFIER", identifierTextView.getText().toString());
+                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
+                Log.e("recordID", recordIDTextView.getText().toString());
                 reqEntity.addPart("shared_company_id", new StringBody(sharedTextView.getText().toString()));
 
                 if (parkingImageView.getDrawable() != null) {
@@ -707,7 +706,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                 if (s.toString().contains("success")) {
 
                     if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(identifierTextView.getText().toString(),
+                        invokeBlockchain(idTextView.getText().toString().substring(4),
                                 reference,
                                 String.valueOf(hour),
                                 format.format(date),
@@ -720,6 +719,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                         public void run() {
                             Toast.makeText(ParkingReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(ParkingReceiptActivity.this, EditVehicleActivity.class);
+                            intent.putExtra("vehicleID", vehicleID);
                             startActivity(intent);
                         }
                     });

@@ -310,7 +310,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
         idTextView = $(R.id.idTextView);
         fuelImageView = $(R.id.fuelImageView);
 
-        identifierTextView = $(R.id.identifierTextView);
+        identifierTextView = $(R.id.recordIDTextView);
         sharedTextView = $(R.id.sharedTextView);
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
@@ -325,10 +325,10 @@ public class FuelReceiptActivity extends AppCompatActivity {
 //                identifier = returnedIdentifier;
 //                record_id = returnedRecord_id;
 
-            String idToBeShown = "ID: " + record_id;
+            String idToBeShown = "ID: " + identifier;
 
             idTextView.setText(idToBeShown);
-            identifierTextView.setText(returnedIdentifier);
+            identifierTextView.setText(returnedRecord_id);
         });
 
         checkIfShared((returnedShared) -> {
@@ -672,8 +672,8 @@ public class FuelReceiptActivity extends AppCompatActivity {
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
-                reqEntity.addPart("record_id", new StringBody(idTextView.getText().toString().substring(4)));
-                Log.e("recordID in request", idTextView.getText().toString().substring(4));
+                reqEntity.addPart("fuel_receipt_identifier", new StringBody(idTextView.getText().toString().substring(4)));
+                Log.e("identifier in request", idTextView.getText().toString().substring(4));
 
                 reqEntity.addPart("vehicle_id", new StringBody(vehicle.getVehicle_id()));
                 reqEntity.addPart("invoice_reference", new StringBody(reference));
@@ -682,8 +682,8 @@ public class FuelReceiptActivity extends AppCompatActivity {
                 reqEntity.addPart("fuel_amount", new StringBody(String.valueOf(fuelAmount)));
                 reqEntity.addPart("paid_amount", new StringBody(String.valueOf(paidAmount)));
                 reqEntity.addPart("claimable", new StringBody(finalIsClaim));
-                reqEntity.addPart("fuel_receipt_identifier", new StringBody(identifierTextView.getText().toString()));
-                Log.e("IDENTIFIER", identifierTextView.getText().toString());
+                reqEntity.addPart("record_id", new StringBody(identifierTextView.getText().toString()));
+                Log.e("recordID", identifierTextView.getText().toString());
                 reqEntity.addPart("shared_company_id", new StringBody(sharedTextView.getText().toString()));
 
                 if (fuelImageView.getDrawable() != null) {
@@ -719,7 +719,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
                 if (s.toString().contains("success")) {
 
                     if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(identifierTextView.getText().toString(),
+                        invokeBlockchain(idTextView.getText().toString().substring(4),
                                 reference,
                                 type,
                                 format.format(date),

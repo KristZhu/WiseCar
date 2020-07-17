@@ -89,7 +89,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private Uri qrImageUri;
     private Button uploadButton;
     private ImageButton cameraImageButton;
-    private TextView identifierTextView;
+    private TextView recordIDTextView;
     private Button resetButton;
 
     private EditText dateEditText;
@@ -165,13 +165,13 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 //                identifier = returnedIdentifier;
 //                record_id = returnedRecord_id;
 
-            String idToBeShown = "ID: " + record_id;
+            String idToBeShown = "ID: " + identifier;
 
             int width = qrImageView.getWidth();
             int height = qrImageView.getHeight();
 
             serviceIDTextView.setText(idToBeShown);
-            identifierTextView.setText(returnedIdentifier);
+            recordIDTextView.setText(returnedRecord_id);
 
             File qrCodeFile = QRCode.from(IP_HOST + scanQRCode + identifier).to(ImageType.PNG).withSize(width, height).file();
             qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
@@ -182,7 +182,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         qrImageView = $(R.id.qrImageView);
         uploadButton = $(R.id.uploadButton);
         cameraImageButton = $(R.id.cameraImageButton);
-        identifierTextView = $(R.id.identifierTextView);
+        recordIDTextView = $(R.id.recordIDTextView);
         resetButton = $(R.id.resetButton);
 
         resetButton.setOnClickListener(v -> qrImageView.setImageBitmap(qrCodeBitmap));
@@ -653,8 +653,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
-                reqEntity.addPart("record_id", new StringBody(serviceIDTextView.getText().toString().substring(4)));
-                Log.e("recordID in request", serviceIDTextView.getText().toString().substring(4));
+                reqEntity.addPart("service_record_identifier", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+                Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
 
                 reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
                 reqEntity.addPart("service_date", new StringBody(format.format(date)));
@@ -673,8 +673,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                     ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
                     reqEntity.addPart("document", recordBody);
                 }
-                reqEntity.addPart("service_record_identifier", new StringBody(identifierTextView.getText().toString()));
-                Log.e("recordID in request", identifierTextView.getText().toString());
+                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
+                Log.e("recordID in request", recordIDTextView.getText().toString());
 
 
             } catch (UnsupportedEncodingException e) {
@@ -700,7 +700,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                 if (s.toString().contains("success")) {
 
                     if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(identifierTextView.getText().toString(),
+                        invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
                                 format.format(date),
                                 centre,
                                 vehicle.getRegistration_no(),

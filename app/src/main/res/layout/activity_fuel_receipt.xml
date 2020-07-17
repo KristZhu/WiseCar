@@ -122,7 +122,7 @@
                     app:layout_constraintWidth_percent=".33" />
 
                 <TextView
-                    android:id="@+id/identifierTextView"
+                    android:id="@+id/recordIDTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="TextView"

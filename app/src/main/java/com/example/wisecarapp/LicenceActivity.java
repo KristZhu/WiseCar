@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.ContentUris;
 import android.content.Context;
@@ -43,9 +42,6 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
-import net.glxn.qrgen.android.QRCode;
-import net.glxn.qrgen.core.image.ImageType;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -85,7 +81,7 @@ public class LicenceActivity extends AppCompatActivity {
     private Drawable licenceImageDrawable;
 
     private TextView idTextView;
-    private TextView identifierTextView;
+    private TextView recordIDTextView;
     private Button uploadButton;
 
     private boolean active;
@@ -309,7 +305,7 @@ public class LicenceActivity extends AppCompatActivity {
         Log.d(TAG, "userID: " + UserInfo.getUserID());
 
         backImageButton = $(R.id.backImageButton);
-        identifierTextView = $(R.id.identifierTextView);
+        recordIDTextView = $(R.id.recordIDTextView);
         licenceImageView = $(R.id.licenceImageView);
 
         backImageButton.setOnClickListener(v -> startActivity(new Intent(LicenceActivity.this, VehicleActivity.class)));
@@ -326,10 +322,10 @@ public class LicenceActivity extends AppCompatActivity {
 //                identifier = returnedIdentifier;
 //                record_id = returnedRecord_id;
 
-            String idToBeShown = "ID: " + record_id;
+            String idToBeShown = "ID: " + identifier;
 
             idTextView.setText(idToBeShown);
-            identifierTextView.setText(returnedIdentifier);
+            recordIDTextView.setText(returnedRecord_id);
         });
 
         uploadButton.setOnClickListener(v -> {
@@ -634,8 +630,8 @@ public class LicenceActivity extends AppCompatActivity {
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
-                reqEntity.addPart("record_id", new StringBody(idTextView.getText().toString().substring(4)));
-                Log.e("recordID in request", idTextView.getText().toString().substring(4));
+                reqEntity.addPart("driver_license_identifier", new StringBody(idTextView.getText().toString().substring(4)));
+                Log.e("identifier in request", idTextView.getText().toString().substring(4));
 
                 reqEntity.addPart("user_id", new StringBody(UserInfo.getUserID()));
                 reqEntity.addPart("license_no", new StringBody(number));
@@ -645,8 +641,8 @@ public class LicenceActivity extends AppCompatActivity {
                 reqEntity.addPart("expiry_date", new StringBody(format.format(expireDate)));
                 reqEntity.addPart("remind_me", new StringBody(finalIsRemind));
                 reqEntity.addPart("licence_status", new StringBody(finalIsActive));
-                reqEntity.addPart("driver_license_identifier", new StringBody(identifierTextView.getText().toString()));
-                Log.e("IDENTIFIER", identifierTextView.getText().toString());
+                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
+                Log.e("recordID", recordIDTextView.getText().toString());
 
                 if (licenceImageView.getDrawable() != null) {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -681,7 +677,7 @@ public class LicenceActivity extends AppCompatActivity {
                 if (s.toString().contains("success")) {
 
                     if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(identifierTextView.getText().toString(),
+                        invokeBlockchain(idTextView.getText().toString().substring(4),
                                 number,
                                 type,
                                 format.format(startDate),
