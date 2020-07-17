@@ -184,7 +184,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     }
                     searchEditText.setAdapter(adapter);
                     searchEditText.setOnItemClickListener((parent, view, position, id) -> {
-                        String companyName = searchEditText.getText().toString();
+                        companyName = searchEditText.getText().toString();
                         companyNameTextView.setText(companyName);
                         custID = companies.get(companyName);
                         cancelImageButton.setVisibility(View.VISIBLE);
