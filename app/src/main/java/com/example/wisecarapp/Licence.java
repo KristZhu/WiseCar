@@ -13,6 +13,23 @@ class Licence {
     private boolean remind;
     private Bitmap licenceImg;
 
+    private String expire;
+
+
+
+    public String getExpire() {
+        return expire;
+    }
+
+    public void setExpire(String expire) {
+        this.expire = expire;
+    }
+
+
+    public Licence() {
+
+    }
+
     public Licence(boolean active, String number, String type, Date startDate, Date expiryDate, boolean remind) {
         this.active = active;
         this.number = number;
