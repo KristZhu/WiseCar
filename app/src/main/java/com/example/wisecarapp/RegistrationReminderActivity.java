@@ -87,7 +87,7 @@ public class RegistrationReminderActivity extends AppCompatActivity {
     private Uri qrImageUri;
     private Button uploadButton;
     private ImageButton cameraImageButton;
-    private TextView identifierTextView;
+    private TextView recordIDTextView;
     private Button resetButton;
 
     private String servicesOptions;
@@ -142,7 +142,7 @@ public class RegistrationReminderActivity extends AppCompatActivity {
         qrImageView = $(R.id.qrImageView);
         uploadButton = $(R.id.uploadButton);
         cameraImageButton = $(R.id.cameraImageButton);
-        identifierTextView = $(R.id.identifierTextView);
+        recordIDTextView = $(R.id.recordIDTextView);
         resetButton = $(R.id.resetButton);
 
         resetButton.setOnClickListener(v -> qrImageView.setImageBitmap(qrCodeBitmap));
@@ -156,13 +156,13 @@ public class RegistrationReminderActivity extends AppCompatActivity {
 //                identifier = returnedIdentifier;
 //                record_id = returnedRecord_id;
 
-            String idToBeShown = "ID: " + record_id;
+            String idToBeShown = "ID: " + identifier;
 
             int width = qrImageView.getWidth();
             int height = qrImageView.getHeight();
 
             serviceIDTextView.setText(idToBeShown);
-            identifierTextView.setText(returnedIdentifier);
+            recordIDTextView.setText(returnedRecord_id);
 
             File qrCodeFile = QRCode.from(IP_HOST + scanQRCode + identifier).to(ImageType.PNG).withSize(width, height).file();
             qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
@@ -640,8 +640,8 @@ public class RegistrationReminderActivity extends AppCompatActivity {
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
-                reqEntity.addPart("record_id", new StringBody(serviceIDTextView.getText().toString().substring(4)));
-                Log.e("recordID in request", serviceIDTextView.getText().toString().substring(4));
+                reqEntity.addPart("registration_record_identifier", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+                Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
 
                 reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
 
@@ -650,8 +650,8 @@ public class RegistrationReminderActivity extends AppCompatActivity {
                 reqEntity.addPart("expires_in", new StringBody(String.valueOf(durationMonth)));
                 reqEntity.addPart("expiry_date", new StringBody(format.format(expireDate)));
                 reqEntity.addPart("registration_reminder", new StringBody(finalIsRemind));
-                reqEntity.addPart("registration_record_identifier", new StringBody(identifierTextView.getText().toString()));
-                Log.e("identifier in request", identifierTextView.getText().toString());
+                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
+                Log.e("recordID in request", recordIDTextView.getText().toString());
 
                 if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -685,7 +685,7 @@ public class RegistrationReminderActivity extends AppCompatActivity {
                 if (s.toString().contains("success")) {
 
                     if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(identifierTextView.getText().toString(),
+                        invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
                                 payment,
                                 String.valueOf(durationMonth),
                                 format.format(date),

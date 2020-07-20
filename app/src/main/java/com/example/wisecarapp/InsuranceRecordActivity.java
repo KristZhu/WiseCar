@@ -4,8 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -32,15 +30,10 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,7 +64,6 @@ import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -94,7 +86,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     private Uri qrImageUri;
     private Button uploadButton;
     private ImageButton cameraImageButton;
-    private TextView identifierTextView;
+    private TextView recordIDTextView;
     private Button resetButton;
 
     private String currentDate;
@@ -159,7 +151,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         qrImageView = $(R.id.qrImageView);
         uploadButton = $(R.id.uploadButton);
         cameraImageButton = $(R.id.cameraImageButton);
-        identifierTextView = $(R.id.identifierTextView);
+        recordIDTextView = $(R.id.recordIDTextView);
         resetButton = $(R.id.resetButton);
 
 
@@ -173,13 +165,13 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 //                identifier = returnedIdentifier;
 //                record_id = returnedRecord_id;
 
-            String idToBeShown = "ID: " + record_id;
+            String idToBeShown = "ID: " + identifier;
 
             int width = qrImageView.getWidth();
             int height = qrImageView.getHeight();
 
             serviceIDTextView.setText(idToBeShown);
-            identifierTextView.setText(returnedIdentifier);
+            recordIDTextView.setText(returnedRecord_id);
 
             File qrCodeFile = QRCode.from(IP_HOST + scanQRCode + identifier).to(ImageType.PNG).withSize(width, height).file();
             qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
@@ -691,8 +683,8 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
-                reqEntity.addPart("record_id", new StringBody(serviceIDTextView.getText().toString().substring(4)));
-                Log.e("recordID in request", serviceIDTextView.getText().toString().substring(4));
+                reqEntity.addPart("insurance_record_identifier", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+                Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
 
                 reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
                 reqEntity.addPart("policy_number", new StringBody(number));
@@ -700,8 +692,8 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 reqEntity.addPart("start_of_cover", new StringBody(format.format(start)));
                 reqEntity.addPart("end_of_cover", new StringBody(format.format(end)));
                 reqEntity.addPart("cover_type", new StringBody(type));
-                reqEntity.addPart("insurance_record_identifier", new StringBody(identifierTextView.getText().toString()));
-                Log.e("identifier in request", identifierTextView.getText().toString());
+                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
+                Log.e("recordID in request", recordIDTextView.getText().toString());
 
                 if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -735,7 +727,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 if (s.toString().contains("success")) {
 
                     if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(identifierTextView.getText().toString(),
+                        invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
                                 number,
                                 insurer,
                                 format.format(start),
