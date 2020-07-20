@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecordLogActivity"
+    tools:context=".function.recordLog.RecordLogActivity"
     android:background="@drawable/wc0bg_dark"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
@@ -280,7 +280,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <com.example.wisecarapp.CircleImageView
+                    <com.example.wisecarapp.element.CircleImageView
                         android:id="@+id/dateImageView"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
@@ -307,7 +307,7 @@
                         android:textStyle="bold"
                         android:gravity="center_vertical" />
 
-                    <com.example.wisecarapp.CircleImageView
+                    <com.example.wisecarapp.element.CircleImageView
                         android:id="@+id/companyLogoImageView"
                         android:layout_width="0dp"
                         android:layout_height="0dp"

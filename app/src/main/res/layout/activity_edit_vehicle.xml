@@ -5,7 +5,7 @@
     android:id="@+id/bg"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditVehicleActivity"
+    tools:context=".user.vehicle.EditVehicleActivity"
     android:background="@drawable/wc0bg_dark"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
@@ -110,7 +110,7 @@
                 app:layout_constraintWidth_percent="0.5"
                 android:background="#000000" />
 
-            <com.example.wisecarapp.CircleImageView
+            <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
                 android:id="@+id/vehicleBorderImageView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -126,7 +126,7 @@
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent="0.3" />
 
-            <com.example.wisecarapp.CircleImageView
+            <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
                 android:id="@+id/vehicleImageView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
