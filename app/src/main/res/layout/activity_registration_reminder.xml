@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/wc0bg_dark"
     android:theme="@style/Theme.AppCompat.NoActionBar"
-    tools:context=".RegistrationReminderActivity">
+    tools:context=".function.registrationReminder.RegistrationReminderActivity">
 
     <ImageButton
         android:id="@+id/backImageButton"

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateUserActivity"
+    tools:context=".user.create.CreateUserActivity"
     android:background="@drawable/wc0bg_dark"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
@@ -48,7 +48,7 @@
                 app:srcCompat="@drawable/create_user0create_account" />
 
 
-            <com.example.wisecarapp.CircleImageView
+            <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
                 android:id="@+id/userImgImageView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"

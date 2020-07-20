@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.wisecarapp">
+    package="com.wisecarCompany.wisecarapp">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -28,22 +28,22 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".FuelReceiptActivity" />
-        <activity android:name=".ParkingReceiptActivity" />
-        <activity android:name=".InsuranceRecordActivity" />
-        <activity android:name=".RegistrationReminderActivity" />
-        <activity android:name=".LicenceActivity" />
-        <activity android:name=".RecordLogActivity" />
-        <activity android:name=".ShareVehicleDetailActivity" />
-        <activity android:name=".ShareVehicleListActivity" />
-        <activity android:name=".ServiceRecordsActivity" />
-        <activity android:name=".EditVehicleActivity" />
-        <activity android:name=".VehicleActivity" />
-        <activity android:name=".AddVehicleActivity" />
-        <activity android:name=".CreateUserActivity2" />
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".CreateUserActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name="com.wisecarCompany.wisecarapp.function.fuelReceipt.FuelReceiptActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.function.parkingReceipt.ParkingReceiptActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.function.insuranceRecord.InsuranceRecordActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationReminderActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.user.licence.LicenceActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.function.recordLog.RecordLogActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.function.shareVehicle.ShareVehicleDetailActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.function.shareVehicle.ShareVehicleListActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.user.vehicle.EditVehicleActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.user.vehicle.AddVehicleActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.user.create.CreateUserActivity2" />
+        <activity android:name="com.wisecarCompany.wisecarapp.user.login.LoginActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.user.create.CreateUserActivity" />
+        <activity android:name="com.wisecarCompany.wisecarapp.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

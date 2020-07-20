@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/wc0bg_dark"
     android:theme="@style/Theme.AppCompat.NoActionBar"
-    tools:context=".InsuranceRecordActivity">
+    tools:context=".function.insuranceRecord.InsuranceRecordActivity">
 
     <ImageButton
         android:id="@+id/backImageButton"
