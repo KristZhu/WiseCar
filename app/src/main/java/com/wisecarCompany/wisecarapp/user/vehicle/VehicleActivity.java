@@ -145,7 +145,7 @@ public class VehicleActivity extends AppCompatActivity {
         settingImageButton.setOnClickListener(v -> {
             //to be implemented
         });
-        editVehicleImageButton.setOnClickListener(v -> {
+        editImageButton.setOnClickListener(v -> {
             //to be implemented
         });
 
