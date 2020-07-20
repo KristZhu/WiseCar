@@ -23,6 +23,7 @@ import com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationR
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +50,7 @@ public class DashboardActivity extends AppCompatActivity {
         userImgImageView = $(R.id.userImgImageView);
         usernameTextView = $(R.id.usernameTextView);
 
+/*
         loadServices(new servicesListCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Integer> serviceList) {
@@ -113,11 +115,11 @@ public class DashboardActivity extends AppCompatActivity {
                 Log.e("No service", errorMessage);
             }
         });
+*/
 
     }
 
-
-
+/*
     private void startServiceRecords() {
         startActivity(new Intent(DashboardActivity.this, ServiceRecordsDashboardActivity.class));
     }
@@ -141,6 +143,7 @@ public class DashboardActivity extends AppCompatActivity {
     private void startFuelReceipts() {
         startActivity(new Intent(DashboardActivity.this, FuelReceiptDashboardActivity.class));
     }
+*/
 
     private <T extends View> T $(int id){
         return (T) findViewById(id);

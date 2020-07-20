@@ -237,6 +237,7 @@ public class AddVehicleActivity extends AppCompatActivity {
         });
 
         saveImageButton.setOnClickListener(v -> {
+            if(saveImageButton.getAlpha()<1) return;
 
             vehicleDrawable = vehicleImageView.getDrawable();
 
@@ -253,8 +254,8 @@ public class AddVehicleActivity extends AppCompatActivity {
             description = descriptionEditText.getText().toString();
 
             if(isServices == null) {
-                isServices = new boolean[7];
-                for (int i=0; i<7; i++){
+                isServices = new boolean[6];
+                for (int i=0; i<isServices.length; i++){
                     isServices[i] = servicesCheckBox[i].isChecked();
                 }
             }
@@ -449,8 +450,8 @@ public class AddVehicleActivity extends AppCompatActivity {
             if (registration_no != null && make != null && model != null && description != null
                     && registration_no.length() > 0 && make.length() > 0 && model.length() > 0 && description.length() > 0
             ) {
-                if(isServices == null) isServices = new boolean[7];
-                for (int i=0; i<7; i++){
+                if(isServices == null) isServices = new boolean[6];
+                for (int i=0; i<isServices.length; i++){
                     isServices[i] = servicesCheckBox[i].isChecked();
                 }
                 saveImageButton.setAlpha(1.0f);

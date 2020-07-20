@@ -437,6 +437,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
+            if(saveImageButton.getAlpha()<1) return;
             //parkingImageDrawable = licenceImageView.getDrawable();
             //...
 

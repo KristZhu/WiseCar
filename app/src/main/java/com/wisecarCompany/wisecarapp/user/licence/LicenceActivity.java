@@ -68,6 +68,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -339,23 +340,34 @@ public class LicenceActivity extends AppCompatActivity {
 
         uploadButton = $(R.id.uploadButton);
 
+        active = false;
+        activeSwitchButton.setOnToggleChanged(isOn -> active = isOn);
+
         getLicense((returnedLicense, returnedIdentifier) -> {
             if (returnedLicense != null && returnedIdentifier != null) {
+                Log.d(TAG, "getLicense successfully: " + returnedLicense + " " + returnedIdentifier);
                 idTextView.setText("ID: " + returnedIdentifier);
 
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+
                 numberEditText.setText(returnedLicense.getNumber());
+                number = returnedLicense.getNumber();
                 disableEditText(numberEditText);
 
                 typeEditText.setText(returnedLicense.getType());
+                type = returnedLicense.getType();
                 disableEditText(typeEditText);
 
-                startDateEditText.setText(returnedLicense.getStartDate().toString());
+                startDateEditText.setText(format.format(returnedLicense.getStartDate()));
+                startDate = returnedLicense.getStartDate();
                 disableEditText(startDateEditText);
 
-                expireEditText.setText(returnedLicense.getExpire());
+                expireEditText.setText(returnedLicense.getExpire() + " years");
+                durationYear = Integer.parseInt(returnedLicense.getExpire());
                 disableEditText(expireEditText);
 
-                expireDateEditText.setText(returnedLicense.getExpiryDate().toString());
+                expireDateEditText.setText(format.format(returnedLicense.getExpiryDate()));
+                expireDate = returnedLicense.getExpiryDate();
                 disableEditText(expireDateEditText);
 
                 remindCheckBox.setChecked(returnedLicense.isRemind());
@@ -366,9 +378,14 @@ public class LicenceActivity extends AppCompatActivity {
 
                 if (returnedLicense.isActive()) {
                     activeSwitchButton.setToggleOn();
+                    active = true;
                 } else {
                     activeSwitchButton.setToggleOff();
+                    active = false;
                 }
+
+                saveImageButton.setClickable(true);
+                saveImageButton.setAlpha(1.0f);
             }
         });
 
@@ -449,15 +466,12 @@ public class LicenceActivity extends AppCompatActivity {
             alertDialog3.show();
         });
 
-        active = false;
-        activeSwitchButton.setOnToggleChanged(isOn -> active = isOn);
-
         startDateEditText.setInputType(InputType.TYPE_NULL);
+        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         startDateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(LicenceActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 startDate = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format.format(startDate);
                 startDateEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -467,7 +481,6 @@ public class LicenceActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(LicenceActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     startDate = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(startDate);
                     startDateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -493,6 +506,7 @@ public class LicenceActivity extends AppCompatActivity {
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
+            if(saveImageButton.getAlpha()<1) return;
             //licenceImageDrawable = licenceImageView.getDrawable();
             //...
             //UserInfo.getLicence().setLicenceImg();
@@ -513,7 +527,7 @@ public class LicenceActivity extends AppCompatActivity {
             UserInfo.setLicence(new Licence(active, number, type, startDate, expireDate, remind));
 
             //db
-            uploadServiceRecord();
+            uploadLicence();
 
 
         });
@@ -544,7 +558,7 @@ public class LicenceActivity extends AppCompatActivity {
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
             SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-            if (startDateEditText.getText().toString().length() > 0 && durationYear > 0) {
+            if (startDateEditText.getText().toString().length() > 0 && durationYear > 0) {  //calculate expire date
                 try {
                     startDate = format.parse(startDateEditText.getText().toString());
                     Calendar expireCalendar = Calendar.getInstance();
@@ -576,6 +590,10 @@ public class LicenceActivity extends AppCompatActivity {
             } else {
                 saveImageButton.setAlpha(0.5f);
                 saveImageButton.setClickable(false);
+//                Log.d(TAG, "number: " + numberEditText.getText().toString());
+//                Log.d(TAG, "type: " + typeEditText.getText().toString());
+//                Log.d(TAG, "startDate: " + startDateEditText.getText().toString());
+//                Log.d(TAG, "expireDate: " + expireDateEditText.getText().toString());
             }
         }
         return super.dispatchTouchEvent(ev);
@@ -650,7 +668,7 @@ public class LicenceActivity extends AppCompatActivity {
 //        void onError(@NonNull String errorMessage);
     }
 
-    private void uploadServiceRecord() {
+    private void uploadLicence() {
 
         String isActive = "";
         String isRemind = "";

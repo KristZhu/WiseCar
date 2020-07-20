@@ -28,21 +28,21 @@
         app:layout_constraintWidth_percent="0.1"
         app:srcCompat="@drawable/wc0back" />
 
-    <ImageView
-        android:id="@+id/logoImageView"
+    <TextView
+        android:id="@+id/headerTextView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="8dp"
+        android:text="Service Records"
+        android:textStyle="bold"
+        android:padding="4dp"
+        app:autoSizeTextType="uniform"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="@+id/backImageButton"
-        app:layout_constraintDimensionRatio="4:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/backImageButton"
-        app:layout_constraintTop_toTopOf="@+id/backImageButton"
-        app:layout_constraintWidth_default="percent"
-        app:layout_constraintWidth_percent="0.3"
-        app:srcCompat="@drawable/wc0title"
-        android:contentDescription="TODO" />
+        app:layout_constraintTop_toTopOf="@+id/backImageButton" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/searchDiv"
@@ -141,108 +141,139 @@
         app:layout_constraintVertical_bias="1.0">
 
         <LinearLayout
-            android:id="@+id/sharesLayout"
+            android:id="@+id/mainDiv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
             android:orientation="vertical">
 
+            <!--
+            dynamically layout
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
 
                 <ImageView
+                    android:id="@+id/lightLine"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    app:layout_constraintDimensionRatio="4.3:1"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:background="#ffffff"/>
-
-                <ImageButton
-                    android:id="@+id/editImageButton"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/share_vehicle0edit"
-                    app:layout_constraintHeight_percent="0.5"
-                    app:layout_constraintDimensionRatio="1:1"
                     android:scaleType="fitXY"
-                    android:padding="0dp"
-                    android:background="@null" />
-
-                <TextView
-                    android:id="@+id/companyTextView"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
+                    android:src="@drawable/dashboard0light_line"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="4.5:1"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/editImageButton"
                     app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <ImageView
+                    android:id="@+id/darkLine"
+                    android:scaleType="fitXY"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="9:1"
+                    app:layout_constraintTop_toBottomOf="@id/lightLine"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:text="XYZ PTY LTD,     ID 10086"
-                    android:autoSizeMinTextSize="14dp"
-                    android:textColor="#000000"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginStart="8dp"
-                    app:layout_constraintHeight_percent="0.3"
-                    android:autoSizeTextType="uniform"
-                    app:layout_constraintVertical_bias="0.0">
-                </TextView>
+                    android:src="@drawable/dashboard0dark_line" />
 
                 <TextView
-                    android:id="@+id/startTextView"
-                    android:layout_width="0dp"
+                    android:id="@+id/textLine1"
+                    android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/editImageButton"
-                    app:layout_constraintTop_toBottomOf="@id/companyTextView"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:text="Start 9:00"
-                    android:autoSizeMinTextSize="14dp"
-                    android:textColor="#000000"
-                    app:layout_constraintHeight_percent="0.2"
-                    android:autoSizeTextType="uniform"
+                    app:layout_constraintTop_toTopOf="@id/lightLine"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
+                    app:layout_constraintHeight_percent="0.25"
                     app:layout_constraintVertical_bias="0.0"
-                    android:layout_marginStart="16dp">
-                </TextView>
+                    android:layout_marginStart="16dp"
+                    android:text="S860"
+                    android:autoSizeTextType="uniform"
+                    android:textStyle="bold"
+                    android:textColor="#007ba4" />
 
                 <TextView
-                    android:id="@+id/endTextView"
-                    android:layout_width="0dp"
+                    android:id="@+id/textLine2"
+                    android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/editImageButton"
-                    app:layout_constraintTop_toBottomOf="@id/startTextView"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:text="End   9:00"
-                    android:autoSizeMinTextSize="14dp"
-                    android:textColor="#000000"
+                    app:layout_constraintTop_toBottomOf="@id/textLine1"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
                     app:layout_constraintHeight_percent="0.2"
-                    android:autoSizeTextType="uniform"
                     app:layout_constraintVertical_bias="0.0"
-                    android:layout_marginStart="16dp">
-                </TextView>
+                    android:layout_marginStart="16dp"
+                    android:text="Date: 20Jul 2020"
+                    android:autoSizeTextType="uniform"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
 
                 <TextView
-                    android:id="@+id/recurringTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toBottomOf="@id/textLine2"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
+                    app:layout_constraintHeight_percent="0.2"
+                    app:layout_constraintVertical_bias="0.0"
+                    android:layout_marginStart="16dp"
+                    android:text="Ref: AAAAAAAAAAAAA"
+                    android:autoSizeTextType="uniform"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/darkLine"
+                    app:layout_constraintBottom_toBottomOf="@id/darkLine"
+                    app:layout_constraintHeight_percent="0.2"
+                    android:layout_marginStart="16dp"
+                    android:text="Next Service: 21Jul 2020 / 10000 km"
+                    android:autoSizeTextType="uniform"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+                <ImageView
+                    android:id="@+id/sentUnsent"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/editImageButton"
-                    app:layout_constraintTop_toBottomOf="@id/endTextView"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:text="Recurring"
-                    android:autoSizeMinTextSize="14dp"
-                    android:textColor="#000000"
-                    app:layout_constraintHeight_percent="0.2"
-                    android:autoSizeTextType="uniform"
-                    app:layout_constraintVertical_bias="0.0"
-                    android:layout_marginStart="16dp">
-                </TextView>
+                    app:layout_constraintTop_toTopOf="@id/lightLine"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
+                    app:layout_constraintStart_toStartOf="@id/lightLine"
+                    app:layout_constraintEnd_toEndOf="@id/lightLine"
+                    android:src="@drawable/dashboard0sent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintWidth_percent="0.04"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    android:layout_marginEnd="16dp" />
+
+                <ImageView
+                    android:id="@+id/send"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/lightLine"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
+                    app:layout_constraintStart_toStartOf="@id/lightLine"
+                    app:layout_constraintEnd_toStartOf="@id/sentUnsent"
+                    android:src="@drawable/dashboard0send"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintWidth_percent="0.1"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    android:layout_marginEnd="16dp" />
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:src="@drawable/dashboard0notification"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintStart_toStartOf="@id/darkLine"
+                    app:layout_constraintEnd_toEndOf="@id/darkLine"
+                    app:layout_constraintTop_toTopOf="@id/darkLine"
+                    app:layout_constraintBottom_toBottomOf="@id/darkLine"
+                    app:layout_constraintWidth_percent="0.1"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    android:layout_marginEnd="8dp" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+            -->
 
         </LinearLayout>
 

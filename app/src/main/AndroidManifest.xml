@@ -28,7 +28,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".function.serviceRecords.ServiceRecordsDashboardActivity"></activity>
+        <activity android:name=".function.serviceRecords.ServiceRecordsSendActivity" />
+        <activity android:name=".function.serviceRecords.ServiceRecordsDashboardActivity" />
         <activity android:name=".user.vehicle.DashboardActivity" />
         <activity android:name=".function.fuelReceipt.FuelReceiptActivity" />
         <activity android:name=".function.parkingReceipt.ParkingReceiptActivity" />
