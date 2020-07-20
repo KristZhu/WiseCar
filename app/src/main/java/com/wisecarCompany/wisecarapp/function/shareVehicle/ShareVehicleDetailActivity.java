@@ -547,6 +547,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         saveImageButton.setOnClickListener(v -> {
+            if(saveImageButton.getAlpha()<1) return;
 
             Log.d(TAG, "companyName: " + companyName);
             Log.d(TAG, "custID: " + custID);

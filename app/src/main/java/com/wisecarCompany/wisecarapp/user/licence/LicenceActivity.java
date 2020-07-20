@@ -17,6 +17,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -67,6 +68,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -121,6 +123,7 @@ public class LicenceActivity extends AppCompatActivity {
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_LICENSE_IDENTIFIER = "/api/v1/driverlicense/identifier/";
     private final String ADD_LICENSE = "/api/v1/driverlicense";
+    private final String GET_LICENSE = "/api/v1/driverlicense/getdriverlicense";
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/driverlicense/blockchaininvoke";
 
@@ -132,7 +135,7 @@ public class LicenceActivity extends AppCompatActivity {
         switch (requestCode) {
             case 0:
                 Log.d(TAG, "onRequestPermissionsResult: MULTI?");
-                if(grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0){
+                if (grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0) {
                     beforeStartCamera();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
@@ -140,7 +143,7 @@ public class LicenceActivity extends AppCompatActivity {
                 break;
             case 1:
                 Log.d(TAG, "onRequestPermissionsResult: STORAGE?");
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     beforeStartStorage();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot upload the image without authorization", Toast.LENGTH_SHORT).show();
@@ -148,7 +151,7 @@ public class LicenceActivity extends AppCompatActivity {
                 break;
             case 2:
                 Log.d(TAG, "onRequestPermissionsResult: CAMERA?");
-                if(grantResults[0] == 0) {
+                if (grantResults[0] == 0) {
                     beforeStartCamera();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
@@ -158,7 +161,7 @@ public class LicenceActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onActivityResult(int requestCode,int resultCode,Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case TAKE_PHOTO:
@@ -207,7 +210,7 @@ public class LicenceActivity extends AppCompatActivity {
 
     }
 
-    private void beforeStartCamera () {
+    private void beforeStartCamera() {
         //create a file object to store picture
         File outputImage = new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
         try {
@@ -227,77 +230,77 @@ public class LicenceActivity extends AppCompatActivity {
     }
 
 
-    private void beforeStartStorage () {
-        File outputImage = new File(getExternalCacheDir(),"output_image.jpg");
-        try{
-            if(outputImage.exists()){
+    private void beforeStartStorage() {
+        File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+        try {
+            if (outputImage.exists()) {
                 outputImage.delete();
             }
             outputImage.createNewFile();
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         licenceImageUri = Uri.fromFile(outputImage);
-        Intent intent=new Intent("android.intent.action.GET_CONTENT");
+        Intent intent = new Intent("android.intent.action.GET_CONTENT");
         intent.setType("image/*");
-        intent.putExtra("crop",true);
-        intent.putExtra("scale",true);
+        intent.putExtra("crop", true);
+        intent.putExtra("scale", true);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, licenceImageUri);
 
-        startActivityForResult(intent,CHOOSE_PHOTO);
+        startActivityForResult(intent, CHOOSE_PHOTO);
     }
 
-    private void handleImageBeforeKitKat(Intent data){
-        Uri uri=data.getData();
-        String imagePath=getImagePath(uri,null);
+    private void handleImageBeforeKitKat(Intent data) {
+        Uri uri = data.getData();
+        String imagePath = getImagePath(uri, null);
         displayImage(imagePath);
     }
 
     @TargetApi(19)
-    private void handleImageOnKitKat(Intent data){
+    private void handleImageOnKitKat(Intent data) {
         String imagePath = null;
-        Uri uri=data.getData();
-        if(DocumentsContract.isDocumentUri(this,uri)){
+        Uri uri = data.getData();
+        if (DocumentsContract.isDocumentUri(this, uri)) {
             //document type Uri
-            String docId=DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())){
-                String id=docId.split(":")[1];
-                String seletion= MediaStore.Images.Media._ID+"="+id;
-                imagePath=getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,seletion);
-            }else if("com.android.providers.downloads.documents".equals(uri.getAuthority())){
-                Uri contentUri= ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),Long.valueOf(docId));
-                imagePath=getImagePath(contentUri,null);
+            String docId = DocumentsContract.getDocumentId(uri);
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                String id = docId.split(":")[1];
+                String seletion = MediaStore.Images.Media._ID + "=" + id;
+                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, seletion);
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
+                imagePath = getImagePath(contentUri, null);
             }
-        }else if("content".equalsIgnoreCase(uri.getScheme())){
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             //content type Uri
-            imagePath=getImagePath(uri,null);
-        }else if("file".equalsIgnoreCase(uri.getScheme())){
+            imagePath = getImagePath(uri, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             //file type Uri
-            imagePath=uri.getPath();
+            imagePath = uri.getPath();
         }
         displayImage(imagePath);
     }
 
-    private String getImagePath(Uri uri,String selection){
-        String path=null;
+    private String getImagePath(Uri uri, String selection) {
+        String path = null;
         //get real path
-        Cursor cursor=getContentResolver().query(uri,null,selection,null,null);
-        if(cursor!=null){
-            if(cursor.moveToFirst()){
-                path=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             }
             cursor.close();
         }
         return path;
     }
 
-    private void displayImage(String imagePath){
-        if(imagePath!=null){
-            Bitmap bitmap= BitmapFactory.decodeFile(imagePath);
+    private void displayImage(String imagePath) {
+        if (imagePath != null) {
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
             licenceImageView.setImageBitmap(bitmap);
             licenceImageBitmap = bitmap;
-        }else{
-            Toast.makeText(this,"failed to get image",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "failed to get image", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -309,9 +312,26 @@ public class LicenceActivity extends AppCompatActivity {
         Log.d(TAG, "username: " + UserInfo.getUsername());
         Log.d(TAG, "userID: " + UserInfo.getUserID());
 
+
         backImageButton = $(R.id.backImageButton);
         recordIDTextView = $(R.id.recordIDTextView);
         licenceImageView = $(R.id.licenceImageView);
+
+        activeSwitchButton = $(R.id.activeSwitchButton);
+        numberEditText = $(R.id.numberEditText);
+        typeEditText = $(R.id.typeEditText);
+        startDateEditText = $(R.id.startDateEditText);
+        expireEditText = $(R.id.expireEditText);
+        expireDateEditText = $(R.id.expireDateEditText);
+        remindCheckBox = $(R.id.remindCheckBox);
+
+        Log.d(TAG, "active: " + active);
+        Log.d(TAG, "number: " + numberEditText.getText().toString());
+        Log.d(TAG, "type: " + typeEditText.getText().toString());
+        Log.d(TAG, "startDate: " + startDateEditText.getText().toString());
+        Log.d(TAG, "durationYear: " + expireEditText.getText().toString());
+        Log.d(TAG, "expireDate: " + expireDateEditText.getText().toString());
+        Log.d(TAG, "remind: " + remindCheckBox.getText().toString());
 
         backImageButton.setOnClickListener(v -> startActivity(new Intent(LicenceActivity.this, VehicleActivity.class)));
 
@@ -319,6 +339,56 @@ public class LicenceActivity extends AppCompatActivity {
         licenceImageView = $(R.id.licenceImageView);
 
         uploadButton = $(R.id.uploadButton);
+
+        active = false;
+        activeSwitchButton.setOnToggleChanged(isOn -> active = isOn);
+
+        getLicense((returnedLicense, returnedIdentifier) -> {
+            if (returnedLicense != null && returnedIdentifier != null) {
+                Log.d(TAG, "getLicense successfully: " + returnedLicense + " " + returnedIdentifier);
+                idTextView.setText("ID: " + returnedIdentifier);
+
+                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+
+                numberEditText.setText(returnedLicense.getNumber());
+                number = returnedLicense.getNumber();
+                disableEditText(numberEditText);
+
+                typeEditText.setText(returnedLicense.getType());
+                type = returnedLicense.getType();
+                disableEditText(typeEditText);
+
+                startDateEditText.setText(format.format(returnedLicense.getStartDate()));
+                startDate = returnedLicense.getStartDate();
+                disableEditText(startDateEditText);
+
+                expireEditText.setText(returnedLicense.getExpire() + " years");
+                durationYear = Integer.parseInt(returnedLicense.getExpire());
+                disableEditText(expireEditText);
+
+                expireDateEditText.setText(format.format(returnedLicense.getExpiryDate()));
+                expireDate = returnedLicense.getExpiryDate();
+                disableEditText(expireDateEditText);
+
+                remindCheckBox.setChecked(returnedLicense.isRemind());
+                remindCheckBox.setFocusable(false);
+                remindCheckBox.setEnabled(false);
+                remindCheckBox.setKeyListener(null);
+                remindCheckBox.setTextColor(Color.GRAY);
+
+                if (returnedLicense.isActive()) {
+                    activeSwitchButton.setToggleOn();
+                    active = true;
+                } else {
+                    activeSwitchButton.setToggleOff();
+                    active = false;
+                }
+
+                saveImageButton.setClickable(true);
+                saveImageButton.setAlpha(1.0f);
+            }
+        });
+
 
         getIdentifier((returnedIdentifier, returnedRecord_id) -> {
 
@@ -333,6 +403,7 @@ public class LicenceActivity extends AppCompatActivity {
             recordIDTextView.setText(returnedRecord_id);
         });
 
+
         uploadButton.setOnClickListener(v -> {
             final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
             AlertDialog alertDialog3 = new AlertDialog.Builder(LicenceActivity.this)
@@ -340,7 +411,7 @@ public class LicenceActivity extends AppCompatActivity {
                     .setIcon(R.mipmap.ic_launcher)
                     .setItems(ways, (dialogInterface, i) -> {
                         Log.d(TAG, "onClick: " + ways[i]);
-                        if(i==0) {  //take photo
+                        if (i == 0) {  //take photo
                             int permissionCheckCamera = ContextCompat.checkSelfPermission(LicenceActivity.this, Manifest.permission.CAMERA);
                             int permissionCheckStorage = ContextCompat.checkSelfPermission(LicenceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                             Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
@@ -353,22 +424,21 @@ public class LicenceActivity extends AppCompatActivity {
                                 builder.detectFileUriExposure();
                             }
 
-                            if(permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                            if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
                                 ActivityCompat.requestPermissions(
                                         LicenceActivity.this,
                                         new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         MULTI_PERMISSION_CODE
                                 );
-                            }
-                            else if(permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
+                            } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestCamera: ");
                                 ActivityCompat.requestPermissions(
                                         LicenceActivity.this,
                                         new String[]{Manifest.permission.CAMERA},
                                         PERMISSION_CAMERA_REQUEST_CODE
                                 );
-                            } else if(permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                            } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestStorage: ");
                                 ActivityCompat.requestPermissions(
                                         LicenceActivity.this,
@@ -378,15 +448,15 @@ public class LicenceActivity extends AppCompatActivity {
                             } else {    //already permitted
                                 beforeStartCamera();
                             }
-                        } else if(i==1) {   //upload from phone
-                            if(ContextCompat.checkSelfPermission(LicenceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                        } else if (i == 1) {   //upload from phone
+                            if (ContextCompat.checkSelfPermission(LicenceActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestStorage: ");
                                 ActivityCompat.requestPermissions(
                                         LicenceActivity.this,
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
                                 );
-                            }else{
+                            } else {
                                 beforeStartStorage();
                             }
                         } else {
@@ -396,23 +466,12 @@ public class LicenceActivity extends AppCompatActivity {
             alertDialog3.show();
         });
 
-        activeSwitchButton = $(R.id.activeSwitchButton);
-        numberEditText = $(R.id.numberEditText);
-        typeEditText = $(R.id.typeEditText);
-        startDateEditText = $(R.id.startDateEditText);
-        expireEditText = $(R.id.expireEditText);
-        expireDateEditText = $(R.id.expireDateEditText);
-        remindCheckBox = $(R.id.remindCheckBox);
-
-        active = false;
-        activeSwitchButton.setOnToggleChanged(isOn -> active = isOn);
-
         startDateEditText.setInputType(InputType.TYPE_NULL);
+        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         startDateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(LicenceActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 startDate = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = format.format(startDate);
                 startDateEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -422,7 +481,6 @@ public class LicenceActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(LicenceActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     startDate = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = format.format(startDate);
                     startDateEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -437,7 +495,7 @@ public class LicenceActivity extends AppCompatActivity {
                     .setIcon(R.mipmap.ic_launcher)
                     .setItems(types, (dialogInterface, i) -> {
                         expireEditText.setText(types[i]);
-                        durationYear = i+1;
+                        durationYear = i + 1;
                     })
                     .create();
             alertDialog.show();
@@ -448,6 +506,7 @@ public class LicenceActivity extends AppCompatActivity {
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
+            if(saveImageButton.getAlpha()<1) return;
             //licenceImageDrawable = licenceImageView.getDrawable();
             //...
             //UserInfo.getLicence().setLicenceImg();
@@ -468,7 +527,7 @@ public class LicenceActivity extends AppCompatActivity {
             UserInfo.setLicence(new Licence(active, number, type, startDate, expireDate, remind));
 
             //db
-            uploadServiceRecord();
+            uploadLicence();
 
 
         });
@@ -499,7 +558,7 @@ public class LicenceActivity extends AppCompatActivity {
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
             SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-            if(startDateEditText.getText().toString().length()>0 && durationYear>0) {
+            if (startDateEditText.getText().toString().length() > 0 && durationYear > 0) {  //calculate expire date
                 try {
                     startDate = format.parse(startDateEditText.getText().toString());
                     Calendar expireCalendar = Calendar.getInstance();
@@ -512,12 +571,11 @@ public class LicenceActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            if(numberEditText.getText().toString().length()>0
-                && typeEditText.getText().toString().length()>0
-                && startDateEditText.getText().toString().length()>0
-                && expireEditText.getText().toString().length()>0
-                && expireDateEditText.getText().toString().length()>0)
-            {
+            if (numberEditText.getText().toString().length() > 0
+                    && typeEditText.getText().toString().length() > 0
+                    && startDateEditText.getText().toString().length() > 0
+                    && expireEditText.getText().toString().length() > 0
+                    && expireDateEditText.getText().toString().length() > 0) {
                 saveImageButton.setAlpha(1.0f);
                 saveImageButton.setClickable(true);
                 try {
@@ -532,6 +590,10 @@ public class LicenceActivity extends AppCompatActivity {
             } else {
                 saveImageButton.setAlpha(0.5f);
                 saveImageButton.setClickable(false);
+//                Log.d(TAG, "number: " + numberEditText.getText().toString());
+//                Log.d(TAG, "type: " + typeEditText.getText().toString());
+//                Log.d(TAG, "startDate: " + startDateEditText.getText().toString());
+//                Log.d(TAG, "expireDate: " + expireDateEditText.getText().toString());
             }
         }
         return super.dispatchTouchEvent(ev);
@@ -558,7 +620,7 @@ public class LicenceActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 
@@ -606,20 +668,20 @@ public class LicenceActivity extends AppCompatActivity {
 //        void onError(@NonNull String errorMessage);
     }
 
-    private void uploadServiceRecord() {
+    private void uploadLicence() {
 
         String isActive = "";
         String isRemind = "";
 
         if (active) {
             isActive = "1";
-        }else{
+        } else {
             isActive += "0";
         }
 
         if (remind) {
             isRemind += "1";
-        }else{
+        } else {
             isRemind += "0";
         }
 
@@ -757,6 +819,83 @@ public class LicenceActivity extends AppCompatActivity {
         });
         Volley.newRequestQueue(LicenceActivity.this).add(objectRequest);
 
+    }
+
+    private void getLicense(@Nullable final getLicenseCallback callbacks) {
+
+        Licence license = new Licence();
+
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        String URL = IP_HOST + GET_LICENSE;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("user_id", UserInfo.getUserID());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Response: ", response.toString());
+            JSONObject jsonObject = response;
+
+            if (jsonObject.optString("message").equals("There is no driver license record for this user"))
+                callbacks.onSuccess(null, null);
+            else {
+                if (!jsonObject.optString("license_no").equals("null")) {
+                    license.setNumber(jsonObject.optString("license_no"));
+                    license.setType(jsonObject.optString("license_type"));
+                    try {
+                        license.setStartDate(format.parse(jsonObject.optString("start_date")));
+                        license.setExpiryDate(format.parse(jsonObject.optString("expiry_date")));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    license.setExpire(jsonObject.optString("expires_in"));
+                    license.setRemind(jsonObject.optString("reminder").equals("1"));
+                    license.setActive(jsonObject.optString("license_status").equals("1"));
+
+                    callbacks.onSuccess(license, jsonObject.optString("driver_license_identifier"));
+                }
+            }
+
+        }, error -> {
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(LicenceActivity.this).add(objectRequest);
+    }
+
+    public interface getLicenseCallback {
+        void onSuccess(@NonNull Licence license, String identifier);
+
+//        void onError(@NonNull String errorMessage);
+    }
+
+    private void disableEditText(EditText editText) {
+        editText.setFocusable(false);
+        editText.setEnabled(false);
+        editText.setCursorVisible(false);
+        editText.setKeyListener(null);
+        editText.setTextColor(Color.GRAY);
     }
 
 }

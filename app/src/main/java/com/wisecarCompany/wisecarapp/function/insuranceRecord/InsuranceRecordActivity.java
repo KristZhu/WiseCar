@@ -357,6 +357,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
+            if(saveImageButton.getAlpha()<1) return;
             //Log.d(TAG, "userID" + UserInfo.getUserID());
             //Log.d(TAG, "vehicle" + vehicle);
             Log.d(TAG, "number: " + number);

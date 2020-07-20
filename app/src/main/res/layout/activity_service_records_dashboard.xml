@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/wc0bg_dark"
+    tools:context=".function.serviceRecords.ServiceRecordsDashboardActivity">
+
+    <ImageButton
+        android:id="@+id/backImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@null"
+        android:padding="0dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.1"
+        app:srcCompat="@drawable/wc0back" />
+
+    <TextView
+        android:id="@+id/headerTextView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:text="Service Records"
+        android:textStyle="bold"
+        android:padding="4dp"
+        app:autoSizeTextType="uniform"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="@+id/backImageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/backImageButton"
+        app:layout_constraintTop_toTopOf="@+id/backImageButton" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/searchDiv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/wc0bg_yellow"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backImageButton"
+        android:layout_marginTop="8dp">
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:scaleType="fitXY"
+            android:alpha="0.5"
+            app:layout_constraintWidth_percent="0.7"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/vehicle0edittext" />
+
+        <ImageView
+            android:id="@+id/searchImageView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:scaleType="fitXY"
+            app:layout_constraintTop_toTopOf="@id/imageView1"
+            app:layout_constraintBottom_toBottomOf="@id/imageView1"
+            app:layout_constraintStart_toStartOf="@id/imageView1"
+            app:layout_constraintDimensionRatio="1:1"
+            app:srcCompat="@drawable/share_vehicle0search" />
+
+        <AutoCompleteTextView
+            android:id="@+id/searchEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:autoText="true"
+            android:background="@null"
+            android:textColorLink="#ffffff"
+            android:popupBackground="#ffffff"
+            android:hint="SEARCH BY REGISTRATION NUMBER"
+            android:textColorHint="#ffffff"
+            android:completionThreshold="1"
+            android:imeOptions="actionSearch"
+            android:inputType="textAutoComplete"
+            android:dropDownAnchor="@id/imageView1"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView1"
+            app:layout_constraintEnd_toEndOf="@+id/imageView1"
+            app:layout_constraintStart_toEndOf="@+id/searchImageView"
+            app:layout_constraintTop_toTopOf="@+id/imageView1" />
+
+        <ImageButton
+            android:id="@+id/addImageButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:srcCompat="@drawable/share_vehicle0add"
+            android:padding="0dp"
+            android:background="@null"
+            android:scaleType="fitXY"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fadingEdge="vertical"
+        android:scrollbars="vertical"
+        android:background="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchDiv"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintVertical_bias="1.0">
+
+        <LinearLayout
+            android:id="@+id/mainDiv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:orientation="vertical">
+
+            <!--
+            dynamically layout
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+
+                <ImageView
+                    android:id="@+id/lightLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/dashboard0light_line"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintDimensionRatio="4.5:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <ImageView
+                    android:id="@+id/darkLine"
+                    android:scaleType="fitXY"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="9:1"
+                    app:layout_constraintTop_toBottomOf="@id/lightLine"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:src="@drawable/dashboard0dark_line" />
+
+                <TextView
+                    android:id="@+id/textLine1"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/lightLine"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
+                    app:layout_constraintHeight_percent="0.25"
+                    app:layout_constraintVertical_bias="0.0"
+                    android:layout_marginStart="16dp"
+                    android:text="S860"
+                    android:autoSizeTextType="uniform"
+                    android:textStyle="bold"
+                    android:textColor="#007ba4" />
+
+                <TextView
+                    android:id="@+id/textLine2"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toBottomOf="@id/textLine1"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
+                    app:layout_constraintHeight_percent="0.2"
+                    app:layout_constraintVertical_bias="0.0"
+                    android:layout_marginStart="16dp"
+                    android:text="Date: 20Jul 2020"
+                    android:autoSizeTextType="uniform"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toBottomOf="@id/textLine2"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
+                    app:layout_constraintHeight_percent="0.2"
+                    app:layout_constraintVertical_bias="0.0"
+                    android:layout_marginStart="16dp"
+                    android:text="Ref: AAAAAAAAAAAAA"
+                    android:autoSizeTextType="uniform"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/darkLine"
+                    app:layout_constraintBottom_toBottomOf="@id/darkLine"
+                    app:layout_constraintHeight_percent="0.2"
+                    android:layout_marginStart="16dp"
+                    android:text="Next Service: 21Jul 2020 / 10000 km"
+                    android:autoSizeTextType="uniform"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+                <ImageView
+                    android:id="@+id/sentUnsent"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/lightLine"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
+                    app:layout_constraintStart_toStartOf="@id/lightLine"
+                    app:layout_constraintEnd_toEndOf="@id/lightLine"
+                    android:src="@drawable/dashboard0sent"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintWidth_percent="0.04"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    android:layout_marginEnd="16dp" />
+
+                <ImageView
+                    android:id="@+id/send"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="@id/lightLine"
+                    app:layout_constraintBottom_toBottomOf="@id/lightLine"
+                    app:layout_constraintStart_toStartOf="@id/lightLine"
+                    app:layout_constraintEnd_toStartOf="@id/sentUnsent"
+                    android:src="@drawable/dashboard0send"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintWidth_percent="0.1"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    android:layout_marginEnd="16dp" />
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:src="@drawable/dashboard0notification"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintStart_toStartOf="@id/darkLine"
+                    app:layout_constraintEnd_toEndOf="@id/darkLine"
+                    app:layout_constraintTop_toTopOf="@id/darkLine"
+                    app:layout_constraintBottom_toBottomOf="@id/darkLine"
+                    app:layout_constraintWidth_percent="0.1"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    android:layout_marginEnd="8dp" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            -->
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
