@@ -1,5 +1,7 @@
 package com.wisecarCompany.wisecarapp.function.serviceRecords;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -7,7 +9,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -17,10 +18,21 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.user.UserInfo;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -47,6 +59,9 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
     private Button sendButton;
     private String email;
 
+    private String IP_HOST = "http://54.206.19.123:3000";
+    private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +82,15 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
         nextdateTextView = $(R.id.nextDateTextView);
         nextDistanceTextView = $(R.id.nextDistanceTextView);
         documentLinkTextView = $(R.id.documentLinkTextView);
+
+
+        // SOME INFO YOU CAN GET IN HERE
+        getServiceRecordInfo(new serviceRecordSendCallbacks() {
+            @Override
+            public void onSuccess(@NonNull ServiceRecord value) {
+
+            }
+        });
 
         SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         dateTextView.setText(format.format(record.getDate()));
@@ -136,5 +160,77 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
 
     private <T extends View> T $(int id){
         return (T) findViewById(id);
+    }
+
+    private void getServiceRecordInfo(@Nullable final serviceRecordSendCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("record_id", record.getId());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Records Response", response.toString());
+            JSONObject jsonObject = response;
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            List<String> options = new ArrayList();
+            ServiceRecord serviceRecord;
+            try {
+                JSONArray jsonArray = response.getJSONArray("service_options");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    options.add(jsonObject.optString("service_option"));
+                }
+
+                serviceRecord = new ServiceRecord(
+                        format.parse(response.optString("service_date")),
+                        response.optString("service_center"),
+                        response.optString("service_ref_no"),
+                        options,
+                        response.optString("notes"),
+                        format.parse(response.optString("next_service_date")),
+                        response.optDouble("next_service_odometer"),
+                        response.optString("file_url")
+                );
+
+                if (callbacks != null)
+                    callbacks.onSuccess(serviceRecord);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }, error -> {
+            Log.e("ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(ServiceRecordsSendActivity.this).add(objectRequest);
+
+    }
+
+    public interface serviceRecordSendCallbacks {
+        void onSuccess(@NonNull ServiceRecord value);
+
+//        void onError(@NonNull List<ServiceRecord> value);
     }
 }
