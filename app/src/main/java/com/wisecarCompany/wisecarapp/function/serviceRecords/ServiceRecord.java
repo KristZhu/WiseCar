@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
+public class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
+
+    private String id;
 
     private String registrationNo;
     private Date date;
@@ -18,6 +20,10 @@ class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
     private String notes;
     private String documentLink;
 
+    public ServiceRecord() {
+
+    }
+
     public ServiceRecord(String registrationNo, Date date, String refNo, Date nextDate, double nextDistance, boolean sentBefore) {
         this.registrationNo = registrationNo;
         this.date = date;
@@ -25,6 +31,35 @@ class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
         this.nextDate = nextDate;
         this.nextDistance = nextDistance;
         this.sentBefore = sentBefore;
+    }
+
+    public ServiceRecord(String id, String registrationNo, Date date, String refNo, Date nextDate, double nextDistance, boolean sentBefore) {
+        this.id = id;
+        this.registrationNo = registrationNo;
+        this.date = date;
+        this.refNo = refNo;
+        this.nextDate = nextDate;
+        this.nextDistance = nextDistance;
+        this.sentBefore = sentBefore;
+    }
+
+    public ServiceRecord(Date date, String centre, String refNo, List<String> options, String notes, Date nextDate, double nextDistance, String documentLink) {
+        this.date = date;
+        this.centre = centre;
+        this.refNo = refNo;
+        this.options = options;
+        this.notes = notes;
+        this.nextDate = nextDate;
+        this.nextDistance = nextDistance;
+        this.documentLink = documentLink;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getRegistrationNo() {
@@ -88,12 +123,12 @@ class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
     }
 
     public String getOptionsStr() {
-        if(options==null || options.size()==0) return "";
+        if (options == null || options.size() == 0) return "";
         StringBuilder sb = new StringBuilder();
-        for(String option: options) {
+        for (String option : options) {
             sb.append(option).append(", ");
         }
-        return sb.substring(0, sb.length()-2);
+        return sb.substring(0, sb.length() - 2);
     }
 
     public void setOptions(List<String> options) {

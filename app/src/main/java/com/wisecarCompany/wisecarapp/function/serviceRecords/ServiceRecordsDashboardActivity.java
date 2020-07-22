@@ -1,5 +1,7 @@
 package com.wisecarCompany.wisecarapp.function.serviceRecords;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -7,26 +9,47 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.recordLog.RecordLog;
+import com.wisecarCompany.wisecarapp.function.recordLog.RecordLogActivity;
 import com.wisecarCompany.wisecarapp.function.shareVehicle.ShareVehicleListActivity;
+import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -37,6 +60,11 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
     private ImageButton backImageButton;
 
     private LinearLayout mainDiv;
+    private EditText searchEditText;
+
+    private String IP_HOST = "http://54.206.19.123:3000";
+    private String GET_SERVICE_REFCORDS = "/api/v1/servicerecords/getallrecordbyuser";
+    private String GET_RECORDS_BY_REG_NO = "/api/v1/servicerecords//getrecordbyuserregisno";
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("ResourceType")
@@ -49,6 +77,19 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsDashboardActivity.this, DashboardActivity.class)));
 
         mainDiv = $(R.id.mainDiv);
+        searchEditText = $(R.id.searchEditText);
+
+
+        // CALL GET SERVICE RECORDS METHOD
+        // ATTENTION: returnServiceRecordByRegNo METHOD USES THE SAME CALLBACK, PASTE THIS IN THE onClick METHOD OF SEARCH BUTTON
+
+        getServiceRecords(new serviceRecordsCallbacks() {
+            @Override
+            public void onSuccess(@NonNull List<ServiceRecord> value) {
+                Log.e("List size", String.valueOf(value.size()));
+            }
+        });
+
 
         //test data:
         Set<ServiceRecord> records = new TreeSet<>();
@@ -207,4 +248,145 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
     private <T extends View> T $(int id){
         return (T) findViewById(id);
     }
+
+    private void getServiceRecords(@Nullable final serviceRecordsCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_SERVICE_REFCORDS;
+        List<ServiceRecord> records = new ArrayList();
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("user_id", UserInfo.getUserID());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Records Response", response.toString());
+            JSONObject jsonObject;
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            try {
+                JSONArray jsonArray = response.getJSONArray("record_list");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    ServiceRecord record;
+
+                    record = new ServiceRecord(
+                            jsonObject.optString("id"),
+                            jsonObject.optString("registration_no"),
+                            format.parse(jsonObject.optString("service_date")),
+                            jsonObject.optString("service_ref"),
+                            format.parse(jsonObject.optString("next_service_date")),
+                            jsonObject.optDouble("next_service_odometer"),
+                            jsonObject.optString("has_sent_before").equals("1")
+                    );
+
+                    records.add(record);
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(records);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }, error -> {
+            Log.e("ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(ServiceRecordsDashboardActivity.this).add(objectRequest);
+
+    }
+
+    public interface serviceRecordsCallbacks {
+        void onSuccess(@NonNull List<ServiceRecord> value);
+
+//        void onError(@NonNull List<ServiceRecord> value);
+    }
+
+
+
+    private void returnServiceRecordByRegNo(@Nullable final serviceRecordsCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_RECORDS_BY_REG_NO;
+
+        List<ServiceRecord> records = new ArrayList();
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("registration_no", searchEditText.getText().toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Records Response", response.toString());
+            JSONObject jsonObject;
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+            try {
+                JSONArray jsonArray = response.getJSONArray("record_list");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    ServiceRecord record;
+
+                    record = new ServiceRecord(
+                            jsonObject.optString("id"),
+                            jsonObject.optString("registration_no"),
+                            format.parse(jsonObject.optString("service_date")),
+                            jsonObject.optString("service_ref"),
+                            format.parse(jsonObject.optString("next_service_date")),
+                            jsonObject.optDouble("next_service_odometer"),
+                            jsonObject.optString("has_sent_before").equals("1")
+                    );
+
+                    records.add(record);
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(records);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }, error -> {
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Volley.newRequestQueue(ServiceRecordsDashboardActivity.this).add(objectRequest);
+    }
+
 }
