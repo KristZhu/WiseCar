@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
+public class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
+
+    private String id;
 
     private String registrationNo;
     private Date date;
@@ -25,6 +27,24 @@ class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
         this.nextDate = nextDate;
         this.nextDistance = nextDistance;
         this.sentBefore = sentBefore;
+    }
+
+    public ServiceRecord(String id, String registrationNo, Date date, String refNo, Date nextDate, double nextDistance, boolean sentBefore) {
+        this.id = id;
+        this.registrationNo = registrationNo;
+        this.date = date;
+        this.refNo = refNo;
+        this.nextDate = nextDate;
+        this.nextDistance = nextDistance;
+        this.sentBefore = sentBefore;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getRegistrationNo() {

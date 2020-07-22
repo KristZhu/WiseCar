@@ -1,6 +1,7 @@
 package com.wisecarCompany.wisecarapp.user.vehicle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -14,16 +15,25 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.fuelReceipt.FuelReceiptActivity;
 import com.wisecarCompany.wisecarapp.function.insuranceRecord.InsuranceRecordActivity;
 import com.wisecarCompany.wisecarapp.function.parkingReceipt.ParkingReceiptActivity;
 import com.wisecarCompany.wisecarapp.function.recordLog.RecordLogActivity;
 import com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationReminderActivity;
+import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +49,9 @@ public class DashboardActivity extends AppCompatActivity {
 
     private LinearLayout servicesLayout;
 
+    private String IP_HOST = "http://54.206.19.123:3000";
+    private String GET_SERVICES = "/api/v1/services/getservicebyuid";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +62,13 @@ public class DashboardActivity extends AppCompatActivity {
 
         userImgImageView = $(R.id.userImgImageView);
         usernameTextView = $(R.id.usernameTextView);
+
+        getServices(new serviceCallbacks() {
+            @Override
+            public void onSuccess(@NonNull List<Integer> value) {
+                Log.e(TAG, String.valueOf(value.size()));
+            }
+        });
 
 /*
         loadServices(new servicesListCallbacks() {
@@ -148,4 +168,65 @@ public class DashboardActivity extends AppCompatActivity {
     private <T extends View> T $(int id){
         return (T) findViewById(id);
     }
+
+    private void getServices(@Nullable final serviceCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_SERVICES;
+        List<Integer> services = new ArrayList();
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("user_id", UserInfo.getUserID());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Records Response", response.toString());
+            JSONObject jsonObject;
+
+            try {
+                JSONArray jsonArray = response.getJSONArray("service_list");
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+
+                    services.add(jsonObject.optInt("service_id"));
+
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(services);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }, error -> {
+            Log.e("ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(DashboardActivity.this).add(objectRequest);
+
+    }
+
+    public interface serviceCallbacks {
+        void onSuccess(@NonNull List<Integer> value);
+
+//        void onError(@NonNull List<ServiceRecord> value);
+    }
+
 }
