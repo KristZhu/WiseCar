@@ -57,21 +57,13 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        backImageButton = $(R.id.dashboardButton);
+        backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, VehicleActivity.class)));
 
         userImgImageView = $(R.id.userImgImageView);
         usernameTextView = $(R.id.usernameTextView);
 
         getServices(new serviceCallbacks() {
-            @Override
-            public void onSuccess(@NonNull List<Integer> value) {
-                Log.e(TAG, String.valueOf(value.size()));
-            }
-        });
-
-/*
-        loadServices(new servicesListCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Integer> serviceList) {
                 List<Integer> services = new ArrayList<>(serviceList);
@@ -109,8 +101,8 @@ public class DashboardActivity extends AppCompatActivity {
                                 imageViews[j].setOnClickListener(v -> startInsuranceRecord());
                                 break;
                             //case 6:
-                            //imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button));
-                            //break;
+                                //imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button));
+                                //break;
                             case 6:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0fuel_button));
                                 imageViews[j].setOnClickListener(v -> startFuelReceipts());
@@ -135,35 +127,32 @@ public class DashboardActivity extends AppCompatActivity {
                 Log.e("No service", errorMessage);
             }
         });
-*/
 
     }
 
-/*
     private void startServiceRecords() {
         startActivity(new Intent(DashboardActivity.this, ServiceRecordsDashboardActivity.class));
     }
 
     private void startRecordlog() {
-        startActivity(new Intent(DashboardActivity.this, RecordLogDashboardActivity.class));
+        //startActivity(new Intent(DashboardActivity.this, RecordLogDashboardActivity.class));
     }
 
     private void startRegistrationReminder() {
-        startActivity(new Intent(DashboardActivity.this, RegistrationReminderDashboardActivity.class));
+        //startActivity(new Intent(DashboardActivity.this, RegistrationReminderDashboardActivity.class));
     }
 
     private void startParkingReceipts() {
-        startActivity(new Intent(DashboardActivity.this, ParkingReceiptDashboardActivity.class));
+        //startActivity(new Intent(DashboardActivity.this, ParkingReceiptDashboardActivity.class));
     }
 
     private void startInsuranceRecord() {
-        startActivity(new Intent(DashboardActivity.this, InsuranceRecordDashboardActivity.class));
+        //startActivity(new Intent(DashboardActivity.this, InsuranceRecordDashboardActivity.class));
     }
 
     private void startFuelReceipts() {
-        startActivity(new Intent(DashboardActivity.this, FuelReceiptDashboardActivity.class));
+        //startActivity(new Intent(DashboardActivity.this, FuelReceiptDashboardActivity.class));
     }
-*/
 
     private <T extends View> T $(int id){
         return (T) findViewById(id);
@@ -226,7 +215,7 @@ public class DashboardActivity extends AppCompatActivity {
     public interface serviceCallbacks {
         void onSuccess(@NonNull List<Integer> value);
 
-//        void onError(@NonNull List<ServiceRecord> value);
+        void onError(@NonNull String errorMsg);
     }
 
 }

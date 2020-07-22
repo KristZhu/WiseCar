@@ -7,14 +7,15 @@ import android.os.Bundle;
 import com.wisecarCompany.wisecarapp.function.recordLog.RecordLogActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.login.LoginActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        startActivity(new Intent(MainActivity.this, LoginActivity.class));
-        startActivity(new Intent(MainActivity.this, ServiceRecordsDashboardActivity.class));
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+//        startActivity(new Intent(MainActivity.this, DashboardActivity.class));
     }
 }
 
