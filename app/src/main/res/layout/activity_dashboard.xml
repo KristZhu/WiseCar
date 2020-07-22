@@ -52,6 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
+        android:padding="8dp"
         android:background="#ffffff"
         app:layout_constraintBottom_toTopOf="@id/user"
         app:layout_constraintHorizontal_bias="0.0"
@@ -61,7 +62,6 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="8dp"
             android:fadingEdge="vertical"
             android:scrollbars="vertical"
             android:background="#ffffff"
@@ -95,10 +95,10 @@
         android:background="@drawable/wc0bg_yellow"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
+        <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
             android:id="@+id/userImgImageView"
             android:layout_width="0dp"
             android:layout_height="0dp"

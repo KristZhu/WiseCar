@@ -4,10 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.wisecarCompany.wisecarapp.function.recordLog.RecordLogActivity;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.login.LoginActivity;
-import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 public class MainActivity extends AppCompatActivity {
 

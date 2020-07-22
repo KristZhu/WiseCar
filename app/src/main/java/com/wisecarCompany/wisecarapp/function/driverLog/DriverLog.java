@@ -1,11 +1,11 @@
-package com.wisecarCompany.wisecarapp.function.recordLog;
+package com.wisecarCompany.wisecarapp.function.driverLog;
 
 import android.graphics.Bitmap;
 
 
 import java.util.Date;
 
-public class RecordLog implements Comparable<RecordLog> {
+public class DriverLog implements Comparable<DriverLog> {
 
     private String vehicleID;
     private String custID;
@@ -25,7 +25,7 @@ public class RecordLog implements Comparable<RecordLog> {
 
     private boolean pausing = false;
 
-    public RecordLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
+    public DriverLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
         this.vehicleID = vehicleID;
         this.custID = custID;
         this.startTime = startTime;
@@ -35,7 +35,7 @@ public class RecordLog implements Comparable<RecordLog> {
         this.companyLogo = companyLogo;
     }
 
-    public RecordLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo, String timestamp) {
+    public DriverLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo, String timestamp) {
         this.vehicleID = vehicleID;
         this.custID = custID;
         this.startTime = startTime;
@@ -46,7 +46,7 @@ public class RecordLog implements Comparable<RecordLog> {
         this.timestamp = timestamp;
     }
 
-    public RecordLog(Date startTime, Date endTime, boolean pausing, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON) {
+    public DriverLog(Date startTime, Date endTime, boolean pausing, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.pausing = pausing;
@@ -60,7 +60,7 @@ public class RecordLog implements Comparable<RecordLog> {
         this.companyLogo = companyLogo;
     }
 
-    public RecordLog(String vehicleID, Date startTime, Date endTime, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON, String timestamp) {
+    public DriverLog(String vehicleID, Date startTime, Date endTime, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON, String timestamp) {
         this.vehicleID = vehicleID;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -76,7 +76,7 @@ public class RecordLog implements Comparable<RecordLog> {
         this.timestamp = timestamp;
     }
 
-    public RecordLog(String vehicleID, Date startTime, Date endTime, int countPause, int mins, double km, String logJSON, String timestamp) {
+    public DriverLog(String vehicleID, Date startTime, Date endTime, int countPause, int mins, double km, String logJSON, String timestamp) {
         this.vehicleID = vehicleID;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -201,7 +201,7 @@ public class RecordLog implements Comparable<RecordLog> {
 
     @Override
     public String toString() {
-        return "RecordLog{" +
+        return "DriverLog{" +
                 "vehicleID='" + vehicleID + '\'' +
                 ", custID='" + custID + '\'' +
                 ", startTime=" + startTime +
@@ -220,7 +220,7 @@ public class RecordLog implements Comparable<RecordLog> {
     }
 
     @Override
-    public int compareTo(RecordLog o) {
+    public int compareTo(DriverLog o) {
         try {
             if (Long.parseLong(o.getTimestamp()) - Long.parseLong(this.getTimestamp())>0) return 1;
             else if (Long.parseLong(o.getTimestamp()) - Long.parseLong(this.getTimestamp())<0) return -1;

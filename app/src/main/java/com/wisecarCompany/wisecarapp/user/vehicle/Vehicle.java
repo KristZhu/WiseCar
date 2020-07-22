@@ -6,7 +6,7 @@ import android.util.Base64;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.wisecarCompany.wisecarapp.function.recordLog.RecordLog;
+import com.wisecarCompany.wisecarapp.function.driverLog.DriverLog;
 
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class Vehicle implements Comparable<Vehicle> {
     private Bitmap image;
     private String state_name;
     private List<Integer> services;
-    private Set<RecordLog> logs;
+    private Set<DriverLog> logs;
 
     public Vehicle() {
 
@@ -144,11 +144,11 @@ public class Vehicle implements Comparable<Vehicle> {
         this.services = services;
     }
 
-    public Set<RecordLog> getLogs() {
+    public Set<DriverLog> getLogs() {
         return logs;
     }
 
-    public void setLogs(Set<RecordLog> logs) {
+    public void setLogs(Set<DriverLog> logs) {
         this.logs = logs;
     }
 

@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.serviceRecords;
+package com.wisecarCompany.wisecarapp.function.driverLog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,13 +24,13 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
+import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsSendActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,73 +40,66 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ServiceRecordsSendActivity extends AppCompatActivity {
+public class DriverLogSendActivity extends AppCompatActivity {
+
 
     private final static String TAG = "Service Records Send";
-
-    private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
 
     private String recordID;
 
     private ImageButton backImageButton;
 
     private TextView dateTextView;
-    private TextView centreTextView;
-    private TextView refNoTextView;
-    private TextView optionsTextView;
-    private TextView notesTextView;
-    private TextView nextdateTextView;
-    private TextView nextDistanceTextView;
-    private TextView documentLinkTextView;
+    private TextView startTextView;
+    private TextView endTextView;
+    private TextView timeTextView;
+    private TextView distanceTextView;
+    private TextView shareTextView;
 
     private EditText emailEditText;
     private Button sendButton;
     private String email;
 
+    private String IP_HOST = "http://54.206.19.123:3000";
+    private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_service_record_send);
+        setContentView(R.layout.activity_driver_log_send);
 
         recordID = (String) this.getIntent().getStringExtra("recordID");
         Log.d(TAG, "recordID: " + recordID);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, ServiceRecordsDashboardActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, DriverLogDashboardActivity.class)));
 
         dateTextView = $(R.id.dateTextView);
-        centreTextView = $(R.id.centreTextView);
-        refNoTextView = $(R.id.refNoTextView);
-        optionsTextView = $(R.id.optionsTextView);
-        notesTextView = $(R.id.notesTextView);
-        nextdateTextView = $(R.id.nextDateTextView);
-        nextDistanceTextView = $(R.id.nextDistanceTextView);
-        documentLinkTextView = $(R.id.documentLinkTextView);
+        startTextView = $(R.id.startTextView);
+        endTextView = $(R.id.endTextView);
+        timeTextView = $(R.id.timeTextView);
+        distanceTextView = $(R.id.distanceTextView);
+        shareTextView = $(R.id.shareTextView);
 
         emailEditText = $(R.id.emailEditText);
         sendButton = $(R.id.sendButton);
 
 
         // SOME INFO YOU CAN GET IN HERE
-        getServiceRecordInfo(new serviceRecordSendCallbacks() {
+        getDriverLogInfo(new driverLogSendCallbacks() {
             @Override
-            public void onSuccess(@NonNull ServiceRecord record) {
+            public void onSuccess(@NonNull DriverLog log) {
 
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                dateTextView.setText(format.format(record.getDate()));
-                centreTextView.setText(record.getCentre());
-                refNoTextView.setText(record.getRefNo());
-                optionsTextView.setText(record.getOptionsStr());
-                notesTextView.setText(record.getNotes());
-                nextdateTextView.setText(format.format(record.getNextDate()));
-                nextDistanceTextView.setText(""+(int)record.getNextDistance());
-
-                documentLinkTextView.setOnClickListener(v -> {
-                    Log.d(TAG, "document link url: " + record.getDocumentLink());
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(record.getDocumentLink())));
-                });
+                SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+                dateTextView.setText(dateFormat.format(log.getStartTime()));
+                startTextView.setText(timeFormat.format(log.getStartTime()));
+                endTextView.setText(timeFormat.format(log.getEndTime()));
+                timeTextView.setText(log.getMins());
+                distanceTextView.setText(""+(int)(log.getKm()*10)/10.0);
+                if(log.getCompanyName()==null || log.getCompanyName().length()==0) shareTextView.setText("Not shared");
+                else shareTextView.setText(log.getCompanyName());
 
                 sendButton.setOnClickListener(v -> {
                     email = emailEditText.getText().toString();
@@ -166,7 +159,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
-    private void getServiceRecordInfo(@Nullable final serviceRecordSendCallbacks callbacks) {
+    private void getServiceRecordInfo(@Nullable final ServiceRecordsSendActivity.serviceRecordSendCallbacks callbacks) {
 
         String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
 
@@ -228,7 +221,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(ServiceRecordsSendActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
 
     }
 

@@ -20,16 +20,8 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.function.fuelReceipt.FuelReceiptActivity;
-import com.wisecarCompany.wisecarapp.function.insuranceRecord.InsuranceRecordActivity;
-import com.wisecarCompany.wisecarapp.function.parkingReceipt.ParkingReceiptActivity;
-import com.wisecarCompany.wisecarapp.function.recordLog.RecordLogActivity;
-import com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationReminderActivity;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,15 +34,15 @@ public class DashboardActivity extends AppCompatActivity {
 
     private final String TAG = "dashboard";
 
+    private String IP_HOST = "http://54.206.19.123:3000";
+    private String GET_SERVICES = "/api/v1/services/getservicebyuid";
+
     private ImageButton backImageButton;
 
     private ImageView userImgImageView;
     private TextView usernameTextView;
 
     private LinearLayout servicesLayout;
-
-    private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICES = "/api/v1/services/getservicebyuid";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +54,8 @@ public class DashboardActivity extends AppCompatActivity {
 
         userImgImageView = $(R.id.userImgImageView);
         usernameTextView = $(R.id.usernameTextView);
+        userImgImageView.setImageBitmap(UserInfo.getUserImg());
+        usernameTextView.setText(UserInfo.getUsername());
 
         getServices(new serviceCallbacks() {
             @Override
@@ -86,7 +80,7 @@ public class DashboardActivity extends AppCompatActivity {
                                 break;
                             case 2:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0driver_button));
-                                imageViews[j].setOnClickListener(v -> startRecordlog());
+                                imageViews[j].setOnClickListener(v -> startDriverlog());
                                 break;
                             case 3:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0registration_button));
@@ -134,7 +128,7 @@ public class DashboardActivity extends AppCompatActivity {
         startActivity(new Intent(DashboardActivity.this, ServiceRecordsDashboardActivity.class));
     }
 
-    private void startRecordlog() {
+    private void startDriverlog() {
         //startActivity(new Intent(DashboardActivity.this, RecordLogDashboardActivity.class));
     }
 

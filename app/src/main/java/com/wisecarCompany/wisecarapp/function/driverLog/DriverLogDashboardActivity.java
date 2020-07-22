@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.serviceRecords;
+package com.wisecarCompany.wisecarapp.function.driverLog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +33,7 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
@@ -50,9 +51,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class ServiceRecordsDashboardActivity extends AppCompatActivity {
+public class DriverLogDashboardActivity extends AppCompatActivity {
 
-    private final static String TAG = "ServiceRecordsDashboard";
+    private final static String TAG = "DriverLogDashboard";
 
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_SERVICE_REFCORDS = "/api/v1/servicerecords/getallrecordbyuser";
@@ -61,7 +62,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
     private ImageButton backImageButton;
 
     private LinearLayout mainDiv;
-    private List<ServiceRecord> allRecords;
+    private List<DriverLog> allLogs;
 
     private AutoCompleteTextView searchEditText;
     private ImageButton cancelImageButton;
@@ -72,10 +73,10 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_service_records_dashboard);
+        setContentView(R.layout.activity_driver_log_dashboard);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsDashboardActivity.this, DashboardActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
 
         mainDiv = $(R.id.mainDiv);
 
@@ -85,26 +86,26 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
 
         // CALL GET SERVICE RECORDS METHOD
         // ATTENTION: returnServiceRecordByRegNo METHOD USES THE SAME CALLBACK, PASTE THIS IN THE onClick METHOD OF SEARCH BUTTON
-        getServiceRecords(new serviceRecordsCallbacks() {
+        getDriverLog(new driverLogCallbacks() {
             @Override
-            public void onSuccess(@NonNull List<ServiceRecord> records) {
-                Log.e("Records: ", String.valueOf(records));
-                allRecords = records;
+            public void onSuccess(@NonNull List<DriverLog> logs) {
+                Log.e("Logs: ", String.valueOf(logs));
+                allLogs = logs;
                 Set<String> regNos = new HashSet<>();
-                for(ServiceRecord record: records) {
-                    regNos.add(record.getRegistrationNo());
-                    showServiceRecord(record);
+                for(DriverLog log: logs) {
+                    regNos.add(log.getRegistrationNo());
+                    showDriverLog(log);
                 }
                 adapter.addAll(regNos);
                 searchEditText.setAdapter(adapter);
                 searchEditText.setOnItemClickListener((parent, view, position, id) -> {
                     cancelImageButton.setVisibility(View.VISIBLE);
                     String regNo = searchEditText.getText().toString();
-                    returnServiceRecordByRegNo(regNo, new serviceRecordsCallbacks() {
+                    returnDriverLogByRegNo(regNo, new driverLogCallbacks() {
                         @Override
-                        public void onSuccess(@NonNull List<ServiceRecord> records) {
+                        public void onSuccess(@NonNull List<DriverLog> logs) {
                             mainDiv.removeAllViews();
-                            for(ServiceRecord record: records) showServiceRecord(record);
+                            for(DriverLog log: logs) showDriverLog(log);
                         }
                     });
                 });
@@ -115,7 +116,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
             searchEditText.setText("");
             cancelImageButton.setVisibility(View.INVISIBLE);
             mainDiv.removeAllViews();
-            for(ServiceRecord record: allRecords) showServiceRecord(record);
+            for(DriverLog log: allLogs) showDriverLog(log);
         });
 
     }
@@ -123,7 +124,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
 
     @SuppressLint("ResourceType")
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void showServiceRecord(ServiceRecord record) {
+    private void showDriverLog(DriverLog log) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 16, 0, 16);
@@ -133,8 +134,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
 
         ImageView lightImageView = new ImageView(this);
         lightImageView.setId(0);
-        if(record.getDate().before(new Date())) lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_line));
-        else lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_red_line));
+        lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_line));
         set.connect(lightImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
         set.connect(lightImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
         set.connect(lightImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
@@ -148,8 +148,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         ImageView darkImageView = new ImageView(this);
         darkImageView.setId(1);
         darkImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        if(record.getDate().before(new Date())) darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_line));
-        else darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_red_line));
+        darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_line));
         set.connect(darkImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
         set.connect(darkImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
         set.connect(darkImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
@@ -171,7 +170,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         registrationNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         registrationNoTextView.setTextColor(0xff007ba4);
-        registrationNoTextView.setText(record.getRegistrationNo());
+        registrationNoTextView.setText(log.getRegistrationNo());
         lineLayout.addView(registrationNoTextView);
 
         TextView dateTextView = new TextView(this);
@@ -185,54 +184,60 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
-        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getDate()));
+        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(log.getStartDate()));
         lineLayout.addView(dateTextView);
 
-        TextView refNoTextView = new TextView(this);
-        refNoTextView.setId(12);
-        set.connect(refNoTextView.getId(), ConstraintSet.TOP, dateTextView.getId(), ConstraintSet.BOTTOM);
-        set.connect(refNoTextView.getId(), ConstraintSet.BOTTOM, lightImageView.getId(), ConstraintSet.BOTTOM);
-        set.connect(refNoTextView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START, 32);
-        set.connect(refNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
-        set.constrainPercentHeight(refNoTextView.getId(), 0.2f);
-        set.setVerticalBias(refNoTextView.getId(), 0.0f);
-        refNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-        refNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        refNoTextView.setTextColor(0xff000000);
-        refNoTextView.setText("Ref: " + record.getRefNo());
-        lineLayout.addView(refNoTextView);
+        TextView logTextView = new TextView(this);
+        logTextView.setId(12);
+        set.connect(logTextView.getId(), ConstraintSet.TOP, dateTextView.getId(), ConstraintSet.BOTTOM);
+        set.connect(logTextView.getId(), ConstraintSet.BOTTOM, lightImageView.getId(), ConstraintSet.BOTTOM);
+        set.connect(logTextView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START, 32);
+        set.connect(logTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
+        set.constrainPercentHeight(logTextView.getId(), 0.2f);
+        set.setVerticalBias(logTextView.getId(), 0.0f);
+        logTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        logTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        logTextView.setTextColor(0xff000000);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        logTextView.setText("Ref: " + timeFormat.format(log.getStartTime()) + "-" + timeFormat.format(log.getEndTime()) + ", " + (int)(log.getKm()*10)/10.0 + "km");
+        lineLayout.addView(logTextView);
 
-        TextView nextTextView = new TextView(this);
-        nextTextView.setId(13);
-        set.connect(nextTextView.getId(), ConstraintSet.TOP, darkImageView.getId(), ConstraintSet.TOP);
-        set.connect(nextTextView.getId(), ConstraintSet.BOTTOM, darkImageView.getId(), ConstraintSet.BOTTOM);
-        set.connect(nextTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
-        set.connect(nextTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
-        set.constrainPercentHeight(nextTextView.getId(), 0.2f);
-        nextTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-        nextTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        nextTextView.setTextColor(0xff000000);
-        nextTextView.setText("Next Service: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getNextDate()) + " / " + record.getNextDistance() + "km");
-        lineLayout.addView(nextTextView);
+        TextView claimTextView = new TextView(this);
+        claimTextView.setId(13);
+        set.connect(claimTextView.getId(), ConstraintSet.TOP, darkImageView.getId(), ConstraintSet.TOP);
+        set.connect(claimTextView.getId(), ConstraintSet.BOTTOM, darkImageView.getId(), ConstraintSet.BOTTOM);
+        set.connect(claimTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
+        set.connect(claimTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
+        set.constrainPercentHeight(claimTextView.getId(), 0.2f);
+        claimTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        claimTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        claimTextView.setTextColor(0xff000000);
+        if(log.getCompanyName()==null || log.getCompanyName().length()==0) {
+            claimTextView.setText("Not shared");
+            claimTextView.setAlpha(0.5f);
+        } else {
+            claimTextView.setText("Claimed to " + log.getCompanyName());
+        }
+        lineLayout.addView(claimTextView);
 
         ImageView sentImageView = new ImageView(this);
         sentImageView.setId(20);
         set.connect(sentImageView.getId(), ConstraintSet.TOP, registrationNoTextView.getId(), ConstraintSet.TOP);
-        set.connect(sentImageView.getId(), ConstraintSet.BOTTOM, refNoTextView.getId(), ConstraintSet.BOTTOM);  //do not know why... if constraint to background, there are bugs
+        set.connect(sentImageView.getId(), ConstraintSet.BOTTOM, logTextView.getId(), ConstraintSet.BOTTOM);  //do not know why... if constraint to background, there are bugs
         set.connect(sentImageView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START);
         set.connect(sentImageView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END, 32);
         set.setDimensionRatio(sentImageView.getId(), "1:1");
         set.constrainPercentWidth(sentImageView.getId(), 0.04f);
         set.setHorizontalBias(sentImageView.getId(), 1.0f);
         sentImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        if(record.isSentBefore()) sentImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0sent));
+        if(log.isSentBefore()) sentImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0sent));
         else sentImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0unsent));
         lineLayout.addView(sentImageView);
 
         ImageView sendImageView = new ImageView(this);
         sendImageView.setId(21);
         set.connect(sendImageView.getId(), ConstraintSet.TOP, registrationNoTextView.getId(), ConstraintSet.TOP);
-        set.connect(sendImageView.getId(), ConstraintSet.BOTTOM, refNoTextView.getId(), ConstraintSet.BOTTOM);  //do not know y 2...
+        set.connect(sendImageView.getId(), ConstraintSet.BOTTOM, logTextView.getId(), ConstraintSet.BOTTOM);  //do not know y 2...
         set.connect(sendImageView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START);
         set.connect(sendImageView.getId(), ConstraintSet.END, sentImageView.getId(), ConstraintSet.START, 32);
         set.setDimensionRatio(sendImageView.getId(), "1:1");
@@ -241,26 +246,11 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         sendImageView.setScaleType(ImageView.ScaleType.FIT_XY);
         sendImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0send));
         sendImageView.setOnClickListener(v -> {
-            Log.d(TAG, "send servicerecord registrationNO: " + record.getRegistrationNo());
-            Log.d(TAG, "send servicerecord ID: " + record.getId());
-            startActivity(new Intent(this, ServiceRecordsSendActivity.class).putExtra("recordID", record.getId()));
+            Log.d(TAG, "send registrationNO: " + log.getRegistrationNo());
+            Log.d(TAG, "send ID: " + log.getId());
+            startActivity(new Intent(this, DriverLogSendActivity.class).putExtra("logID", log.getId()));
         });
         lineLayout.addView(sendImageView);
-
-        if(! record.getDate().before(new Date())) {
-            ImageView notifyImageView = new ImageView(this);
-            notifyImageView.setId(22);
-            set.connect(notifyImageView.getId(), ConstraintSet.TOP, darkImageView.getId(), ConstraintSet.TOP);
-            set.connect(notifyImageView.getId(), ConstraintSet.BOTTOM, darkImageView.getId(), ConstraintSet.BOTTOM);  //do not know y 2...
-            set.connect(notifyImageView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START);
-            set.connect(notifyImageView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END, 16);
-            set.setDimensionRatio(notifyImageView.getId(), "1:1");
-            set.constrainPercentWidth(notifyImageView.getId(), 0.1f);
-            set.setHorizontalBias(notifyImageView.getId(), 1.0f);
-            notifyImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            notifyImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0notification));
-            lineLayout.addView(notifyImageView);
-        }
 
         set.applyTo(lineLayout);
         mainDiv.addView(lineLayout);
@@ -362,7 +352,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(ServiceRecordsDashboardActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
 
     }
 
@@ -436,7 +426,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
             }
         });
 
-        Volley.newRequestQueue(ServiceRecordsDashboardActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
     }
 
 }
