@@ -120,7 +120,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             }
             if(isEmail) {
 
-
+                //send
 
             } else {
                 Toast.makeText(getApplicationContext(), "Please enter correct email address", Toast.LENGTH_SHORT).show();
@@ -178,7 +178,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject = response;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            List<String> options = new ArrayList();
+            List<String> options = new ArrayList<>();
             ServiceRecord serviceRecord;
             try {
                 JSONArray jsonArray = response.getJSONArray("service_options");
