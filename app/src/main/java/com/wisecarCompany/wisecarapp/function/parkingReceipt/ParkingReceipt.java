@@ -14,14 +14,15 @@ public class ParkingReceipt {
     private double hours;
     private double fees;
     private String notes;
-    private String url;
+    private String documentLink;
+    private String emailAddress;
 
     public ParkingReceipt(String id, String registrationNo, Date date, String refNo, String companyName, boolean sentBefore) {
         this.id = id;
         this.registrationNo = registrationNo;
         this.date = date;
         this.refNo = refNo;
-        this.companyName = companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.sentBefore = sentBefore;
     }
 
@@ -29,11 +30,11 @@ public class ParkingReceipt {
         this.id = id;
         this.date = date;
         this.refNo = refNo;
-        this.companyName = companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.hours = hours;
         this.fees = fees;
         this.notes = notes;
-        this.url = url;
+        this.documentLink = url;
     }
 
     public String getId() {
@@ -73,7 +74,7 @@ public class ParkingReceipt {
     }
 
     public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
     }
 
     public boolean isSentBefore() {
@@ -108,11 +109,19 @@ public class ParkingReceipt {
         this.notes = notes;
     }
 
-    public String getUrl() {
-        return url;
+    public String getDocumentLink() {
+        return documentLink;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setDocumentLink(String documentLink) {
+        this.documentLink = documentLink;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 }

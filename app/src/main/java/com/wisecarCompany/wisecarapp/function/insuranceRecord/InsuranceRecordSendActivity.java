@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.serviceRecords;
+package com.wisecarCompany.wisecarapp.function.insuranceRecord;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,8 +24,8 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,9 +41,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ServiceRecordsSendActivity extends AppCompatActivity {
+public class InsuranceRecordSendActivity extends AppCompatActivity {
 
-    private final static String TAG = "Service Records Send";
+    private final static String TAG = "Insurance Record Send";
 
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
@@ -54,13 +54,11 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
     private ImageButton backImageButton;
 
     private TextView headerTextView;
-    private TextView dateTextView;
-    private TextView centreTextView;
-    private TextView refNoTextView;
-    private TextView optionsTextView;
-    private TextView notesTextView;
-    private TextView nextdateTextView;
-    private TextView nextDistanceTextView;
+    private TextView policyNoTextView;
+    private TextView insurerTextView;
+    private TextView startDateTextView;
+    private TextView endDateTextView;
+    private TextView typeTextView;
     private TextView documentLinkTextView;
 
     private EditText emailEditText;
@@ -71,22 +69,20 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_service_records_send);
+        setContentView(R.layout.activity_insurance_record_send);
 
         recordID = (String) this.getIntent().getStringExtra("recordID");
         Log.d(TAG, "recordID: " + recordID);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, ServiceRecordsDashboardActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, InsuranceRecordDashboardActivity.class)));
 
         headerTextView = $(R.id.headerTextView);
-        dateTextView = $(R.id.dateTextView);
-        centreTextView = $(R.id.centreTextView);
-        refNoTextView = $(R.id.refNoTextView);
-        optionsTextView = $(R.id.optionsTextView);
-        notesTextView = $(R.id.notesTextView);
-        nextdateTextView = $(R.id.nextDateTextView);
-        nextDistanceTextView = $(R.id.nextDistanceTextView);
+        policyNoTextView = $(R.id.policyNoTextView);
+        insurerTextView = $(R.id.insurerTextView);
+        startDateTextView = $(R.id.startDateTextView);
+        endDateTextView = $(R.id.endDateTextView);
+        typeTextView = $(R.id.typeTextView);
         documentLinkTextView = $(R.id.documentLinkTextView);
 
         emailEditText = $(R.id.emailEditText);
@@ -94,19 +90,17 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
 
 
         // SOME INFO YOU CAN GET IN HERE
-        getServiceRecordInfo(new serviceRecordSendCallbacks() {
+        getInsuranceRecordInfo(new insuranceRecordSendCallbacks() {
             @Override
-            public void onSuccess(@NonNull ServiceRecord record) {
+            public void onSuccess(@NonNull InsuranceRecord record) {
 
                 SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                headerTextView.setText("Ref: " + record.getRefNo());
-                dateTextView.setText(format.format(record.getDate()));
-                centreTextView.setText(record.getCentre());
-                refNoTextView.setText(record.getRefNo());
-                optionsTextView.setText(record.getOptionsStr());
-                notesTextView.setText(record.getNotes());
-                nextdateTextView.setText(format.format(record.getNextDate()));
-                nextDistanceTextView.setText(""+(int)record.getNextDistance());
+                headerTextView.setText("Police Number: " + record.getPolicyNo());
+                policyNoTextView.setText(record.getPolicyNo());
+                insurerTextView.setText(record.getInsurer());
+                startDateTextView.setText(format.format(record.getStartDate()));
+                endDateTextView.setText(format.format(record.getEndDate()));
+                typeTextView.setText(record.getType());
 
                 documentLinkTextView.setOnClickListener(v -> {
                     Log.d(TAG, "document link url: " + record.getDocumentLink());
@@ -172,7 +166,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
-    private void getServiceRecordInfo(@Nullable final serviceRecordSendCallbacks callbacks) {
+    private void getInsuranceRecordInfo(@Nullable final insuranceRecordSendCallbacks callbacks) {
 
         String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
 
@@ -189,7 +183,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             JSONObject jsonObject = response;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             List<String> options = new ArrayList<>();
-            ServiceRecord serviceRecord;
+            InsuranceRecord insuranceRecord;
             try {
                 JSONArray jsonArray = response.getJSONArray("service_options");
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -197,7 +191,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                     options.add(jsonObject.optString("service_option"));
                 }
 
-                serviceRecord = new ServiceRecord(
+                insuranceRecord = new ServiceRecord(
                         format.parse(response.optString("service_date")),
                         response.optString("service_center"),
                         response.optString("service_ref_no"),
@@ -209,7 +203,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                 );
 
                 if (callbacks != null)
-                    callbacks.onSuccess(serviceRecord);
+                    callbacks.onSuccess(insuranceRecord);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -234,17 +228,17 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(ServiceRecordsSendActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
 
     }
 
-    public interface serviceRecordSendCallbacks {
-        void onSuccess(@NonNull ServiceRecord value);
+    public interface insuranceRecordSendCallbacks {
+        void onSuccess(@NonNull InsuranceRecord value);
 
 //        void onError(@NonNull List<ServiceRecord> value);
     }
 
-    private void sendEmail(ServiceRecord record) {
+    private void sendEmail(InsuranceRecord record) {
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -296,7 +290,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(ServiceRecordsSendActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
 
     }
 }

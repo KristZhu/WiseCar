@@ -33,7 +33,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
@@ -91,6 +90,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
                 Log.e("Logs: ", String.valueOf(logs));
                 allLogs = logs;
                 Set<String> regNos = new HashSet<>();
+                mainDiv.removeAllViews();
                 for(DriverLog log: logs) {
                     regNos.add(log.getRegistrationNo());
                     showDriverLog(log);
@@ -183,7 +183,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
-        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(log.getStartDate()));
+        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(log.getStartTime()));
         lineLayout.addView(dateTextView);
 
         TextView logTextView = new TextView(this);
@@ -198,7 +198,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         logTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         logTextView.setTextColor(0xff000000);
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        logTextView.setText("Ref: " + timeFormat.format(log.getStartTime()) + "-" + timeFormat.format(log.getEndTime()) + ", " + (int)(log.getKm()*10)/10.0 + "km");
+        logTextView.setText("Log: " + timeFormat.format(log.getStartTime()) + "-" + timeFormat.format(log.getEndTime()) + ", " + (int)(log.getKm()*10)/10.0 + "km");
         lineLayout.addView(logTextView);
 
         TextView claimTextView = new TextView(this);
@@ -291,7 +291,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
     private void getDriverLogs(@Nullable final driverLogsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_DRIVE_LOGS;
-        List<DriverLog> records = new ArrayList();
+        List<DriverLog> logs = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -302,33 +302,29 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         }
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
-            Log.e("Records Response", response.toString());
+            Log.e("Logs Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy", Locale.getDefault());
-            DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    DriverLog record;
-
-                    record = new DriverLog(
+                    DriverLog log = new DriverLog(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("date")),
-                            timeFormat.parse(jsonObject.optString("start_time")),
-                            timeFormat.parse(jsonObject.optString("end_time")),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
                             jsonObject.optDouble("km_travel"),
                             jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
-                    Log.e(TAG, record.getCompanyName() );
-                    records.add(record);
+
+                    logs.add(log);
                 }
                 if (callbacks != null)
-                    callbacks.onSuccess(records);
+                    callbacks.onSuccess(logs);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -383,8 +379,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
@@ -396,9 +391,8 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
                     log = new DriverLog(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("date")),
-                            timeFormat.parse(jsonObject.optString("start_time")),
-                            timeFormat.parse(jsonObject.optString("end_time")),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
                             jsonObject.optDouble("km_travel"),
                             jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")

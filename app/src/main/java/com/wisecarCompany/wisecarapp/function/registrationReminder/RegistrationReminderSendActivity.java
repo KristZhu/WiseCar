@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.serviceRecords;
+package com.wisecarCompany.wisecarapp.function.registrationReminder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,8 +24,9 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
+import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,26 +42,22 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ServiceRecordsSendActivity extends AppCompatActivity {
+public class RegistrationReminderSendActivity extends AppCompatActivity {
 
-    private final static String TAG = "Service Records Send";
+    private final static String TAG = "Reg Reminder Send";
 
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
     private String SEND_EMAIL = "/api/v1/servicerecords/sendemail";
 
-    private String recordID;
+    private String reminderID;
 
     private ImageButton backImageButton;
 
     private TextView headerTextView;
     private TextView dateTextView;
-    private TextView centreTextView;
-    private TextView refNoTextView;
-    private TextView optionsTextView;
-    private TextView notesTextView;
-    private TextView nextdateTextView;
-    private TextView nextDistanceTextView;
+    private TextView payRefTextView;
+    private TextView expirydateTextView;
     private TextView documentLinkTextView;
 
     private EditText emailEditText;
@@ -71,22 +68,19 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_service_records_send);
+        setContentView(R.layout.activity_registration_reminder_send);
 
-        recordID = (String) this.getIntent().getStringExtra("recordID");
-        Log.d(TAG, "recordID: " + recordID);
+
+        reminderID = (String) this.getIntent().getStringExtra("reminderID");
+        Log.d(TAG, "reminderID: " + reminderID);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, ServiceRecordsDashboardActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, RegistrationReminderDashboardActivity.class)));
 
         headerTextView = $(R.id.headerTextView);
         dateTextView = $(R.id.dateTextView);
-        centreTextView = $(R.id.centreTextView);
-        refNoTextView = $(R.id.refNoTextView);
-        optionsTextView = $(R.id.optionsTextView);
-        notesTextView = $(R.id.notesTextView);
-        nextdateTextView = $(R.id.nextDateTextView);
-        nextDistanceTextView = $(R.id.nextDistanceTextView);
+        payRefTextView = $(R.id.payRefTextView);
+        expirydateTextView = $(R.id.expiryDateTextView);
         documentLinkTextView = $(R.id.documentLinkTextView);
 
         emailEditText = $(R.id.emailEditText);
@@ -94,23 +88,19 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
 
 
         // SOME INFO YOU CAN GET IN HERE
-        getServiceRecordInfo(new serviceRecordSendCallbacks() {
+        getRegReminderInfo(new regReminderSendCallbacks() {
             @Override
-            public void onSuccess(@NonNull ServiceRecord record) {
+            public void onSuccess(@NonNull RegistrationReminder reminder) {
 
                 SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                headerTextView.setText("Ref: " + record.getRefNo());
-                dateTextView.setText(format.format(record.getDate()));
-                centreTextView.setText(record.getCentre());
-                refNoTextView.setText(record.getRefNo());
-                optionsTextView.setText(record.getOptionsStr());
-                notesTextView.setText(record.getNotes());
-                nextdateTextView.setText(format.format(record.getNextDate()));
-                nextDistanceTextView.setText(""+(int)record.getNextDistance());
+                headerTextView.setText("Registration Payment Ref: " + reminder.getPayRef());
+                dateTextView.setText(format.format(reminder.getDate()));
+                payRefTextView.setText(reminder.getPayRef());
+                expirydateTextView.setText(format.format(reminder.getExpireDate()));
 
                 documentLinkTextView.setOnClickListener(v -> {
-                    Log.d(TAG, "document link url: " + record.getDocumentLink());
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(record.getDocumentLink())));
+                    Log.d(TAG, "document link url: " + reminder.getDocumentLink());
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(reminder.getDocumentLink())));
                 });
 
                 sendButton.setOnClickListener(v -> {
@@ -126,8 +116,8 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                     }
                     if(isEmail) {
 
-                        record.setEmailAddress(email);
-                        sendEmail(record);
+                        reminder.setEmailAddress(email);
+                        sendEmail(reminder);
 
                     } else {
                         Toast.makeText(getApplicationContext(), "Please enter correct email address", Toast.LENGTH_SHORT).show();
@@ -172,13 +162,13 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
-    private void getServiceRecordInfo(@Nullable final serviceRecordSendCallbacks callbacks) {
+    private void getRegReminderInfo(@Nullable final regReminderSendCallbacks callbacks) {
 
         String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("record_id", recordID);
+            jsonParam.put("record_id", reminderID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -234,17 +224,17 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(ServiceRecordsSendActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
 
     }
 
-    public interface serviceRecordSendCallbacks {
-        void onSuccess(@NonNull ServiceRecord value);
+    public interface regReminderSendCallbacks {
+        void onSuccess(@NonNull RegistrationReminder value);
 
 //        void onError(@NonNull List<ServiceRecord> value);
     }
 
-    private void sendEmail(ServiceRecord record) {
+    private void sendEmail(RegistrationReminder reminder) {
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -296,7 +286,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(ServiceRecordsSendActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
 
     }
 }

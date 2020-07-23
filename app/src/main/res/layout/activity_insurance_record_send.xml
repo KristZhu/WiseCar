@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/wc0bg_dark"
-    tools:context="com.wisecarCompany.wisecarapp.function.driverLog.DriverLogSendActivity">
+    tools:context="com.wisecarCompany.wisecarapp.function.insuranceRecord.InsuranceRecordSendActivity">
 
     <ImageButton
         android:id="@+id/backImageButton"
@@ -47,6 +47,7 @@
         app:layout_constraintBottom_toBottomOf="@id/refBGImageView"
         app:layout_constraintStart_toStartOf="@id/refBGImageView"
         app:layout_constraintEnd_toEndOf="@id/refBGImageView"
+        android:text="Policy Number: "
         app:layout_constraintHeight_percent="0.045"
         android:autoSizeTextType="uniform"
         android:textAlignment="center"
@@ -139,12 +140,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Date: "
+                    android:text="Policy Number: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/dateTextView"
+                    android:id="@+id/policyNoTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -164,12 +165,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Start: "
+                    android:text="Insurer: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/startTextView"
+                    android:id="@+id/insurerTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -189,12 +190,62 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="End: "
+                    android:text="Start of Cover: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/endTextView"
+                    android:id="@+id/startDateTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:text="End of Cover: "
+                    android:textColor="#007ba4"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/endDateTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:text="Cover Type: "
+                    android:textColor="#007ba4"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/typeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -212,70 +263,21 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/documentTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Total Time (Min): "
+                    android:text="Service Document: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/timeTextView"
+                    android:id="@+id/documentLinkTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Total Distance (KM): "
-                    android:textColor="#007ba4"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/distanceTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Shared With: "
-                    android:textColor="#007ba4"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/shareTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
+                    android:text="View Document"
+                    android:textColor="#0000ff"
                     android:textStyle="bold" />
 
             </LinearLayout>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/wc0bg_dark"
-    tools:context=".function.serviceRecords.ServiceRecordsDashboardActivity">
+    tools:context=".function.parkingReceipt.ParkingReceiptDashboardActivity">
 
     <ImageButton
         android:id="@+id/backImageButton"
@@ -33,7 +33,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:text="Service Records"
+        android:text="Parking Receipts"
         android:textStyle="bold"
         android:padding="4dp"
         app:autoSizeTextType="uniform"

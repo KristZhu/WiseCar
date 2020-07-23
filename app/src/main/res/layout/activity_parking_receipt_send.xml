@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/wc0bg_dark"
-    tools:context=".function.serviceRecords.ServiceRecordsSendActivity">
+    tools:context=".function.parkingReceipt.ParkingReceiptSendActivity">
 
     <ImageButton
         android:id="@+id/backImageButton"
@@ -40,14 +40,15 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
+        android:id="@+id/headerTextView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:text="Ticket Ref: "
         app:layout_constraintTop_toTopOf="@id/refBGImageView"
         app:layout_constraintBottom_toBottomOf="@id/refBGImageView"
         app:layout_constraintStart_toStartOf="@id/refBGImageView"
         app:layout_constraintEnd_toEndOf="@id/refBGImageView"
-        android:text="Ref: AAAAAAAAAAA"
-        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintHeight_percent="0.045"
         android:autoSizeTextType="uniform"
         android:textAlignment="center"
         android:textColor="#000000"
@@ -139,7 +140,32 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Service Date: "
+                    android:text="Ticket Reference: "
+                    android:textColor="#007ba4"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/ticketRefTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:text="Date: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
@@ -154,6 +180,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -164,37 +191,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Service Centre: "
+                    android:text="End: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/centreTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Service Ref. No: "
-                    android:textColor="#007ba4"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/refNoTextView"
+                    android:id="@+id/endTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -215,12 +217,37 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Service Options: "
+                    android:text="Total Hours: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/optionsTextView"
+                    android:id="@+id/hourTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:text="Fees Paid: "
+                    android:textColor="#007ba4"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/feeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -260,44 +287,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Next Service (Date): "
+                    android:text="Claimed to: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/nextDateTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Next Service (KM): "
-                    android:textColor="#007ba4"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/nextDistanceTextView"
+                    android:id="@+id/shareTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -319,7 +320,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Service Document: "
+                    android:text="Parking Receipt: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
@@ -339,3 +340,4 @@
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

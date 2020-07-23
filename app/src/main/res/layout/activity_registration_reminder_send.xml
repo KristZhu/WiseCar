@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/wc0bg_dark"
-    tools:context="com.wisecarCompany.wisecarapp.function.driverLog.DriverLogSendActivity">
+    tools:context=".function.registrationReminder.RegistrationReminderSendActivity">
 
     <ImageButton
         android:id="@+id/backImageButton"
@@ -47,7 +47,8 @@
         app:layout_constraintBottom_toBottomOf="@id/refBGImageView"
         app:layout_constraintStart_toStartOf="@id/refBGImageView"
         app:layout_constraintEnd_toEndOf="@id/refBGImageView"
-        app:layout_constraintHeight_percent="0.045"
+        android:text="Registration Payment Ref: "
+        app:layout_constraintHeight_percent="0.04"
         android:autoSizeTextType="uniform"
         android:textAlignment="center"
         android:textColor="#000000"
@@ -163,13 +164,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Start: "
+                    android:text="Payment Ref: "
                     android:textColor="#007ba4"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/startTextView"
+                    android:id="@+id/payRefTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -189,63 +190,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="End: "
+                    android:text="Expiry Date: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/endTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Total Time (Min): "
-                    android:textColor="#007ba4"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/timeTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Total Distance (KM): "
-                    android:textColor="#007ba4"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/distanceTextView"
+                    android:id="@+id/expiryDateTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -263,19 +213,21 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/documentTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Shared With: "
+                    android:text="Service Document: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/shareTextView"
+                    android:id="@+id/documentLinkTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:textColor="#000000"
+                    android:text="View Document"
+                    android:textColor="#0000ff"
                     android:textStyle="bold" />
 
             </LinearLayout>

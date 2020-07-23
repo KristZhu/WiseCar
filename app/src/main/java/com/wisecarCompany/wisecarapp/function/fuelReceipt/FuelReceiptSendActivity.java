@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.serviceRecords;
+package com.wisecarCompany.wisecarapp.function.fuelReceipt;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,8 +24,8 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,26 +41,25 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ServiceRecordsSendActivity extends AppCompatActivity {
+public class FuelReceiptSendActivity extends AppCompatActivity {
 
-    private final static String TAG = "Service Records Send";
+    private final static String TAG = "Fuel Receipt Send";
 
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
     private String SEND_EMAIL = "/api/v1/servicerecords/sendemail";
 
-    private String recordID;
+    private String receiptID;
 
     private ImageButton backImageButton;
 
     private TextView headerTextView;
+    private TextView invoiceRefTextView;
     private TextView dateTextView;
-    private TextView centreTextView;
-    private TextView refNoTextView;
-    private TextView optionsTextView;
-    private TextView notesTextView;
-    private TextView nextdateTextView;
-    private TextView nextDistanceTextView;
+    private TextView typeTextView;
+    private TextView fuelAmountTextView;
+    private TextView paidAmountTextView;
+    private TextView shareTextView;
     private TextView documentLinkTextView;
 
     private EditText emailEditText;
@@ -71,46 +70,43 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_service_records_send);
+        setContentView(R.layout.activity_fuel_receipt_send);
 
-        recordID = (String) this.getIntent().getStringExtra("recordID");
-        Log.d(TAG, "recordID: " + recordID);
+        receiptID = (String) this.getIntent().getStringExtra("receiptID");
+        Log.d(TAG, "receiptID: " + receiptID);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, ServiceRecordsDashboardActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, FuelReceiptDashboardActivity.class)));
 
         headerTextView = $(R.id.headerTextView);
         dateTextView = $(R.id.dateTextView);
-        centreTextView = $(R.id.centreTextView);
-        refNoTextView = $(R.id.refNoTextView);
-        optionsTextView = $(R.id.optionsTextView);
-        notesTextView = $(R.id.notesTextView);
-        nextdateTextView = $(R.id.nextDateTextView);
-        nextDistanceTextView = $(R.id.nextDistanceTextView);
+        typeTextView = $(R.id.typeTextView);
+        fuelAmountTextView = $(R.id.fuelAmountTextView);
+        paidAmountTextView = $(R.id.paidAmountTextView);
+        shareTextView = $(R.id.shareTextView);
         documentLinkTextView = $(R.id.documentLinkTextView);
 
         emailEditText = $(R.id.emailEditText);
         sendButton = $(R.id.sendButton);
 
 
-        // SOME INFO YOU CAN GET IN HERE
-        getServiceRecordInfo(new serviceRecordSendCallbacks() {
+        getFuelReceiptInfo(new fuelReceiptSendCallbacks() {
             @Override
-            public void onSuccess(@NonNull ServiceRecord record) {
+            public void onSuccess(@NonNull FuelReceipt receipt) {
 
                 SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                headerTextView.setText("Ref: " + record.getRefNo());
-                dateTextView.setText(format.format(record.getDate()));
-                centreTextView.setText(record.getCentre());
-                refNoTextView.setText(record.getRefNo());
-                optionsTextView.setText(record.getOptionsStr());
-                notesTextView.setText(record.getNotes());
-                nextdateTextView.setText(format.format(record.getNextDate()));
-                nextDistanceTextView.setText(""+(int)record.getNextDistance());
+                headerTextView.setText("Invoice Ref: " + receipt.getInvoiceRef());
+                dateTextView.setText(format.format(receipt.getDate()));
+                typeTextView.setText(receipt.getType());
+                fuelAmountTextView.setText((int)receipt.getFuelAmount() + "L");
+                paidAmountTextView.setText((int)receipt.getPaidAmount() + "AUD");
+                if (receipt.getCompanyName() == null || receipt.getCompanyName().length() == 0)
+                    shareTextView.setText("Not shared");
+                else shareTextView.setText(receipt.getCompanyName());
 
                 documentLinkTextView.setOnClickListener(v -> {
-                    Log.d(TAG, "document link url: " + record.getDocumentLink());
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(record.getDocumentLink())));
+                    Log.d(TAG, "document link url: " + receipt.getDocumentLink());
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(receipt.getDocumentLink())));
                 });
 
                 sendButton.setOnClickListener(v -> {
@@ -126,8 +122,8 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                     }
                     if(isEmail) {
 
-                        record.setEmailAddress(email);
-                        sendEmail(record);
+                        receipt.setEmailAddress(email);
+                        sendEmail(receipt);
 
                     } else {
                         Toast.makeText(getApplicationContext(), "Please enter correct email address", Toast.LENGTH_SHORT).show();
@@ -172,13 +168,13 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
-    private void getServiceRecordInfo(@Nullable final serviceRecordSendCallbacks callbacks) {
+    private void getFuelReceiptInfo(@Nullable final fuelReceiptSendCallbacks callbacks) {
 
         String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("record_id", recordID);
+            jsonParam.put("receipt_id", receiptID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -189,7 +185,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             JSONObject jsonObject = response;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             List<String> options = new ArrayList<>();
-            ServiceRecord serviceRecord;
+            FuelReceipt receipt;
             try {
                 JSONArray jsonArray = response.getJSONArray("service_options");
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -197,7 +193,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                     options.add(jsonObject.optString("service_option"));
                 }
 
-                serviceRecord = new ServiceRecord(
+                receipt = new ServiceRecord(
                         format.parse(response.optString("service_date")),
                         response.optString("service_center"),
                         response.optString("service_ref_no"),
@@ -209,7 +205,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                 );
 
                 if (callbacks != null)
-                    callbacks.onSuccess(serviceRecord);
+                    callbacks.onSuccess(receipt);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -234,17 +230,17 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(ServiceRecordsSendActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
 
     }
 
-    public interface serviceRecordSendCallbacks {
-        void onSuccess(@NonNull ServiceRecord value);
+    public interface fuelReceiptSendCallbacks {
+        void onSuccess(@NonNull FuelReceipt value);
 
 //        void onError(@NonNull List<ServiceRecord> value);
     }
 
-    private void sendEmail(ServiceRecord record) {
+    private void sendEmail(FuelReceipt receipt) {
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -296,7 +292,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(ServiceRecordsSendActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
 
     }
 }
