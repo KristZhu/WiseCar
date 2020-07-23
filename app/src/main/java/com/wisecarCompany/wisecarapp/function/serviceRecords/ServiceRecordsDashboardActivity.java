@@ -306,8 +306,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", "216");
-//            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", UserInfo.getUserID());
 
         } catch (JSONException e) {
             e.printStackTrace();

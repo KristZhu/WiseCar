@@ -21,6 +21,10 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.driverLog.DriverLogDashboardActivity;
+import com.wisecarCompany.wisecarapp.function.fuelReceipt.FuelReceiptDashboardActivity;
+import com.wisecarCompany.wisecarapp.function.insuranceRecord.InsuranceRecordDashboardActivity;
+import com.wisecarCompany.wisecarapp.function.parkingReceipt.ParkingReceiptDashboardActivity;
+import com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationReminderDashboardActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
@@ -134,19 +138,19 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void startRegistrationReminder() {
-        //startActivity(new Intent(DashboardActivity.this, RegistrationReminderDashboardActivity.class));
+        startActivity(new Intent(DashboardActivity.this, RegistrationReminderDashboardActivity.class));
     }
 
     private void startParkingReceipts() {
-        //startActivity(new Intent(DashboardActivity.this, ParkingReceiptDashboardActivity.class));
+        startActivity(new Intent(DashboardActivity.this, ParkingReceiptDashboardActivity.class));
     }
 
     private void startInsuranceRecord() {
-        //startActivity(new Intent(DashboardActivity.this, InsuranceRecordDashboardActivity.class));
+        startActivity(new Intent(DashboardActivity.this, InsuranceRecordDashboardActivity.class));
     }
 
     private void startFuelReceipts() {
-        //startActivity(new Intent(DashboardActivity.this, FuelReceiptDashboardActivity.class));
+        startActivity(new Intent(DashboardActivity.this, FuelReceiptDashboardActivity.class));
     }
 
     private <T extends View> T $(int id){

@@ -34,8 +34,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsSendActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
@@ -58,8 +56,8 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
     private final static String TAG = "RegReminderDashboard";
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICE_REFCORDS = "/api/v1/servicerecords/getallrecordbyuser";
-    private String GET_RECORDS_BY_REG_NO = "/api/v1/servicerecords//getrecordbyuserregisno";
+    private String GET_REGISTRATION_REFCORDS = "/api/v1/registrationrecords/getallrecordbyuser";
+    private String GET_REGISTRATION_BY_REG_NO = "/api/v1/registrationrecords/getrecordbyuserregisno";
 
     private ImageButton backImageButton;
 
@@ -301,12 +299,11 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
 
     private void getRegReminder(@Nullable final regReminderCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_REFCORDS;
+        String URL = IP_HOST + GET_REGISTRATION_REFCORDS;
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", "216");
-//            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", UserInfo.getUserID());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -323,21 +320,20 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    ServiceRecord record;
+                    RegistrationReminder registration;
 
-                    record = new ServiceRecord(
+                    registration = new RegistrationReminder(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("service_date")),
-                            jsonObject.optString("service_ref"),
-                            format.parse(jsonObject.optString("next_service_date")),
-                            jsonObject.optDouble("next_service_odometer"),
+                            format.parse(jsonObject.optString("reg_date")),
+                            jsonObject.optString("reg_payment_ref"),
+                            format.parse(jsonObject.optString("reg_expiry_date")),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
-                    records.add(record);
+                    reminders.add(registration);
                 }
                 if (callbacks != null)
-                    callbacks.onSuccess(records);
+                    callbacks.onSuccess(reminders);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -376,7 +372,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
 
     private void returnRegReminderByRegNo(String regNo, @Nullable final regReminderCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_RECORDS_BY_REG_NO;
+        String URL = IP_HOST + GET_REGISTRATION_BY_REG_NO;
 
         List<RegistrationReminder> reminders = new ArrayList();
 
@@ -399,22 +395,20 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    ServiceRecord record;
+                    RegistrationReminder registration;
 
-                    record = new ServiceRecord(
+                    registration = new RegistrationReminder(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("service_date")),
-                            jsonObject.optString("service_ref"),
-                            format.parse(jsonObject.optString("next_service_date")),
-                            jsonObject.optDouble("next_service_odometer"),
+                            format.parse(jsonObject.optString("reg_date")),
+                            jsonObject.optString("reg_payment_ref"),
+                            format.parse(jsonObject.optString("reg_expiry_date")),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
-
-                    records.add(record);
+                    reminders.add(registration);
                 }
                 if (callbacks != null)
-                    callbacks.onSuccess(records);
+                    callbacks.onSuccess(reminders);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {

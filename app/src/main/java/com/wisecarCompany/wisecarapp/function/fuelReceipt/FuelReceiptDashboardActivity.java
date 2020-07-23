@@ -34,7 +34,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.driverLog.DriverLog;
-import com.wisecarCompany.wisecarapp.function.driverLog.DriverLogSendActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
@@ -56,8 +55,8 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
     private final static String TAG = "Fuel Receipt D";
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_DRIVE_LOGS = "/api/v1/drivelog/getallrecordbyuser";
-    private String GET_LOGS_BY_REG_NO = "/api/v1/drivelog/getrecordbyuserregisno";
+    private String GET_FUEL_RECEIPT = "/api/v1/fuelreceipts/getallrecordbyuser";
+    private String GET_FUEL_BY_REG_NO = "/api/v1/fuelreceipts/getrecordbyuserregisno";
 
     private ImageButton backImageButton;
 
@@ -288,7 +287,7 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
 
     private void getFuelReceipt(@Nullable final fuelReceiptCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_DRIVE_LOGS;
+        String URL = IP_HOST + GET_FUEL_RECEIPT;
         List<FuelReceipt> receipts = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
@@ -302,19 +301,18 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Logs Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    FuelReceipt receipt = new DriverLog(
+                    FuelReceipt receipt = new FuelReceipt(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
-                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
-                            jsonObject.optDouble("km_travel"),
+                            format.parse(jsonObject.optString("date")),
+                            jsonObject.optString("fuel_receipt_inv_ref"),
                             jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
@@ -361,7 +359,7 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
 
     private void returnParkingReceiptByRegNo(String regNo, @Nullable final fuelReceiptCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_LOGS_BY_REG_NO;
+        String URL = IP_HOST + GET_FUEL_BY_REG_NO;
 
         List<FuelReceipt> receipts = new ArrayList();
 
@@ -377,19 +375,18 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    FuelReceipt receipt = new DriverLog(
+                    FuelReceipt receipt = new FuelReceipt(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
-                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
-                            jsonObject.optDouble("km_travel"),
+                            format.parse(jsonObject.optString("date")),
+                            jsonObject.optString("fuel_receipt_inv_ref"),
                             jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );

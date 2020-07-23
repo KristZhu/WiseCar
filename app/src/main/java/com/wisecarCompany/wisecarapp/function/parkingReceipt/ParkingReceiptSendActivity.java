@@ -25,14 +25,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsSendActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -49,8 +46,8 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
     private final static String TAG = "Parking Receipt Send";
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
-    private String SEND_EMAIL = "/api/v1/servicerecords/sendemail";
+    private String GET_PARKING_RECEIPT_INFO = "/api/v1/parkingreceipts/getrecordbyid";
+    private String SEND_EMAIL = "/api/v1/parkingreceipts/sendemail";
 
     private String receiptID;
 
@@ -103,8 +100,8 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
                 headerTextView.setText("Ticket Ref: " + receipt.getRefNo());
                 dateTextView.setText(format.format(receipt.getDate()));
                 //endTextView.setText
-                hourTextView.setText((int)(receipt.getHours()*10)/10.0 + "");
-                feeTextView.setText((int)(receipt.getFees()*10)/10.0 + "AUD");
+                hourTextView.setText((int) (receipt.getHours() * 10) / 10.0 + "");
+                feeTextView.setText((int) (receipt.getFees() * 10) / 10.0 + "AUD");
                 notesTextView.setText(receipt.getNotes());
                 if (receipt.getCompanyName() == null || receipt.getCompanyName().length() == 0)
                     shareTextView.setText("Not shared");
@@ -118,15 +115,15 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
                 sendButton.setOnClickListener(v -> {
                     email = emailEditText.getText().toString();
                     boolean isEmail = false;
-                    try{
+                    try {
                         String check = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
                         Pattern regex = Pattern.compile(check);
                         Matcher matcher = regex.matcher(email);
                         isEmail = matcher.matches();
-                    } catch(Exception e ){
+                    } catch (Exception e) {
                         isEmail = false;
                     }
-                    if(isEmail) {
+                    if (isEmail) {
 
                         receipt.setEmailAddress(email);
                         sendEmail(receipt);
@@ -149,19 +146,21 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v instanceof EditText) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -170,17 +169,17 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 
     private void getParkingReceiptInfo(@Nullable final parkingReceiptSendCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
+        String URL = IP_HOST + GET_PARKING_RECEIPT_INFO;
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("receipt_id", receiptID);
+            jsonParam.put("record_id", receiptID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -190,30 +189,21 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject = response;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            List<String> options = new ArrayList<>();
             ParkingReceipt receipt;
             try {
-                JSONArray jsonArray = response.getJSONArray("service_options");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    jsonObject = jsonArray.getJSONObject(i);
-                    options.add(jsonObject.optString("service_option"));
-                }
-
-                receipt = new ServiceRecord(
-                        format.parse(response.optString("service_date")),
-                        response.optString("service_center"),
-                        response.optString("service_ref_no"),
-                        options,
-                        response.optString("notes"),
-                        format.parse(response.optString("next_service_date")),
-                        response.optDouble("next_service_odometer"),
+                receipt = new ParkingReceipt(
+                        response.optString("id"),
+                        response.optString("parking_reference_no"),
+                        format.parse(response.optString("date")),
+                        response.optDouble("total_hours"),
+                        response.optDouble("parking_fees"),
+                        response.optString("parking_notes"),
+                        response.optString("company_name"),
                         response.optString("file_url")
                 );
 
                 if (callbacks != null)
                     callbacks.onSuccess(receipt);
-            } catch (JSONException e) {
-                e.printStackTrace();
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -254,17 +244,16 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("service_id", record.getId());
-            jsonParam.put("email_to_address", record.getEmailAddress());
+            jsonParam.put("service_id", receipt.getId());
+            jsonParam.put("email_to_address", receipt.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
             jsonParam.put("user_id", UserInfo.getUserID());
-            jsonParam.put("service_date", dateFormat.format(record.getDate()));
-            jsonParam.put("service_center", record.getCentre());
-            jsonParam.put("service_options", record.getOptions());
-            jsonParam.put("service_ref_no", record.getRefNo());
-            jsonParam.put("notes", record.getNotes());
-            jsonParam.put("next_service_date", dateFormat.format(record.getNextDate()));
-            jsonParam.put("next_service_odometer", (int)record.getNextDistance());
+            jsonParam.put("ticket_reference", receipt.getRefNo());
+            jsonParam.put("date", dateFormat.format(receipt.getDate()));
+            jsonParam.put("total_hours", receipt.getHours());
+            jsonParam.put("fees_paid", receipt.getFees());
+            jsonParam.put("notes", receipt.getNotes());
+            jsonParam.put("claimed_to", receipt.getCompanyName());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -272,7 +261,7 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
-            if(response.optString("message").equals("success")){
+            if (response.optString("message").equals("success")) {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
