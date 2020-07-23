@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.parkingReceipt;
+package com.wisecarCompany.wisecarapp.function.fuelReceipt;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,14 +25,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsSendActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -44,9 +41,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ParkingReceiptSendActivity extends AppCompatActivity {
+public class FuelReceiptSendActivity extends AppCompatActivity {
 
-    private final static String TAG = "Parking Receipt Send";
+    private final static String TAG = "Fuel Receipt Send";
 
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
@@ -57,12 +54,11 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
     private ImageButton backImageButton;
 
     private TextView headerTextView;
-    private TextView ticketRefTextView;
+    private TextView invoiceRefTextView;
     private TextView dateTextView;
-    private TextView endTextView;   //not implemented, invisible
-    private TextView hourTextView;
-    private TextView feeTextView;
-    private TextView notesTextView;
+    private TextView typeTextView;
+    private TextView fuelAmountTextView;
+    private TextView paidAmountTextView;
     private TextView shareTextView;
     private TextView documentLinkTextView;
 
@@ -74,20 +70,19 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_parking_receipt_send);
+        setContentView(R.layout.activity_fuel_receipt_send);
 
         receiptID = (String) this.getIntent().getStringExtra("receiptID");
         Log.d(TAG, "receiptID: " + receiptID);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, ParkingReceiptDashboardActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, FuelReceiptDashboardActivity.class)));
 
         headerTextView = $(R.id.headerTextView);
         dateTextView = $(R.id.dateTextView);
-        endTextView = $(R.id.endTextView);
-        hourTextView = $(R.id.hourTextView);
-        feeTextView = $(R.id.feeTextView);
-        notesTextView = $(R.id.notesTextView);
+        typeTextView = $(R.id.typeTextView);
+        fuelAmountTextView = $(R.id.fuelAmountTextView);
+        paidAmountTextView = $(R.id.paidAmountTextView);
         shareTextView = $(R.id.shareTextView);
         documentLinkTextView = $(R.id.documentLinkTextView);
 
@@ -95,17 +90,16 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
         sendButton = $(R.id.sendButton);
 
 
-        getParkingReceiptInfo(new parkingReceiptSendCallbacks() {
+        getFuelReceiptInfo(new fuelReceiptSendCallbacks() {
             @Override
-            public void onSuccess(@NonNull ParkingReceipt receipt) {
+            public void onSuccess(@NonNull FuelReceipt receipt) {
 
                 SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                headerTextView.setText("Ticket Ref: " + receipt.getRefNo());
+                headerTextView.setText("Invoice Ref: " + receipt.getInvoiceRef());
                 dateTextView.setText(format.format(receipt.getDate()));
-                //endTextView.setText
-                hourTextView.setText((int)(receipt.getHours()*10)/10.0 + "");
-                feeTextView.setText((int)(receipt.getFees()*10)/10.0 + "AUD");
-                notesTextView.setText(receipt.getNotes());
+                typeTextView.setText(receipt.getType());
+                fuelAmountTextView.setText((int)receipt.getFuelAmount() + "L");
+                paidAmountTextView.setText((int)receipt.getPaidAmount() + "AUD");
                 if (receipt.getCompanyName() == null || receipt.getCompanyName().length() == 0)
                     shareTextView.setText("Not shared");
                 else shareTextView.setText(receipt.getCompanyName());
@@ -174,7 +168,7 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
-    private void getParkingReceiptInfo(@Nullable final parkingReceiptSendCallbacks callbacks) {
+    private void getFuelReceiptInfo(@Nullable final fuelReceiptSendCallbacks callbacks) {
 
         String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
 
@@ -191,7 +185,7 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
             JSONObject jsonObject = response;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             List<String> options = new ArrayList<>();
-            ParkingReceipt receipt;
+            FuelReceipt receipt;
             try {
                 JSONArray jsonArray = response.getJSONArray("service_options");
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -240,13 +234,13 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
 
     }
 
-    public interface parkingReceiptSendCallbacks {
-        void onSuccess(@NonNull ParkingReceipt value);
+    public interface fuelReceiptSendCallbacks {
+        void onSuccess(@NonNull FuelReceipt value);
 
 //        void onError(@NonNull List<ServiceRecord> value);
     }
 
-    private void sendEmail(ParkingReceipt receipt) {
+    private void sendEmail(FuelReceipt receipt) {
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
