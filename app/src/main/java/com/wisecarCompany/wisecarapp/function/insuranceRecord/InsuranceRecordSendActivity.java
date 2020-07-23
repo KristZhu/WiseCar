@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.registrationReminder;
+package com.wisecarCompany.wisecarapp.function.insuranceRecord;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +25,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
 import org.json.JSONArray;
@@ -42,22 +41,24 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RegistrationReminderSendActivity extends AppCompatActivity {
+public class InsuranceRecordSendActivity extends AppCompatActivity {
 
-    private final static String TAG = "Reg Reminder Send";
+    private final static String TAG = "Insurance Record Send";
 
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
     private String SEND_EMAIL = "/api/v1/servicerecords/sendemail";
 
-    private String reminderID;
+    private String recordID;
 
     private ImageButton backImageButton;
 
     private TextView headerTextView;
-    private TextView dateTextView;
-    private TextView payRefTextView;
-    private TextView expirydateTextView;
+    private TextView policyNoTextView;
+    private TextView insurerTextView;
+    private TextView startDateTextView;
+    private TextView endDateTextView;
+    private TextView typeTextView;
     private TextView documentLinkTextView;
 
     private EditText emailEditText;
@@ -68,19 +69,20 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registration_reminder_send);
+        setContentView(R.layout.activity_insurance_record_send);
 
-
-        reminderID = (String) this.getIntent().getStringExtra("reminderID");
-        Log.d(TAG, "reminderID: " + reminderID);
+        recordID = (String) this.getIntent().getStringExtra("recordID");
+        Log.d(TAG, "recordID: " + recordID);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, RegistrationReminderDashboardActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, InsuranceRecordDashboardActivity.class)));
 
         headerTextView = $(R.id.headerTextView);
-        dateTextView = $(R.id.dateTextView);
-        payRefTextView = $(R.id.payRefTextView);
-        expirydateTextView = $(R.id.expiryDateTextView);
+        policyNoTextView = $(R.id.policyNoTextView);
+        insurerTextView = $(R.id.insurerTextView);
+        startDateTextView = $(R.id.startDateTextView);
+        endDateTextView = $(R.id.endDateTextView);
+        typeTextView = $(R.id.typeTextView);
         documentLinkTextView = $(R.id.documentLinkTextView);
 
         emailEditText = $(R.id.emailEditText);
@@ -88,19 +90,21 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
 
 
         // SOME INFO YOU CAN GET IN HERE
-        getRegReminderInfo(new regReminderSendCallbacks() {
+        getInsuranceRecordInfo(new insuranceRecordSendCallbacks() {
             @Override
-            public void onSuccess(@NonNull RegistrationReminder reminder) {
+            public void onSuccess(@NonNull InsuranceRecord record) {
 
                 SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                headerTextView.setText("Registration Payment Ref: " + reminder.getPayRef());
-                dateTextView.setText(format.format(reminder.getDate()));
-                payRefTextView.setText(reminder.getPayRef());
-                expirydateTextView.setText(format.format(reminder.getExpireDate()));
+                headerTextView.setText("Police Number: " + record.getPolicyNo());
+                policyNoTextView.setText(record.getPolicyNo());
+                insurerTextView.setText(record.getInsurer());
+                startDateTextView.setText(format.format(record.getStartDate()));
+                endDateTextView.setText(format.format(record.getEndDate()));
+                typeTextView.setText(record.getType());
 
                 documentLinkTextView.setOnClickListener(v -> {
-                    Log.d(TAG, "document link url: " + reminder.getDocumentLink());
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(reminder.getDocumentLink())));
+                    Log.d(TAG, "document link url: " + record.getDocumentLink());
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(record.getDocumentLink())));
                 });
 
                 sendButton.setOnClickListener(v -> {
@@ -116,8 +120,8 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
                     }
                     if(isEmail) {
 
-                        reminder.setEmailAddress(email);
-                        sendEmail(reminder);
+                        record.setEmailAddress(email);
+                        sendEmail(record);
 
                     } else {
                         Toast.makeText(getApplicationContext(), "Please enter correct email address", Toast.LENGTH_SHORT).show();
@@ -162,13 +166,13 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
-    private void getRegReminderInfo(@Nullable final regReminderSendCallbacks callbacks) {
+    private void getInsuranceRecordInfo(@Nullable final insuranceRecordSendCallbacks callbacks) {
 
         String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("record_id", reminderID);
+            jsonParam.put("record_id", recordID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -179,7 +183,7 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
             JSONObject jsonObject = response;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             List<String> options = new ArrayList<>();
-            ServiceRecord serviceRecord;
+            InsuranceRecord insuranceRecord;
             try {
                 JSONArray jsonArray = response.getJSONArray("service_options");
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -187,7 +191,7 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
                     options.add(jsonObject.optString("service_option"));
                 }
 
-                serviceRecord = new ServiceRecord(
+                insuranceRecord = new ServiceRecord(
                         format.parse(response.optString("service_date")),
                         response.optString("service_center"),
                         response.optString("service_ref_no"),
@@ -199,7 +203,7 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
                 );
 
                 if (callbacks != null)
-                    callbacks.onSuccess(serviceRecord);
+                    callbacks.onSuccess(insuranceRecord);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -228,13 +232,13 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
 
     }
 
-    public interface regReminderSendCallbacks {
-        void onSuccess(@NonNull RegistrationReminder value);
+    public interface insuranceRecordSendCallbacks {
+        void onSuccess(@NonNull InsuranceRecord value);
 
 //        void onError(@NonNull List<ServiceRecord> value);
     }
 
-    private void sendEmail(RegistrationReminder reminder) {
+    private void sendEmail(InsuranceRecord record) {
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());

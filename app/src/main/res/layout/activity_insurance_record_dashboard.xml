@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/wc0bg_dark"
+    tools:context=".function.insuranceRecord.InsuranceRecordDashboardActivity">
+
+
+    <ImageButton
+        android:id="@+id/backImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@null"
+        android:padding="0dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.1"
+        app:srcCompat="@drawable/wc0back" />
+
+    <TextView
+        android:id="@+id/headerTextView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:text="Insurance Record"
+        android:textStyle="bold"
+        android:padding="4dp"
+        app:autoSizeTextType="uniform"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="@+id/backImageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/backImageButton"
+        app:layout_constraintTop_toTopOf="@+id/backImageButton" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/searchDiv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/wc0bg_yellow"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backImageButton"
+        android:layout_marginTop="8dp">
+
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:scaleType="fitXY"
+            android:alpha="0.5"
+            app:layout_constraintWidth_percent="0.7"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/vehicle0edittext" />
+
+        <ImageView
+            android:id="@+id/searchImageView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:scaleType="fitXY"
+            app:layout_constraintTop_toTopOf="@id/imageView1"
+            app:layout_constraintBottom_toBottomOf="@id/imageView1"
+            app:layout_constraintStart_toStartOf="@id/imageView1"
+            app:layout_constraintDimensionRatio="1:1"
+            app:srcCompat="@drawable/share_vehicle0search" />
+
+        <AutoCompleteTextView
+            android:id="@+id/searchEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:autoText="true"
+            android:background="@null"
+            android:textColorLink="#ffffff"
+            android:popupBackground="#ffffff"
+            android:hint="SEARCH BY REGISTRATION NUMBER"
+            android:textColorHint="#ffffff"
+            android:completionThreshold="1"
+            android:imeOptions="actionSearch"
+            android:inputType="textAutoComplete"
+            android:dropDownAnchor="@id/imageView1"
+            app:layout_constraintBottom_toBottomOf="@+id/imageView1"
+            app:layout_constraintEnd_toEndOf="@+id/imageView1"
+            app:layout_constraintStart_toEndOf="@+id/searchImageView"
+            app:layout_constraintTop_toTopOf="@+id/imageView1" />
+
+        <ImageButton
+            android:id="@+id/cancelImageButton"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:srcCompat="@drawable/record_log0cancel"
+            android:visibility="invisible"
+            android:padding="0dp"
+            android:background="@null"
+            android:scaleType="fitXY"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fadingEdge="vertical"
+        android:scrollbars="vertical"
+        android:background="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchDiv"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintVertical_bias="1.0">
+
+        <LinearLayout
+            android:id="@+id/mainDiv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:orientation="vertical">
+
+            <!-- dynamically layout -->
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
