@@ -36,7 +36,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.startTime = startTime;
         this.endTime = endTime;
         this.km = km;
-        this.companyName = companyName.equals("null") ? null : companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.sentBefore = sentBefore;
         this.id = id;
         this.registrationNo = registrationNo;
@@ -47,7 +47,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.endTime = endTime;
         this.km = km;
         this.mins = mins;
-        this.companyName = companyName.equals("null") ? null : companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.registrationNo = registrationNo;
     }
 
@@ -57,7 +57,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.startTime = startTime;
         this.claimRate = claimRate;
         this.shareID = shareID;
-        this.companyName = companyName.equals("null") ? null : companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
     }
 
@@ -67,7 +67,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.startTime = startTime;
         this.claimRate = claimRate;
         this.shareID = shareID;
-        this.companyName = companyName.equals("null") ? null : companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
         this.timestamp = timestamp;
     }
@@ -82,7 +82,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.claimRate = claimRate;
         this.shareID = shareID;
         this.custID = custID;
-        this.companyName = companyName.equals("null") ? null : companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
     }
 
@@ -96,7 +96,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.claimRate = claimRate;
         this.shareID = shareID;
         this.custID = custID;
-        this.companyName = companyName.equals("null") ? null : companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
         this.logJSON = logJSON;
         this.timestamp = timestamp;
@@ -198,7 +198,7 @@ public class DriverLog implements Comparable<DriverLog> {
     }
 
     public void setCompanyName(String companyName) {
-        this.companyName = companyName.equals("null") ? null : companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
     }
 
     public Bitmap getCompanyLogo() {

@@ -8,17 +8,18 @@ public class RegistrationReminder {
     private String registrationNo;
     private Date date;
     private String payRef;
-    private Date expire;
+    private Date expireDate;
     private boolean sentBefore;
 
-    private String url;
+    private String documentLink;
+    private String emailAddress;
 
     public RegistrationReminder(String id, String payRef, Date date, Date expire, String url) {
         this.id = id;
         this.date = date;
         this.payRef = payRef;
-        this.expire = expire;
-        this.url = url;
+        this.expireDate = expire;
+        this.documentLink = url;
     }
 
     public RegistrationReminder(String id, String registrationNo, Date date, String payRef, Date expire, boolean sentBefore) {
@@ -26,7 +27,7 @@ public class RegistrationReminder {
         this.registrationNo = registrationNo;
         this.date = date;
         this.payRef = payRef;
-        this.expire = expire;
+        this.expireDate = expire;
         this.sentBefore = sentBefore;
     }
 
@@ -62,12 +63,12 @@ public class RegistrationReminder {
         this.payRef = payRef;
     }
 
-    public Date getExpire() {
-        return expire;
+    public Date getExpireDate() {
+        return expireDate;
     }
 
-    public void setExpire(Date expire) {
-        this.expire = expire;
+    public void setExpireDate(Date expire) {
+        this.expireDate = expire;
     }
 
     public boolean isSentBefore() {
@@ -78,11 +79,19 @@ public class RegistrationReminder {
         this.sentBefore = sentBefore;
     }
 
-    public String getUrl() {
-        return url;
+    public String getDocumentLink() {
+        return documentLink;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setDocumentLink(String url) {
+        this.documentLink = url;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 }
