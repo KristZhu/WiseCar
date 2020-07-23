@@ -369,7 +369,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
 
         String URL = IP_HOST + GET_LOGS_BY_REG_NO;
 
-        List<DriverLog> records = new ArrayList();
+        List<DriverLog> logs = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -404,10 +404,10 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
                             jsonObject.optString("has_sent_before").equals("1")
                     );
 
-                    records.add(log);
+                    logs.add(log);
                 }
                 if (callbacks != null)
-                    callbacks.onSuccess(records);
+                    callbacks.onSuccess(logs);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
