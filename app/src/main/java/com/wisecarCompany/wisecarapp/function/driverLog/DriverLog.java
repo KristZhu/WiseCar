@@ -25,6 +25,33 @@ public class DriverLog implements Comparable<DriverLog> {
 
     private boolean pausing = false;
 
+    private boolean sentBefore;
+    private String id;
+    private String registrationNo;
+    private Date startDate;
+
+
+    public DriverLog(String id, String registrationNo, Date startDate, Date startTime, Date endTime, double km, String companyName, boolean sentBefore) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.km = km;
+        this.companyName = companyName;
+        this.sentBefore = sentBefore;
+        this.id = id;
+        this.registrationNo = registrationNo;
+        this.startDate = startDate;
+    }
+
+    public DriverLog(String registrationNo, Date startDate, Date startTime, Date endTime, double km, int mins, String companyName) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.km = km;
+        this.mins = mins;
+        this.companyName = companyName;
+        this.registrationNo = registrationNo;
+        this.startDate = startDate;
+    }
+
     public DriverLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
         this.vehicleID = vehicleID;
         this.custID = custID;
@@ -197,6 +224,38 @@ public class DriverLog implements Comparable<DriverLog> {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isSentBefore() {
+        return sentBefore;
+    }
+
+    public void setSentBefore(boolean sentBefore) {
+        this.sentBefore = sentBefore;
+    }
+
+    public String getRegistrationNo() {
+        return registrationNo;
+    }
+
+    public void setRegistrationNo(String registrationNo) {
+        this.registrationNo = registrationNo;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
     @Override

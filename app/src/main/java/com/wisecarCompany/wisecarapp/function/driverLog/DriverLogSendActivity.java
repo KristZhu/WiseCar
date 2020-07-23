@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -25,7 +24,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsSendActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,7 +59,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
     private String email;
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
+    private String GET_DRIVER_LOG_INFO = "/api/v1/drivelog/getrecordbyid";
 
 
     @Override
@@ -97,22 +95,23 @@ public class DriverLogSendActivity extends AppCompatActivity {
                 startTextView.setText(timeFormat.format(log.getStartTime()));
                 endTextView.setText(timeFormat.format(log.getEndTime()));
                 timeTextView.setText(log.getMins());
-                distanceTextView.setText(""+(int)(log.getKm()*10)/10.0);
-                if(log.getCompanyName()==null || log.getCompanyName().length()==0) shareTextView.setText("Not shared");
+                distanceTextView.setText("" + (int) (log.getKm() * 10) / 10.0);
+                if (log.getCompanyName() == null || log.getCompanyName().length() == 0)
+                    shareTextView.setText("Not shared");
                 else shareTextView.setText(log.getCompanyName());
 
                 sendButton.setOnClickListener(v -> {
                     email = emailEditText.getText().toString();
                     boolean isEmail = false;
-                    try{
+                    try {
                         String check = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
                         Pattern regex = Pattern.compile(check);
                         Matcher matcher = regex.matcher(email);
                         isEmail = matcher.matches();
-                    } catch(Exception e ){
+                    } catch (Exception e) {
                         isEmail = false;
                     }
-                    if(isEmail) {
+                    if (isEmail) {
 
                         //send
 
@@ -134,19 +133,21 @@ public class DriverLogSendActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v instanceof EditText) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -155,13 +156,13 @@ public class DriverLogSendActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 
-    private void getServiceRecordInfo(@Nullable final ServiceRecordsSendActivity.serviceRecordSendCallbacks callbacks) {
+    private void getDriverLogInfo(@Nullable final driverLogSendCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
+        String URL = IP_HOST + GET_DRIVER_LOG_INFO;
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -175,30 +176,22 @@ public class DriverLogSendActivity extends AppCompatActivity {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject = response;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            List<String> options = new ArrayList<>();
-            ServiceRecord serviceRecord;
+            DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            DriverLog driverLog;
             try {
-                JSONArray jsonArray = response.getJSONArray("service_options");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    jsonObject = jsonArray.getJSONObject(i);
-                    options.add(jsonObject.optString("service_option"));
-                }
 
-                serviceRecord = new ServiceRecord(
-                        format.parse(response.optString("service_date")),
-                        response.optString("service_center"),
-                        response.optString("service_ref_no"),
-                        options,
-                        response.optString("notes"),
-                        format.parse(response.optString("next_service_date")),
-                        response.optDouble("next_service_odometer"),
-                        response.optString("file_url")
+                driverLog = new DriverLog(
+                        jsonObject.optString("registration_no"),
+                        format.parse(jsonObject.optString("date")),
+                        timeFormat.parse(jsonObject.optString("start_time")),
+                        timeFormat.parse(jsonObject.optString("end_time")),
+                        jsonObject.optDouble("km_travel"),
+                        jsonObject.optInt("total_time"),
+                        jsonObject.optString("shared_with")
                 );
 
                 if (callbacks != null)
-                    callbacks.onSuccess(serviceRecord);
-            } catch (JSONException e) {
-                e.printStackTrace();
+                    callbacks.onSuccess(driverLog);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -225,9 +218,9 @@ public class DriverLogSendActivity extends AppCompatActivity {
 
     }
 
-    public interface serviceRecordSendCallbacks {
-        void onSuccess(@NonNull ServiceRecord value);
+    public interface driverLogSendCallbacks {
+        void onSuccess(@NonNull DriverLog value);
 
-//        void onError(@NonNull List<ServiceRecord> value);
+//        void onError(@NonNull DriverLog value);
     }
 }
