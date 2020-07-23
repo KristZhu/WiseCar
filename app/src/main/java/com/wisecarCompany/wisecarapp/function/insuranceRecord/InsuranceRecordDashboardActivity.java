@@ -34,7 +34,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsSendActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
@@ -58,8 +57,8 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
     private final static String TAG = "InsurRecordDashboard";
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICE_REFCORDS = "/api/v1/servicerecords/getallrecordbyuser";
-    private String GET_RECORDS_BY_REG_NO = "/api/v1/servicerecords//getrecordbyuserregisno";
+    private String GET_INSURANCE_REFCORDS = "/api/v1/insurancerecords/getallrecordbyuser";
+    private String GET_INSURANCE_BY_REG_NO = "/api/v1/insurancerecords/getrecordbyuserregisno";
 
     private ImageButton backImageButton;
 
@@ -304,12 +303,11 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
 
     private void getInsuranceRecord(@Nullable final insuranceRecordCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_REFCORDS;
+        String URL = IP_HOST + GET_INSURANCE_REFCORDS;
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", "216");
-//            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", UserInfo.getUserID());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -328,13 +326,12 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
                     jsonObject = jsonArray.getJSONObject(i);
                     InsuranceRecord record;
 
-                    record = new ServiceRecord(
+                    record = new InsuranceRecord(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("service_date")),
-                            jsonObject.optString("service_ref"),
-                            format.parse(jsonObject.optString("next_service_date")),
-                            jsonObject.optDouble("next_service_odometer"),
+                            jsonObject.optString("policy_number"),
+                            jsonObject.optString("insurer"),
+                            format.parse(jsonObject.optString("cover_end_date")),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
                     records.add(record);
@@ -379,7 +376,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
 
     private void returnInsuranceRecordByRegNo(String regNo, @Nullable final insuranceRecordCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_RECORDS_BY_REG_NO;
+        String URL = IP_HOST + GET_INSURANCE_BY_REG_NO;
 
         List<InsuranceRecord> records = new ArrayList();
 
@@ -404,13 +401,12 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
                     jsonObject = jsonArray.getJSONObject(i);
                     InsuranceRecord record;
 
-                    record = new ServiceRecord(
+                    record = new InsuranceRecord(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("service_date")),
-                            jsonObject.optString("service_ref"),
-                            format.parse(jsonObject.optString("next_service_date")),
-                            jsonObject.optDouble("next_service_odometer"),
+                            jsonObject.optString("policy_number"),
+                            jsonObject.optString("insurer"),
+                            format.parse(jsonObject.optString("cover_end_date")),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
 

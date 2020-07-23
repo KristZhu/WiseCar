@@ -55,8 +55,8 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
     private final static String TAG = "Parking Receipt D";
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_DRIVE_LOGS = "/api/v1/drivelog/getallrecordbyuser";
-    private String GET_LOGS_BY_REG_NO = "/api/v1/drivelog/getrecordbyuserregisno";
+    private String GET_PARKING_RECEIPTS = "/api/v1/parkingreceipts//getallrecordbyuser";
+    private String GET_PARKING_BY_REG_NO = "/api/v1/parkingreceipts/getrecordbyuserregisno";
 
     private ImageButton backImageButton;
 
@@ -288,7 +288,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
 
     private void getParkingReceipt(@Nullable final parkingReceiptCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_DRIVE_LOGS;
+        String URL = IP_HOST + GET_PARKING_RECEIPTS;
         List<ParkingReceipt> receipts = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
@@ -302,19 +302,18 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Logs Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    ParkingReceipt receipt = new DriverLog(
+                    ParkingReceipt receipt = new ParkingReceipt(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
-                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
-                            jsonObject.optDouble("km_travel"),
+                            format.parse(jsonObject.optString("date")),
+                            jsonObject.optString("parking_reference_no"),
                             jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
@@ -361,7 +360,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
 
     private void returnParkingReceiptByRegNo(String regNo, @Nullable final parkingReceiptCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_LOGS_BY_REG_NO;
+        String URL = IP_HOST + GET_PARKING_BY_REG_NO;
 
         List<ParkingReceipt> receipts = new ArrayList();
 
@@ -377,7 +376,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
@@ -386,12 +385,11 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
                     jsonObject = jsonArray.getJSONObject(i);
                     ParkingReceipt receipt;
 
-                    receipt = new DriverLog(
+                    receipt = new ParkingReceipt(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
-                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
-                            jsonObject.optDouble("km_travel"),
+                            format.parse(jsonObject.optString("date")),
+                            jsonObject.optString("parking_reference_no"),
                             jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );

@@ -46,8 +46,8 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
     private final static String TAG = "Fuel Receipt Send";
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
-    private String SEND_EMAIL = "/api/v1/servicerecords/sendemail";
+    private String GET_FUEL_RECEIPT_INFO = "/api/v1/fuelreceipts/getrecordbyid";
+    private String SEND_EMAIL = "/api/v1/fuelreceipts/sendemail";
 
     private String receiptID;
 
@@ -170,11 +170,11 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
 
     private void getFuelReceiptInfo(@Nullable final fuelReceiptSendCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
+        String URL = IP_HOST + GET_FUEL_RECEIPT_INFO;
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("receipt_id", receiptID);
+            jsonParam.put("record_id", receiptID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -184,30 +184,23 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject = response;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            List<String> options = new ArrayList<>();
+
             FuelReceipt receipt;
             try {
-                JSONArray jsonArray = response.getJSONArray("service_options");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    jsonObject = jsonArray.getJSONObject(i);
-                    options.add(jsonObject.optString("service_option"));
-                }
 
-                receipt = new ServiceRecord(
-                        format.parse(response.optString("service_date")),
-                        response.optString("service_center"),
-                        response.optString("service_ref_no"),
-                        options,
-                        response.optString("notes"),
-                        format.parse(response.optString("next_service_date")),
-                        response.optDouble("next_service_odometer"),
+                receipt = new FuelReceipt(
+                        response.optString("service_id"),
+                        response.optString("invoice_ref"),
+                        format.parse(response.optString("date")),
+                        response.optString("fuel_type"),
+                        response.optDouble("fuel_amount"),
+                        response.optDouble("paid_amount"),
+                        response.optString("company_name"),
                         response.optString("file_url")
                 );
 
                 if (callbacks != null)
                     callbacks.onSuccess(receipt);
-            } catch (JSONException e) {
-                e.printStackTrace();
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -248,17 +241,16 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("service_id", record.getId());
-            jsonParam.put("email_to_address", record.getEmailAddress());
+            jsonParam.put("service_id", receipt.getId());
+            jsonParam.put("email_to_address", receipt.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
             jsonParam.put("user_id", UserInfo.getUserID());
-            jsonParam.put("service_date", dateFormat.format(record.getDate()));
-            jsonParam.put("service_center", record.getCentre());
-            jsonParam.put("service_options", record.getOptions());
-            jsonParam.put("service_ref_no", record.getRefNo());
-            jsonParam.put("notes", record.getNotes());
-            jsonParam.put("next_service_date", dateFormat.format(record.getNextDate()));
-            jsonParam.put("next_service_odometer", (int)record.getNextDistance());
+            jsonParam.put("invoice_ref", receipt.getInvoiceRef());
+            jsonParam.put("date", dateFormat.format(receipt.getDate()));
+            jsonParam.put("fuel_type", receipt.getType());
+            jsonParam.put("fuel_amount", receipt.getFuelAmount());
+            jsonParam.put("paid_amount", receipt.getPaidAmount());
+            jsonParam.put("claimed_to", receipt.getCompanyName());
 
         } catch (JSONException e) {
             e.printStackTrace();

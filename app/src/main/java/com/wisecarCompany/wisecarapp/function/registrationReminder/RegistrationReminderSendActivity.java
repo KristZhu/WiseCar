@@ -25,7 +25,6 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
 import org.json.JSONArray;
@@ -47,8 +46,8 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
     private final static String TAG = "Reg Reminder Send";
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
-    private String SEND_EMAIL = "/api/v1/servicerecords/sendemail";
+    private String GET_REGISTRATION_INFO = "/api/v1/registrationrecords/getrecordbyid";
+    private String SEND_EMAIL = "/api/v1/registrationrecords/sendemail";
 
     private String reminderID;
 
@@ -106,15 +105,15 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
                 sendButton.setOnClickListener(v -> {
                     email = emailEditText.getText().toString();
                     boolean isEmail = false;
-                    try{
+                    try {
                         String check = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
                         Pattern regex = Pattern.compile(check);
                         Matcher matcher = regex.matcher(email);
                         isEmail = matcher.matches();
-                    } catch(Exception e ){
+                    } catch (Exception e) {
                         isEmail = false;
                     }
-                    if(isEmail) {
+                    if (isEmail) {
 
                         reminder.setEmailAddress(email);
                         sendEmail(reminder);
@@ -137,19 +136,21 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v instanceof EditText) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -158,13 +159,13 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 
     private void getRegReminderInfo(@Nullable final regReminderSendCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_REFCORD_INFO;
+        String URL = IP_HOST + GET_REGISTRATION_INFO;
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -178,30 +179,18 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject = response;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            List<String> options = new ArrayList<>();
-            ServiceRecord serviceRecord;
+            RegistrationReminder registrationReminder;
             try {
-                JSONArray jsonArray = response.getJSONArray("service_options");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    jsonObject = jsonArray.getJSONObject(i);
-                    options.add(jsonObject.optString("service_option"));
-                }
-
-                serviceRecord = new ServiceRecord(
-                        format.parse(response.optString("service_date")),
-                        response.optString("service_center"),
-                        response.optString("service_ref_no"),
-                        options,
-                        response.optString("notes"),
-                        format.parse(response.optString("next_service_date")),
-                        response.optDouble("next_service_odometer"),
+                registrationReminder = new RegistrationReminder(
+                        response.optString("service_id"),
+                        response.optString("reg_payment_ref"),
+                        format.parse(response.optString("date")),
+                        format.parse(response.optString("expiry_date")),
                         response.optString("file_url")
                 );
 
                 if (callbacks != null)
-                    callbacks.onSuccess(serviceRecord);
-            } catch (JSONException e) {
-                e.printStackTrace();
+                    callbacks.onSuccess(registrationReminder);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -242,17 +231,13 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("service_id", record.getId());
-            jsonParam.put("email_to_address", record.getEmailAddress());
+            jsonParam.put("service_id", reminder.getId());
+            jsonParam.put("email_to_address", reminder.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
             jsonParam.put("user_id", UserInfo.getUserID());
-            jsonParam.put("service_date", dateFormat.format(record.getDate()));
-            jsonParam.put("service_center", record.getCentre());
-            jsonParam.put("service_options", record.getOptions());
-            jsonParam.put("service_ref_no", record.getRefNo());
-            jsonParam.put("notes", record.getNotes());
-            jsonParam.put("next_service_date", dateFormat.format(record.getNextDate()));
-            jsonParam.put("next_service_odometer", (int)record.getNextDistance());
+            jsonParam.put("registration_payment_ref", reminder.getPayRef());
+            jsonParam.put("date", dateFormat.format(reminder.getDate()));
+            jsonParam.put("expiry_date", dateFormat.format(reminder.getExpireDate()));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -260,7 +245,7 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
-            if(response.optString("message").equals("success")){
+            if (response.optString("message").equals("success")) {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
