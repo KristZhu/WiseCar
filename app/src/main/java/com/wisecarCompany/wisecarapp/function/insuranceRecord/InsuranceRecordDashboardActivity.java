@@ -245,7 +245,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
         sendImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0send));
         sendImageView.setOnClickListener(v -> {
             Log.d(TAG, "send insuranceRecord ID: " + record.getId());
-            startActivity(new Intent(this, ServiceRecordsSendActivity.class).putExtra("recordID", record.getId()));
+            startActivity(new Intent(this, InsuranceRecordSendActivity.class).putExtra("recordID", record.getId()));
         });
         lineLayout.addView(sendImageView);
 
