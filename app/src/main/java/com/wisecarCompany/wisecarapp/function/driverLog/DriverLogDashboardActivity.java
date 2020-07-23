@@ -324,7 +324,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
                             jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
-
+                    Log.e(TAG, record.getCompanyName() );
                     records.add(record);
                 }
                 if (callbacks != null)

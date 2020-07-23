@@ -240,7 +240,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
             jsonParam.put("email_to_address", emailEditText.getText().toString());
             jsonParam.put("submit_date_time", format.format(new Date()));
             jsonParam.put("user_id", UserInfo.getUserID());
-            jsonParam.put("registration_no", refNoTextView.getText().toString());
+//            jsonParam.put("registration_no", refNoTextView.getText().toString());
             jsonParam.put("date", dateTextView.getText().toString());
             jsonParam.put("start_time", startTextView.getText().toString());
             jsonParam.put("end_time", endTextView.getText().toString());
