@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.parkingReceipt;
+package com.wisecarCompany.wisecarapp.function.fuelReceipt;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,6 +34,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.driverLog.DriverLog;
+import com.wisecarCompany.wisecarapp.function.driverLog.DriverLogSendActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
@@ -50,9 +51,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class ParkingReceiptDashboardActivity extends AppCompatActivity {
+public class FuelReceiptDashboardActivity extends AppCompatActivity {
 
-    private final static String TAG = "Parking Receipt D";
+    private final static String TAG = "Fuel Receipt D";
 
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_DRIVE_LOGS = "/api/v1/drivelog/getallrecordbyuser";
@@ -61,18 +62,17 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
     private ImageButton backImageButton;
 
     private LinearLayout mainDiv;
-    private List<ParkingReceipt> allReceipts;
+    private List<FuelReceipt> allReceipts;
 
     private AutoCompleteTextView searchEditText;
     private ImageButton cancelImageButton;
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_parking_receipt_dashboard);
+        setContentView(R.layout.activity_fuel_receipt_dashboard);
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
@@ -83,27 +83,27 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
         cancelImageButton = $(R.id.cancelImageButton);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
 
-        getParkingReceipt(new parkingReceiptCallbacks() {
+        getFuelReceipt(new fuelReceiptCallbacks() {
             @Override
-            public void onSuccess(@NonNull List<ParkingReceipt> receipts) {
+            public void onSuccess(@NonNull List<FuelReceipt> receipts) {
                 Log.e("Receipts: ", String.valueOf(receipts));
                 allReceipts = receipts;
                 Set<String> regNos = new HashSet<>();
                 mainDiv.removeAllViews();
-                for(ParkingReceipt receipt: receipts) {
+                for(FuelReceipt receipt: receipts) {
                     regNos.add(receipt.getRegistrationNo());
-                    showParkingReceipt(receipt);
+                    showFuelReceipt(receipt);
                 }
                 adapter.addAll(regNos);
                 searchEditText.setAdapter(adapter);
                 searchEditText.setOnItemClickListener((parent, view, position, id) -> {
                     cancelImageButton.setVisibility(View.VISIBLE);
                     String regNo = searchEditText.getText().toString();
-                    returnParkingReceiptByRegNo(regNo, new parkingReceiptCallbacks() {
+                    returnParkingReceiptByRegNo(regNo, new fuelReceiptCallbacks() {
                         @Override
-                        public void onSuccess(@NonNull List<ParkingReceipt> receipts) {
+                        public void onSuccess(@NonNull List<FuelReceipt> receipts) {
                             mainDiv.removeAllViews();
-                            for(ParkingReceipt receipt: receipts) showParkingReceipt(receipt);
+                            for(FuelReceipt receipt: receipts) showFuelReceipt(receipt);
                         }
                     });
                 });
@@ -114,7 +114,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
             searchEditText.setText("");
             cancelImageButton.setVisibility(View.INVISIBLE);
             mainDiv.removeAllViews();
-            for(ParkingReceipt receipt: allReceipts) showParkingReceipt(receipt);
+            for(FuelReceipt receipt: allReceipts) showFuelReceipt(receipt);
         });
 
     }
@@ -122,7 +122,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
 
     @SuppressLint("ResourceType")
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void showParkingReceipt(ParkingReceipt receipt) {
+    private void showFuelReceipt(FuelReceipt receipt) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 16, 0, 16);
@@ -185,20 +185,20 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
         dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(receipt.getDate()));
         lineLayout.addView(dateTextView);
 
-        TextView ticketRefTextView = new TextView(this);
-        ticketRefTextView.setId(12);
-        set.connect(ticketRefTextView.getId(), ConstraintSet.TOP, dateTextView.getId(), ConstraintSet.BOTTOM);
-        set.connect(ticketRefTextView.getId(), ConstraintSet.BOTTOM, lightImageView.getId(), ConstraintSet.BOTTOM);
-        set.connect(ticketRefTextView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START, 32);
-        set.connect(ticketRefTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
-        set.constrainPercentHeight(ticketRefTextView.getId(), 0.2f);
-        set.setVerticalBias(ticketRefTextView.getId(), 0.0f);
-        ticketRefTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-        ticketRefTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        ticketRefTextView.setTextColor(0xff000000);
+        TextView invoiceRefTextView = new TextView(this);
+        invoiceRefTextView.setId(12);
+        set.connect(invoiceRefTextView.getId(), ConstraintSet.TOP, dateTextView.getId(), ConstraintSet.BOTTOM);
+        set.connect(invoiceRefTextView.getId(), ConstraintSet.BOTTOM, lightImageView.getId(), ConstraintSet.BOTTOM);
+        set.connect(invoiceRefTextView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START, 32);
+        set.connect(invoiceRefTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
+        set.constrainPercentHeight(invoiceRefTextView.getId(), 0.2f);
+        set.setVerticalBias(invoiceRefTextView.getId(), 0.0f);
+        invoiceRefTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        invoiceRefTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        invoiceRefTextView.setTextColor(0xff000000);
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        ticketRefTextView.setText("Ticket Ref: " + receipt.getRefNo());
-        lineLayout.addView(ticketRefTextView);
+        invoiceRefTextView.setText("Ticket Ref: " + receipt.getInvoiceRef());
+        lineLayout.addView(invoiceRefTextView);
 
         TextView claimTextView = new TextView(this);
         claimTextView.setId(13);
@@ -221,7 +221,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
         ImageView sentImageView = new ImageView(this);
         sentImageView.setId(20);
         set.connect(sentImageView.getId(), ConstraintSet.TOP, registrationNoTextView.getId(), ConstraintSet.TOP);
-        set.connect(sentImageView.getId(), ConstraintSet.BOTTOM, ticketRefTextView.getId(), ConstraintSet.BOTTOM);  //do not know why... if constraint to background, there are bugs
+        set.connect(sentImageView.getId(), ConstraintSet.BOTTOM, invoiceRefTextView.getId(), ConstraintSet.BOTTOM);  //do not know why... if constraint to background, there are bugs
         set.connect(sentImageView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START);
         set.connect(sentImageView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END, 32);
         set.setDimensionRatio(sentImageView.getId(), "1:1");
@@ -235,7 +235,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
         ImageView sendImageView = new ImageView(this);
         sendImageView.setId(21);
         set.connect(sendImageView.getId(), ConstraintSet.TOP, registrationNoTextView.getId(), ConstraintSet.TOP);
-        set.connect(sendImageView.getId(), ConstraintSet.BOTTOM, ticketRefTextView.getId(), ConstraintSet.BOTTOM);  //do not know y 2...
+        set.connect(sendImageView.getId(), ConstraintSet.BOTTOM, invoiceRefTextView.getId(), ConstraintSet.BOTTOM);  //do not know y 2...
         set.connect(sendImageView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START);
         set.connect(sendImageView.getId(), ConstraintSet.END, sentImageView.getId(), ConstraintSet.START, 32);
         set.setDimensionRatio(sendImageView.getId(), "1:1");
@@ -245,7 +245,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
         sendImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0send));
         sendImageView.setOnClickListener(v -> {
             Log.d(TAG, "send ID: " + receipt.getId());
-            startActivity(new Intent(this, ParkingReceiptSendActivity.class).putExtra("receiptID", receipt.getId()));
+            startActivity(new Intent(this, FuelReceiptSendActivity.class).putExtra("receiptID", receipt.getId()));
         });
         lineLayout.addView(sendImageView);
 
@@ -286,10 +286,10 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
-    private void getParkingReceipt(@Nullable final parkingReceiptCallbacks callbacks) {
+    private void getFuelReceipt(@Nullable final fuelReceiptCallbacks callbacks) {
 
         String URL = IP_HOST + GET_DRIVE_LOGS;
-        List<ParkingReceipt> receipts = new ArrayList();
+        List<FuelReceipt> receipts = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -309,7 +309,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    ParkingReceipt receipt = new DriverLog(
+                    FuelReceipt receipt = new DriverLog(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
                             format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
@@ -351,19 +351,19 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
 
     }
 
-    public interface parkingReceiptCallbacks {
-        void onSuccess(@NonNull List<ParkingReceipt> value);
+    public interface fuelReceiptCallbacks {
+        void onSuccess(@NonNull List<FuelReceipt> value);
 
 //        void onError(@NonNull List<ServiceRecord> value);
     }
 
 
 
-    private void returnParkingReceiptByRegNo(String regNo, @Nullable final parkingReceiptCallbacks callbacks) {
+    private void returnParkingReceiptByRegNo(String regNo, @Nullable final fuelReceiptCallbacks callbacks) {
 
         String URL = IP_HOST + GET_LOGS_BY_REG_NO;
 
-        List<ParkingReceipt> receipts = new ArrayList();
+        List<FuelReceipt> receipts = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -384,9 +384,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    ParkingReceipt receipt;
-
-                    receipt = new DriverLog(
+                    FuelReceipt receipt = new DriverLog(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
                             format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),

@@ -28,7 +28,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".function.parkingReceipt.ParkingReceiptSendActivity"></activity>
+        <activity android:name=".function.fuelReceipt.FuelReceiptSendActivity"></activity>
+        <activity android:name=".function.fuelReceipt.FuelReceiptDashboardActivity" />
+        <activity android:name=".function.parkingReceipt.ParkingReceiptSendActivity" />
         <activity android:name=".function.parkingReceipt.ParkingReceiptDashboardActivity" />
         <activity android:name=".function.insuranceRecord.InsuranceRecordSendActivity" />
         <activity android:name=".function.insuranceRecord.InsuranceRecordDashboardActivity" />

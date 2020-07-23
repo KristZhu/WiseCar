@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/wc0bg_dark"
-    tools:context=".function.parkingReceipt.ParkingReceiptSendActivity">
+    tools:context=".function.fuelReceipt.FuelReceiptSendActivity">
 
     <ImageButton
         android:id="@+id/backImageButton"
@@ -43,7 +43,7 @@
         android:id="@+id/headerTextView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="Ticket Ref: "
+        android:text="Invoice Ref: "
         app:layout_constraintTop_toTopOf="@id/refBGImageView"
         app:layout_constraintBottom_toBottomOf="@id/refBGImageView"
         app:layout_constraintStart_toStartOf="@id/refBGImageView"
@@ -140,12 +140,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Ticket Reference: "
+                    android:text="Invoice Reference: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/ticketRefTextView"
+                    android:id="@+id/invoiceRefTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -180,7 +180,32 @@
             </LinearLayout>
 
             <LinearLayout
-                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:text="Fuel Type: "
+                    android:textColor="#007ba4"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/typeTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -191,12 +216,37 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="End: "
+                    android:text="Fuel Amount: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/endTextView"
+                    android:id="@+id/fuelAmountTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:textSize="20sp"
+                    android:text="Paid Amount: "
+                    android:textColor="#007ba4"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/paidAmountTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
@@ -211,82 +261,6 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Total Hours: "
-                    android:textColor="#007ba4"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/hourTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Fees Paid: "
-                    android:textColor="#007ba4"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/feeTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:text="Notes: "
-                    android:textColor="#007ba4"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/notesTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="20sp"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -320,7 +294,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textSize="20sp"
-                    android:text="Parking Receipt: "
+                    android:text="Fuel Receipt: "
                     android:textColor="#007ba4"
                     android:textStyle="bold" />
 

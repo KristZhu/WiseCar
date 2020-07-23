@@ -7,33 +7,34 @@ public class FuelReceipt {
     private String id;
     private String registrationNo;
     private Date date;
-    private String ref;
+    private String invoiceRef;
     private String companyName;
     private boolean sentBefore;
 
     private String type;
     private double fuelAmount;
     private double paidAmount;
-    private String url;
+    private String documentLink;
+    private String emailAddress;
 
     public FuelReceipt(String id, String registrationNo, Date date, String ref, String companyName, boolean sentBefore) {
         this.id = id;
         this.registrationNo = registrationNo;
         this.date = date;
-        this.ref = ref;
-        this.companyName = companyName;
+        this.invoiceRef = ref;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.sentBefore = sentBefore;
     }
 
     public FuelReceipt(String id, String ref, Date date, String type, double fuelAmount, double paidAmount, String companyName, String url) {
         this.id = id;
         this.date = date;
-        this.ref = ref;
-        this.companyName = companyName;
+        this.invoiceRef = ref;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.type = type;
         this.fuelAmount = fuelAmount;
         this.paidAmount = paidAmount;
-        this.url = url;
+        this.documentLink = url;
     }
 
     public String getId() {
@@ -60,12 +61,12 @@ public class FuelReceipt {
         this.date = date;
     }
 
-    public String getRef() {
-        return ref;
+    public String getInvoiceRef() {
+        return invoiceRef;
     }
 
-    public void setRef(String ref) {
-        this.ref = ref;
+    public void setInvoiceRef(String ref) {
+        this.invoiceRef = ref;
     }
 
     public String getCompanyName() {
@@ -73,7 +74,7 @@ public class FuelReceipt {
     }
 
     public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
     }
 
     public boolean isSentBefore() {
@@ -108,11 +109,19 @@ public class FuelReceipt {
         this.paidAmount = paidAmount;
     }
 
-    public String getUrl() {
-        return url;
+    public String getDocumentLink() {
+        return documentLink;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setDocumentLink(String documentLink) {
+        this.documentLink = documentLink;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 }
