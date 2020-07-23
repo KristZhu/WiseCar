@@ -94,6 +94,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
                 Log.e("Records: ", String.valueOf(records));
                 allRecords = records;
                 Set<String> regNos = new HashSet<>();
+                mainDiv.removeAllViews();
                 for(InsuranceRecord record: records) {
                     regNos.add(record.getRegistrationNo());
                     showInsuranceRecord(record);

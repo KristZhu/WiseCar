@@ -90,6 +90,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
                 Log.e("Logs: ", String.valueOf(logs));
                 allLogs = logs;
                 Set<String> regNos = new HashSet<>();
+                mainDiv.removeAllViews();
                 for(DriverLog log: logs) {
                     regNos.add(log.getRegistrationNo());
                     showDriverLog(log);
@@ -197,7 +198,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         logTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         logTextView.setTextColor(0xff000000);
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        logTextView.setText("Ref: " + timeFormat.format(log.getStartTime()) + "-" + timeFormat.format(log.getEndTime()) + ", " + (int)(log.getKm()*10)/10.0 + "km");
+        logTextView.setText("Log: " + timeFormat.format(log.getStartTime()) + "-" + timeFormat.format(log.getEndTime()) + ", " + (int)(log.getKm()*10)/10.0 + "km");
         lineLayout.addView(logTextView);
 
         TextView claimTextView = new TextView(this);

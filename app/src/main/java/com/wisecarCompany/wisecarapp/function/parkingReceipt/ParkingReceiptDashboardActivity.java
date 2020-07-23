@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.serviceRecords;
+package com.wisecarCompany.wisecarapp.function.parkingReceipt;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +33,9 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.driverLog.DriverLog;
+import com.wisecarCompany.wisecarapp.function.driverLog.DriverLogDashboardActivity;
+import com.wisecarCompany.wisecarapp.function.driverLog.DriverLogSendActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
@@ -44,24 +47,23 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class ServiceRecordsDashboardActivity extends AppCompatActivity {
+public class ParkingReceiptDashboardActivity extends AppCompatActivity {
 
-    private final static String TAG = "ServiceRecordsDashboard";
+    private final static String TAG = "Parking Receipt D";
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICE_REFCORDS = "/api/v1/servicerecords/getallrecordbyuser";
-    private String GET_RECORDS_BY_REG_NO = "/api/v1/servicerecords//getrecordbyuserregisno";
+    private String GET_DRIVE_LOGS = "/api/v1/drivelog/getallrecordbyuser";
+    private String GET_LOGS_BY_REG_NO = "/api/v1/drivelog/getrecordbyuserregisno";
 
     private ImageButton backImageButton;
 
     private LinearLayout mainDiv;
-    private List<ServiceRecord> allRecords;
+    private List<ParkingReceipt> allReceipts;
 
     private AutoCompleteTextView searchEditText;
     private ImageButton cancelImageButton;
@@ -72,10 +74,10 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_service_records_dashboard);
+        setContentView(R.layout.activity_parking_receipt_dashboard);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsDashboardActivity.this, DashboardActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
 
         mainDiv = $(R.id.mainDiv);
 
@@ -83,29 +85,26 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         cancelImageButton = $(R.id.cancelImageButton);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
 
-        // CALL GET SERVICE RECORDS METHOD
-        // ATTENTION: returnServiceRecordByRegNo METHOD USES THE SAME CALLBACK, PASTE THIS IN THE onClick METHOD OF SEARCH BUTTON
-        getServiceRecords(new serviceRecordsCallbacks() {
+        getParkingReceipt(new parkingReceiptCallbacks() {
             @Override
-            public void onSuccess(@NonNull List<ServiceRecord> records) {
-                Log.e("Records: ", String.valueOf(records));
-                allRecords = records;
+            public void onSuccess(@NonNull List<ParkingReceipt> receipts) {
+                Log.e("Receipts: ", String.valueOf(receipts));
+                allReceipts = receipts;
                 Set<String> regNos = new HashSet<>();
-                mainDiv.removeAllViews();
-                for(ServiceRecord record: records) {
-                    regNos.add(record.getRegistrationNo());
-                    showServiceRecord(record);
+                for(ParkingReceipt receipt: receipts) {
+                    regNos.add(receipt.getRegistrationNo());
+                    showParkingReceipt(receipt);
                 }
                 adapter.addAll(regNos);
                 searchEditText.setAdapter(adapter);
                 searchEditText.setOnItemClickListener((parent, view, position, id) -> {
                     cancelImageButton.setVisibility(View.VISIBLE);
                     String regNo = searchEditText.getText().toString();
-                    returnServiceRecordByRegNo(regNo, new serviceRecordsCallbacks() {
+                    returnParkingReceiptByRegNo(regNo, new parkingReceiptCallbacks() {
                         @Override
-                        public void onSuccess(@NonNull List<ServiceRecord> records) {
+                        public void onSuccess(@NonNull List<ParkingReceipt> receipts) {
                             mainDiv.removeAllViews();
-                            for(ServiceRecord record: records) showServiceRecord(record);
+                            for(ParkingReceipt receipt: receipts) showParkingReceipt(receipt);
                         }
                     });
                 });
@@ -116,7 +115,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
             searchEditText.setText("");
             cancelImageButton.setVisibility(View.INVISIBLE);
             mainDiv.removeAllViews();
-            for(ServiceRecord record: allRecords) showServiceRecord(record);
+            for(ParkingReceipt receipt: allReceipts) showParkingReceipt(receipt);
         });
 
     }
@@ -124,7 +123,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
 
     @SuppressLint("ResourceType")
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void showServiceRecord(ServiceRecord record) {
+    private void showParkingReceipt(ParkingReceipt receipt) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 16, 0, 16);
@@ -134,8 +133,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
 
         ImageView lightImageView = new ImageView(this);
         lightImageView.setId(0);
-        if(record.getNextDate().before(new Date())) lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_red_line));
-        else lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_line));
+        lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_line));
         set.connect(lightImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
         set.connect(lightImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
         set.connect(lightImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
@@ -149,8 +147,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         ImageView darkImageView = new ImageView(this);
         darkImageView.setId(1);
         darkImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        if(record.getNextDate().before(new Date())) darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_red_line));
-        else darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_line));
+        darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_line));
         set.connect(darkImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
         set.connect(darkImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
         set.connect(darkImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
@@ -172,7 +169,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         registrationNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         registrationNoTextView.setTextColor(0xff007ba4);
-        registrationNoTextView.setText(record.getRegistrationNo());
+        registrationNoTextView.setText(receipt.getRegistrationNo());
         lineLayout.addView(registrationNoTextView);
 
         TextView dateTextView = new TextView(this);
@@ -186,54 +183,60 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
-        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getDate()));
+        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(receipt.getDate()));
         lineLayout.addView(dateTextView);
 
-        TextView refNoTextView = new TextView(this);
-        refNoTextView.setId(12);
-        set.connect(refNoTextView.getId(), ConstraintSet.TOP, dateTextView.getId(), ConstraintSet.BOTTOM);
-        set.connect(refNoTextView.getId(), ConstraintSet.BOTTOM, lightImageView.getId(), ConstraintSet.BOTTOM);
-        set.connect(refNoTextView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START, 32);
-        set.connect(refNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
-        set.constrainPercentHeight(refNoTextView.getId(), 0.2f);
-        set.setVerticalBias(refNoTextView.getId(), 0.0f);
-        refNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-        refNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        refNoTextView.setTextColor(0xff000000);
-        refNoTextView.setText("Ref: " + record.getRefNo());
-        lineLayout.addView(refNoTextView);
+        TextView ticketRefTextView = new TextView(this);
+        ticketRefTextView.setId(12);
+        set.connect(ticketRefTextView.getId(), ConstraintSet.TOP, dateTextView.getId(), ConstraintSet.BOTTOM);
+        set.connect(ticketRefTextView.getId(), ConstraintSet.BOTTOM, lightImageView.getId(), ConstraintSet.BOTTOM);
+        set.connect(ticketRefTextView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START, 32);
+        set.connect(ticketRefTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
+        set.constrainPercentHeight(ticketRefTextView.getId(), 0.2f);
+        set.setVerticalBias(ticketRefTextView.getId(), 0.0f);
+        ticketRefTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        ticketRefTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        ticketRefTextView.setTextColor(0xff000000);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        ticketRefTextView.setText("Ticket Ref: " + receipt.getRefNo());
+        lineLayout.addView(ticketRefTextView);
 
-        TextView nextTextView = new TextView(this);
-        nextTextView.setId(13);
-        set.connect(nextTextView.getId(), ConstraintSet.TOP, darkImageView.getId(), ConstraintSet.TOP);
-        set.connect(nextTextView.getId(), ConstraintSet.BOTTOM, darkImageView.getId(), ConstraintSet.BOTTOM);
-        set.connect(nextTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
-        set.connect(nextTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
-        set.constrainPercentHeight(nextTextView.getId(), 0.2f);
-        nextTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-        nextTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        nextTextView.setTextColor(0xff000000);
-        nextTextView.setText("Next Service: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getNextDate()) + " / " + record.getNextDistance() + "km");
-        lineLayout.addView(nextTextView);
+        TextView claimTextView = new TextView(this);
+        claimTextView.setId(13);
+        set.connect(claimTextView.getId(), ConstraintSet.TOP, darkImageView.getId(), ConstraintSet.TOP);
+        set.connect(claimTextView.getId(), ConstraintSet.BOTTOM, darkImageView.getId(), ConstraintSet.BOTTOM);
+        set.connect(claimTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
+        set.connect(claimTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
+        set.constrainPercentHeight(claimTextView.getId(), 0.2f);
+        claimTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        claimTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+        claimTextView.setTextColor(0xff000000);
+        if(receipt.getCompanyName()==null || receipt.getCompanyName().length()==0) {
+            claimTextView.setText("Not shared");
+            claimTextView.setAlpha(0.5f);
+        } else {
+            claimTextView.setText("Claimed to " + receipt.getCompanyName());
+        }
+        lineLayout.addView(claimTextView);
 
         ImageView sentImageView = new ImageView(this);
         sentImageView.setId(20);
         set.connect(sentImageView.getId(), ConstraintSet.TOP, registrationNoTextView.getId(), ConstraintSet.TOP);
-        set.connect(sentImageView.getId(), ConstraintSet.BOTTOM, refNoTextView.getId(), ConstraintSet.BOTTOM);  //do not know why... if constraint to background, there are bugs
+        set.connect(sentImageView.getId(), ConstraintSet.BOTTOM, ticketRefTextView.getId(), ConstraintSet.BOTTOM);  //do not know why... if constraint to background, there are bugs
         set.connect(sentImageView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START);
         set.connect(sentImageView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END, 32);
         set.setDimensionRatio(sentImageView.getId(), "1:1");
         set.constrainPercentWidth(sentImageView.getId(), 0.04f);
         set.setHorizontalBias(sentImageView.getId(), 1.0f);
         sentImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        if(record.isSentBefore()) sentImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0sent));
+        if(receipt.isSentBefore()) sentImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0sent));
         else sentImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0unsent));
         lineLayout.addView(sentImageView);
 
         ImageView sendImageView = new ImageView(this);
         sendImageView.setId(21);
         set.connect(sendImageView.getId(), ConstraintSet.TOP, registrationNoTextView.getId(), ConstraintSet.TOP);
-        set.connect(sendImageView.getId(), ConstraintSet.BOTTOM, refNoTextView.getId(), ConstraintSet.BOTTOM);  //do not know y 2...
+        set.connect(sendImageView.getId(), ConstraintSet.BOTTOM, ticketRefTextView.getId(), ConstraintSet.BOTTOM);  //do not know y 2...
         set.connect(sendImageView.getId(), ConstraintSet.START, lightImageView.getId(), ConstraintSet.START);
         set.connect(sendImageView.getId(), ConstraintSet.END, sentImageView.getId(), ConstraintSet.START, 32);
         set.setDimensionRatio(sendImageView.getId(), "1:1");
@@ -242,26 +245,10 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         sendImageView.setScaleType(ImageView.ScaleType.FIT_XY);
         sendImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0send));
         sendImageView.setOnClickListener(v -> {
-            Log.d(TAG, "send servicerecord registrationNO: " + record.getRegistrationNo());
-            Log.d(TAG, "send servicerecord ID: " + record.getId());
-            startActivity(new Intent(this, ServiceRecordsSendActivity.class).putExtra("recordID", record.getId()));
+            Log.d(TAG, "send ID: " + receipt.getId());
+            startActivity(new Intent(this, DriverLogSendActivity.class).putExtra("receiptID", receipt.getId()));
         });
         lineLayout.addView(sendImageView);
-
-        if(record.getNextDate().before(new Date())) {
-            ImageView notifyImageView = new ImageView(this);
-            notifyImageView.setId(22);
-            set.connect(notifyImageView.getId(), ConstraintSet.TOP, darkImageView.getId(), ConstraintSet.TOP);
-            set.connect(notifyImageView.getId(), ConstraintSet.BOTTOM, darkImageView.getId(), ConstraintSet.BOTTOM);  //do not know y 2...
-            set.connect(notifyImageView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START);
-            set.connect(notifyImageView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END, 16);
-            set.setDimensionRatio(notifyImageView.getId(), "1:1");
-            set.constrainPercentWidth(notifyImageView.getId(), 0.1f);
-            set.setHorizontalBias(notifyImageView.getId(), 1.0f);
-            notifyImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            notifyImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0notification));
-            lineLayout.addView(notifyImageView);
-        }
 
         set.applyTo(lineLayout);
         mainDiv.addView(lineLayout);
@@ -300,45 +287,43 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
-    private void getServiceRecords(@Nullable final serviceRecordsCallbacks callbacks) {
+    private void getParkingReceipt(@Nullable final parkingReceiptCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_REFCORDS;
+        String URL = IP_HOST + GET_DRIVE_LOGS;
+        List<ParkingReceipt> receipts = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", "216");
-//            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", UserInfo.getUserID());
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
-            Log.e("Records Response", response.toString());
+            Log.e("Logs Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-            List<ServiceRecord> records = new ArrayList();
+            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    ServiceRecord record;
-
-                    record = new ServiceRecord(
+                    ParkingReceipt receipt = new DriverLog(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("service_date")),
-                            jsonObject.optString("service_ref"),
-                            format.parse(jsonObject.optString("next_service_date")),
-                            jsonObject.optDouble("next_service_odometer"),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
+                            jsonObject.optDouble("km_travel"),
+                            jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
-                    records.add(record);
+
+                    receipts.add(receipt);
                 }
                 if (callbacks != null)
-                    callbacks.onSuccess(records);
+                    callbacks.onSuccess(receipts);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -363,23 +348,23 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(ServiceRecordsDashboardActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
 
     }
 
-    public interface serviceRecordsCallbacks {
-        void onSuccess(@NonNull List<ServiceRecord> value);
+    public interface parkingReceiptCallbacks {
+        void onSuccess(@NonNull List<ParkingReceipt> value);
 
 //        void onError(@NonNull List<ServiceRecord> value);
     }
 
 
 
-    private void returnServiceRecordByRegNo(String regNo, @Nullable final serviceRecordsCallbacks callbacks) {
+    private void returnParkingReceiptByRegNo(String regNo, @Nullable final parkingReceiptCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_RECORDS_BY_REG_NO;
+        String URL = IP_HOST + GET_LOGS_BY_REG_NO;
 
-        List<ServiceRecord> records = new ArrayList();
+        List<ParkingReceipt> receipts = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -393,29 +378,29 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    ServiceRecord record;
+                    ParkingReceipt receipt;
 
-                    record = new ServiceRecord(
+                    receipt = new DriverLog(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("service_date")),
-                            jsonObject.optString("service_ref"),
-                            format.parse(jsonObject.optString("next_service_date")),
-                            jsonObject.optDouble("next_service_odometer"),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
+                            jsonObject.optDouble("km_travel"),
+                            jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
 
-                    records.add(record);
+                    receipts.add(receipt);
                 }
                 if (callbacks != null)
-                    callbacks.onSuccess(records);
+                    callbacks.onSuccess(receipts);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -437,7 +422,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
             }
         });
 
-        Volley.newRequestQueue(ServiceRecordsDashboardActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
     }
 
 }

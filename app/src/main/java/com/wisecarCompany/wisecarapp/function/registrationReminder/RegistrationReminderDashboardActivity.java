@@ -91,6 +91,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
                 Log.e("Reminders: ", String.valueOf(reminders));
                 allReminders = reminders;
                 Set<String> regNos = new HashSet<>();
+                mainDiv.removeAllViews();
                 for(RegistrationReminder reminder: reminders) {
                     regNos.add(reminder.getRegistrationNo());
                     showRegReminder(reminder);
