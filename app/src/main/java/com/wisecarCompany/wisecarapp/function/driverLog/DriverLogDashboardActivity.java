@@ -33,7 +33,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
@@ -45,7 +44,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -56,8 +54,8 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
     private final static String TAG = "DriverLogDashboard";
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICE_REFCORDS = "/api/v1/servicerecords/getallrecordbyuser";
-    private String GET_RECORDS_BY_REG_NO = "/api/v1/servicerecords//getrecordbyuserregisno";
+    private String GET_DRIVE_LOGS = "/api/v1/drivelog/getallrecordbyuser";
+    private String GET_LOGS_BY_REG_NO = "/api/v1/drivelog/getrecordbyuserregisno";
 
     private ImageButton backImageButton;
 
@@ -86,7 +84,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
 
         // CALL GET SERVICE RECORDS METHOD
         // ATTENTION: returnServiceRecordByRegNo METHOD USES THE SAME CALLBACK, PASTE THIS IN THE onClick METHOD OF SEARCH BUTTON
-        getDriverLog(new driverLogCallbacks() {
+        getDriverLogs(new driverLogsCallbacks() {
             @Override
             public void onSuccess(@NonNull List<DriverLog> logs) {
                 Log.e("Logs: ", String.valueOf(logs));
@@ -101,7 +99,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
                 searchEditText.setOnItemClickListener((parent, view, position, id) -> {
                     cancelImageButton.setVisibility(View.VISIBLE);
                     String regNo = searchEditText.getText().toString();
-                    returnDriverLogByRegNo(regNo, new driverLogCallbacks() {
+                    returnDriverLogsByRegNo(regNo, new driverLogsCallbacks() {
                         @Override
                         public void onSuccess(@NonNull List<DriverLog> logs) {
                             mainDiv.removeAllViews();
@@ -184,7 +182,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
-        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(log.getStartDate()));
+        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(log.getStartTime()));
         lineLayout.addView(dateTextView);
 
         TextView logTextView = new TextView(this);
@@ -289,10 +287,10 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         return (T) findViewById(id);
     }
 
-    private void getServiceRecords(@Nullable final serviceRecordsCallbacks callbacks) {
+    private void getDriverLogs(@Nullable final driverLogsCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_REFCORDS;
-        List<ServiceRecord> records = new ArrayList();
+        String URL = IP_HOST + GET_DRIVE_LOGS;
+        List<DriverLog> logs = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -303,31 +301,29 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         }
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
-            Log.e("Records Response", response.toString());
+            Log.e("Logs Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    ServiceRecord record;
-
-                    record = new ServiceRecord(
+                    DriverLog log = new DriverLog(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("service_date")),
-                            jsonObject.optString("service_ref"),
-                            format.parse(jsonObject.optString("next_service_date")),
-                            jsonObject.optDouble("next_service_odometer"),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
+                            jsonObject.optDouble("km_travel"),
+                            jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
 
-                    records.add(record);
+                    logs.add(log);
                 }
                 if (callbacks != null)
-                    callbacks.onSuccess(records);
+                    callbacks.onSuccess(logs);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {
@@ -356,19 +352,19 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
 
     }
 
-    public interface serviceRecordsCallbacks {
-        void onSuccess(@NonNull List<ServiceRecord> value);
+    public interface driverLogsCallbacks {
+        void onSuccess(@NonNull List<DriverLog> value);
 
 //        void onError(@NonNull List<ServiceRecord> value);
     }
 
 
 
-    private void returnServiceRecordByRegNo(String regNo, @Nullable final serviceRecordsCallbacks callbacks) {
+    private void returnDriverLogsByRegNo(String regNo, @Nullable final driverLogsCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_RECORDS_BY_REG_NO;
+        String URL = IP_HOST + GET_LOGS_BY_REG_NO;
 
-        List<ServiceRecord> records = new ArrayList();
+        List<DriverLog> logs = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -382,29 +378,29 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    ServiceRecord record;
+                    DriverLog log;
 
-                    record = new ServiceRecord(
+                    log = new DriverLog(
                             jsonObject.optString("id"),
                             jsonObject.optString("registration_no"),
-                            format.parse(jsonObject.optString("service_date")),
-                            jsonObject.optString("service_ref"),
-                            format.parse(jsonObject.optString("next_service_date")),
-                            jsonObject.optDouble("next_service_odometer"),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
+                            format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
+                            jsonObject.optDouble("km_travel"),
+                            jsonObject.optString("company_name"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
 
-                    records.add(record);
+                    logs.add(log);
                 }
                 if (callbacks != null)
-                    callbacks.onSuccess(records);
+                    callbacks.onSuccess(logs);
             } catch (JSONException e) {
                 e.printStackTrace();
             } catch (ParseException e) {

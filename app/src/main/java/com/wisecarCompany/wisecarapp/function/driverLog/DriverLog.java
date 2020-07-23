@@ -18,12 +18,38 @@ public class DriverLog implements Comparable<DriverLog> {
     private String logJSON;   //JSONArray
     private String shareID;
 
-    private String companyName;
+    private String companyName = "";
     private Bitmap companyLogo;
 
     private String timestamp = "";
 
     private boolean pausing = false;
+
+    private boolean sentBefore;
+    private String id;
+    private String registrationNo;
+
+    private String emailAddress;
+
+
+    public DriverLog(String id, String registrationNo, Date startTime, Date endTime, double km, String companyName, boolean sentBefore) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.km = km;
+        this.companyName = companyName.equals("null") ? null : companyName;
+        this.sentBefore = sentBefore;
+        this.id = id;
+        this.registrationNo = registrationNo;
+    }
+
+    public DriverLog(String registrationNo, Date startTime, Date endTime, double km, int mins, String companyName) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.km = km;
+        this.mins = mins;
+        this.companyName = companyName.equals("null") ? null : companyName;
+        this.registrationNo = registrationNo;
+    }
 
     public DriverLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
         this.vehicleID = vehicleID;
@@ -31,7 +57,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.startTime = startTime;
         this.claimRate = claimRate;
         this.shareID = shareID;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
     }
 
@@ -41,7 +67,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.startTime = startTime;
         this.claimRate = claimRate;
         this.shareID = shareID;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
         this.timestamp = timestamp;
     }
@@ -56,7 +82,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.claimRate = claimRate;
         this.shareID = shareID;
         this.custID = custID;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
     }
 
@@ -70,7 +96,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.claimRate = claimRate;
         this.shareID = shareID;
         this.custID = custID;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
         this.logJSON = logJSON;
         this.timestamp = timestamp;
@@ -172,7 +198,7 @@ public class DriverLog implements Comparable<DriverLog> {
     }
 
     public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
     }
 
     public Bitmap getCompanyLogo() {
@@ -197,6 +223,38 @@ public class DriverLog implements Comparable<DriverLog> {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isSentBefore() {
+        return sentBefore;
+    }
+
+    public void setSentBefore(boolean sentBefore) {
+        this.sentBefore = sentBefore;
+    }
+
+    public String getRegistrationNo() {
+        return registrationNo;
+    }
+
+    public void setRegistrationNo(String registrationNo) {
+        this.registrationNo = registrationNo;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 
     @Override
