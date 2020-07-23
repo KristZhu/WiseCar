@@ -20,6 +20,8 @@ public class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
     private String notes;
     private String documentLink;
 
+    private String emailAddress;
+
     public ServiceRecord() {
 
     }
@@ -149,6 +151,14 @@ public class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
 
     public void setDocumentLink(String documentLink) {
         this.documentLink = documentLink;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 
     @Override

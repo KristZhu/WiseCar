@@ -25,12 +25,12 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,6 +53,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
 
     private ImageButton backImageButton;
 
+    private TextView headerTextView;
     private TextView dateTextView;
     private TextView centreTextView;
     private TextView refNoTextView;
@@ -70,7 +71,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_service_record_send);
+        setContentView(R.layout.activity_service_records_send);
 
         recordID = (String) this.getIntent().getStringExtra("recordID");
         Log.d(TAG, "recordID: " + recordID);
@@ -78,6 +79,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(this, ServiceRecordsDashboardActivity.class)));
 
+        headerTextView = $(R.id.headerTextView);
         dateTextView = $(R.id.dateTextView);
         centreTextView = $(R.id.centreTextView);
         refNoTextView = $(R.id.refNoTextView);
@@ -97,6 +99,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             public void onSuccess(@NonNull ServiceRecord record) {
 
                 SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                headerTextView.setText("Ref: " + record.getRefNo());
                 dateTextView.setText(format.format(record.getDate()));
                 centreTextView.setText(record.getCentre());
                 refNoTextView.setText(record.getRefNo());
@@ -123,8 +126,8 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                     }
                     if(isEmail) {
 
-                        //send
-                        sendEmail();
+                        record.setEmailAddress(email);
+                        sendEmail(record);
 
                     } else {
                         Toast.makeText(getApplicationContext(), "Please enter correct email address", Toast.LENGTH_SHORT).show();
@@ -241,24 +244,25 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
 //        void onError(@NonNull List<ServiceRecord> value);
     }
 
-    private void sendEmail() {
+    private void sendEmail(ServiceRecord record) {
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("service_id", recordID);
-            jsonParam.put("email_to_address", emailEditText.getText().toString());
+            jsonParam.put("service_id", record.getId());
+            jsonParam.put("email_to_address", record.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
             jsonParam.put("user_id", UserInfo.getUserID());
-            jsonParam.put("service_date", dateTextView.getText().toString());
-            jsonParam.put("service_center", centreTextView.getText().toString());
-            jsonParam.put("service_options", optionsTextView.getText().toString());
-            jsonParam.put("service_ref_no", refNoTextView.getText().toString());
-            jsonParam.put("notes", notesTextView.getText().toString());
-            jsonParam.put("next_service_date", nextdateTextView.getText().toString());
-            jsonParam.put("next_service_odometer", nextDistanceTextView.getText().toString());
+            jsonParam.put("service_date", dateFormat.format(record.getDate()));
+            jsonParam.put("service_center", record.getCentre());
+            jsonParam.put("service_options", record.getOptions());
+            jsonParam.put("service_ref_no", record.getRefNo());
+            jsonParam.put("notes", record.getNotes());
+            jsonParam.put("next_service_date", dateFormat.format(record.getNextDate()));
+            jsonParam.put("next_service_odometer", (int)record.getNextDistance());
 
         } catch (JSONException e) {
             e.printStackTrace();

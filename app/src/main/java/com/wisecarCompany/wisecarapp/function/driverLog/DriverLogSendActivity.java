@@ -23,8 +23,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsSendActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
 import org.json.JSONArray;
@@ -50,6 +48,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
 
     private ImageButton backImageButton;
 
+    private TextView headerTextView;
     private TextView dateTextView;
     private TextView startTextView;
     private TextView endTextView;
@@ -77,6 +76,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(this, DriverLogDashboardActivity.class)));
 
+        headerTextView = $(R.id.headerTextView);
         dateTextView = $(R.id.dateTextView);
         startTextView = $(R.id.startTextView);
         endTextView = $(R.id.endTextView);
@@ -95,10 +95,11 @@ public class DriverLogSendActivity extends AppCompatActivity {
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+                headerTextView.setText(log.getRegistrationNo() + ", Log: " + timeFormat.format(log.getStartTime()) + "-" + timeFormat.format(log.getEndTime()));
                 dateTextView.setText(dateFormat.format(log.getStartTime()));
                 startTextView.setText(timeFormat.format(log.getStartTime()));
                 endTextView.setText(timeFormat.format(log.getEndTime()));
-                timeTextView.setText(log.getMins());
+                timeTextView.setText(""+log.getMins());
                 distanceTextView.setText("" + (int) (log.getKm() * 10) / 10.0);
                 if (log.getCompanyName() == null || log.getCompanyName().length() == 0)
                     shareTextView.setText("Not shared");
@@ -117,8 +118,8 @@ public class DriverLogSendActivity extends AppCompatActivity {
                     }
                     if (isEmail) {
 
-                        //send
-                        sendEmail();
+                        log.setEmailAddress(email);
+                        sendEmail(log);
 
                     } else {
                         Toast.makeText(getApplicationContext(), "Please enter correct email address", Toast.LENGTH_SHORT).show();
@@ -180,16 +181,14 @@ public class DriverLogSendActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject = response;
-            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy", Locale.getDefault());
-            DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
             DriverLog driverLog;
             try {
 
                 driverLog = new DriverLog(
                         jsonObject.optString("registration_no"),
-                        format.parse(jsonObject.optString("date")),
-                        timeFormat.parse(jsonObject.optString("start_time")),
-                        timeFormat.parse(jsonObject.optString("end_time")),
+                        format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
+                        format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
                         jsonObject.optDouble("km_travel"),
                         jsonObject.optInt("total_time"),
                         jsonObject.optString("shared_with")
@@ -229,24 +228,26 @@ public class DriverLogSendActivity extends AppCompatActivity {
 //        void onError(@NonNull DriverLog value);
     }
 
-    private void sendEmail() {
+    private void sendEmail(DriverLog log) {
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("service_id", logID);
-            jsonParam.put("email_to_address", emailEditText.getText().toString());
+            jsonParam.put("service_id", log.getId());
+            jsonParam.put("email_to_address", log.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
             jsonParam.put("user_id", UserInfo.getUserID());
-            jsonParam.put("registration_no", refNoTextView.getText().toString());
-            jsonParam.put("date", dateTextView.getText().toString());
-            jsonParam.put("start_time", startTextView.getText().toString());
-            jsonParam.put("end_time", endTextView.getText().toString());
-            jsonParam.put("total_km", distanceTextView.getText().toString());
-            jsonParam.put("total_time", timeTextView.getText().toString());
-            jsonParam.put("shared_with", shareTextView.getText().toString());
+            jsonParam.put("registration_no", log.getRegistrationNo());
+            jsonParam.put("date", dateFormat.format(log.getStartTime()));
+            jsonParam.put("start_time", timeFormat.format(log.getStartTime()));
+            jsonParam.put("end_time", timeFormat.format(log.getEndTime()));
+            jsonParam.put("total_km", log.getKm());
+            jsonParam.put("total_time", log.getMins());
+            jsonParam.put("shared_with", log.getCompanyName());
 
         } catch (JSONException e) {
             e.printStackTrace();

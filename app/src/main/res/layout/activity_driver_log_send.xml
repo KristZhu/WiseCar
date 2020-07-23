@@ -41,14 +41,14 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
+        android:id="@+id/headerTextView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="@id/refBGImageView"
         app:layout_constraintBottom_toBottomOf="@id/refBGImageView"
         app:layout_constraintStart_toStartOf="@id/refBGImageView"
         app:layout_constraintEnd_toEndOf="@id/refBGImageView"
-        android:text="Ref: AAAAAAAAAAA"
-        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintHeight_percent="0.045"
         android:autoSizeTextType="uniform"
         android:textAlignment="center"
         android:textColor="#000000"

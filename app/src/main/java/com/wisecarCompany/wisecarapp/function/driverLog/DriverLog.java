@@ -18,7 +18,7 @@ public class DriverLog implements Comparable<DriverLog> {
     private String logJSON;   //JSONArray
     private String shareID;
 
-    private String companyName;
+    private String companyName = "";
     private Bitmap companyLogo;
 
     private String timestamp = "";
@@ -28,28 +28,27 @@ public class DriverLog implements Comparable<DriverLog> {
     private boolean sentBefore;
     private String id;
     private String registrationNo;
-    private Date startDate;
+
+    private String emailAddress;
 
 
-    public DriverLog(String id, String registrationNo, Date startDate, Date startTime, Date endTime, double km, String companyName, boolean sentBefore) {
+    public DriverLog(String id, String registrationNo, Date startTime, Date endTime, double km, String companyName, boolean sentBefore) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.km = km;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.sentBefore = sentBefore;
         this.id = id;
         this.registrationNo = registrationNo;
-        this.startDate = startDate;
     }
 
-    public DriverLog(String registrationNo, Date startDate, Date startTime, Date endTime, double km, int mins, String companyName) {
+    public DriverLog(String registrationNo, Date startTime, Date endTime, double km, int mins, String companyName) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.km = km;
         this.mins = mins;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.registrationNo = registrationNo;
-        this.startDate = startDate;
     }
 
     public DriverLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
@@ -58,7 +57,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.startTime = startTime;
         this.claimRate = claimRate;
         this.shareID = shareID;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
     }
 
@@ -68,7 +67,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.startTime = startTime;
         this.claimRate = claimRate;
         this.shareID = shareID;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
         this.timestamp = timestamp;
     }
@@ -83,7 +82,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.claimRate = claimRate;
         this.shareID = shareID;
         this.custID = custID;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
     }
 
@@ -97,7 +96,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.claimRate = claimRate;
         this.shareID = shareID;
         this.custID = custID;
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
         this.logJSON = logJSON;
         this.timestamp = timestamp;
@@ -199,7 +198,7 @@ public class DriverLog implements Comparable<DriverLog> {
     }
 
     public void setCompanyName(String companyName) {
-        this.companyName = companyName;
+        this.companyName = companyName.equals("null") ? null : companyName;
     }
 
     public Bitmap getCompanyLogo() {
@@ -250,12 +249,12 @@ public class DriverLog implements Comparable<DriverLog> {
         this.id = id;
     }
 
-    public Date getStartDate() {
-        return startDate;
+    public String getEmailAddress() {
+        return emailAddress;
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 
     @Override
