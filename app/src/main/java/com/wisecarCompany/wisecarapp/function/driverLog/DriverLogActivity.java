@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.function.recordLog;
+package com.wisecarCompany.wisecarapp.function.driverLog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -71,9 +71,9 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class RecordLogActivity extends AppCompatActivity {
+public class DriverLogActivity extends AppCompatActivity {
 
-    private final static String TAG = "RecordLogActivity";
+    private final static String TAG = "DriverLogActivity";
 
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_CURRENT_SHARE = "/api/v1/drivelog/currentsharedetail";
@@ -123,7 +123,7 @@ public class RecordLogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record_log);
+        setContentView(R.layout.activity_driver_log);
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         Log.d(TAG, "vehicleID: " + vehicleID);
@@ -131,7 +131,7 @@ public class RecordLogActivity extends AppCompatActivity {
         Log.d(TAG, "vehicle: " + vehicle);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(RecordLogActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(DriverLogActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         searchEditText = $(R.id.searchEditText);
         cancelImageButton = $(R.id.cancelImageButton);
@@ -143,15 +143,15 @@ public class RecordLogActivity extends AppCompatActivity {
 
         queryRecordLogsByVehicleID(vehicleID, new logsCallbacks() {
             @Override
-            public void onSuccess(@NonNull Set<RecordLog> logs) {
+            public void onSuccess(@NonNull Set<DriverLog> logs) {
                 Log.d(TAG, "logs: " + logs);
                 vehicle.setLogs(logs);
                 logsDiv.removeAllViews();
-                for (RecordLog log : logs) showRecordLog(log);
+                for (DriverLog log : logs) showRecordLog(log);
             }
 
             @Override
-            public void onError(@NonNull Set<RecordLog> logs) {
+            public void onError(@NonNull Set<DriverLog> logs) {
                 // Here is when there is no log, an empty List is returned.
                 Log.d(TAG, "no logs");
             }
@@ -174,12 +174,12 @@ public class RecordLogActivity extends AppCompatActivity {
                     String customer_id = companies.get(companyName);
                     queryRecordLogsByCompany(customer_id, new logsCallbacks() {
                         @Override
-                        public void onSuccess(@NonNull Set<RecordLog> logs) {
+                        public void onSuccess(@NonNull Set<DriverLog> logs) {
                             logsDiv.removeAllViews();
-                            for (RecordLog log : logs) showRecordLog(log);
+                            for (DriverLog log : logs) showRecordLog(log);
                         }
                         @Override
-                        public void onError(@NonNull Set<RecordLog> value) {
+                        public void onError(@NonNull Set<DriverLog> value) {
                             //no logs for this company
                             logsDiv.removeAllViews();
                         }
@@ -197,7 +197,7 @@ public class RecordLogActivity extends AppCompatActivity {
             searchEditText.setText("");
             cancelImageButton.setVisibility(View.GONE);
             logsDiv.removeAllViews();
-            for (RecordLog log : vehicle.getLogs()) showRecordLog(log);
+            for (DriverLog log : vehicle.getLogs()) showRecordLog(log);
         });
 
         /*
@@ -208,7 +208,7 @@ public class RecordLogActivity extends AppCompatActivity {
             searchEditText.setText("");
 
             LayoutInflater factory = LayoutInflater.from(this);
-            @SuppressLint("InflateParams") View view = factory.inflate(R.layout.layout_record_log_fliter_alert, null);
+            @SuppressLint("InflateParams") View view = factory.inflate(R.layout.layout_driver_log_fliter_alert, null);
             EditText miniDateEditText = (EditText) view.findViewById(R.id.miniDate);
             EditText maxDateEditText = (EditText) view.findViewById(R.id.maxDate);
             EditText miniMinEditText = (EditText) view.findViewById(R.id.miniMin);
@@ -227,7 +227,7 @@ public class RecordLogActivity extends AppCompatActivity {
             miniDateEditText.setInputType(InputType.TYPE_NULL);
             miniDateEditText.setOnClickListener(v1 -> {
                 Calendar c = Calendar.getInstance();
-                new DatePickerDialog(RecordLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
+                new DatePickerDialog(DriverLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
                     miniDate = intToDate(year, monthOfYear, dayOfMonth);
                     String str = format.format(miniDate);
                     miniDateEditText.setText(str);
@@ -236,7 +236,7 @@ public class RecordLogActivity extends AppCompatActivity {
             miniDateEditText.setOnFocusChangeListener((v1, hasFocus) -> {
                 if (hasFocus) {
                     Calendar c = Calendar.getInstance();
-                    new DatePickerDialog(RecordLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
+                    new DatePickerDialog(DriverLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
                         miniDate = intToDate(year, monthOfYear, dayOfMonth);
                         String str = format.format(miniDate);
                         miniDateEditText.setText(str);
@@ -248,7 +248,7 @@ public class RecordLogActivity extends AppCompatActivity {
             maxDateEditText.setInputType(InputType.TYPE_NULL);
             maxDateEditText.setOnClickListener(v1 -> {
                 Calendar c = Calendar.getInstance();
-                new DatePickerDialog(RecordLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
+                new DatePickerDialog(DriverLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
                     maxDate = intToDate(year, monthOfYear, dayOfMonth);
                     String str = format.format(maxDate);
                     maxDateEditText.setText(str);
@@ -257,7 +257,7 @@ public class RecordLogActivity extends AppCompatActivity {
             maxDateEditText.setOnFocusChangeListener((v1, hasFocus) -> {
                 if (hasFocus) {
                     Calendar c = Calendar.getInstance();
-                    new DatePickerDialog(RecordLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
+                    new DatePickerDialog(DriverLogActivity.this, (view1, year, monthOfYear, dayOfMonth) -> {
                         maxDate = intToDate(year, monthOfYear, dayOfMonth);
                         String str = format.format(maxDate);
                         maxDateEditText.setText(str);
@@ -286,7 +286,7 @@ public class RecordLogActivity extends AppCompatActivity {
                             if(miniDistance>=0 && maxDistance>=0 && miniDistance > maxDistance) throw new Exception();
                             if(miniMin>=0 && maxMin>=0 && miniMin > maxMin) throw new Exception();
                             logsDiv.removeAllViews();
-                            for (RecordLog log : vehicle.getLogs()) showRecordLog(log);
+                            for (DriverLog log : vehicle.getLogs()) showRecordLog(log);
                         } catch (Exception e) {
                             Toast.makeText(getApplicationContext(), "Please enter correct info", Toast.LENGTH_LONG).show();
                             e.printStackTrace();
@@ -348,18 +348,18 @@ public class RecordLogActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 c.setTime(new Date());
                 Date startTime = new Date();
-                UserInfo.setCurrLog(new RecordLog(vehicleID, currCustID, startTime, currClaimRate, currShareID, currCompanyName, currCompanyLogo));
+                UserInfo.setCurrLog(new DriverLog(vehicleID, currCustID, startTime, currClaimRate, currShareID, currCompanyName, currCompanyLogo));
                 Log.d(TAG, "new currLog: " + UserInfo.getCurrLog());
                 locations = new TreeMap<>();
 
-                int permissionCheckFineLocation = ContextCompat.checkSelfPermission(RecordLogActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
-                int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(RecordLogActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
+                int permissionCheckFineLocation = ContextCompat.checkSelfPermission(DriverLogActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
+                int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(DriverLogActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
                 Log.d(TAG, "onClickPermissionCheckFineLocation: " + permissionCheckFineLocation);
                 Log.d(TAG, "onClickPermissionCheckCoarseLocation: " + permissionCheckCoarseLocation);
 
                 if (permissionCheckFineLocation == PackageManager.PERMISSION_DENIED || permissionCheckCoarseLocation == PackageManager.PERMISSION_DENIED) {  //first time using this function, or denied before
                     ActivityCompat.requestPermissions(
-                            RecordLogActivity.this,
+                            DriverLogActivity.this,
                             new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                             0
                     );
@@ -515,7 +515,7 @@ public class RecordLogActivity extends AppCompatActivity {
         vehicle.getLogs().add(UserInfo.getCurrLog());
 
         logsDiv.removeAllViews();
-        for (RecordLog log : vehicle.getLogs()) showRecordLog(log);
+        for (DriverLog log : vehicle.getLogs()) showRecordLog(log);
 
         //add UserInfo.getCurrLog() to DB
 
@@ -570,7 +570,7 @@ public class RecordLogActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+        Volley.newRequestQueue(DriverLogActivity.this).add(objectRequest);
 
     }
 
@@ -680,7 +680,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
     @SuppressLint("ResourceType")
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void showRecordLog(RecordLog log) {
+    private void showRecordLog(DriverLog log) {
         Log.d(TAG, "show record log: " + log);
 
         if (miniDate != null && log.getStartTime().before(miniDate)) return;
@@ -692,10 +692,10 @@ public class RecordLogActivity extends AppCompatActivity {
 
         Log.d(TAG, "showRecordLog: the log fulfills fliter: " + log);
 
-        ConstraintLayout logLineLayout = new ConstraintLayout(RecordLogActivity.this);
+        ConstraintLayout logLineLayout = new ConstraintLayout(DriverLogActivity.this);
         ConstraintSet set = new ConstraintSet();
 
-        ImageView bgImageView = new ImageView(RecordLogActivity.this);
+        ImageView bgImageView = new ImageView(DriverLogActivity.this);
         bgImageView.setId(0);
         bgImageView.setBackground(getResources().getDrawable(R.drawable.record_log0line));
         set.connect(bgImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 16);
@@ -704,7 +704,7 @@ public class RecordLogActivity extends AppCompatActivity {
         set.setDimensionRatio(bgImageView.getId(), "4.3:1");
         logLineLayout.addView(bgImageView);
 
-        ImageView dateImageView = new ImageView(RecordLogActivity.this);
+        ImageView dateImageView = new ImageView(DriverLogActivity.this);
         dateImageView.setId(1);
         dateImageView.setImageDrawable(getResources().getDrawable(R.drawable.record_log0date));
         set.connect(dateImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
@@ -716,7 +716,7 @@ public class RecordLogActivity extends AppCompatActivity {
         set.setHorizontalBias(dateImageView.getId(), 0.0f);
         logLineLayout.addView(dateImageView);
 
-        TextView dateTextView = new TextView(RecordLogActivity.this);
+        TextView dateTextView = new TextView(DriverLogActivity.this);
         dateTextView.setId(2);
         dateTextView.setText(new SimpleDateFormat("dd MMM", Locale.getDefault()).format(log.getStartTime()));
         set.connect(dateTextView.getId(), ConstraintSet.TOP, dateImageView.getId(), ConstraintSet.TOP);
@@ -729,7 +729,7 @@ public class RecordLogActivity extends AppCompatActivity {
         dateTextView.setGravity(Gravity.CENTER);
         logLineLayout.addView(dateTextView);
 
-        TextView timeDistanceTextView = new TextView(RecordLogActivity.this);
+        TextView timeDistanceTextView = new TextView(DriverLogActivity.this);
         timeDistanceTextView.setId(3);
         timeDistanceTextView.setText(log.getMins() + "Mins, " + (int) (log.getKm() * 10) / 10.0 + "KM");
         set.connect(timeDistanceTextView.getId(), ConstraintSet.TOP, dateImageView.getId(), ConstraintSet.TOP);
@@ -743,7 +743,7 @@ public class RecordLogActivity extends AppCompatActivity {
         timeDistanceTextView.setTextColor(0xff000000);
         logLineLayout.addView(timeDistanceTextView);
 
-        TextView logInfoTextView = new TextView(RecordLogActivity.this);
+        TextView logInfoTextView = new TextView(DriverLogActivity.this);
         logInfoTextView.setId(4);
         StringBuilder sb = new StringBuilder();
         SimpleDateFormat fmt = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -762,8 +762,8 @@ public class RecordLogActivity extends AppCompatActivity {
         logLineLayout.addView(logInfoTextView);
 
         if (log.getCustID() != null) {
-            //CircleImageView companyLogoImageView = new CircleImageView(RecordLogActivity.this);
-            ImageView companyLogoImageView = new ImageView(RecordLogActivity.this);
+            //CircleImageView companyLogoImageView = new CircleImageView(DriverLogActivity.this);
+            ImageView companyLogoImageView = new ImageView(DriverLogActivity.this);
             companyLogoImageView.setId(5);
             companyLogoImageView.setImageBitmap(log.getCompanyLogo());
             set.connect(companyLogoImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
@@ -879,7 +879,7 @@ public class RecordLogActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+        Volley.newRequestQueue(DriverLogActivity.this).add(objectRequest);
     }
 
     public interface shareCallbacks {
@@ -891,7 +891,7 @@ public class RecordLogActivity extends AppCompatActivity {
     private void queryRecordLogsByVehicleID(String vehicleID, @Nullable final logsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_LOG_BY_VID;
-        Set<RecordLog> logs = new TreeSet<>();
+        Set<DriverLog> logs = new TreeSet<>();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -911,12 +911,12 @@ public class RecordLogActivity extends AppCompatActivity {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    RecordLog log;
+                    DriverLog log;
                     if (jsonObject.toString().contains("customer_id")) {
 
                         byte[] logoBase64 = Base64.decode(response.optString("company_logo"), Base64.DEFAULT);
 
-                        log = new RecordLog(
+                        log = new DriverLog(
                                 vehicleID,
                                 formatTime.parse(jsonObject.optString("log_start_date_time")),
                                 formatTime.parse(jsonObject.optString("log_stop_date_time")),
@@ -932,7 +932,7 @@ public class RecordLogActivity extends AppCompatActivity {
                                 jsonObject.optString("timestamp")
                         );
                     } else {
-                        log = new RecordLog(
+                        log = new DriverLog(
                                 vehicleID,
                                 formatTime.parse(jsonObject.optString("log_start_date_time")),
                                 formatTime.parse(jsonObject.optString("log_stop_date_time")),
@@ -975,14 +975,14 @@ public class RecordLogActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+        Volley.newRequestQueue(DriverLogActivity.this).add(objectRequest);
 
     }
 
     private void queryRecordLogsByCompany(String customer_id, @Nullable final logsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_LOG_BY_COMPANY;
-        Set<RecordLog> logs = new TreeSet<>();
+        Set<DriverLog> logs = new TreeSet<>();
 
         final JSONObject jsonParam = new JSONObject();
         try {
@@ -1008,9 +1008,9 @@ public class RecordLogActivity extends AppCompatActivity {
 
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
-                    RecordLog log;
+                    DriverLog log;
 
-                    log = new RecordLog(
+                    log = new DriverLog(
                             vehicleID,
                             format.parse(jsonObject.optString("log_start_date_time")),
                             format.parse(jsonObject.optString("log_stop_date_time")),
@@ -1058,14 +1058,14 @@ public class RecordLogActivity extends AppCompatActivity {
             }
 
         });
-        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+        Volley.newRequestQueue(DriverLogActivity.this).add(objectRequest);
 
     }
 
     public interface logsCallbacks {
-        void onSuccess(@NonNull Set<RecordLog> value);
+        void onSuccess(@NonNull Set<DriverLog> value);
 
-        void onError(@NonNull Set<RecordLog> value);
+        void onError(@NonNull Set<DriverLog> value);
     }
 
     private void returnCompanies(@Nullable final companiesCallbacks callbacks) {
@@ -1111,7 +1111,7 @@ public class RecordLogActivity extends AppCompatActivity {
 
         });
 
-        Volley.newRequestQueue(RecordLogActivity.this).add(objectRequest);
+        Volley.newRequestQueue(DriverLogActivity.this).add(objectRequest);
     }
 
     public interface companiesCallbacks {

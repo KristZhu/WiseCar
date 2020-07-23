@@ -221,7 +221,7 @@ public class VehicleActivity extends AppCompatActivity {
 
 
     private void startDashboard() {
-
+        startActivity(new Intent(this, DashboardActivity.class));
     }
 
     private void startCalendar() {

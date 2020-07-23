@@ -20,16 +20,8 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.function.fuelReceipt.FuelReceiptActivity;
-import com.wisecarCompany.wisecarapp.function.insuranceRecord.InsuranceRecordActivity;
-import com.wisecarCompany.wisecarapp.function.parkingReceipt.ParkingReceiptActivity;
-import com.wisecarCompany.wisecarapp.function.recordLog.RecordLogActivity;
-import com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationReminderActivity;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +34,9 @@ public class DashboardActivity extends AppCompatActivity {
 
     private final String TAG = "dashboard";
 
+    private String IP_HOST = "http://54.206.19.123:3000";
+    private String GET_SERVICES = "/api/v1/services/getservicebyuid";
+
     private ImageButton backImageButton;
 
     private ImageView userImgImageView;
@@ -49,29 +44,20 @@ public class DashboardActivity extends AppCompatActivity {
 
     private LinearLayout servicesLayout;
 
-    private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICES = "/api/v1/services/getservicebyuid";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        backImageButton = $(R.id.dashboardButton);
+        backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, VehicleActivity.class)));
 
         userImgImageView = $(R.id.userImgImageView);
         usernameTextView = $(R.id.usernameTextView);
+        userImgImageView.setImageBitmap(UserInfo.getUserImg());
+        usernameTextView.setText(UserInfo.getUsername());
 
         getServices(new serviceCallbacks() {
-            @Override
-            public void onSuccess(@NonNull List<Integer> value) {
-                Log.e(TAG, String.valueOf(value.size()));
-            }
-        });
-
-/*
-        loadServices(new servicesListCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Integer> serviceList) {
                 List<Integer> services = new ArrayList<>(serviceList);
@@ -94,7 +80,7 @@ public class DashboardActivity extends AppCompatActivity {
                                 break;
                             case 2:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0driver_button));
-                                imageViews[j].setOnClickListener(v -> startRecordlog());
+                                imageViews[j].setOnClickListener(v -> startDriverlog());
                                 break;
                             case 3:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0registration_button));
@@ -109,8 +95,8 @@ public class DashboardActivity extends AppCompatActivity {
                                 imageViews[j].setOnClickListener(v -> startInsuranceRecord());
                                 break;
                             //case 6:
-                            //imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button));
-                            //break;
+                                //imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button));
+                                //break;
                             case 6:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0fuel_button));
                                 imageViews[j].setOnClickListener(v -> startFuelReceipts());
@@ -135,35 +121,32 @@ public class DashboardActivity extends AppCompatActivity {
                 Log.e("No service", errorMessage);
             }
         });
-*/
 
     }
 
-/*
     private void startServiceRecords() {
         startActivity(new Intent(DashboardActivity.this, ServiceRecordsDashboardActivity.class));
     }
 
-    private void startRecordlog() {
-        startActivity(new Intent(DashboardActivity.this, RecordLogDashboardActivity.class));
+    private void startDriverlog() {
+        //startActivity(new Intent(DashboardActivity.this, RecordLogDashboardActivity.class));
     }
 
     private void startRegistrationReminder() {
-        startActivity(new Intent(DashboardActivity.this, RegistrationReminderDashboardActivity.class));
+        //startActivity(new Intent(DashboardActivity.this, RegistrationReminderDashboardActivity.class));
     }
 
     private void startParkingReceipts() {
-        startActivity(new Intent(DashboardActivity.this, ParkingReceiptDashboardActivity.class));
+        //startActivity(new Intent(DashboardActivity.this, ParkingReceiptDashboardActivity.class));
     }
 
     private void startInsuranceRecord() {
-        startActivity(new Intent(DashboardActivity.this, InsuranceRecordDashboardActivity.class));
+        //startActivity(new Intent(DashboardActivity.this, InsuranceRecordDashboardActivity.class));
     }
 
     private void startFuelReceipts() {
-        startActivity(new Intent(DashboardActivity.this, FuelReceiptDashboardActivity.class));
+        //startActivity(new Intent(DashboardActivity.this, FuelReceiptDashboardActivity.class));
     }
-*/
 
     private <T extends View> T $(int id){
         return (T) findViewById(id);
@@ -226,7 +209,7 @@ public class DashboardActivity extends AppCompatActivity {
     public interface serviceCallbacks {
         void onSuccess(@NonNull List<Integer> value);
 
-//        void onError(@NonNull List<ServiceRecord> value);
+        void onError(@NonNull String errorMsg);
     }
 
 }

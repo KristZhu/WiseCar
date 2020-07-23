@@ -21,10 +21,10 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.driverLog.DriverLogActivity;
 import com.wisecarCompany.wisecarapp.function.fuelReceipt.FuelReceiptActivity;
 import com.wisecarCompany.wisecarapp.function.insuranceRecord.InsuranceRecordActivity;
 import com.wisecarCompany.wisecarapp.function.parkingReceipt.ParkingReceiptActivity;
-import com.wisecarCompany.wisecarapp.function.recordLog.RecordLogActivity;
 import com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationReminderActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsActivity;
 import com.wisecarCompany.wisecarapp.function.shareVehicle.ShareVehicleListActivity;
@@ -116,7 +116,7 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
                                 break;
                             case 2:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0driver_button));
-                                imageViews[j].setOnClickListener(v -> startRecordlog(vehicleID));
+                                imageViews[j].setOnClickListener(v -> startDriverlog(vehicleID));
                                 break;
                             case 3:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0registration_button));
@@ -233,9 +233,9 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
         startActivity(new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class).putExtra("vehicleID", vehicleID));
     }
 
-    private void startRecordlog(String vehicleID) {
-        Log.d(TAG, "RecordLogVehicleID: " + vehicleID);
-        startActivity(new Intent(EditVehicleActivity.this, RecordLogActivity.class).putExtra("vehicleID", vehicleID));
+    private void startDriverlog(String vehicleID) {
+        Log.d(TAG, "DriverLogVehicleID: " + vehicleID);
+        startActivity(new Intent(EditVehicleActivity.this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
     }
 
     private void startRegistrationReminder(String vehicleID) {

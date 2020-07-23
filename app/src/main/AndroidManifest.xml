@@ -28,6 +28,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".function.driverLog.DriverLogSendActivity"></activity>
+        <activity android:name=".function.driverLog.DriverLogDashboardActivity" />
         <activity android:name=".function.serviceRecords.ServiceRecordsSendActivity" />
         <activity android:name=".function.serviceRecords.ServiceRecordsDashboardActivity" />
         <activity android:name=".user.vehicle.DashboardActivity" />
@@ -36,7 +38,7 @@
         <activity android:name=".function.insuranceRecord.InsuranceRecordActivity" />
         <activity android:name=".function.registrationReminder.RegistrationReminderActivity" />
         <activity android:name=".user.licence.LicenceActivity" />
-        <activity android:name=".function.recordLog.RecordLogActivity" />
+        <activity android:name=".function.driverLog.DriverLogActivity" />
         <activity android:name=".function.shareVehicle.ShareVehicleDetailActivity" />
         <activity android:name=".function.shareVehicle.ShareVehicleListActivity" />
         <activity android:name=".function.serviceRecords.ServiceRecordsActivity" />
