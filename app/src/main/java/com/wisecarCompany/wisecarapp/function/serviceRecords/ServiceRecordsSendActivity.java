@@ -35,6 +35,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -46,6 +47,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
 
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_SERVICE_REFCORD_INFO = "/api/v1/servicerecords/getrecordbyid";
+    private String SEND_EMAIL = "/api/v1/servicerecords/sendemail";
 
     private String recordID;
 
@@ -122,6 +124,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                     if(isEmail) {
 
                         //send
+                        sendEmail();
 
                     } else {
                         Toast.makeText(getApplicationContext(), "Please enter correct email address", Toast.LENGTH_SHORT).show();
@@ -236,5 +239,60 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
         void onSuccess(@NonNull ServiceRecord value);
 
 //        void onError(@NonNull List<ServiceRecord> value);
+    }
+
+    private void sendEmail() {
+
+        String URL = IP_HOST + SEND_EMAIL;
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("service_id", recordID);
+            jsonParam.put("email_to_address", emailEditText.getText().toString());
+            jsonParam.put("submit_date_time", format.format(new Date()));
+            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("service_date", dateTextView.getText().toString());
+            jsonParam.put("service_center", centreTextView.getText().toString());
+            jsonParam.put("service_options", optionsTextView.getText().toString());
+            jsonParam.put("service_ref_no", refNoTextView.getText().toString());
+            jsonParam.put("notes", notesTextView.getText().toString());
+            jsonParam.put("next_service_date", nextdateTextView.getText().toString());
+            jsonParam.put("next_service_odometer", nextDistanceTextView.getText().toString());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Records Response", response.toString());
+            if(response.optString("message").equals("success")){
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+        }, error -> {
+            Log.e("ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
+
+        });
+        Volley.newRequestQueue(ServiceRecordsSendActivity.this).add(objectRequest);
+
     }
 }

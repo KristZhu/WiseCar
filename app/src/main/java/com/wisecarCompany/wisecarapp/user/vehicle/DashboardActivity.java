@@ -20,6 +20,7 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.driverLog.DriverLogDashboardActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
@@ -129,7 +130,7 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void startDriverlog() {
-        //startActivity(new Intent(DashboardActivity.this, RecordLogDashboardActivity.class));
+        startActivity(new Intent(DashboardActivity.this, DriverLogDashboardActivity.class));
     }
 
     private void startRegistrationReminder() {
