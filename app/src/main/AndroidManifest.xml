@@ -28,7 +28,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".function.registrationReminder.RegistrationReminderSendActivity"></activity>
+        <activity android:name=".function.insuranceRecord.InsuranceRecordSendActivity"></activity>
+        <activity android:name=".function.insuranceRecord.InsuranceRecordDashboardActivity" />
+        <activity android:name=".function.registrationReminder.RegistrationReminderSendActivity" />
         <activity android:name=".function.registrationReminder.RegistrationReminderDashboardActivity" />
         <activity android:name=".function.driverLog.DriverLogSendActivity" />
         <activity android:name=".function.driverLog.DriverLogDashboardActivity" />

@@ -133,8 +133,8 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
 
         ImageView lightImageView = new ImageView(this);
         lightImageView.setId(0);
-        if(reminder.getExpireDate().before(new Date())) lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_line));
-        else lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_red_line));
+        if(reminder.getExpireDate().before(new Date())) lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_red_line));
+        else lightImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0light_line));
         set.connect(lightImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
         set.connect(lightImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
         set.connect(lightImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
@@ -148,8 +148,8 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         ImageView darkImageView = new ImageView(this);
         darkImageView.setId(1);
         darkImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        if(reminder.getExpireDate().before(new Date())) darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_line));
-        else darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_red_line));
+        if(reminder.getExpireDate().before(new Date())) darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_red_line));
+        else darkImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0dark_line));
         set.connect(darkImageView.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP);
         set.connect(darkImageView.getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
         set.connect(darkImageView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START);
@@ -246,7 +246,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         });
         lineLayout.addView(sendImageView);
 
-        if(! reminder.getExpireDate().before(new Date())) {
+        if(reminder.getExpireDate().before(new Date())) {
             ImageView notifyImageView = new ImageView(this);
             notifyImageView.setId(22);
             set.connect(notifyImageView.getId(), ConstraintSet.TOP, darkImageView.getId(), ConstraintSet.TOP);

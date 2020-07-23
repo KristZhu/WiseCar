@@ -13,7 +13,8 @@ public class InsuranceRecord {
 
     private Date startDate;
     private String type;
-    private String url;
+    private String documentLink;
+    private String emailAddress;
 
     public InsuranceRecord(String id, String registrationNo, String policyNo, String insurer, Date endDate, boolean sentBefore) {
         this.id = id;
@@ -31,7 +32,7 @@ public class InsuranceRecord {
         this.endDate = endDate;
         this.startDate = startDate;
         this.type = type;
-        this.url = url;
+        this.documentLink = url;
     }
 
     public String getId() {
@@ -98,11 +99,19 @@ public class InsuranceRecord {
         this.type = type;
     }
 
-    public String getUrl() {
-        return url;
+    public String getDocumentLink() {
+        return documentLink;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setDocumentLink(String url) {
+        this.documentLink = url;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 }
