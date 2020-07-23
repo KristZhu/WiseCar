@@ -252,11 +252,11 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
     private void getServiceRecords(@Nullable final serviceRecordsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_SERVICE_REFCORDS;
-        List<ServiceRecord> records = new ArrayList();
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", "216");
+//            jsonParam.put("user_id", UserInfo.getUserID());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -266,6 +266,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject;
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            List<ServiceRecord> records = new ArrayList();
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
@@ -283,7 +284,6 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
                             jsonObject.optDouble("next_service_odometer"),
                             jsonObject.optString("has_sent_before").equals("1")
                     );
-
                     records.add(record);
                 }
                 if (callbacks != null)
