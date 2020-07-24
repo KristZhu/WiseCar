@@ -287,7 +287,7 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
                 Log.e("JSON ERROR MESSAGE", message);
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_LONG).show();
                     }
                 });
             }
