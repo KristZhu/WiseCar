@@ -103,8 +103,10 @@ public class DriverLogSendActivity extends AppCompatActivity {
                 endTextView.setText(timeFormat.format(log.getEndTime()));
                 timeTextView.setText("" + log.getMins());
                 distanceTextView.setText("" + (int) (log.getKm() * 10) / 10.0);
-                if (log.getCompanyName() == null || log.getCompanyName().length() == 0)
+                if (log.getCompanyName() == null || log.getCompanyName().length() == 0) {
                     shareTextView.setText("Not shared");
+                    log.setCompanyName("Not shared");
+                }
                 else shareTextView.setText(log.getCompanyName());
 
                 sendButton.setOnClickListener(v -> {
@@ -247,12 +249,9 @@ public class DriverLogSendActivity extends AppCompatActivity {
             jsonParam.put("date", dateFormat.format(log.getStartTime()));
             jsonParam.put("start_time", timeFormat.format(log.getStartTime()));
             jsonParam.put("end_time", timeFormat.format(log.getEndTime()));
-            jsonParam.put("total_km", distanceTextView.getText().toString());
-            jsonParam.put("total_time", timeTextView.getText().toString());
-            jsonParam.put("shared_with", shareTextView.getText().toString());
-//            jsonParam.put("total_km", log.getKm());
-//            jsonParam.put("total_time", log.getMins());
-//            jsonParam.put("shared_with", log.getCompanyName());
+            jsonParam.put("total_km", log.getKm());
+            jsonParam.put("total_time", log.getMins());
+            jsonParam.put("shared_with", log.getCompanyName());
             jsonParam.put("record_id", logID);
 
         } catch (JSONException e) {
