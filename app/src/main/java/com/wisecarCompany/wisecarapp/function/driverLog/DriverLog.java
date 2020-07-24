@@ -3,7 +3,12 @@ package com.wisecarCompany.wisecarapp.function.driverLog;
 import android.graphics.Bitmap;
 
 
+import com.wisecarCompany.wisecarapp.user.UserInfo;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class DriverLog implements Comparable<DriverLog> {
 
@@ -23,13 +28,33 @@ public class DriverLog implements Comparable<DriverLog> {
 
     private String timestamp = "";
 
-    private boolean pausing = false;
-
     private boolean sentBefore;
     private String id;
     private String registrationNo;
 
     private String emailAddress;
+
+    public DriverLog(CurrDriverLog currLog) {
+        vehicleID = currLog.getVehicleID();
+        custID = currLog.getCustID();
+        startTime = currLog.getStartTime();
+        claimRate = currLog.getClaimRate();
+        km = currLog.getKm();
+        countPause = currLog.getCountPause();
+        mins = (int) currLog.getDuration() / 60;
+
+        DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String StringJSON = "[";
+        for (Date date : currLog.getLocations().keySet()) {
+            StringJSON += "{\"" + formatDate.format(date) + "\":\"" + currLog.getLocations().get(date)[0] + "," + currLog.getLocations().get(date)[1] + "\"},";
+        }
+        StringJSON = StringJSON.substring(0, StringJSON.length() - 1);
+        StringJSON += "]";
+        setLogJSON(StringJSON);
+
+        setEndTime(new Date());
+        setTimestamp(new Date().getTime() + "");
+    }
 
 
     public DriverLog(String id, String registrationNo, Date startTime, Date endTime, double km, String companyName, boolean sentBefore) {
@@ -70,20 +95,6 @@ public class DriverLog implements Comparable<DriverLog> {
         this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.companyLogo = companyLogo;
         this.timestamp = timestamp;
-    }
-
-    public DriverLog(Date startTime, Date endTime, boolean pausing, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON) {
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.pausing = pausing;
-        this.countPause = countPause;
-        this.mins = mins;
-        this.km = km;
-        this.claimRate = claimRate;
-        this.shareID = shareID;
-        this.custID = custID;
-        this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
-        this.companyLogo = companyLogo;
     }
 
     public DriverLog(String vehicleID, Date startTime, Date endTime, int countPause, int mins, double km, double claimRate, String shareID, String custID, String companyName, Bitmap companyLogo, String logJSON, String timestamp) {
@@ -209,14 +220,6 @@ public class DriverLog implements Comparable<DriverLog> {
         this.companyLogo = companyLogo;
     }
 
-    public boolean isPausing() {
-        return pausing;
-    }
-
-    public void setPausing(boolean pausing) {
-        this.pausing = pausing;
-    }
-
     public String getTimestamp() {
         return timestamp;
     }
@@ -273,7 +276,6 @@ public class DriverLog implements Comparable<DriverLog> {
                 ", companyName='" + companyName + '\'' +
                 ", companyLogo=" + companyLogo +
                 ", timestamp='" + timestamp + '\'' +
-                ", pausing=" + pausing +
                 '}';
     }
 

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -62,12 +63,14 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
     private ImageButton shareImageButton;
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_vehicle);
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        assert vehicleID != null;
         if (vehicleID.equals("a")) {
             //id = "a" means the vehicle is newly added and it is a fake id, and synchronizing process is not finished
             //jump back to VehicleActivity to wait for synchronizing
@@ -238,7 +241,13 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
 
     private void startDriverlog(String vehicleID) {
         Log.d(TAG, "DriverLogVehicleID: " + vehicleID);
-        startActivity(new Intent(EditVehicleActivity.this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
+        if(UserInfo.getCurrLog()==null) {
+            startActivity(new Intent(EditVehicleActivity.this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
+        } else {
+            Toast.makeText(this, "Driver Log for Vehicle "
+                    + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
+                    + " is still in process. Please stop it first before starting a new vehicle driver log. ", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void startRegistrationReminder(String vehicleID) {
