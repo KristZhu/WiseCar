@@ -86,10 +86,7 @@ public class DriverLogActivity extends AppCompatActivity {
     private Vehicle vehicle;
 
     private LocationManager locationManager;
-    private double latitude = 0.0;
-    private double longitude = 0.0;
-    private long duration = 0;  //last duration before pausing
-    private Map<Date, double[]> locations;  //location every 30s, time:[lat,lng]
+    //private CurrDriverLog currLog;    //saver to use UserInfo.getCurrLog
 
     private ImageButton backImageButton;
 
@@ -104,6 +101,7 @@ public class DriverLogActivity extends AppCompatActivity {
     private int maxMin;
     private double miniDistance;
     private double maxDistance;
+    //end of fliter fields
 
     private TextView companyTextView;
     private String currCustID;
@@ -345,14 +343,17 @@ public class DriverLogActivity extends AppCompatActivity {
             recording();
         }
 
+        //currLog = UserInfo.getCurrLog();
+        //Log.d(TAG, "set currLog = UserInfo.getCurrLog(), currLog: " + currLog);
+
         startImageButton.setOnClickListener(v -> {
             if (UserInfo.getCurrLog() == null) {
                 Calendar c = Calendar.getInstance();
                 c.setTime(new Date());
-                Date startTime = new Date();
-                UserInfo.setCurrLog(new DriverLog(vehicleID, currCustID, startTime, currClaimRate, currShareID, currCompanyName, currCompanyLogo));
-                Log.d(TAG, "new currLog: " + UserInfo.getCurrLog());
-                locations = new TreeMap<>();
+                UserInfo.setCurrLog(CurrDriverLog.getCurrLog(vehicleID, currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
+                //currLog = UserInfo.getCurrLog();
+                //Log.d(TAG, "new currLog: " + currLog);
+                Log.d(TAG, "new currLog in UserInfo: " + UserInfo.getCurrLog());
 
                 int permissionCheckFineLocation = ContextCompat.checkSelfPermission(DriverLogActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
                 int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(DriverLogActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
@@ -421,58 +422,108 @@ public class DriverLogActivity extends AppCompatActivity {
     }
 
     private void recording() {
-        Log.d(TAG, "recording: ");
+        Log.d(TAG, "recording...");
         startImageButton.setAlpha(0.5f);
         pauseResumeImageButton.setAlpha(1.0f);
         endImageButton.setAlpha(1.0f);
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
         timeDistanceTextView.setTextColor(0xff007ba4);
+        long minD = UserInfo.getCurrLog().getDuration() / 60;
+        long secD = UserInfo.getCurrLog().getDuration() % 60;
+        String minDuration = minD >= 10 ? "" + minD : "0" + minD;
+        String secDuration = secD >= 10 ? "" + secD : "0" + secD;
+        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", "
+                + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
 
         startLocation();
 
-        new Timer().schedule(new TimerTask() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void run() {
-                if (UserInfo.getCurrLog() == null) {
-                    Log.d(TAG, "timer: end");
-                    this.cancel();
-                } else if (UserInfo.getCurrLog().isPausing()) {
-                    Log.d(TAG, "timer: pause");
-                    this.cancel();
-                } else {
-                    Log.d(TAG, "timer: currLog: " + UserInfo.getCurrLog());
-                    duration ++;
-                    long minD = duration / 60;
-                    long secD = duration % 60;
-                    String minDuration = minD>=10 ? ""+minD : "0"+minD;
-                    String secDuration = secD>=10 ? ""+secD : "0"+secD;
-                    timeDistanceTextView.setText(minDuration + ":" + secDuration + ", "
-                            + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
+        //currLog cannot sync to UserInfo.getCurrLog at the beginning.
+        if(!UserInfo.getCurrLog().isTimerRunning()) {
+            new Timer().schedule(new TimerTask() {
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void run() {
+                    if (UserInfo.getCurrLog() == null) {
+                        Log.d(TAG, "timer: end");
+                        this.cancel();
+                    } else if (UserInfo.getCurrLog().isPausing()) {
+                        Log.d(TAG, "timer: pause");
+                        this.cancel();
+                        UserInfo.getCurrLog().setTimerRunning(false);
+                    } else {
+                        Log.d(TAG, "timer: currLog: " + UserInfo.getCurrLog());
+                        UserInfo.getCurrLog().setDuration(UserInfo.getCurrLog().getDuration()+1);   //the only difference
+                        long minD = UserInfo.getCurrLog().getDuration() / 60;
+                        long secD = UserInfo.getCurrLog().getDuration() % 60;
+                        String minDuration = minD>=10 ? ""+minD : "0"+minD;
+                        String secDuration = secD>=10 ? ""+secD : "0"+secD;
+                        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", "
+                                + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
 
-                    if (duration % 30 == 1) { //save log every 30s
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                        String time = format.format(new Date());
-                        Log.d(TAG, "send log every 30s: ");
-                        Log.d(TAG, "time: " + time);
-                        Log.d(TAG, "lat: " + latitude);
-                        Log.d(TAG, "lng: " + longitude);
+                        if (UserInfo.getCurrLog().getDuration() % 30 == 1) { //save log every 30s
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                            String time = format.format(new Date());
+                            Log.d(TAG, "send log every 30s: ");
+                            Log.d(TAG, "time: " + time);
+                            Log.d(TAG, "lat: " + UserInfo.getCurrLog().getLatitude());
+                            Log.d(TAG, "lng: " + UserInfo.getCurrLog().getLongitude());
 
-                        locations.put(new Date(), new double[]{latitude, longitude});
+                            UserInfo.getCurrLog().getLocations().put(new Date(), new double[]{UserInfo.getCurrLog().getLatitude(), UserInfo.getCurrLog().getLongitude()});
+                        }
                     }
                 }
-            }
-        }, 1000, 1000);
+            }, 1000, 1000);
+            UserInfo.getCurrLog().setTimerRunning(true);
+        } else {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (UserInfo.getCurrLog() == null) {
+                        Log.d(TAG, "timer: end");
+                        this.cancel();
+                    } else if (UserInfo.getCurrLog().isPausing()) {
+                        Log.d(TAG, "timer: pause");
+                        this.cancel();
+                        UserInfo.getCurrLog().setTimerRunning(false);
+                    } else {
+                        long minD = UserInfo.getCurrLog().getDuration() / 60;
+                        long secD = UserInfo.getCurrLog().getDuration() % 60;
+                        String minDuration = minD >= 10 ? "" + minD : "0" + minD;
+                        String secDuration = secD >= 10 ? "" + secD : "0" + secD;
+                        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", "
+                                + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
+
+                        if (UserInfo.getCurrLog().getDuration() % 30 == 1) { //save log every 30s
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                            String time = format.format(new Date());
+                            Log.d(TAG, "send log every 30s: ");
+                            Log.d(TAG, "time: " + time);
+                            Log.d(TAG, "lat: " + UserInfo.getCurrLog().getLatitude());
+                            Log.d(TAG, "lng: " + UserInfo.getCurrLog().getLongitude());
+
+                            UserInfo.getCurrLog().getLocations().put(new Date(), new double[]{UserInfo.getCurrLog().getLatitude(), UserInfo.getCurrLog().getLongitude()});
+                        }
+                    }
+                }
+            }, 1000, 1000);
+        }
+
     }
 
     @SuppressLint("SetTextI18n")
     private void pausing() {
-        Log.d(TAG, "pausing: ");
+        Log.d(TAG, "pausing...");
         startImageButton.setAlpha(0.5f);
         pauseResumeImageButton.setAlpha(1.0f);
         endImageButton.setAlpha(1.0f);
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0resume));
         timeDistanceTextView.setTextColor(0xffa5a6a3);
+        long minD = UserInfo.getCurrLog().getDuration() / 60;
+        long secD = UserInfo.getCurrLog().getDuration() % 60;
+        String minDuration = minD >= 10 ? "" + minD : "0" + minD;
+        String secDuration = secD >= 10 ? "" + secD : "0" + secD;
+        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", "
+                + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
         timeDistanceTextView.setText(timeDistanceTextView.getText().toString() + " (paused)");
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
@@ -480,10 +531,10 @@ public class DriverLogActivity extends AppCompatActivity {
     }
 
     private void ending() {
+        Log.d(TAG, "ending...");
         startImageButton.setAlpha(1.0f);
         pauseResumeImageButton.setAlpha(0.5f);
         endImageButton.setAlpha(0.5f);
-        Log.d(TAG, "ending: ");
         timeDistanceTextView.setText("");
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
 
@@ -493,6 +544,7 @@ public class DriverLogActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void finishRecord() {   //write to log
+/*
         Log.d(TAG, "finishRecord: ");
         UserInfo.getCurrLog().setMins((int) duration / 60 );
         duration = 0;
@@ -511,32 +563,38 @@ public class DriverLogActivity extends AppCompatActivity {
         StringJSON += "]";
         Log.e(TAG, StringJSON);
         UserInfo.getCurrLog().setLogJSON(StringJSON);
+*/
 
         Log.d(TAG, "finishRecord: currLog: " + UserInfo.getCurrLog());
+        DriverLog newLog = new DriverLog(UserInfo.getCurrLog());
+
         if(vehicle.getLogs()==null) vehicle.setLogs(new TreeSet<>());
-        vehicle.getLogs().add(UserInfo.getCurrLog());
+        //vehicle.getLogs().add(UserInfo.getCurrLog());
+        vehicle.getLogs().add(newLog);
+        CurrDriverLog.clearCurrLog();
 
         logsDiv.removeAllViews();
         for (DriverLog log : vehicle.getLogs()) showRecordLog(log);
 
-        //add UserInfo.getCurrLog() to DB
+        //add newLog to DB
 
         String URL = IP_HOST + SAVE_LOG;
 
         final JSONObject jsonParam = new JSONObject();
+        DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         try {
             jsonParam.put("vehicle_id", vehicleID);
-            jsonParam.put("log_start_time", formatDate.format(UserInfo.getCurrLog().getStartTime()));
-            jsonParam.put("log_end_time", formatDate.format(UserInfo.getCurrLog().getEndTime()));
-            jsonParam.put("km_travelled", UserInfo.getCurrLog().getKm());
-            jsonParam.put("paused_time", UserInfo.getCurrLog().getCountPause());
-            jsonParam.put("total_travel_time", UserInfo.getCurrLog().getMins());
-            jsonParam.put("location_logs", UserInfo.getCurrLog().getLogJSON());
+            jsonParam.put("log_start_time", formatDate.format(newLog.getStartTime()));
+            jsonParam.put("log_end_time", formatDate.format(newLog.getEndTime()));
+            jsonParam.put("km_travelled", newLog.getKm());
+            jsonParam.put("paused_time", newLog.getCountPause());
+            jsonParam.put("total_travel_time", newLog.getMins());
+            jsonParam.put("location_logs", newLog.getLogJSON());
 
-            if (UserInfo.getCurrLog().getCustID() != null) {
-                jsonParam.put("customer_id", UserInfo.getCurrLog().getCustID());
-                jsonParam.put("claim_rate", UserInfo.getCurrLog().getClaimRate());
-                jsonParam.put("share_id", UserInfo.getCurrLog().getShareID());
+            if (newLog.getCustID() != null) {
+                jsonParam.put("customer_id", newLog.getCustID());
+                jsonParam.put("claim_rate", newLog.getClaimRate());
+                jsonParam.put("share_id", newLog.getShareID());
             } else {
                 jsonParam.put("customer_id", "");
                 jsonParam.put("claim_rate", "");
@@ -606,8 +664,8 @@ public class DriverLogActivity extends AppCompatActivity {
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, locationListener);
             Location location1 = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             if (location1 != null) {
-                latitude = location1.getLatitude();
-                longitude = location1.getLongitude();
+                UserInfo.getCurrLog().setLatitude(location1.getLatitude());
+                UserInfo.getCurrLog().setLongitude(location1.getLongitude());
             }
         }
     }
@@ -653,14 +711,15 @@ public class DriverLogActivity extends AppCompatActivity {
         // 当坐标改变时触发此函数，如果Provider传进相同的坐标，它就不会被触发
         @Override
         public void onLocationChanged(Location location) {
+            if(UserInfo.getCurrLog()==null) return;
             if (location != null) {
                 Log.e("Map", "Location changed : Lat: " + location.getLatitude() + " Lng: " + location.getLongitude());
-                double distanceSinceLastSec = getDistance(longitude, latitude, location.getLongitude(), location.getLatitude());
+                double distanceSinceLastSec = getDistance(UserInfo.getCurrLog().getLongitude(), UserInfo.getCurrLog().getLatitude(), location.getLongitude(), location.getLatitude());
                 Log.d(TAG, "distance(m): " + distanceSinceLastSec);
                 UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + ((int)distanceSinceLastSec) / 100 / 10.0);
                 Log.d(TAG, "km: " + UserInfo.getCurrLog().getKm());
-                latitude = location.getLatitude();
-                longitude = location.getLongitude();
+                UserInfo.getCurrLog().setLatitude(location.getLatitude());
+                UserInfo.getCurrLog().setLongitude(location.getLongitude());
             }
         }
     };

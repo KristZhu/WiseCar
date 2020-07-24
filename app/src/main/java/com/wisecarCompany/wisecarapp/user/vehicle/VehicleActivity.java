@@ -23,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -143,16 +144,22 @@ public class VehicleActivity extends AppCompatActivity {
                     }).create();
             alertDialog.show();
 */
-            AlertDialog alertDialog = new AlertDialog.Builder(this)
-                    .setTitle("Are you sure you want to log out? ")
-                    .setPositiveButton("OK", (dialog, which) -> {
-                        UserInfo.clear();
-                        startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
-                    })
-                    .setNegativeButton("Cancel", (dialog, which) -> {
+            if(UserInfo.getCurrLog()==null) {
+                AlertDialog alertDialog = new AlertDialog.Builder(this)
+                        .setTitle("Are you sure you want to log out? ")
+                        .setPositiveButton("OK", (dialog, which) -> {
+                            UserInfo.clear();
+                            startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
+                        })
+                        .setNegativeButton("Cancel", (dialog, which) -> {
 
-                    }).create();
-            alertDialog.show();
+                        }).create();
+                alertDialog.show();
+            } else {
+                Toast.makeText(this, "Driver Log for Vehicle "
+                        + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
+                        + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
+            }
         });
 
         settingImageButton = $(R.id.settingImageButton);
@@ -236,29 +243,41 @@ public class VehicleActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle("Are you sure you want to log out? ")
-                .setPositiveButton("OK", (dialog, which) -> {
-                    UserInfo.clear();
-                    super.onBackPressed();
-                }).setNegativeButton("Cancel", (dialog, which) -> {
+        if(UserInfo.getCurrLog()==null) {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("Are you sure you want to log out? ")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        UserInfo.clear();
+                        super.onBackPressed();
+                    }).setNegativeButton("Cancel", (dialog, which) -> {
 
-                }).create();
-        alertDialog.show();
+                    }).create();
+            alertDialog.show();
+        } else {
+            Toast.makeText(this, "Driver Log for Vehicle "
+                    + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
+                    + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            AlertDialog alertDialog = new AlertDialog.Builder(this)
-                    .setTitle("Are you sure you want to log out? ")
-                    .setPositiveButton("OK", (dialog, which) -> {
-                        UserInfo.clear();
-                        startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
-                    }).setNegativeButton("Cancel", (dialog, which) -> {
+            if(UserInfo.getCurrLog()==null) {
+                AlertDialog alertDialog = new AlertDialog.Builder(this)
+                        .setTitle("Are you sure you want to log out? ")
+                        .setPositiveButton("OK", (dialog, which) -> {
+                            UserInfo.clear();
+                            startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
+                        }).setNegativeButton("Cancel", (dialog, which) -> {
 
-                    }).create();
-            alertDialog.show();
+                        }).create();
+                alertDialog.show();
+            } else {
+                Toast.makeText(this, "Driver Log for Vehicle "
+                        + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
+                        + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
+            }
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);
