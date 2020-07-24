@@ -124,4 +124,21 @@ public class FuelReceipt {
     public void setEmailAddress(String emailAddress) {
         this.emailAddress = emailAddress;
     }
+
+    @Override
+    public String toString() {
+        return "FuelReceipt{" +
+                "id='" + id + '\'' +
+                ", registrationNo='" + registrationNo + '\'' +
+                ", date=" + date +
+                ", invoiceRef='" + invoiceRef + '\'' +
+                ", companyName='" + companyName + '\'' +
+                ", sentBefore=" + sentBefore +
+                ", type='" + type + '\'' +
+                ", fuelAmount=" + fuelAmount +
+                ", paidAmount=" + paidAmount +
+                ", documentLink='" + documentLink + '\'' +
+                ", emailAddress='" + emailAddress + '\'' +
+                '}';
+    }
 }

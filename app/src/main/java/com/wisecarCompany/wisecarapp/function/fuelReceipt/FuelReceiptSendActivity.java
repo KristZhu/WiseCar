@@ -234,6 +234,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
     }
 
     private void sendEmail(FuelReceipt receipt) {
+        Log.d(TAG, "sendEmail: receipt: " + receipt);
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());

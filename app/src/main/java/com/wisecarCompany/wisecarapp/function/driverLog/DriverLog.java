@@ -276,6 +276,10 @@ public class DriverLog implements Comparable<DriverLog> {
                 ", companyName='" + companyName + '\'' +
                 ", companyLogo=" + companyLogo +
                 ", timestamp='" + timestamp + '\'' +
+                ", sentBefore=" + sentBefore +
+                ", id='" + id + '\'' +
+                ", registrationNo='" + registrationNo + '\'' +
+                ", emailAddress='" + emailAddress + '\'' +
                 '}';
     }
 

@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -90,8 +91,10 @@ public class DriverLogSendActivity extends AppCompatActivity {
 
         // SOME INFO YOU CAN GET IN HERE
         getDriverLogInfo(new driverLogSendCallbacks() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onSuccess(@NonNull DriverLog log) {
+                Log.d(TAG, "getlogInfo: log: " + log);
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -99,7 +102,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
                 dateTextView.setText(dateFormat.format(log.getStartTime()));
                 startTextView.setText(timeFormat.format(log.getStartTime()));
                 endTextView.setText(timeFormat.format(log.getEndTime()));
-                timeTextView.setText(""+log.getMins());
+                timeTextView.setText("" + log.getMins());
                 distanceTextView.setText("" + (int) (log.getKm() * 10) / 10.0);
                 if (log.getCompanyName() == null || log.getCompanyName().length() == 0)
                     shareTextView.setText("Not shared");
@@ -189,7 +192,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
                         jsonObject.optString("registration_no"),
                         format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
                         format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
-                        jsonObject.optDouble("km_travel"),
+                        jsonObject.optDouble("total_km"),
                         jsonObject.optInt("total_time"),
                         jsonObject.optString("shared_with")
                 );
@@ -229,6 +232,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
     }
 
     private void sendEmail(DriverLog log) {
+        Log.d(TAG, "sendEmail: log: " + log);
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
