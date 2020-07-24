@@ -7,7 +7,6 @@ import com.wisecarCompany.wisecarapp.user.licence.Licence;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 
 import java.util.Map;
-import java.util.TreeMap;
 
 public class UserInfo {
 
@@ -15,7 +14,7 @@ public class UserInfo {
     private static String username;
     private static String userEmail;
     private static Bitmap userImg;
-    private static Map<String, Vehicle> vehicles = new TreeMap<>((o1, o2) -> o2.compareTo(o1));   //key: ID
+    private static Map<String, Vehicle> vehicles; //key: ID
     private static DriverLog currLog;
     private static Licence licence;
 
@@ -25,6 +24,8 @@ public class UserInfo {
         setUserEmail(null);
         setUserImg(null);
         setVehicles(null);
+        setCurrLog(null);
+        setLicence(null);
     }
 
     public static String getUserID() {

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -125,6 +127,7 @@ public class VehicleActivity extends AppCompatActivity {
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> {
+/*
             final String[] ways = new String[]{"Yes", "No"};
             AlertDialog alertDialog = new AlertDialog.Builder(VehicleActivity.this)
                     .setTitle("Are you sure you want to log out? ")
@@ -132,10 +135,22 @@ public class VehicleActivity extends AppCompatActivity {
                     .setItems(ways, (dialogInterface, i) -> {
                         Log.d(TAG, "onClick: " + ways[i]);
                         if (i == 0) {  //log out
+                            UserInfo.clear();
                             startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
                         } else {
                             //cancel
                         }
+                    }).create();
+            alertDialog.show();
+*/
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("Are you sure you want to log out? ")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        UserInfo.clear();
+                        startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+
                     }).create();
             alertDialog.show();
         });
@@ -219,6 +234,36 @@ public class VehicleActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Are you sure you want to log out? ")
+                .setPositiveButton("OK", (dialog, which) -> {
+                    UserInfo.clear();
+                    super.onBackPressed();
+                }).setNegativeButton("Cancel", (dialog, which) -> {
+
+                }).create();
+        alertDialog.show();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("Are you sure you want to log out? ")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        UserInfo.clear();
+                        startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
+                    }).setNegativeButton("Cancel", (dialog, which) -> {
+
+                    }).create();
+            alertDialog.show();
+            return true;    //stop calling super method
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
 
     private void startDashboard() {
         startActivity(new Intent(this, DashboardActivity.class));

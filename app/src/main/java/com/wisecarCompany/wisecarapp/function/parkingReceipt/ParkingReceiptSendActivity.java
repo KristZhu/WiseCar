@@ -244,7 +244,7 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("service_id", receipt.getId());
+            jsonParam.put("service_id", "4");
             jsonParam.put("email_to_address", receipt.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
             jsonParam.put("user_id", UserInfo.getUserID());

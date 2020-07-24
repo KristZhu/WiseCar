@@ -152,10 +152,23 @@ public class Vehicle implements Comparable<Vehicle> {
         this.logs = logs;
     }
 
-    @NonNull
     @Override
     public String toString() {
-        return getMake_name() + "-" + getRegistration_no();
+        return "Vehicle{" +
+                "vehicle_id='" + vehicle_id + '\'' +
+                ", registration_no='" + registration_no + '\'' +
+                ", make_name='" + make_name + '\'' +
+                ", model_name='" + model_name + '\'' +
+                ", make_year='" + make_year + '\'' +
+                ", state='" + state + '\'' +
+                ", description='" + description + '\'' +
+                ", user_id=" + user_id +
+                ", user_name='" + user_name + '\'' +
+                ", image=" + image +
+                ", state_name='" + state_name + '\'' +
+                ", services=" + services +
+                ", logs=" + logs +
+                '}';
     }
 
     @Override
