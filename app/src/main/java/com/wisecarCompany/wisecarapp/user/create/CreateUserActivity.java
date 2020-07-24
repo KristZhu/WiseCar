@@ -243,7 +243,7 @@ public class CreateUserActivity extends AppCompatActivity {
                         .putExtra("userImg", userImg)
                         .putExtra("username", username)
                         .putExtra("userEmail", userEmail)
-                        .putExtra("password", password));
+                        .putExtra("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));
             } else {    //not valid info
                 if(username.equals("")) Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();
                 else if(userEmail.equals("")) Toast.makeText(getApplicationContext(), "Please entry email", Toast.LENGTH_SHORT).show();

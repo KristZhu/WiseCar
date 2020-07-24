@@ -55,7 +55,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private String firstName;
     private String lastName;
     private java.util.Date dob;
-    private String licence;
     private String address1;
     private String address2;
     private String country;
@@ -65,7 +64,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private EditText firstNameEditText;
     private EditText lastNameEditText;
     private EditText dobEditText;
-    private EditText licenceEditText;
     private EditText address1EditText;
     private EditText address2EditText;
     private EditText countryEditText;
@@ -90,7 +88,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
         lastNameEditText = $(R.id.userLNameEditText);
         dobEditText = $(R.id.dobEditText);
         dobEditText.setInputType(InputType.TYPE_NULL);
-        licenceEditText = $(R.id.licenceEditText);
         address1EditText = $(R.id.address1EditText);
         address2EditText = $(R.id.address2EditText);
         countryEditText = $(R.id.countryEditText);
@@ -124,7 +121,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
         createImageButton.setOnClickListener(v -> {
             firstName = firstNameEditText.getText().toString();
             lastName = lastNameEditText.getText().toString();
-            licence = licenceEditText.getText().toString();
             address1 = address1EditText.getText().toString();
             address2 = address2EditText.getText().toString();
             country = countryEditText.getText().toString();
@@ -139,7 +135,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
             Log.d(TAG, "FName: " + firstName);
             Log.d(TAG, "LName: " + lastName);
             Log.d(TAG, "dob: " + dob);
-            Log.d(TAG, "licence: " + licence);
             Log.d(TAG, "address1: " + address1);
             Log.d(TAG, "address2: " + address2);
             Log.d(TAG, "country: " + country);
@@ -153,7 +148,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     && !firstName.equals("")
                     && !lastName.equals("")
                     && dob != null && dob.before(new java.util.Date())
-                    && !licence.equals("")
                     && !address1.equals("")
                     && !country.equals("")
                     && !state.equals("") && !postCode.equals("")
@@ -168,8 +162,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Please enter last name", Toast.LENGTH_LONG).show();
                 else if (dob == null || dob.compareTo(new java.util.Date()) > 0)
                     Toast.makeText(getApplicationContext(), "Please select date of birth correctly", Toast.LENGTH_LONG).show();
-                else if (licence.equals(""))
-                    Toast.makeText(getApplicationContext(), "Please enter driver licence", Toast.LENGTH_LONG).show();
                 else if (address1.equals(""))
                     Toast.makeText(getApplicationContext(), "Please enter address", Toast.LENGTH_LONG).show();
                 else if (country.equals(""))
@@ -261,15 +253,13 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     reqEntity.addPart("first_name", new StringBody(firstName));
                     reqEntity.addPart("last_name", new StringBody(lastName));
                     reqEntity.addPart("date_of_birth", new StringBody(format.format(dob)));
-                    reqEntity.addPart("driver_license", new StringBody(licence));
                     reqEntity.addPart("address_line1", new StringBody(address1));
                     reqEntity.addPart("address_line2", new StringBody(address2));
                     reqEntity.addPart("postcode", new StringBody(postCode));
                     reqEntity.addPart("state", new StringBody(state));
                     reqEntity.addPart("country", new StringBody(country));
                     reqEntity.addPart("email", new StringBody(userEmail));
-//                    reqEntity.addPart("password", new StringBody(password));
-                    reqEntity.addPart("password", new StringBody(org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));
+                    reqEntity.addPart("password", new StringBody(password));
 
                     ByteArrayBody userImgBody = new ByteArrayBody(userImg, ContentType.IMAGE_PNG, "logo.png");
                     reqEntity.addPart("logo", userImgBody);

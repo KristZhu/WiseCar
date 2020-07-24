@@ -311,7 +311,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         setContentView(R.layout.activity_parking_receipt);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ParkingReceiptActivity.this, VehicleActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ParkingReceiptActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         Log.d(TAG, "vehicleID: " + vehicleID);

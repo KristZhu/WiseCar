@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -38,6 +39,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.security.auth.login.LoginException;
 
 public class DriverLogSendActivity extends AppCompatActivity {
 
@@ -90,8 +93,10 @@ public class DriverLogSendActivity extends AppCompatActivity {
 
         // SOME INFO YOU CAN GET IN HERE
         getDriverLogInfo(new driverLogSendCallbacks() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onSuccess(@NonNull DriverLog log) {
+                Log.d(TAG, "getlogInfo: log: " + log);
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -99,10 +104,12 @@ public class DriverLogSendActivity extends AppCompatActivity {
                 dateTextView.setText(dateFormat.format(log.getStartTime()));
                 startTextView.setText(timeFormat.format(log.getStartTime()));
                 endTextView.setText(timeFormat.format(log.getEndTime()));
-                timeTextView.setText(""+log.getMins());
+                timeTextView.setText("" + log.getMins());
                 distanceTextView.setText("" + (int) (log.getKm() * 10) / 10.0);
-                if (log.getCompanyName() == null || log.getCompanyName().length() == 0)
+                if (log.getCompanyName() == null || log.getCompanyName().length() == 0) {
                     shareTextView.setText("Not shared");
+                    log.setCompanyName("Not shared");
+                }
                 else shareTextView.setText(log.getCompanyName());
 
                 sendButton.setOnClickListener(v -> {
@@ -189,7 +196,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
                         jsonObject.optString("registration_no"),
                         format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
                         format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
-                        jsonObject.optDouble("km_travel"),
+                        jsonObject.optDouble("total_km"),
                         jsonObject.optInt("total_time"),
                         jsonObject.optString("shared_with")
                 );
@@ -229,6 +236,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
     }
 
     private void sendEmail(DriverLog log) {
+        Log.d(TAG, "sendEmail: log: " + log);
 
         String URL = IP_HOST + SEND_EMAIL;
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -248,6 +256,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
             jsonParam.put("total_km", log.getKm());
             jsonParam.put("total_time", log.getMins());
             jsonParam.put("shared_with", log.getCompanyName());
+            jsonParam.put("record_id", logID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -255,7 +264,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
-            if(response.optString("message").equals("success")){
+            if (response.optString("message").equals("success")) {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
@@ -278,6 +287,11 @@ public class DriverLogSendActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE", message);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
         });

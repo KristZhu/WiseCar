@@ -165,45 +165,6 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintWidth_percent="0.5" />
 
         <ImageView
-            android:id="@+id/licenceImageView"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintDimensionRatio="82:16"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dobImageView"
-            app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_percent=".67"
-            app:srcCompat="@drawable/create_user0edittext_border" />
-
-        <EditText
-            android:id="@+id/licenceEditText"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:autoSizeTextType="uniform"
-            android:background="@null"
-            android:ems="10"
-            android:freezesText="false"
-            android:hint="Driver Licence"
-            android:inputType="none"
-            android:maxLines="1"
-            android:selectAllOnFocus="false"
-            android:shadowColor="#FFFFFF"
-            android:singleLine="false"
-            android:textColor="#FFFFFF"
-            android:textSize="20dp"
-            app:layout_constraintBottom_toBottomOf="@+id/licenceImageView"
-            app:layout_constraintDimensionRatio="6:1"
-            app:layout_constraintEnd_toEndOf="@+id/licenceImageView"
-            app:layout_constraintHorizontal_bias="0.3"
-            app:layout_constraintStart_toStartOf="@+id/licenceImageView"
-            app:layout_constraintTop_toTopOf="@+id/licenceImageView"
-            app:layout_constraintWidth_default="percent"
-            app:layout_constraintWidth_percent="0.5" />
-
-        <ImageView
             android:id="@+id/address1ImageView"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -212,7 +173,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/licenceImageView"
+            app:layout_constraintTop_toBottomOf="@+id/dobImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent=".67"
             app:srcCompat="@drawable/create_user0edittext_border" />
