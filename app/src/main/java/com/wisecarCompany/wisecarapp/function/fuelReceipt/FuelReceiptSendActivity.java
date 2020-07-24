@@ -251,7 +251,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
             jsonParam.put("fuel_amount", receipt.getFuelAmount());
             jsonParam.put("paid_amount", receipt.getPaidAmount());
             jsonParam.put("claimed_to", receipt.getCompanyName());
-            jsonParam.put("record_id", receipt.getId());
+            jsonParam.put("record_id", receiptID);
 
         } catch (JSONException e) {
             e.printStackTrace();

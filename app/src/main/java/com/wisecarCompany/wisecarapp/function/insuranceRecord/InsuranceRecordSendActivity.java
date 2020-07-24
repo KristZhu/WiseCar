@@ -247,7 +247,7 @@ public class InsuranceRecordSendActivity extends AppCompatActivity {
             jsonParam.put("start_of_cover", dateFormat.format(record.getStartDate()));
             jsonParam.put("end_of_cover", dateFormat.format(record.getEndDate()));
             jsonParam.put("cover_type", record.getType());
-            jsonParam.put("record_id", record.getId());
+            jsonParam.put("record_id", recordID);
 
         } catch (JSONException e) {
             e.printStackTrace();

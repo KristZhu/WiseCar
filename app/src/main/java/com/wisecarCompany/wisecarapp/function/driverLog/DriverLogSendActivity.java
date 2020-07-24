@@ -248,7 +248,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
             jsonParam.put("total_km", log.getKm());
             jsonParam.put("total_time", log.getMins());
             jsonParam.put("shared_with", log.getCompanyName());
-            jsonParam.put("record_id", log.getId());
+            jsonParam.put("record_id", logID);
 
         } catch (JSONException e) {
             e.printStackTrace();

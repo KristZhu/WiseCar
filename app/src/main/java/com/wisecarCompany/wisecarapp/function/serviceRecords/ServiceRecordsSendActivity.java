@@ -265,7 +265,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             jsonParam.put("notes", record.getNotes());
             jsonParam.put("next_service_date", dateFormat.format(record.getNextDate()));
             jsonParam.put("next_service_odometer", (int) record.getNextDistance());
-            jsonParam.put("record_id", record.getId());
+            jsonParam.put("record_id", recordID);
 
         } catch (JSONException e) {
             e.printStackTrace();

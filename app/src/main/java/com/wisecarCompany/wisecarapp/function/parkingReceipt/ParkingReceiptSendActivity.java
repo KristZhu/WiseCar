@@ -254,7 +254,7 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
             jsonParam.put("fees_paid", receipt.getFees());
             jsonParam.put("notes", receipt.getNotes());
             jsonParam.put("claimed_to", receipt.getCompanyName());
-            jsonParam.put("record_id", receipt.getId());
+            jsonParam.put("record_id", receiptID);
 
         } catch (JSONException e) {
             e.printStackTrace();

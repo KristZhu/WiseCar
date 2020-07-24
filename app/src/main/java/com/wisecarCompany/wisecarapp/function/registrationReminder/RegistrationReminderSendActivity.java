@@ -238,7 +238,7 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
             jsonParam.put("registration_payment_ref", reminder.getPayRef());
             jsonParam.put("date", dateFormat.format(reminder.getDate()));
             jsonParam.put("expiry_date", dateFormat.format(reminder.getExpireDate()));
-            jsonParam.put("record_id", reminder.getId());
+            jsonParam.put("record_id", reminderID);
 
         } catch (JSONException e) {
             e.printStackTrace();
