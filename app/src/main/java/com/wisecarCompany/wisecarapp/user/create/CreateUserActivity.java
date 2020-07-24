@@ -129,34 +129,22 @@ public class CreateUserActivity extends AppCompatActivity {
         nextImageButton = $(R.id.nextImageButton);
 
 
-        passwordEditText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                passImageView.setVisibility(View.INVISIBLE);
-                return false;
-            }
+        passwordEditText.setOnTouchListener((v, event) -> {
+            passImageView.setVisibility(View.INVISIBLE);
+            return false;
         });
-        passwordEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                passImageView.setVisibility(View.INVISIBLE);
-            }
+        passwordEditText.setOnClickListener(v -> {
+            passImageView.setVisibility(View.INVISIBLE);
         });
 
-        confirmPasswordEditText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                confirmPassImageView.setVisibility(View.INVISIBLE);
-                confirmNoPassImageView.setVisibility(View.INVISIBLE);
-                return false;
-            }
+        confirmPasswordEditText.setOnTouchListener((v, event) -> {
+            confirmPassImageView.setVisibility(View.INVISIBLE);
+            confirmNoPassImageView.setVisibility(View.INVISIBLE);
+            return false;
         });
-        confirmPasswordEditText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                confirmPassImageView.setVisibility(View.INVISIBLE);
-                confirmNoPassImageView.setVisibility(View.INVISIBLE);
-            }
+        confirmPasswordEditText.setOnClickListener(v -> {
+            confirmPassImageView.setVisibility(View.INVISIBLE);
+            confirmNoPassImageView.setVisibility(View.INVISIBLE);
         });
 
         uploadPhotoImageButton.setOnClickListener(v -> {
