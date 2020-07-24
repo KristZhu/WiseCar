@@ -95,6 +95,8 @@ public class DriverLogActivity extends AppCompatActivity {
 
     private AutoCompleteTextView searchEditText;
     private ImageButton cancelImageButton;
+
+    //the fliter is depreciated. but mini/max are still in showLog. can be deleted in the future.
     private ImageButton fliterImageButton;
     private Date miniDate;
     private Date maxDate;

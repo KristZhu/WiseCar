@@ -1,12 +1,17 @@
 package com.wisecarCompany.wisecarapp.user.login;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -27,6 +32,8 @@ import com.wisecarCompany.wisecarapp.user.create.CreateUserActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -50,19 +57,21 @@ public class LoginActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v instanceof EditText) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -109,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                             UserInfo.setUsername(username);
                             UserInfo.setUserID(response.optString("user_id"));
                             startActivity(new Intent(LoginActivity.this, VehicleActivity.class));
-                        }else{
+                        } else {
                             Toast.makeText(getApplicationContext(), "Please check your username or password", Toast.LENGTH_LONG).show();
                         }
                     }
@@ -153,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 
@@ -203,6 +212,46 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         Volley.newRequestQueue(LoginActivity.this).add(objectRequest);
+    }
+
+    @Override
+    public void onBackPressed() {
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle("Are you sure you want to exit? ")
+                .setPositiveButton("OK", (dialog, which) -> {
+                    exitAPP();
+                }).setNegativeButton("Cancel", (dialog, which) -> {
+
+                }).create();
+        alertDialog.show();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("Are you sure you want to exit? ")
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        exitAPP();
+                    }).setNegativeButton("Cancel", (dialog, which) -> {
+
+                    }).create();
+            alertDialog.show();
+            return true;    //stop calling super method
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void exitAPP() {
+        ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.AppTask> appTaskList = activityManager.getAppTasks();
+        for (ActivityManager.AppTask appTask : appTaskList) {
+            appTask.finishAndRemoveTask();
+        }
+//        appTaskList.get(0).finishAndRemoveTask();
+        System.exit(0);
     }
 
 }
