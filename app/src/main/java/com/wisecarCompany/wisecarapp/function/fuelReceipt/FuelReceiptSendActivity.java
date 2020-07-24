@@ -251,6 +251,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
             jsonParam.put("fuel_amount", receipt.getFuelAmount());
             jsonParam.put("paid_amount", receipt.getPaidAmount());
             jsonParam.put("claimed_to", receipt.getCompanyName());
+            jsonParam.put("record_id", receipt.getId());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -281,6 +282,11 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE", message);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
         });

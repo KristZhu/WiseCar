@@ -238,6 +238,7 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
             jsonParam.put("registration_payment_ref", reminder.getPayRef());
             jsonParam.put("date", dateFormat.format(reminder.getDate()));
             jsonParam.put("expiry_date", dateFormat.format(reminder.getExpireDate()));
+            jsonParam.put("record_id", reminder.getId());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -268,6 +269,11 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE", message);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
         });

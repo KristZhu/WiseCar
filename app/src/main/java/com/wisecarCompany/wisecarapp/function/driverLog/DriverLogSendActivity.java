@@ -248,6 +248,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
             jsonParam.put("total_km", log.getKm());
             jsonParam.put("total_time", log.getMins());
             jsonParam.put("shared_with", log.getCompanyName());
+            jsonParam.put("record_id", log.getId());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -278,6 +279,11 @@ public class DriverLogSendActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE", message);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
         });
