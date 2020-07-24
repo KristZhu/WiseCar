@@ -191,7 +191,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
                         jsonObject.optString("registration_no"),
                         format.parse(jsonObject.optString("date") + " " + jsonObject.optString("start_time")),
                         format.parse(jsonObject.optString("date") + " " + jsonObject.optString("end_time")),
-                        jsonObject.optDouble("km_travel"),
+                        jsonObject.optDouble("total_km"),
                         jsonObject.optInt("total_time"),
                         jsonObject.optString("shared_with")
                 );
