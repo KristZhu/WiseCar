@@ -247,6 +247,7 @@ public class InsuranceRecordSendActivity extends AppCompatActivity {
             jsonParam.put("start_of_cover", dateFormat.format(record.getStartDate()));
             jsonParam.put("end_of_cover", dateFormat.format(record.getEndDate()));
             jsonParam.put("cover_type", record.getType());
+            jsonParam.put("record_id", recordID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -277,6 +278,11 @@ public class InsuranceRecordSendActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE", message);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
         });

@@ -40,6 +40,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.security.auth.login.LoginException;
+
 public class DriverLogSendActivity extends AppCompatActivity {
 
 
@@ -104,8 +106,10 @@ public class DriverLogSendActivity extends AppCompatActivity {
                 endTextView.setText(timeFormat.format(log.getEndTime()));
                 timeTextView.setText("" + log.getMins());
                 distanceTextView.setText("" + (int) (log.getKm() * 10) / 10.0);
-                if (log.getCompanyName() == null || log.getCompanyName().length() == 0)
+                if (log.getCompanyName() == null || log.getCompanyName().length() == 0) {
                     shareTextView.setText("Not shared");
+                    log.setCompanyName("Not shared");
+                }
                 else shareTextView.setText(log.getCompanyName());
 
                 sendButton.setOnClickListener(v -> {
@@ -252,6 +256,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
             jsonParam.put("total_km", log.getKm());
             jsonParam.put("total_time", log.getMins());
             jsonParam.put("shared_with", log.getCompanyName());
+            jsonParam.put("record_id", logID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -259,7 +264,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
-            if(response.optString("message").equals("success")){
+            if (response.optString("message").equals("success")) {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
@@ -282,6 +287,11 @@ public class DriverLogSendActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE", message);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
         });

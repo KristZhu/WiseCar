@@ -106,7 +106,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                 optionsTextView.setText(record.getOptionsStr());
                 notesTextView.setText(record.getNotes());
                 nextdateTextView.setText(format.format(record.getNextDate()));
-                nextDistanceTextView.setText(""+(int)record.getNextDistance());
+                nextDistanceTextView.setText("" + (int) record.getNextDistance());
 
                 documentLinkTextView.setOnClickListener(v -> {
                     Log.d(TAG, "document link url: " + record.getDocumentLink());
@@ -116,15 +116,15 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                 sendButton.setOnClickListener(v -> {
                     email = emailEditText.getText().toString();
                     boolean isEmail = false;
-                    try{
+                    try {
                         String check = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
                         Pattern regex = Pattern.compile(check);
                         Matcher matcher = regex.matcher(email);
                         isEmail = matcher.matches();
-                    } catch(Exception e ){
+                    } catch (Exception e) {
                         isEmail = false;
                     }
-                    if(isEmail) {
+                    if (isEmail) {
 
                         record.setEmailAddress(email);
                         sendEmail(record);
@@ -147,19 +147,21 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v instanceof EditText) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -168,7 +170,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 
@@ -262,7 +264,8 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             jsonParam.put("service_ref_no", record.getRefNo());
             jsonParam.put("notes", record.getNotes());
             jsonParam.put("next_service_date", dateFormat.format(record.getNextDate()));
-            jsonParam.put("next_service_odometer", (int)record.getNextDistance());
+            jsonParam.put("next_service_odometer", (int) record.getNextDistance());
+            jsonParam.put("record_id", recordID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -270,7 +273,7 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
-            if(response.optString("message").equals("success")){
+            if (response.optString("message").equals("success")) {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
@@ -293,6 +296,13 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE", message);
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_LONG).show();
+                    }
+                });
+
             }
 
         });

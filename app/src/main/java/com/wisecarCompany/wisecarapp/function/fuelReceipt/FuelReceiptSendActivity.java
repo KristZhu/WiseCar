@@ -100,8 +100,10 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
                 typeTextView.setText(receipt.getType());
                 fuelAmountTextView.setText((int)receipt.getFuelAmount() + "L");
                 paidAmountTextView.setText((int)receipt.getPaidAmount() + "AUD");
-                if (receipt.getCompanyName() == null || receipt.getCompanyName().length() == 0)
+                if (receipt.getCompanyName() == null || receipt.getCompanyName().length() == 0) {
                     shareTextView.setText("Not shared");
+                    receipt.setCompanyName("Not shared");
+                }
                 else shareTextView.setText(receipt.getCompanyName());
 
                 documentLinkTextView.setOnClickListener(v -> {
@@ -252,6 +254,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
             jsonParam.put("fuel_amount", receipt.getFuelAmount());
             jsonParam.put("paid_amount", receipt.getPaidAmount());
             jsonParam.put("claimed_to", receipt.getCompanyName());
+            jsonParam.put("record_id", receiptID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -282,6 +285,11 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE", message);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
         });
