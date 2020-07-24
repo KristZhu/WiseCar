@@ -39,6 +39,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.security.auth.login.LoginException;
+
 public class DriverLogSendActivity extends AppCompatActivity {
 
 
@@ -99,7 +101,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
                 dateTextView.setText(dateFormat.format(log.getStartTime()));
                 startTextView.setText(timeFormat.format(log.getStartTime()));
                 endTextView.setText(timeFormat.format(log.getEndTime()));
-                timeTextView.setText(""+log.getMins());
+                timeTextView.setText("" + log.getMins());
                 distanceTextView.setText("" + (int) (log.getKm() * 10) / 10.0);
                 if (log.getCompanyName() == null || log.getCompanyName().length() == 0)
                     shareTextView.setText("Not shared");
@@ -245,9 +247,12 @@ public class DriverLogSendActivity extends AppCompatActivity {
             jsonParam.put("date", dateFormat.format(log.getStartTime()));
             jsonParam.put("start_time", timeFormat.format(log.getStartTime()));
             jsonParam.put("end_time", timeFormat.format(log.getEndTime()));
-            jsonParam.put("total_km", log.getKm());
-            jsonParam.put("total_time", log.getMins());
-            jsonParam.put("shared_with", log.getCompanyName());
+            jsonParam.put("total_km", distanceTextView.getText().toString());
+            jsonParam.put("total_time", timeTextView.getText().toString());
+            jsonParam.put("shared_with", shareTextView.getText().toString());
+//            jsonParam.put("total_km", log.getKm());
+//            jsonParam.put("total_time", log.getMins());
+//            jsonParam.put("shared_with", log.getCompanyName());
             jsonParam.put("record_id", logID);
 
         } catch (JSONException e) {
@@ -256,7 +261,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
-            if(response.optString("message").equals("success")){
+            if (response.optString("message").equals("success")) {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
