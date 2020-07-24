@@ -6,11 +6,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Base64;
@@ -41,6 +46,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -48,6 +54,12 @@ import java.util.TreeMap;
 public class VehicleActivity extends AppCompatActivity {
 
     private static final String TAG = "Vehicle";
+
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_IMG_EMAIL = "/api/v1/users/";
+    private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
+
+    private SharedPreferences sp;
 
     private TextView usernameTextView;
     private TextView userEmailTextView;
@@ -81,10 +93,6 @@ public class VehicleActivity extends AppCompatActivity {
     private Bitmap ImgBitmap;
 
     private Map<String, Vehicle> vehiclesDB;   //vehicle data from db, should update to Userinfo.vehicles
-
-    private final String IP_HOST = "http://54.206.19.123:3000";
-    private final String GET_IMG_EMAIL = "/api/v1/users/";
-    private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +157,10 @@ public class VehicleActivity extends AppCompatActivity {
                         .setTitle("Are you sure you want to log out? ")
                         .setPositiveButton("OK", (dialog, which) -> {
                             UserInfo.clear();
+                            sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sp.edit()
+                                    .putBoolean("AUTO_LOGIN", false);
+                            editor.commit();
                             startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
                         })
                         .setNegativeButton("Cancel", (dialog, which) -> {
@@ -241,14 +253,26 @@ public class VehicleActivity extends AppCompatActivity {
 
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void exitAPP() {
+        ActivityManager activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.AppTask> appTaskList = activityManager.getAppTasks();
+        for (ActivityManager.AppTask appTask : appTaskList) {
+            appTask.finishAndRemoveTask();
+        }
+//        appTaskList.get(0).finishAndRemoveTask();
+        System.exit(0);
+    }
+
+
     @Override
     public void onBackPressed() {
         if(UserInfo.getCurrLog()==null) {
             AlertDialog alertDialog = new AlertDialog.Builder(this)
-                    .setTitle("Are you sure you want to log out? ")
+                    .setTitle("Are you sure you want to exit? ")
                     .setPositiveButton("OK", (dialog, which) -> {
                         UserInfo.clear();
-                        super.onBackPressed();
+                        exitAPP();
                     }).setNegativeButton("Cancel", (dialog, which) -> {
 
                     }).create();
@@ -265,10 +289,10 @@ public class VehicleActivity extends AppCompatActivity {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
             if(UserInfo.getCurrLog()==null) {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
-                        .setTitle("Are you sure you want to log out? ")
+                        .setTitle("Are you sure you want to exit? ")
                         .setPositiveButton("OK", (dialog, which) -> {
                             UserInfo.clear();
-                            startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
+                            exitAPP();
                         }).setNegativeButton("Cancel", (dialog, which) -> {
 
                         }).create();
