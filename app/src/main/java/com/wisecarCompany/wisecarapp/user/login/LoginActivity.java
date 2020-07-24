@@ -74,8 +74,9 @@ public class LoginActivity extends AppCompatActivity {
         rememberCheckBox = $(R.id.rememberCheckBox);
         autoLoginCheckBox = $(R.id.autoLoginCheckBox);
 
-        remember = sp.getBoolean("REMEMBER_PASSWORD", false);
-        autoLogin = sp.getBoolean("AUTO_LOGIN", false);
+        //both are always true for now
+        remember = sp.getBoolean("REMEMBER_PASSWORD", true);
+        autoLogin = sp.getBoolean("AUTO_LOGIN", true);
         rememberCheckBox.setChecked(remember);
         autoLoginCheckBox.setChecked(autoLogin);
 
@@ -90,12 +91,16 @@ public class LoginActivity extends AppCompatActivity {
 
         passwordChanged = false;    //only when password is remembered and not changed will it remain false
         passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
-            passwordChanged = true;
-            passwordEditText.setText("");
+            if(!passwordChanged) {
+                passwordChanged = true;
+                passwordEditText.setText("");
+            }
         });
         passwordEditText.setOnClickListener(v -> {
-            passwordChanged = true;
-            passwordEditText.setText("");
+            if(!passwordChanged) {
+                passwordChanged = true;
+                passwordEditText.setText("");
+            }
         });
 
         rememberCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -124,7 +129,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "password changed: " + passwordChanged);
                 login(username, password);
             } else {
-                Toast.makeText(getApplicationContext(), "Please enter username and password", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Please enter username and password", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -147,14 +152,16 @@ public class LoginActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Response", response.toString());
             if (response.optString("message").equals("success")) {
-                Toast.makeText(getApplicationContext(), "Login successfully", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Login successfully", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "onResponse: Success");
                 // Login successfully
                 SharedPreferences.Editor editor = sp.edit()
                         .putString("USERNAME", username)
                         .putString("PASSWORD", password)
-                        .putBoolean("REMEMBER_PASSWORD", remember)
-                        .putBoolean("AUTO_LOGIN", autoLogin);
+                        //.putBoolean("REMEMBER_PASSWORD", remember)
+                        //.putBoolean("AUTO_LOGIN", autoLogin);
+                        .putBoolean("REMEMBER_PASSWORD", true)
+                        .putBoolean("AUTO_LOGIN", true);
                 editor.commit();
 
                 UserInfo.clear();
@@ -162,7 +169,7 @@ public class LoginActivity extends AppCompatActivity {
                 UserInfo.setUserID(response.optString("user_id"));
                 startActivity(new Intent(LoginActivity.this, VehicleActivity.class));
             } else {
-                Toast.makeText(getApplicationContext(), "Please check your username or password", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Please check your username or password", Toast.LENGTH_SHORT).show();
             }
         }, error -> {
             Log.e("ERROR!!!", error.toString());
@@ -180,7 +187,7 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE!!!", message);
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                 if (!message.equals("The password does not match")) {
                     usernameEditText.setText("");
                 }
@@ -267,7 +274,7 @@ public class LoginActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     Log.e("JSON ERROR MESSAGE!!!", message);
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                 }
 
             }

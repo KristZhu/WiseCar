@@ -404,7 +404,11 @@ public class CreateUserActivity extends AppCompatActivity {
         if(isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
             if(passwordEditText.getText().toString().length()>0) {
-                passImageView.setVisibility(View.VISIBLE);
+                if(passwordEditText.getText().toString().length()<8) {
+                    Toast.makeText(this, "Password is too short. It should be at least 8 characters. ", Toast.LENGTH_SHORT).show();
+                } else {
+                    passImageView.setVisibility(View.VISIBLE);
+                }
             }
             if(confirmPasswordEditText.getText().toString().length()>0) {
                 if(confirmPasswordEditText.getText().toString().equals(passwordEditText.getText().toString())) {

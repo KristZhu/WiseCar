@@ -124,7 +124,9 @@
                     app:layout_constraintStart_toEndOf="@+id/usernameImageView"
                     app:layout_constraintTop_toTopOf="@+id/usernameImageView" />
 
+                <!-- depreciated -->
                 <ImageView
+                    android:visibility="gone"
                     android:id="@+id/userEmailImageView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -139,12 +141,13 @@
                     app:layout_constraintWidth_percent="0.05"
                     app:srcCompat="@drawable/vehicle0user_email" />
 
+                <!-- depreciated -->
                 <TextView
+                    android:visibility="gone"
                     android:id="@+id/userEmailTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="//UserEmail"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="@+id/userEmailImageView"
                     app:layout_constraintStart_toEndOf="@+id/userEmailImageView"
@@ -260,6 +263,7 @@
                     app:layout_constraintTop_toTopOf="@+id/dashboardImageButton" />
 
                 <ImageButton
+                    android:visibility="invisible"
                     android:id="@+id/calendarImageButton"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -281,6 +285,7 @@
                     app:srcCompat="@drawable/vehicle0calendar" />
 
                 <Button
+                    android:visibility="invisible"
                     android:id="@+id/calendarButton"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -498,6 +503,7 @@
                 -->
 
                 <ImageView
+                    android:visibility="invisible"
                     android:id="@+id/notifyBGImageView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -518,6 +524,7 @@
                     app:srcCompat="@drawable/vehicle0empty_row" />
 
                 <ImageView
+                    android:visibility="invisible"
                     android:id="@+id/notificationImageView"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
@@ -530,6 +537,7 @@
                     app:srcCompat="@drawable/vehicle0notification" />
 
                 <TextView
+                    android:visibility="invisible"
                     android:id="@+id/notifyTextView"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
