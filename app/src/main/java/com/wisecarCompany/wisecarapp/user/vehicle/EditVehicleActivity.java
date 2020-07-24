@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,7 +36,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class EditVehicleActivity extends AppCompatActivity {    //edit a special vehicle, or select functions of this vehicle to go
 
@@ -59,12 +63,14 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
     private ImageButton shareImageButton;
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_vehicle);
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        assert vehicleID != null;
         if (vehicleID.equals("a")) {
             //id = "a" means the vehicle is newly added and it is a fake id, and synchronizing process is not finished
             //jump back to VehicleActivity to wait for synchronizing
@@ -90,14 +96,18 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
 
         makeRegistrationNoTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
 
-        loadServices(vehicle.getVehicle_id(), new servicesListCallbacks() {
+        loadServices(vehicleID, new servicesCallbacks() {
             @Override
-            public void onSuccess(@NonNull List<Integer> serviceList) {
-                List<Integer> services = new ArrayList<>(serviceList);
-                Log.e("service list", String.valueOf(services));
+            public void onSuccess(@NonNull List<Integer> services) {
+                services = new ArrayList<>(new HashSet<>(services));
+                Log.e("services", String.valueOf(services));
                 vehicle.setServices(services);
+                UserInfo.getVehicles().get(vehicleID).setServices(services);    //don't know why... it cannot sync
                 //for(int i: services) vehicle.getServices().add(i);
-                Log.d(TAG, "services: " + UserInfo.getVehicles().get(vehicleID).getServices());
+                Log.d(TAG, "services: " + vehicle.getServices());
+                Log.d(TAG, "this vehicle: " + vehicle);
+                Log.d(TAG, "services in UserInfo: " + UserInfo.getVehicles().get(vehicleID).getServices());
+                Log.d(TAG, "this vehicle in UserInfo: " + UserInfo.getVehicles().get(vehicleID));
 
                 servicesLayout = $(R.id.servicesLayout);
                 //int column = 3;
@@ -143,8 +153,10 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
                         set.connect(imageViews[j].getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM, 16);
                         set.connect(imageViews[j].getId(), ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT);
                         set.constrainPercentWidth(imageViews[j].getId(), 0.45f);
+                        //set.constrainPercentWidth(imageViews[j].getId(), 0.3f);
                         set.setDimensionRatio(imageViews[j].getId(), "1:1");
                         set.setHorizontalBias(imageViews[j].getId(), (float) (1.0 * j));
+                        //set.setHorizontalBias(imageViews[j].getId(), (float) (0.5 * j));
                         servicesLineLayout.addView(imageViews[j]);
                     }
                     set.applyTo(servicesLineLayout);
@@ -152,13 +164,7 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
                 }
 
                 shareImageButton = $(R.id.shareImageButton);
-                shareImageButton.setOnClickListener(v -> {
-                    UserInfo.getVehicles().get(vehicleID).setServices(services);    //have no idea why I must do this. But if not, services==null. Makes no senses...
-                    //Log.d(TAG, "before share user services: " + UserInfo.getVehicles().get(vehicleID).getServices());
-                    //Log.d(TAG, "before share services: " + services);
-                    //Log.d(TAG, "before share servicesList: " + serviceList);
-                    shareVehicle(vehicleID);
-                });
+                shareImageButton.setOnClickListener(v -> shareVehicle(vehicleID));
 
             }
 
@@ -173,7 +179,7 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
 
     }
 
-    private void loadServices(String vehicle_id, @Nullable final servicesListCallbacks callbacks) {
+    private void loadServices(String vehicle_id, @Nullable final servicesCallbacks callbacks) {
 
         String URL = IP_HOST + GET_SERVICE + vehicle_id;
 
@@ -222,7 +228,7 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
     }
 
 
-    public interface servicesListCallbacks {
+    public interface servicesCallbacks {
         void onSuccess(@NonNull List<Integer> value);
 
         void onError(@NonNull String errorMessage);
@@ -235,7 +241,13 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
 
     private void startDriverlog(String vehicleID) {
         Log.d(TAG, "DriverLogVehicleID: " + vehicleID);
-        startActivity(new Intent(EditVehicleActivity.this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
+        if(UserInfo.getCurrLog()==null) {
+            startActivity(new Intent(EditVehicleActivity.this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
+        } else {
+            Toast.makeText(this, "Driver Log for Vehicle "
+                    + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
+                    + " is still in process. Please stop it first before starting a new vehicle driver log. ", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void startRegistrationReminder(String vehicleID) {
