@@ -90,7 +90,9 @@ public class LoginActivity extends AppCompatActivity {
                 final JSONObject jsonParam = new JSONObject();
                 try {
                     jsonParam.put("user_name", username);
-                    jsonParam.put("password", password);
+//                    jsonParam.put("password", password);
+                    jsonParam.put("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password));
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

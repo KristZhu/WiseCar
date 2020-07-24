@@ -266,7 +266,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     reqEntity.addPart("state", new StringBody(state));
                     reqEntity.addPart("country", new StringBody(country));
                     reqEntity.addPart("email", new StringBody(userEmail));
-                    reqEntity.addPart("password", new StringBody(password));
+//                    reqEntity.addPart("password", new StringBody(password));
+                    reqEntity.addPart("password", new StringBody(org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));
 
                     ByteArrayBody userImgBody = new ByteArrayBody(userImg, ContentType.IMAGE_PNG, "logo.png");
                     reqEntity.addPart("logo", userImgBody);
