@@ -29,13 +29,10 @@ public class CurrDriverLog {
     private Timer timer;
 
 
-    private static CurrDriverLog currLog = new CurrDriverLog();
-    private CurrDriverLog() {}
-    public static CurrDriverLog getCurrLog() {
-        return currLog;
-    }
-    public static void clearCurrLog() {
-        currLog = new CurrDriverLog();
+    private static CurrDriverLog currLog;
+
+    public static void clearInstance() {
+        currLog = null;
     }
 
     private CurrDriverLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
@@ -48,13 +45,9 @@ public class CurrDriverLog {
         this.companyLogo = companyLogo;
     }
 
-    public static CurrDriverLog getCurrLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
+    public static CurrDriverLog getInstance(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
         currLog = new CurrDriverLog(vehicleID, custID, startTime, claimRate, shareID, companyName, companyLogo);
         return currLog;
-    }
-
-    public static void setCurrLog(CurrDriverLog currLog) {
-        CurrDriverLog.currLog = currLog;
     }
 
     public boolean isPausing() {

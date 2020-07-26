@@ -3,8 +3,6 @@ package com.wisecarCompany.wisecarapp.user;
 import android.graphics.Bitmap;
 
 import com.wisecarCompany.wisecarapp.function.driverLog.CurrDriverLog;
-import com.wisecarCompany.wisecarapp.function.driverLog.DriverLog;
-import com.wisecarCompany.wisecarapp.user.licence.Licence;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 
 import java.util.Map;
@@ -17,7 +15,6 @@ public class UserInfo {
     private static Bitmap userImg;
     private static Map<String, Vehicle> vehicles; //key: ID
     private static CurrDriverLog currLog;
-    private static Licence licence;
 
     public static void clear() {
         setUserID(null);
@@ -26,7 +23,6 @@ public class UserInfo {
         setUserImg(null);
         setVehicles(null);
         setCurrLog(null);
-        setLicence(null);
     }
 
     public static String getUserID() {
@@ -75,13 +71,5 @@ public class UserInfo {
 
     public static void setCurrLog(CurrDriverLog currLog) {
         UserInfo.currLog = currLog;
-    }
-
-    public static Licence getLicence() {
-        return licence;
-    }
-
-    public static void setLicence(Licence licence) {
-        UserInfo.licence = licence;
     }
 }

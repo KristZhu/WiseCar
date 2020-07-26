@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import java.util.Date;
 
 public class Licence {
+
     private boolean active;
     private String number;
     private String type;
@@ -12,7 +13,6 @@ public class Licence {
     private Date expiryDate;
     private boolean remind;
     private Bitmap licenceImg;
-
     private String expire;
 
 
@@ -23,20 +23,6 @@ public class Licence {
 
     public void setExpire(String expire) {
         this.expire = expire;
-    }
-
-
-    public Licence() {
-
-    }
-
-    public Licence(boolean active, String number, String type, Date startDate, Date expiryDate, boolean remind) {
-        this.active = active;
-        this.number = number;
-        this.type = type;
-        this.startDate = startDate;
-        this.expiryDate = expiryDate;
-        this.remind = remind;
     }
 
     public boolean isActive() {

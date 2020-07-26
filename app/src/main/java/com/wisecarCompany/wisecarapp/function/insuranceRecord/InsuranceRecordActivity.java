@@ -309,9 +309,26 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             AlertDialog alertDialog = new AlertDialog.Builder(InsuranceRecordActivity.this)
                     //.setTitle("select a cover type")
                     .setIcon(R.mipmap.ic_launcher)
-                    .setItems(types, (dialogInterface, i) -> typeEditText.setText(types[i]))
+                    .setItems(types, (dialogInterface, i) -> {
+                        typeEditText.setText(types[i]);
+                        checkReadyToSave();
+                    })
                     .create();
             alertDialog.show();
+        });
+        typeEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                final String[] types = new String[]{"Third Party", "Comprehensive"};
+                AlertDialog alertDialog = new AlertDialog.Builder(InsuranceRecordActivity.this)
+                        //.setTitle("select a cover type")
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setItems(types, (dialogInterface, i) -> {
+                            typeEditText.setText(types[i]);
+                            checkReadyToSave();
+                        })
+                        .create();
+                alertDialog.show();
+            }
         });
 
 /*
