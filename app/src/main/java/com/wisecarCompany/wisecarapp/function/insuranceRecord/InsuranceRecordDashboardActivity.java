@@ -125,7 +125,6 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
 
 
     @SuppressLint("ResourceType")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void showInsuranceRecord(InsuranceRecord record) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -171,7 +170,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
         set.connect(registrationNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(registrationNoTextView.getId(), 0.25f);
         set.setVerticalBias(registrationNoTextView.getId(), 0.0f);
-        registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         registrationNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         registrationNoTextView.setTextColor(0xff007ba4);
         registrationNoTextView.setText(record.getRegistrationNo());
@@ -185,7 +184,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
         set.connect(policyNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(policyNoTextView.getId(), 0.2f);
         set.setVerticalBias(policyNoTextView.getId(), 0.0f);
-        policyNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) policyNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         policyNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         policyNoTextView.setTextColor(0xff000000);
         policyNoTextView.setText("Policy Number: " + record.getPolicyNo());
@@ -199,7 +198,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
         set.connect(insurerTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(insurerTextView.getId(), 0.2f);
         set.setVerticalBias(insurerTextView.getId(), 0.0f);
-        insurerTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) insurerTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         insurerTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         insurerTextView.setTextColor(0xff000000);
         insurerTextView.setText("Insurer: " + record.getInsurer());
@@ -212,7 +211,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
         set.connect(endDateTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
         set.connect(endDateTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(endDateTextView.getId(), 0.2f);
-        endDateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) endDateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         endDateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         endDateTextView.setTextColor(0xff000000);
         endDateTextView.setText("End Cover: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getEndDate()));
