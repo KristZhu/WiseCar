@@ -36,6 +36,7 @@ import com.wisecarCompany.wisecarapp.user.create.CreateUserActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.MessageDigest;
 import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
@@ -120,7 +121,8 @@ public class LoginActivity extends AppCompatActivity {
         signInImageButton.setOnClickListener(v -> {
             if (usernameEditText.getText().toString().length()>0 && passwordEditText.getText().toString().length()>0) {
                 username = usernameEditText.getText().toString();
-                if(passwordChanged) password = org.apache.commons.codec.digest.DigestUtils.sha256Hex(passwordEditText.getText().toString());
+//                if(passwordChanged) password = org.apache.commons.codec.digest.DigestUtils.sha256Hex(passwordEditText.getText().toString());
+                if(passwordChanged) password = sha256(passwordEditText.getText().toString());
                 else password = passwordEditText.getText().toString();
                 remember = rememberCheckBox.isChecked();
                 autoLogin = autoLoginCheckBox.isChecked();
@@ -142,7 +144,8 @@ public class LoginActivity extends AppCompatActivity {
         final JSONObject jsonParam = new JSONObject();
         try {
             jsonParam.put("user_name", username);
-            jsonParam.put("password", password);    //already hashed
+            jsonParam.put("password", password);
+            Log.e(TAG, password);//already hashed
 //                    jsonParam.put("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password));
 
         } catch (JSONException e) {
@@ -320,6 +323,24 @@ public class LoginActivity extends AppCompatActivity {
         }
 //        appTaskList.get(0).finishAndRemoveTask();
         System.exit(0);
+    }
+
+    public static String sha256(String base) {
+        try{
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(base.getBytes("UTF-8"));
+            StringBuffer hexString = new StringBuffer();
+
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+                if(hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch(Exception ex){
+            throw new RuntimeException(ex);
+        }
     }
 
 }

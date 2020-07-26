@@ -39,8 +39,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.MessageDigest;
 
-public class CreateUserActivity extends AppCompatActivity {
+public class CreateUserActivity extends AppCompatActivity{
 
     private static final String TAG = "createUser";
 
@@ -86,7 +87,7 @@ public class CreateUserActivity extends AppCompatActivity {
         switch (requestCode) {
             case 0:
                 Log.d(TAG, "onRequestPermissionsResult: MULTI?");
-                if(grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0){
+                if (grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0) {
                     beforeStartCamera();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
@@ -94,7 +95,7 @@ public class CreateUserActivity extends AppCompatActivity {
                 break;
             case 1:
                 Log.d(TAG, "onRequestPermissionsResult: STORAGE?");
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     beforeStartStorage();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot upload the image without authorization", Toast.LENGTH_SHORT).show();
@@ -102,7 +103,7 @@ public class CreateUserActivity extends AppCompatActivity {
                 break;
             case 2:
                 Log.d(TAG, "onRequestPermissionsResult: CAMERA?");
-                if(grantResults[0] == 0) {
+                if (grantResults[0] == 0) {
                     beforeStartCamera();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
@@ -154,7 +155,7 @@ public class CreateUserActivity extends AppCompatActivity {
                     .setIcon(R.mipmap.ic_launcher)
                     .setItems(ways, (dialogInterface, i) -> {
                         Log.d(TAG, "onClick: " + ways[i]);
-                        if(i==0) {  //take photo
+                        if (i == 0) {  //take photo
                             int permissionCheckCamera = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.CAMERA);
                             int permissionCheckStorage = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                             Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
@@ -167,22 +168,21 @@ public class CreateUserActivity extends AppCompatActivity {
                                 builder.detectFileUriExposure();
                             }
 
-                            if(permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                            if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
                                 ActivityCompat.requestPermissions(
                                         CreateUserActivity.this,
                                         new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         MULTI_PERMISSION_CODE
                                 );
-                            }
-                            else if(permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
+                            } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestCamera: ");
                                 ActivityCompat.requestPermissions(
                                         CreateUserActivity.this,
                                         new String[]{Manifest.permission.CAMERA},
                                         PERMISSION_CAMERA_REQUEST_CODE
                                 );
-                            } else if(permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                            } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestStorage: ");
                                 ActivityCompat.requestPermissions(
                                         CreateUserActivity.this,
@@ -192,15 +192,15 @@ public class CreateUserActivity extends AppCompatActivity {
                             } else {    //already permitted
                                 beforeStartCamera();
                             }
-                        } else if(i==1) {   //upload from phone
-                            if(ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                        } else if (i == 1) {   //upload from phone
+                            if (ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestStorage: ");
                                 ActivityCompat.requestPermissions(
                                         CreateUserActivity.this,
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
                                 );
-                            }else{
+                            } else {
                                 beforeStartStorage();
                             }
                         } else {
@@ -212,12 +212,12 @@ public class CreateUserActivity extends AppCompatActivity {
 
         nextImageButton.setOnClickListener(v -> {
 
-            userImgDrawable =  userImgImageView.getDrawable();
+            userImgDrawable = userImgImageView.getDrawable();
             username = usernameEditText.getText().toString();
             userEmail = userEmailEditText.getText().toString();
             password = passwordEditText.getText().toString();
 
-            if(!username.equals("")
+            if (!username.equals("")
                     && !userEmail.equals("")
                     && !password.equals("")
                     && confirmPasswordEditText.getText().toString().equals(password)
@@ -243,19 +243,24 @@ public class CreateUserActivity extends AppCompatActivity {
                         .putExtra("userImg", userImg)
                         .putExtra("username", username)
                         .putExtra("userEmail", userEmail)
-                        .putExtra("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));
+//                        .putExtra("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));
+                        .putExtra("password", sha256(password)));
             } else {    //not valid info
-                if(username.equals("")) Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();
-                else if(userEmail.equals("")) Toast.makeText(getApplicationContext(), "Please entry email", Toast.LENGTH_SHORT).show();
-                else if(password.equals("")) Toast.makeText(getApplicationContext(), "Please entry password", Toast.LENGTH_SHORT).show();
-                else Toast.makeText(getApplicationContext(), "2 passwords are not the same", Toast.LENGTH_SHORT).show();
+                if (username.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();
+                else if (userEmail.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please entry email", Toast.LENGTH_SHORT).show();
+                else if (password.equals(""))
+                    Toast.makeText(getApplicationContext(), "Please entry password", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(getApplicationContext(), "2 passwords are not the same", Toast.LENGTH_SHORT).show();
             }
         });
 
     }
 
     @Override
-    public void onActivityResult(int requestCode,int resultCode,Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case TAKE_PHOTO:
@@ -304,7 +309,7 @@ public class CreateUserActivity extends AppCompatActivity {
 
     }
 
-    private void beforeStartCamera () {
+    private void beforeStartCamera() {
         //create a file object to store picture
         File outputImage = new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
         try {
@@ -324,94 +329,94 @@ public class CreateUserActivity extends AppCompatActivity {
     }
 
 
-    private void beforeStartStorage () {
-        File outputImage = new File(getExternalCacheDir(),"output_image.jpg");
-        try{
-            if(outputImage.exists()){
+    private void beforeStartStorage() {
+        File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+        try {
+            if (outputImage.exists()) {
                 outputImage.delete();
             }
             outputImage.createNewFile();
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         userImgImageUri = Uri.fromFile(outputImage);
-        Intent intent=new Intent("android.intent.action.GET_CONTENT");
+        Intent intent = new Intent("android.intent.action.GET_CONTENT");
         intent.setType("image/*");
-        intent.putExtra("crop",true);
-        intent.putExtra("scale",true);
+        intent.putExtra("crop", true);
+        intent.putExtra("scale", true);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
 
-        startActivityForResult(intent,CHOOSE_PHOTO);
+        startActivityForResult(intent, CHOOSE_PHOTO);
     }
 
-    private void handleImageBeforeKitKat(Intent data){
-        Uri uri=data.getData();
-        String imagePath=getImagePath(uri,null);
+    private void handleImageBeforeKitKat(Intent data) {
+        Uri uri = data.getData();
+        String imagePath = getImagePath(uri, null);
         displayImage(imagePath);
     }
 
     @TargetApi(19)
-    private void handleImageOnKitKat(Intent data){
+    private void handleImageOnKitKat(Intent data) {
         String imagePath = null;
-        Uri uri=data.getData();
-        if(DocumentsContract.isDocumentUri(this,uri)){
+        Uri uri = data.getData();
+        if (DocumentsContract.isDocumentUri(this, uri)) {
             //document type Uri
-            String docId=DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())){
-                String id=docId.split(":")[1];
-                String seletion=MediaStore.Images.Media._ID+"="+id;
-                imagePath=getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,seletion);
-            }else if("com.android.providers.downloads.documents".equals(uri.getAuthority())){
-                Uri contentUri= ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),Long.valueOf(docId));
-                imagePath=getImagePath(contentUri,null);
+            String docId = DocumentsContract.getDocumentId(uri);
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                String id = docId.split(":")[1];
+                String seletion = MediaStore.Images.Media._ID + "=" + id;
+                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, seletion);
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
+                imagePath = getImagePath(contentUri, null);
             }
-        }else if("content".equalsIgnoreCase(uri.getScheme())){
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             //content type Uri
-            imagePath=getImagePath(uri,null);
-        }else if("file".equalsIgnoreCase(uri.getScheme())){
+            imagePath = getImagePath(uri, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             //file type Uri
-            imagePath=uri.getPath();
+            imagePath = uri.getPath();
         }
         displayImage(imagePath);
     }
 
-    private String getImagePath(Uri uri,String selection){
-        String path=null;
+    private String getImagePath(Uri uri, String selection) {
+        String path = null;
         //get real path
-        Cursor cursor=getContentResolver().query(uri,null,selection,null,null);
-        if(cursor!=null){
-            if(cursor.moveToFirst()){
-                path=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             }
             cursor.close();
         }
         return path;
     }
 
-    private void displayImage(String imagePath){
-        if(imagePath!=null){
-            Bitmap bitmap= BitmapFactory.decodeFile(imagePath);
+    private void displayImage(String imagePath) {
+        if (imagePath != null) {
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
             userImgImageView.setImageBitmap(bitmap);
             userImgImageBitmap = bitmap;
-        }else{
-            Toast.makeText(this,"failed to get image",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "failed to get image", Toast.LENGTH_SHORT).show();
         }
     }
 
 
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
-        if(isShouldHideInput(v, ev)) {
+        if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            if(passwordEditText.getText().toString().length()>0) {
-                if(passwordEditText.getText().toString().length()<8) {
+            if (passwordEditText.getText().toString().length() > 0) {
+                if (passwordEditText.getText().toString().length() < 8) {
                     Toast.makeText(this, "Password is too short. It should be at least 8 characters. ", Toast.LENGTH_SHORT).show();
                 } else {
                     passImageView.setVisibility(View.VISIBLE);
                 }
             }
-            if(confirmPasswordEditText.getText().toString().length()>0) {
-                if(confirmPasswordEditText.getText().toString().equals(passwordEditText.getText().toString())) {
+            if (confirmPasswordEditText.getText().toString().length() > 0) {
+                if (confirmPasswordEditText.getText().toString().equals(passwordEditText.getText().toString())) {
                     confirmPassImageView.setVisibility(View.VISIBLE);
                     confirmNoPassImageView.setVisibility(View.INVISIBLE);
                 } else {
@@ -422,19 +427,21 @@ public class CreateUserActivity extends AppCompatActivity {
         }
         return super.dispatchTouchEvent(ev);
     }
+
     private boolean isShouldHideInput(View v, MotionEvent event) {
-        if(v instanceof EditText) {
+        if (v instanceof EditText) {
             int[] l = {0, 0};
             v.getLocationInWindow(l);
             int left = l[0],
                     top = l[1],
                     bottom = top + v.getHeight(),
                     right = left + v.getWidth();
-            return !(event.getX()>left && event.getX()<right
-                    && event.getY()>top && event.getY()<bottom);
+            return !(event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom);
         }
         return false;
     }
+
     private void hideSoftInput(IBinder token) {
         if (token != null) {
             InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -443,7 +450,26 @@ public class CreateUserActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
+
+    public static String sha256(String base) {
+        try{
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(base.getBytes("UTF-8"));
+            StringBuffer hexString = new StringBuffer();
+
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+                if(hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch(Exception ex){
+            throw new RuntimeException(ex);
+        }
+    }
+
 }

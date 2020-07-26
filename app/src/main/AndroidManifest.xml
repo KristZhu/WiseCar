@@ -21,10 +21,10 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/wc0logo"
+        android:icon="@drawable/wisecar_logo"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@drawable/wc0logo"
+        android:roundIcon="@drawable/wisecar_logo"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
