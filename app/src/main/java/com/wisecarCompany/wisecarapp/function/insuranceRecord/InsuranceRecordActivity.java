@@ -790,8 +790,6 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             String s3_temp_path = null;
 
             try {
-
-                //xuzheng
                 params.put("insurance_record_identifier", serviceIDTextView.getText().toString().substring(4));
                 params.put("vehicle_id",vehicleID);
                 params.put("policy_number", number);
@@ -829,8 +827,6 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
-                //xuzheng
 
 //
 //
