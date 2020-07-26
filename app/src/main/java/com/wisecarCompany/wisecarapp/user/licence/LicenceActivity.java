@@ -544,7 +544,7 @@ public class LicenceActivity extends AppCompatActivity {
 //                return;
 //            }
 
-            UserInfo.setLicence(new Licence(active, number, type, startDate, expireDate, remind));
+            //UserInfo.setLicence(new Licence(active, number, type, startDate, expireDate, remind));
 
             //db
             uploadLicence();

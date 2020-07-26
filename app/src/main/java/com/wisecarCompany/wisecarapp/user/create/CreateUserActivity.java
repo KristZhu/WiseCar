@@ -39,6 +39,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Currently, the photo functions are very very crude!!
+ * If user takes a new photo, he/she cannot edit it.
+ * If the user upload a photo from local storage, he/she can see different ways to edit it.
+ * The ways include correct ones such as "Edit Pic", while unrelated as well such as "Open Wechat" (WTH?)
+ * More seriously!! If the user choose "Edit Pic", and finish editing, and save. It will CRASH!!
+ * I have no idea neither why unrelated ways will appear, nor why crashes.
+ * For now, user can only take or select a photo without editing. The basic behaviours work.
+ */
 
 public class CreateUserActivity extends AppCompatActivity {
 
@@ -223,6 +235,19 @@ public class CreateUserActivity extends AppCompatActivity {
                     && confirmPasswordEditText.getText().toString().equals(password)
                 //&& userImgDrawable!=null
             ) {
+                boolean isEmail = false;
+                try {
+                    String check = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+                    Pattern regex = Pattern.compile(check);
+                    Matcher matcher = regex.matcher(userEmail);
+                    isEmail = matcher.matches();
+                } catch (Exception e) {
+                    isEmail = false;
+                }
+                if(!isEmail) {
+                    Toast.makeText(getApplicationContext(), "Please entry correct email", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
                 userImgImageBitmap = bitmapDrawable.getBitmap();
@@ -283,11 +308,8 @@ public class CreateUserActivity extends AppCompatActivity {
 
             case CHOOSE_PHOTO:
                 if (resultCode == RESULT_OK) {
-                    if (Build.VERSION.SDK_INT >= 19) {  //4.4 or above
-                        handleImageOnKitKat(data);
-                    } else {    //below 4.4
-                        handleImageBeforeKitKat(data);
-                    }
+                    if (Build.VERSION.SDK_INT >= 19) handleImageOnKitKat(data);   //4.4 or above
+                    else handleImageBeforeKitKat(data);    //below 4.4
                 }
                 try {
                     data.putExtra("scale", true);

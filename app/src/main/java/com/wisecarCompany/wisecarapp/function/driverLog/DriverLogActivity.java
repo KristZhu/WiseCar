@@ -347,7 +347,7 @@ public class DriverLogActivity extends AppCompatActivity {
             if (UserInfo.getCurrLog() == null) {
                 Calendar c = Calendar.getInstance();
                 c.setTime(new Date());
-                UserInfo.setCurrLog(CurrDriverLog.getCurrLog(vehicleID, currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
+                UserInfo.setCurrLog(CurrDriverLog.getInstance(vehicleID, currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
                 //currLog = UserInfo.getCurrLog();
                 //Log.d(TAG, "new currLog: " + currLog);
                 Log.d(TAG, "new currLog in UserInfo: " + UserInfo.getCurrLog());
@@ -567,7 +567,8 @@ public class DriverLogActivity extends AppCompatActivity {
         if(vehicle.getLogs()==null) vehicle.setLogs(new TreeSet<>());
         //vehicle.getLogs().add(UserInfo.getCurrLog());
         vehicle.getLogs().add(newLog);
-        CurrDriverLog.clearCurrLog();
+        CurrDriverLog.clearInstance();
+        UserInfo.setCurrLog(null);
 
         logsDiv.removeAllViews();
         for (DriverLog log : vehicle.getLogs()) showRecordLog(log);

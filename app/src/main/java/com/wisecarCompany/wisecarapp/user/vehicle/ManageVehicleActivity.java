@@ -239,7 +239,7 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
 
     private void startDriverlog(String vehicleID) {
         Log.d(TAG, "DriverLogVehicleID: " + vehicleID);
-        if(UserInfo.getCurrLog()==null) {
+        if(UserInfo.getCurrLog()==null || UserInfo.getCurrLog().getVehicleID().equals(vehicleID)) {
             startActivity(new Intent(ManageVehicleActivity.this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
         } else {
             Toast.makeText(this, "Driver Log for Vehicle "
