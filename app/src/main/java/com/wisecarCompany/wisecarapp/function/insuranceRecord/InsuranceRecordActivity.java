@@ -147,6 +147,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/insurancerecords/blockchaininvoke";
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -270,9 +271,10 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 start = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format13.format(start);
+//                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(start);
                 startEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         startEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -280,9 +282,10 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     start = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format14.format(start);
+//                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(start);
                     startEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -292,9 +295,10 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 end = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format13.format(end);
+                //SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(end);
                 endEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         endEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -302,9 +306,10 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     end = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format14.format(end);
+//                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(end);
                     endEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -317,9 +322,26 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             AlertDialog alertDialog = new AlertDialog.Builder(InsuranceRecordActivity.this)
                     //.setTitle("select a cover type")
                     .setIcon(R.mipmap.ic_launcher)
-                    .setItems(types, (dialogInterface, i) -> typeEditText.setText(types[i]))
+                    .setItems(types, (dialogInterface, i) -> {
+                        typeEditText.setText(types[i]);
+                        checkReadyToSave();
+                    })
                     .create();
             alertDialog.show();
+        });
+        typeEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                final String[] types = new String[]{"Third Party", "Comprehensive"};
+                AlertDialog alertDialog = new AlertDialog.Builder(InsuranceRecordActivity.this)
+                        //.setTitle("select a cover type")
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setItems(types, (dialogInterface, i) -> {
+                            typeEditText.setText(types[i]);
+                            checkReadyToSave();
+                        })
+                        .create();
+                alertDialog.show();
+            }
         });
 
 /*
@@ -370,6 +392,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
             if (saveImageButton.getAlpha() < 1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
             //Log.d(TAG, "userID" + UserInfo.getUserID());
             //Log.d(TAG, "vehicle" + vehicle);
             Log.d(TAG, "number: " + number);
@@ -565,34 +588,38 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         }
     }
 
+    private void checkReadyToSave() {
+        if (numberEditText.getText().toString().length()>0
+                && insurerEditText.getText().toString().length()>0
+                && startEditText.getText().toString().length()>0
+                && endEditText.getText().toString().length()>0
+                && typeEditText.getText().toString().length()>0
+            //&& typeSpinner.
+        ) {     //allow to click saveImageButton
+            try {
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                number = numberEditText.getText().toString();
+                insurer = insurerEditText.getText().toString();
+                start = displayDateFormat.parse(startEditText.getText().toString());
+                end = displayDateFormat.parse(endEditText.getText().toString());
+                type = typeEditText.getText().toString();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        } else {
+            saveImageButton.setAlpha(0.5f);
+            saveImageButton.setClickable(false);
+        }
+    }
+
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
             //typeSpinnerDiv.setVisibility(View.GONE);
-            if (numberEditText.getText().toString().length() > 0
-                    && insurerEditText.getText().toString().length() > 0
-                    && startEditText.getText().toString().length() > 0
-                    && endEditText.getText().toString().length() > 0
-                    && typeEditText.getText().toString().length() > 0
-                //&& typeSpinner.
-            ) {     //allow to click saveImageButton
-                try {
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    number = numberEditText.getText().toString();
-                    insurer = insurerEditText.getText().toString();
-                    start = format.parse(startEditText.getText().toString());
-                    end = format.parse(endEditText.getText().toString());
-                    type = typeEditText.getText().toString();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-            } else {
-                saveImageButton.setAlpha(0.5f);
-                saveImageButton.setClickable(false);
-            }
+            checkReadyToSave();
         }
         return super.dispatchTouchEvent(ev);
     }
