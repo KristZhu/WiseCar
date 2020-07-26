@@ -2,7 +2,6 @@ package com.wisecarCompany.wisecarapp.function.driverLog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -47,7 +46,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.user.vehicle.EditVehicleActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
@@ -68,7 +67,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class DriverLogActivity extends AppCompatActivity {
@@ -130,7 +128,7 @@ public class DriverLogActivity extends AppCompatActivity {
         Log.d(TAG, "vehicle: " + vehicle);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(DriverLogActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(DriverLogActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         searchEditText = $(R.id.searchEditText);
         cancelImageButton = $(R.id.cancelImageButton);

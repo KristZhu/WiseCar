@@ -66,6 +66,8 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
     private Button sendButton;
     private String email;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,9 +96,9 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@NonNull FuelReceipt receipt) {
 
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 headerTextView.setText("Invoice Ref: " + receipt.getInvoiceRef());
-                dateTextView.setText(format.format(receipt.getDate()));
+                dateTextView.setText(displayDateFormat.format(receipt.getDate()));
                 typeTextView.setText(receipt.getType());
                 fuelAmountTextView.setText((int)receipt.getFuelAmount() + "L");
                 paidAmountTextView.setText((int)receipt.getPaidAmount() + "AUD");

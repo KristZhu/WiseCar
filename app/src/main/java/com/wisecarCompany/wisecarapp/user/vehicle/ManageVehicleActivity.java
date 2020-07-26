@@ -36,14 +36,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
-public class EditVehicleActivity extends AppCompatActivity {    //edit a special vehicle, or select functions of this vehicle to go
+public class ManageVehicleActivity extends AppCompatActivity {    //edit a special vehicle, or select functions of this vehicle to go
 
-    private final static String TAG = "EditVehicle";
+    private final static String TAG = "Manage Vehicle";
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_SERVICE = "/api/v1/services/";
 
@@ -67,7 +65,7 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_vehicle);
+        setContentView(R.layout.activity_manage_vehicle);
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         assert vehicleID != null;
@@ -76,8 +74,8 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
             //jump back to VehicleActivity to wait for synchronizing
             for (String newID : UserInfo.getVehicles().keySet()) {
                 UserInfo.setVehicles(null);
-                Toast.makeText(EditVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class));
+                Toast.makeText(ManageVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(ManageVehicleActivity.this, VehicleActivity.class));
                 return;
             }
         }
@@ -113,11 +111,11 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
                 //int column = 3;
                 int column = 2;
                 for (int i = 0; i < services.size(); i += column) {
-                    ConstraintLayout servicesLineLayout = new ConstraintLayout(EditVehicleActivity.this);
+                    ConstraintLayout servicesLineLayout = new ConstraintLayout(ManageVehicleActivity.this);
                     ConstraintSet set = new ConstraintSet();
                     ImageView[] imageViews = new ImageView[Math.min(services.size() - i, column)];
                     for (int j = 0; j < imageViews.length; j++) {
-                        imageViews[j] = new ImageView(EditVehicleActivity.this);
+                        imageViews[j] = new ImageView(ManageVehicleActivity.this);
                         imageViews[j].setId(j);
                         switch (services.get(i + j)) {
                             case 1:
@@ -175,7 +173,7 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
         });
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(EditVehicleActivity.this, VehicleActivity.class)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ManageVehicleActivity.this, VehicleActivity.class)));
 
     }
 
@@ -224,7 +222,7 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
 
         });
 
-        Volley.newRequestQueue(EditVehicleActivity.this).add(objectRequest);
+        Volley.newRequestQueue(ManageVehicleActivity.this).add(objectRequest);
     }
 
 
@@ -236,13 +234,13 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
 
     private void startServiceRecords(String vehicleID) {
         Log.d(TAG, "ServiceRecordsVehicleID: " + vehicleID);
-        startActivity(new Intent(EditVehicleActivity.this, ServiceRecordsActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(ManageVehicleActivity.this, ServiceRecordsActivity.class).putExtra("vehicleID", vehicleID));
     }
 
     private void startDriverlog(String vehicleID) {
         Log.d(TAG, "DriverLogVehicleID: " + vehicleID);
         if(UserInfo.getCurrLog()==null) {
-            startActivity(new Intent(EditVehicleActivity.this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(ManageVehicleActivity.this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
         } else {
             Toast.makeText(this, "Driver Log for Vehicle "
                     + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
@@ -252,28 +250,28 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
 
     private void startRegistrationReminder(String vehicleID) {
         Log.d(TAG, "RegistrationReminderVehicleID: " + vehicleID);
-        startActivity(new Intent(EditVehicleActivity.this, RegistrationReminderActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(ManageVehicleActivity.this, RegistrationReminderActivity.class).putExtra("vehicleID", vehicleID));
     }
 
     private void startParkingReceipts(String vehicleID) {
         Log.d(TAG, "ParkingReceiptsVehicleID: " + vehicleID);
-        startActivity(new Intent(EditVehicleActivity.this, ParkingReceiptActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(ManageVehicleActivity.this, ParkingReceiptActivity.class).putExtra("vehicleID", vehicleID));
     }
 
     private void startInsuranceRecord(String vehicleID) {
         Log.d(TAG, "InsuranceRecordVehicleID: " + vehicleID);
-        startActivity(new Intent(EditVehicleActivity.this, InsuranceRecordActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(ManageVehicleActivity.this, InsuranceRecordActivity.class).putExtra("vehicleID", vehicleID));
     }
 
     private void startFuelReceipts(String vehicleID) {
         Log.d(TAG, "FuelReceiptsVehicleID: " + vehicleID);
-        startActivity(new Intent(EditVehicleActivity.this, FuelReceiptActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(ManageVehicleActivity.this, FuelReceiptActivity.class).putExtra("vehicleID", vehicleID));
     }
 
     private void shareVehicle(String vehicleID) {
         Log.d(TAG, "shared vehicle ID: " + vehicleID);
         Log.d(TAG, "shared vehicle services: " + UserInfo.getVehicles().get(vehicleID).getServices());
-        startActivity(new Intent(EditVehicleActivity.this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(ManageVehicleActivity.this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID));
     }
 
     private <T extends View> T $(int id){

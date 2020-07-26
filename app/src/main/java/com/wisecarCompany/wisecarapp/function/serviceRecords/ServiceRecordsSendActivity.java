@@ -67,6 +67,8 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
     private Button sendButton;
     private String email;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,14 +100,14 @@ public class ServiceRecordsSendActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@NonNull ServiceRecord record) {
 
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 headerTextView.setText("Ref: " + record.getRefNo());
-                dateTextView.setText(format.format(record.getDate()));
+                dateTextView.setText(displayDateFormat.format(record.getDate()));
                 centreTextView.setText(record.getCentre());
                 refNoTextView.setText(record.getRefNo());
                 optionsTextView.setText(record.getOptionsStr());
                 notesTextView.setText(record.getNotes());
-                nextdateTextView.setText(format.format(record.getNextDate()));
+                nextdateTextView.setText(displayDateFormat.format(record.getNextDate()));
                 nextDistanceTextView.setText("" + (int) record.getNextDistance());
 
                 documentLinkTextView.setOnClickListener(v -> {

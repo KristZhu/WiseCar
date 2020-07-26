@@ -41,7 +41,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.user.vehicle.EditVehicleActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
@@ -124,8 +124,6 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     private static final int PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE = 1;
     private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
 
-
-
     // TO BE ADJUSTED
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_INSURANCE_RECORD_IDENTIFIER = "/api/v1/insurancerecords/identifier/";
@@ -134,6 +132,8 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/insurancerecords/blockchaininvoke";
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +141,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_insurance_record);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(InsuranceRecordActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(InsuranceRecordActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         Log.d(TAG, "vehicleID: " + vehicleID);
@@ -258,9 +258,10 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 start = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format13.format(start);
+                //SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(start);
                 startEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         startEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -268,9 +269,10 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     start = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format14.format(start);
+                    //SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(start);
                     startEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -280,9 +282,10 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 end = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format13.format(end);
+                //SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(end);
                 endEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         endEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -290,9 +293,10 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     end = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format14.format(end);
+                    //SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(end);
                     endEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -553,34 +557,38 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         }
     }
 
+    private void checkReadyToSave() {
+        if (numberEditText.getText().toString().length()>0
+                && insurerEditText.getText().toString().length()>0
+                && startEditText.getText().toString().length()>0
+                && endEditText.getText().toString().length()>0
+                && typeEditText.getText().toString().length()>0
+            //&& typeSpinner.
+        ) {     //allow to click saveImageButton
+            try {
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                number = numberEditText.getText().toString();
+                insurer = insurerEditText.getText().toString();
+                start = displayDateFormat.parse(startEditText.getText().toString());
+                end = displayDateFormat.parse(endEditText.getText().toString());
+                type = typeEditText.getText().toString();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        } else {
+            saveImageButton.setAlpha(0.5f);
+            saveImageButton.setClickable(false);
+        }
+    }
+
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
             //typeSpinnerDiv.setVisibility(View.GONE);
-            if (numberEditText.getText().toString().length()>0
-                    && insurerEditText.getText().toString().length()>0
-                    && startEditText.getText().toString().length()>0
-                    && endEditText.getText().toString().length()>0
-                    && typeEditText.getText().toString().length()>0
-                    //&& typeSpinner.
-            ) {     //allow to click saveImageButton
-                try {
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    number = numberEditText.getText().toString();
-                    insurer = insurerEditText.getText().toString();
-                    start = format.parse(startEditText.getText().toString());
-                    end = format.parse(endEditText.getText().toString());
-                    type = typeEditText.getText().toString();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-            } else {
-                saveImageButton.setAlpha(0.5f);
-                saveImageButton.setClickable(false);
-            }
+            checkReadyToSave();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -745,7 +753,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(InsuranceRecordActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(InsuranceRecordActivity.this, EditVehicleActivity.class);
+                            Intent intent = new Intent(InsuranceRecordActivity.this, ManageVehicleActivity.class);
                             intent.putExtra("vehicleID", vehicleID);
                             startActivity(intent);
                         }

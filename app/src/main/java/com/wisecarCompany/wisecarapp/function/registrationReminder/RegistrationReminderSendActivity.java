@@ -63,6 +63,8 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
     private Button sendButton;
     private String email;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,11 +93,11 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@NonNull RegistrationReminder reminder) {
 
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 headerTextView.setText("Registration Payment Ref: " + reminder.getPayRef());
-                dateTextView.setText(format.format(reminder.getDate()));
+                dateTextView.setText(displayDateFormat.format(reminder.getDate()));
                 payRefTextView.setText(reminder.getPayRef());
-                expirydateTextView.setText(format.format(reminder.getExpireDate()));
+                expirydateTextView.setText(displayDateFormat.format(reminder.getExpireDate()));
 
                 documentLinkTextView.setOnClickListener(v -> {
                     Log.d(TAG, "document link url: " + reminder.getDocumentLink());

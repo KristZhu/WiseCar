@@ -67,6 +67,8 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
     private AutoCompleteTextView searchEditText;
     private ImageButton cancelImageButton;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -182,7 +184,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
-        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(reminder.getDate()));
+        dateTextView.setText("Date: " + displayDateFormat.format(reminder.getDate()));
         lineLayout.addView(dateTextView);
 
         TextView payRefTextView = new TextView(this);
@@ -206,10 +208,10 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         set.connect(expireDateTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
         set.connect(expireDateTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(expireDateTextView.getId(), 0.2f);
-        expireDateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) expireDateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         expireDateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         expireDateTextView.setTextColor(0xff000000);
-        expireDateTextView.setText("Expiry Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(reminder.getExpireDate()));
+        expireDateTextView.setText("Expiry Date: " + displayDateFormat.format(reminder.getExpireDate()));
         lineLayout.addView(expireDateTextView);
 
         ImageView sentImageView = new ImageView(this);

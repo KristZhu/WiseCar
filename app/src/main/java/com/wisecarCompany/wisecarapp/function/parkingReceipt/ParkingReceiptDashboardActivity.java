@@ -66,6 +66,8 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
     private AutoCompleteTextView searchEditText;
     private ImageButton cancelImageButton;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @SuppressLint("ResourceType")
     @Override
@@ -180,7 +182,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
-        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(receipt.getDate()));
+        dateTextView.setText("Date: " + displayDateFormat.format(receipt.getDate()));
         lineLayout.addView(dateTextView);
 
         TextView ticketRefTextView = new TextView(this);

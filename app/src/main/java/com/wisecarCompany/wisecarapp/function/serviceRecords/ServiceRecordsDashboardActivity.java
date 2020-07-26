@@ -66,6 +66,8 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
     private AutoCompleteTextView searchEditText;
     private ImageButton cancelImageButton;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @SuppressLint("ResourceType")
     @Override
@@ -184,7 +186,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
-        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getDate()));
+        dateTextView.setText("Date: " + displayDateFormat.format(record.getDate()));
         lineLayout.addView(dateTextView);
 
         TextView refNoTextView = new TextView(this);
@@ -211,7 +213,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) nextTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         nextTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         nextTextView.setTextColor(0xff000000);
-        nextTextView.setText("Next Service: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getNextDate()) + " / " + record.getNextDistance() + "km");
+        nextTextView.setText("Next Service: " + displayDateFormat.format(record.getNextDate()) + " / " + record.getNextDistance() + "km");
         lineLayout.addView(nextTextView);
 
         ImageView sentImageView = new ImageView(this);
