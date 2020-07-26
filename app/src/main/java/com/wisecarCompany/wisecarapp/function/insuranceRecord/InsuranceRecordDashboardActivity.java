@@ -68,8 +68,9 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
     private AutoCompleteTextView searchEditText;
     private ImageButton cancelImageButton;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,7 +215,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) endDateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         endDateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         endDateTextView.setTextColor(0xff000000);
-        endDateTextView.setText("End Cover: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getEndDate()));
+        endDateTextView.setText("End Cover: " + displayDateFormat.format(record.getEndDate()));
         lineLayout.addView(endDateTextView);
 
         ImageView sentImageView = new ImageView(this);

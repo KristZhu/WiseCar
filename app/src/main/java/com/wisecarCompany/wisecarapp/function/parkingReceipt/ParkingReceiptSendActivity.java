@@ -67,6 +67,8 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
     private Button sendButton;
     private String email;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,9 +98,9 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@NonNull ParkingReceipt receipt) {
 
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 headerTextView.setText("Ticket Ref: " + receipt.getRefNo());
-                dateTextView.setText(format.format(receipt.getDate()));
+                dateTextView.setText(displayDateFormat.format(receipt.getDate()));
                 //endTextView.setText
                 hourTextView.setText((int) (receipt.getHours() * 10) / 10.0 + "");
                 feeTextView.setText((int) (receipt.getFees() * 10) / 10.0 + "AUD");

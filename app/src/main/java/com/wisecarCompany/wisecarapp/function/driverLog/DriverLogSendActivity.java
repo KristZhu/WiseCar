@@ -67,6 +67,9 @@ public class DriverLogSendActivity extends AppCompatActivity {
     private String GET_DRIVER_LOG_INFO = "/api/v1/drivelog/getrecordbyid";
     private String SEND_EMAIL = "/api/v1/drivelog/sendemail";
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+    private SimpleDateFormat displayTimeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,12 +101,12 @@ public class DriverLogSendActivity extends AppCompatActivity {
             public void onSuccess(@NonNull DriverLog log) {
                 Log.d(TAG, "getlogInfo: log: " + log);
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-                headerTextView.setText(log.getRegistrationNo() + ", Log: " + timeFormat.format(log.getStartTime()) + "-" + timeFormat.format(log.getEndTime()));
-                dateTextView.setText(dateFormat.format(log.getStartTime()));
-                startTextView.setText(timeFormat.format(log.getStartTime()));
-                endTextView.setText(timeFormat.format(log.getEndTime()));
+                //SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                //SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+                headerTextView.setText(log.getRegistrationNo() + ", Log: " + displayTimeFormat.format(log.getStartTime()) + "-" + displayTimeFormat.format(log.getEndTime()));
+                dateTextView.setText(displayDateFormat.format(log.getStartTime()));
+                startTextView.setText(displayTimeFormat.format(log.getStartTime()));
+                endTextView.setText(displayTimeFormat.format(log.getEndTime()));
                 timeTextView.setText("" + log.getMins());
                 distanceTextView.setText("" + (int) (log.getKm() * 10) / 10.0);
                 if (log.getCompanyName() == null || log.getCompanyName().length() == 0) {

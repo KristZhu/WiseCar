@@ -50,7 +50,7 @@
         <activity android:name=".function.shareVehicle.ShareVehicleDetailActivity" />
         <activity android:name=".function.shareVehicle.ShareVehicleListActivity" />
         <activity android:name=".function.serviceRecords.ServiceRecordsActivity" />
-        <activity android:name=".user.vehicle.EditVehicleActivity" />
+        <activity android:name=".user.vehicle.ManageVehicleActivity" />
         <activity android:name=".user.vehicle.VehicleActivity" />
         <activity android:name=".user.vehicle.AddVehicleActivity" />
         <activity android:name=".user.create.CreateUserActivity2" />

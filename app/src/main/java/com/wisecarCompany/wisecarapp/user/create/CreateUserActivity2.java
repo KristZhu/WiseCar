@@ -71,6 +71,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private EditText postCodeEditText;
     private ImageButton createImageButton;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String CREATE_USER = "/api/v1/users/register";
 
@@ -99,8 +101,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(CreateUserActivity2.this, (view, year, monthOfYear, dayOfMonth) -> {
                 dob = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format.format(dob);
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(dob);
                 dobEditText.setText(str);
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
@@ -109,8 +111,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(CreateUserActivity2.this, (view, year, monthOfYear, dayOfMonth) -> {
                     dob = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format.format(dob);
+                    //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(dob);
                     dobEditText.setText(str);
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
 
@@ -208,18 +210,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
         }
     }
 
-    private static java.util.Date strToDate(String str) {
-        if (str == null || str.length() == 0) return null;
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-        java.util.Date date = null;
-        try {
-            date = format.parse(str);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return date;
-    }
-
     private static java.util.Date intToDate(int year, int month, int day) {
         StringBuilder sb = new StringBuilder();
         if (day < 10) sb.append("0").append(day);
@@ -240,71 +230,67 @@ public class CreateUserActivity2 extends AppCompatActivity {
     }
 
     private void uploadByHttpClient() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpPost postRequest = new HttpPost(IP_HOST + CREATE_USER);
+        Thread thread = new Thread(() -> {
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(IP_HOST + CREATE_USER);
 
-                MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-                DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            try {
+                reqEntity.addPart("user_name", new StringBody(username));
+                reqEntity.addPart("first_name", new StringBody(firstName));
+                reqEntity.addPart("last_name", new StringBody(lastName));
+                reqEntity.addPart("date_of_birth", new StringBody(format.format(dob)));
+                reqEntity.addPart("address_line1", new StringBody(address1));
+                reqEntity.addPart("address_line2", new StringBody(address2));
+                reqEntity.addPart("postcode", new StringBody(postCode));
+                reqEntity.addPart("state", new StringBody(state));
+                reqEntity.addPart("country", new StringBody(country));
+                reqEntity.addPart("email", new StringBody(userEmail));
+                reqEntity.addPart("password", new StringBody(password));
+
+                ByteArrayBody userImgBody = new ByteArrayBody(userImg, ContentType.IMAGE_PNG, "logo.png");
+                reqEntity.addPart("logo", userImgBody);
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
                 try {
-                    reqEntity.addPart("user_name", new StringBody(username));
-                    reqEntity.addPart("first_name", new StringBody(firstName));
-                    reqEntity.addPart("last_name", new StringBody(lastName));
-                    reqEntity.addPart("date_of_birth", new StringBody(format.format(dob)));
-                    reqEntity.addPart("address_line1", new StringBody(address1));
-                    reqEntity.addPart("address_line2", new StringBody(address2));
-                    reqEntity.addPart("postcode", new StringBody(postCode));
-                    reqEntity.addPart("state", new StringBody(state));
-                    reqEntity.addPart("country", new StringBody(country));
-                    reqEntity.addPart("email", new StringBody(userEmail));
-                    reqEntity.addPart("password", new StringBody(password));
-
-                    ByteArrayBody userImgBody = new ByteArrayBody(userImg, ContentType.IMAGE_PNG, "logo.png");
-                    reqEntity.addPart("logo", userImgBody);
-
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    try {
-                        reqEntity.addPart("logo", new StringBody("image error"));
-                    } catch (UnsupportedEncodingException ex) {
-                        ex.printStackTrace();
-                    }
+                    reqEntity.addPart("logo", new StringBody("image error"));
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
                 }
-
-                postRequest.setEntity(reqEntity);
-                HttpResponse response = null;
-                StringBuilder s = new StringBuilder();
-                try {
-                    response = httpClient.execute(postRequest);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                    String sResponse;
-                    while ((sResponse = reader.readLine()) != null) {
-                        s = s.append(sResponse);
-                    }
-                    if (s.toString().contains("success")) {
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                        Intent intent = new Intent(CreateUserActivity2.this, LoginActivity.class);
-                        int position = s.indexOf("user_id");
-                        Log.e("user_id test: ", "\"" + s.substring(position + 9, s.length() - 1) + "\"");
-                        intent.putExtra("user_id", s.substring(position + 9, s.length() - 1));
-                        startActivity(intent);
-                    }
-                    Log.e("response", s.toString());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                postRequest.abort();
-                httpClient.getConnectionManager().shutdown();
-
             }
+
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = null;
+            StringBuilder s = new StringBuilder();
+            try {
+                response = httpClient.execute(postRequest);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+                String sResponse;
+                while ((sResponse = reader.readLine()) != null) {
+                    s = s.append(sResponse);
+                }
+                if (s.toString().contains("success")) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    Intent intent = new Intent(CreateUserActivity2.this, LoginActivity.class);
+                    int position = s.indexOf("user_id");
+                    Log.e("user_id test: ", "\"" + s.substring(position + 9, s.length() - 1) + "\"");
+                    intent.putExtra("user_id", s.substring(position + 9, s.length() - 1));
+                    startActivity(intent);
+                }
+                Log.e("response", s.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            postRequest.abort();
+            httpClient.getConnectionManager().shutdown();
 
         });
         thread.start();

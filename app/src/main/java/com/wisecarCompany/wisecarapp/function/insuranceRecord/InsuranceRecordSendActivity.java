@@ -64,6 +64,8 @@ public class InsuranceRecordSendActivity extends AppCompatActivity {
     private Button sendButton;
     private String email;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,12 +95,12 @@ public class InsuranceRecordSendActivity extends AppCompatActivity {
             @Override
             public void onSuccess(@NonNull InsuranceRecord record) {
 
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 headerTextView.setText("Police Number: " + record.getPolicyNo());
                 policyNoTextView.setText(record.getPolicyNo());
                 insurerTextView.setText(record.getInsurer());
-                startDateTextView.setText(format.format(record.getStartDate()));
-                endDateTextView.setText(format.format(record.getEndDate()));
+                startDateTextView.setText(displayDateFormat.format(record.getStartDate()));
+                endDateTextView.setText(displayDateFormat.format(record.getEndDate()));
                 typeTextView.setText(record.getType());
 
                 documentLinkTextView.setOnClickListener(v -> {

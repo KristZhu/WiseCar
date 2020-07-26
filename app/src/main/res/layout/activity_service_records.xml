@@ -215,7 +215,7 @@
                     app:srcCompat="@drawable/vehicle0edittext" />
 
                 <EditText
-                    android:id="@+id/dateEditText"
+                    android:id="@+id/dateTimeEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"

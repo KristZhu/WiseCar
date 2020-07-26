@@ -2,7 +2,6 @@ package com.wisecarCompany.wisecarapp.function.shareVehicle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -25,7 +24,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.user.vehicle.EditVehicleActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
@@ -59,8 +58,11 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
     private ImageButton shareImageButton;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+    private SimpleDateFormat displayTimeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
+
     @SuppressLint({"ResourceType", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +77,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
         Log.d(TAG, "services: " + vehicle.getServices());
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleListActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleListActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         headerTextView = $(R.id.headerTextView);
         headerTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
@@ -137,7 +139,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
                     String custID = shares.get(shareID).getCust_id();
                     TextView companyTextView = new TextView(ShareVehicleListActivity.this);
                     companyTextView.setId(2);
-                    companyTextView.setAutoSizeTextTypeUniformWithConfiguration(14, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) companyTextView.setAutoSizeTextTypeUniformWithConfiguration(14, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                     String temp = companyName + " - <font color='#00FFFF'>" + custID + "</font>";
                     companyTextView.setText(Html.fromHtml(temp));
                     companyTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
@@ -150,13 +152,13 @@ public class ShareVehicleListActivity extends AppCompatActivity {
                     shareLineLayout.addView(companyTextView);
 
                     if(shares.get(shareID).isShare()) {
-                        SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                        SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                        //SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                        //SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
                         TextView startTextView = new TextView(ShareVehicleListActivity.this);
                         startTextView.setId(3);
-                        startTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-                        startTextView.setText("Start " + formatTime.format(shares.get(shareID).getStart_time()));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                        startTextView.setText("Start " + displayTimeFormat.format(shares.get(shareID).getStart_time()));
                         set.connect(startTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 16);
                         set.connect(startTextView.getId(), ConstraintSet.END, editImageButton.getId(), ConstraintSet.START, 8);
                         set.connect(startTextView.getId(), ConstraintSet.TOP, companyTextView.getId(), ConstraintSet.BOTTOM);
@@ -167,8 +169,8 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
                         TextView endTextView = new TextView(ShareVehicleListActivity.this);
                         endTextView.setId(4);
-                        endTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
-                        endTextView.setText("End   " + formatTime.format(shares.get(shareID).getEnd_time()));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) endTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                        endTextView.setText("End   " + displayTimeFormat.format(shares.get(shareID).getEnd_time()));
                         set.connect(endTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 16);
                         set.connect(endTextView.getId(), ConstraintSet.END, editImageButton.getId(), ConstraintSet.START, 8);
                         set.connect(endTextView.getId(), ConstraintSet.TOP, startTextView.getId(), ConstraintSet.BOTTOM);
@@ -179,7 +181,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
                         TextView recurringTextView = new TextView(ShareVehicleListActivity.this);
                         recurringTextView.setId(5);
-                        recurringTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) recurringTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         StringBuilder sb = new StringBuilder();
                         if (shares.get(shareID).isRecurring()) {
                             sb.append("Recurring: ");
@@ -210,9 +212,9 @@ public class ShareVehicleListActivity extends AppCompatActivity {
                                     }
                                 }
                             }
-                            sb.append("till ").append(formatDate.format(shares.get(shareID).getRecurring_end_date()));
+                            sb.append("till ").append(displayDateFormat.format(shares.get(shareID).getRecurring_end_date()));
                         } else {
-                            sb.append("Date: ").append(formatDate.format(shares.get(shareID).getDate()));
+                            sb.append("Date: ").append(displayDateFormat.format(shares.get(shareID).getDate()));
                         }
                         recurringTextView.setText(sb);
                         set.connect(recurringTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 16);
@@ -226,7 +228,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
                     } else {
                         TextView offTextView = new TextView(ShareVehicleListActivity.this);
                         offTextView.setId(6);
-                        offTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) offTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         offTextView.setText("OFF");
                         offTextView.setTextColor(0xFF444444);
                         set.connect(offTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 16);
