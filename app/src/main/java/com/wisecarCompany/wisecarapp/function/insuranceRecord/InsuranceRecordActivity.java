@@ -783,6 +783,9 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 
             HashMap<String , String> params = new HashMap<>();//xuzheng
             File file = null;
+            String message = null;
+            String encrypt_hash = null;
+            String s3_temp_path = null;
 
             try {
 
@@ -797,8 +800,15 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 params.put("record_id",recordIDTextView.getText().toString());
                 if(!((BitmapDrawable) qrImageView.getDrawable()).getBitmap().sameAs(qrCodeBitmap)){
                     Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
-                    String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "wisecar" + File.separator+"insurance.png";
-                    file = new File(storePath);
+
+                    String root = Environment.getExternalStorageDirectory().toString();
+                    File myDir = new File(root + "/saved_images");
+                    myDir.mkdirs();
+
+                    String fname = "insurance.png";
+                    file = new File (myDir, fname);
+                    if (file.exists ()) file.delete ();
+                    file.createNewFile();
                     BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
                     toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, bos);
 
@@ -807,6 +817,16 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                     bos.close();
                 }
                 String response = HttpUtil.uploadForm(params,"document", file, "record.png", IP_HOST+ADD_INSURANCE_RECORD);
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+
+                    message = jsonObject.optString("message");
+                    encrypt_hash= jsonObject.optString("encrypt_hash");
+                    s3_temp_path = jsonObject.optString("s3_temp_path");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 //xuzheng
 
@@ -839,6 +859,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            Log.e("testest", message+"  "+encrypt_hash+"  "+s3_temp_path);
 
 
 //            URL url = null;
@@ -877,28 +898,28 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 //                while ((line = reader.readLine()) != null) {
 //                    s.append(line);
 //                }
-//                if (s.toString().contains("success")) {
-//
-//                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-//                        invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
-//                                number,
-//                                insurer,
-//                                format.format(start),
-//                                format.format(end),
-//                                type,
-//                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
-//                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
-//                    }
-//
-//                    runOnUiThread(new Runnable() {
-//                        public void run() {
-//                            Toast.makeText(InsuranceRecordActivity.this, "success", Toast.LENGTH_LONG).show();
-//                            Intent intent = new Intent(InsuranceRecordActivity.this, EditVehicleActivity.class);
-//                            intent.putExtra("vehicleID", vehicleID);
-//                            startActivity(intent);
-//                        }
-//                    });
-//                }
+
+                if (message.equals("success")) {
+                    if (!encrypt_hash.equals("") && !s3_temp_path.equals("")) {
+                        invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
+                                number,
+                                insurer,
+                                format.format(start),
+                                format.format(end),
+                                type,
+                                encrypt_hash,
+                                s3_temp_path);
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(InsuranceRecordActivity.this, "success", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(InsuranceRecordActivity.this, EditVehicleActivity.class);
+                            intent.putExtra("vehicleID", vehicleID);
+                            startActivity(intent);
+                        }
+                    });
+                }
 //                Log.e("response", s.toString());
 //            } catch (IOException e) {
 //                e.printStackTrace();

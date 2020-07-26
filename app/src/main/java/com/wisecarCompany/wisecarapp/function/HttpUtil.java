@@ -1,9 +1,14 @@
 package com.wisecarCompany.wisecarapp.function;
 
+import android.util.Log;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -53,15 +58,24 @@ public class HttpUtil {
             conn.setDoOutput(true);
 
             OutputStream out = conn.getOutputStream();
-            InputStream in = new FileInputStream(uploadFile);
             // 写入头部 （包含了普通的参数，以及文件的标示等）
             out.write(headerInfo);
             // 写入尾部
             out.write(endInfo);
-            in.close();
             out.close();
 
-            return conn.getResponseMessage();
+            if(conn.getResponseCode() == 200 || conn.getResponseCode() == 201){
+                InputStream inputStream = new BufferedInputStream(conn.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder s = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    s.append(line);
+                }
+                return s.toString();
+            }else{
+                return null;
+            }
         }else {
             if (newFileName == null || newFileName.trim().equals("")) {
                 newFileName = uploadFile.getName();
@@ -106,7 +120,7 @@ public class HttpUtil {
             // 写入头部 （包含了普通的参数，以及文件的标示等）
             out.write(headerInfo);
             // 写入文件
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[10240];
             int len;
             while ((len = in.read(buf)) != -1) {
                 out.write(buf, 0, len);
@@ -115,8 +129,18 @@ public class HttpUtil {
             out.write(endInfo);
             in.close();
             out.close();
-
-            return conn.getResponseMessage();
+            if(conn.getResponseCode() == 200 || conn.getResponseCode() == 201){
+                InputStream inputStream = new BufferedInputStream(conn.getInputStream());
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                StringBuilder s = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    s.append(line);
+                }
+                return s.toString();
+            }else{
+                return null;
+            }
         }
     }
 
