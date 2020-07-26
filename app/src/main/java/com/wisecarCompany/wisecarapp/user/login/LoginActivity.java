@@ -140,6 +140,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String username, String password) {
+        Toast.makeText(getApplicationContext(), "Signing in, Please Wait...", Toast.LENGTH_LONG).show();
         String URL = IP_HOST + LOGIN;
         final JSONObject jsonParam = new JSONObject();
         try {

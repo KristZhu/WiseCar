@@ -319,7 +319,7 @@ public class CreateUserActivity extends AppCompatActivity{
                 }
                 try {
                     data.putExtra("scale", true);
-                    data.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
+                    //data.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
                     startActivityForResult(data, GROP_PHOTO);
                 } catch (Exception e) {
                     Log.d(TAG, "cancel choosing photo");

@@ -560,6 +560,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         saveImageButton.setOnClickListener(v -> {
             if(saveImageButton.getAlpha()<1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
 
             Log.d(TAG, "companyName: " + companyName);
             Log.d(TAG, "custID: " + custID);

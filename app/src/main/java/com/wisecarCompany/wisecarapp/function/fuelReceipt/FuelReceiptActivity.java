@@ -454,10 +454,25 @@ public class FuelReceiptActivity extends AppCompatActivity {
                     .create();
             alertDialog.show();
         });
+        typeEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                final String[] types = new String[]{"Unleaded Petrol (ULP)", "Diesel", "Liquefied Petroleum Gas (LPG)", "Electric Vehicle Charge"};
+                AlertDialog alertDialog = new AlertDialog.Builder(FuelReceiptActivity.this)
+                        //.setTitle("select a cover type")
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setItems(types, (dialogInterface, i) -> {
+                            typeEditText.setText(types[i]);
+                            checkReadyToSave();
+                        })
+                        .create();
+                alertDialog.show();
+            }
+        });
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
             if(saveImageButton.getAlpha()<1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
             //parkingImageDrawable = licenceImageView.getDrawable();
             //...
 

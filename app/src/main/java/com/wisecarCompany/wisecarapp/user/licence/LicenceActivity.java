@@ -530,6 +530,7 @@ public class LicenceActivity extends AppCompatActivity {
             //licenceImageDrawable = licenceImageView.getDrawable();
             //...
             //UserInfo.getLicence().setLicenceImg();
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
 
             Log.d(TAG, "active: " + active);
             Log.d(TAG, "number: " + number);
