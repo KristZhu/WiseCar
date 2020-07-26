@@ -67,7 +67,6 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
     private ImageButton cancelImageButton;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,7 +119,6 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
 
 
     @SuppressLint("ResourceType")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void showFuelReceipt(FuelReceipt receipt) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -164,7 +162,7 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
         set.connect(registrationNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(registrationNoTextView.getId(), 0.25f);
         set.setVerticalBias(registrationNoTextView.getId(), 0.0f);
-        registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         registrationNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         registrationNoTextView.setTextColor(0xff007ba4);
         registrationNoTextView.setText(receipt.getRegistrationNo());
@@ -178,7 +176,7 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
         set.connect(dateTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(dateTextView.getId(), 0.2f);
         set.setVerticalBias(dateTextView.getId(), 0.0f);
-        dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
         dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(receipt.getDate()));
@@ -192,7 +190,7 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
         set.connect(invoiceRefTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(invoiceRefTextView.getId(), 0.2f);
         set.setVerticalBias(invoiceRefTextView.getId(), 0.0f);
-        invoiceRefTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) invoiceRefTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         invoiceRefTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         invoiceRefTextView.setTextColor(0xff000000);
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -206,7 +204,7 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
         set.connect(claimTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
         set.connect(claimTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(claimTextView.getId(), 0.2f);
-        claimTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) claimTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         claimTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         claimTextView.setTextColor(0xff000000);
         if(receipt.getCompanyName()==null || receipt.getCompanyName().length()==0) {

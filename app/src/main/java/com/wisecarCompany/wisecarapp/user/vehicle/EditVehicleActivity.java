@@ -99,7 +99,7 @@ public class EditVehicleActivity extends AppCompatActivity {    //edit a special
         loadServices(vehicleID, new servicesCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Integer> services) {
-                services = new ArrayList<>(new HashSet<>(services));
+                services = new ArrayList<>(new TreeSet<>(services));
                 Log.e("services", String.valueOf(services));
                 vehicle.setServices(services);
                 UserInfo.getVehicles().get(vehicleID).setServices(services);    //don't know why... it cannot sync

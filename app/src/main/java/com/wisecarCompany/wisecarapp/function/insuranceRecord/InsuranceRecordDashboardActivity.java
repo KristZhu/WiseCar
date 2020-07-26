@@ -69,7 +69,6 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
     private ImageButton cancelImageButton;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {

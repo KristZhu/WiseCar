@@ -66,7 +66,6 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
     private ImageButton cancelImageButton;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +121,6 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
 
 
     @SuppressLint("ResourceType")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void showDriverLog(DriverLog log) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -166,7 +164,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         set.connect(registrationNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(registrationNoTextView.getId(), 0.25f);
         set.setVerticalBias(registrationNoTextView.getId(), 0.0f);
-        registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         registrationNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         registrationNoTextView.setTextColor(0xff007ba4);
         registrationNoTextView.setText(log.getRegistrationNo());
@@ -180,7 +178,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         set.connect(dateTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(dateTextView.getId(), 0.2f);
         set.setVerticalBias(dateTextView.getId(), 0.0f);
-        dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
         dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(log.getStartTime()));
@@ -194,7 +192,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         set.connect(logTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(logTextView.getId(), 0.2f);
         set.setVerticalBias(logTextView.getId(), 0.0f);
-        logTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) logTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         logTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         logTextView.setTextColor(0xff000000);
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -208,7 +206,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         set.connect(claimTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
         set.connect(claimTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(claimTextView.getId(), 0.2f);
-        claimTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) claimTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         claimTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         claimTextView.setTextColor(0xff000000);
         if(log.getCompanyName()==null || log.getCompanyName().length()==0) {

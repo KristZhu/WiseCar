@@ -68,7 +68,6 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
     private ImageButton cancelImageButton;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,7 +120,6 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
 
 
     @SuppressLint("ResourceType")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void showRegReminder(RegistrationReminder reminder) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -167,7 +165,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         set.connect(registrationNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(registrationNoTextView.getId(), 0.25f);
         set.setVerticalBias(registrationNoTextView.getId(), 0.0f);
-        registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         registrationNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         registrationNoTextView.setTextColor(0xff007ba4);
         registrationNoTextView.setText(reminder.getRegistrationNo());
@@ -181,7 +179,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         set.connect(dateTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(dateTextView.getId(), 0.2f);
         set.setVerticalBias(dateTextView.getId(), 0.0f);
-        dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
         dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(reminder.getDate()));
@@ -195,7 +193,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         set.connect(payRefTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(payRefTextView.getId(), 0.2f);
         set.setVerticalBias(payRefTextView.getId(), 0.0f);
-        payRefTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) payRefTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         payRefTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         payRefTextView.setTextColor(0xff000000);
         payRefTextView.setText("Payment Ref: " + reminder.getPayRef());

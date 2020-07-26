@@ -35,6 +35,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TreeSet;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -66,7 +67,7 @@ public class DashboardActivity extends AppCompatActivity {
         getServices(new serviceCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Integer> serviceList) {
-                List<Integer> services = new ArrayList<>(new HashSet<>(serviceList));
+                List<Integer> services = new ArrayList<>(new TreeSet<>(serviceList));
                 Log.e("service list", String.valueOf(services));
 
                 servicesLayout = $(R.id.servicesLayout);

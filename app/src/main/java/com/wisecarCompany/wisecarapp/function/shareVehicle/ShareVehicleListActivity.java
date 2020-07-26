@@ -60,7 +60,6 @@ public class ShareVehicleListActivity extends AppCompatActivity {
     private ImageButton shareImageButton;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint({"ResourceType", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,7 +136,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
                     String custID = shares.get(shareID).getCust_id();
                     TextView companyTextView = new TextView(ShareVehicleListActivity.this);
                     companyTextView.setId(2);
-                    companyTextView.setAutoSizeTextTypeUniformWithConfiguration(14, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) companyTextView.setAutoSizeTextTypeUniformWithConfiguration(14, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                     String temp = companyName + " - <font color='#00FFFF'>" + custID + "</font>";
                     companyTextView.setText(Html.fromHtml(temp));
                     companyTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
@@ -155,7 +154,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
                         TextView startTextView = new TextView(ShareVehicleListActivity.this);
                         startTextView.setId(3);
-                        startTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         startTextView.setText("Start " + formatTime.format(shares.get(shareID).getStart_time()));
                         set.connect(startTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 16);
                         set.connect(startTextView.getId(), ConstraintSet.END, editImageButton.getId(), ConstraintSet.START, 8);
@@ -167,7 +166,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
                         TextView endTextView = new TextView(ShareVehicleListActivity.this);
                         endTextView.setId(4);
-                        endTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) endTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         endTextView.setText("End   " + formatTime.format(shares.get(shareID).getEnd_time()));
                         set.connect(endTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 16);
                         set.connect(endTextView.getId(), ConstraintSet.END, editImageButton.getId(), ConstraintSet.START, 8);
@@ -179,7 +178,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
                         TextView recurringTextView = new TextView(ShareVehicleListActivity.this);
                         recurringTextView.setId(5);
-                        recurringTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) recurringTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         StringBuilder sb = new StringBuilder();
                         if (shares.get(shareID).isRecurring()) {
                             sb.append("Recurring: ");
@@ -226,7 +225,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
                     } else {
                         TextView offTextView = new TextView(ShareVehicleListActivity.this);
                         offTextView.setId(6);
-                        offTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) offTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
                         offTextView.setText("OFF");
                         offTextView.setTextColor(0xFF444444);
                         set.connect(offTextView.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 16);

@@ -67,7 +67,6 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
     private ImageButton cancelImageButton;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +122,6 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
 
 
     @SuppressLint("ResourceType")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void showServiceRecord(ServiceRecord record) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -169,7 +167,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         set.connect(registrationNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(registrationNoTextView.getId(), 0.25f);
         set.setVerticalBias(registrationNoTextView.getId(), 0.0f);
-        registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         registrationNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         registrationNoTextView.setTextColor(0xff007ba4);
         registrationNoTextView.setText(record.getRegistrationNo());
@@ -183,7 +181,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         set.connect(dateTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(dateTextView.getId(), 0.2f);
         set.setVerticalBias(dateTextView.getId(), 0.0f);
-        dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
         dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getDate()));
@@ -197,7 +195,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         set.connect(refNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(refNoTextView.getId(), 0.2f);
         set.setVerticalBias(refNoTextView.getId(), 0.0f);
-        refNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) refNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         refNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         refNoTextView.setTextColor(0xff000000);
         refNoTextView.setText("Ref: " + record.getRefNo());
@@ -210,7 +208,7 @@ public class ServiceRecordsDashboardActivity extends AppCompatActivity {
         set.connect(nextTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
         set.connect(nextTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(nextTextView.getId(), 0.2f);
-        nextTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) nextTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         nextTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         nextTextView.setTextColor(0xff000000);
         nextTextView.setText("Next Service: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(record.getNextDate()) + " / " + record.getNextDistance() + "km");

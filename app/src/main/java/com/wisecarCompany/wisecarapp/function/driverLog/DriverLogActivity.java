@@ -118,7 +118,6 @@ public class DriverLogActivity extends AppCompatActivity {
     private LinearLayout logsDiv;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint({"SetTextI18n", "Assert", "ResourceType"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -542,7 +541,6 @@ public class DriverLogActivity extends AppCompatActivity {
         if (locationManager != null) locationManager.removeUpdates(locationListener);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void finishRecord() {   //write to log
 /*
         Log.d(TAG, "finishRecord: ");
@@ -740,7 +738,6 @@ public class DriverLogActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ResourceType")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void showRecordLog(DriverLog log) {
         Log.d(TAG, "show record log: " + log);
 
@@ -785,7 +782,7 @@ public class DriverLogActivity extends AppCompatActivity {
         set.connect(dateTextView.getId(), ConstraintSet.START, dateImageView.getId(), ConstraintSet.START);
         set.connect(dateTextView.getId(), ConstraintSet.END, dateImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(dateTextView.getId(), 0.3f);
-        dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTextColor(0xffffffff);
         dateTextView.setGravity(Gravity.CENTER);
         logLineLayout.addView(dateTextView);
@@ -800,7 +797,7 @@ public class DriverLogActivity extends AppCompatActivity {
         set.constrainPercentHeight(timeDistanceTextView.getId(), 0.28f);
         set.setVerticalBias(timeDistanceTextView.getId(), 0.0f);
         timeDistanceTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        timeDistanceTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) timeDistanceTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         timeDistanceTextView.setTextColor(0xff000000);
         logLineLayout.addView(timeDistanceTextView);
 
@@ -819,7 +816,7 @@ public class DriverLogActivity extends AppCompatActivity {
         set.setVerticalBias(logInfoTextView.getId(), 0.0f);
         logInfoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         logInfoTextView.setTextColor(0xff47b5be);
-        logInfoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) logInfoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         logLineLayout.addView(logInfoTextView);
 
         if (log.getCustID() != null) {
