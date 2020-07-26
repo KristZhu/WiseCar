@@ -121,6 +121,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
 
         createImageButton.setOnClickListener(v -> {
+            Toast.makeText(getApplicationContext(), "Creating, Please Wait...", Toast.LENGTH_LONG).show();
+
             firstName = firstNameEditText.getText().toString();
             lastName = lastNameEditText.getText().toString();
             address1 = address1EditText.getText().toString();

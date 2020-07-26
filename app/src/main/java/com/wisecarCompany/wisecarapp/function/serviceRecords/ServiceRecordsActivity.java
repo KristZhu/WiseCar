@@ -355,6 +355,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
             if(saveImageButton.getAlpha()<1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
+
             //Log.d(TAG, "userID" + UserInfo.getUserID());
             //Log.d(TAG, "vehicle" + vehicle);
             Log.d(TAG, "date: " + date);
