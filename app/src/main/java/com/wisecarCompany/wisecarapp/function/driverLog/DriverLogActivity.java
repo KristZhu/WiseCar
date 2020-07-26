@@ -2,7 +2,6 @@ package com.wisecarCompany.wisecarapp.function.driverLog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -47,7 +46,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.user.vehicle.EditVehicleActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
@@ -68,7 +67,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class DriverLogActivity extends AppCompatActivity {
@@ -118,7 +116,6 @@ public class DriverLogActivity extends AppCompatActivity {
     private LinearLayout logsDiv;
 
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint({"SetTextI18n", "Assert", "ResourceType"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +128,7 @@ public class DriverLogActivity extends AppCompatActivity {
         Log.d(TAG, "vehicle: " + vehicle);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(DriverLogActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(DriverLogActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         searchEditText = $(R.id.searchEditText);
         cancelImageButton = $(R.id.cancelImageButton);
@@ -350,7 +347,7 @@ public class DriverLogActivity extends AppCompatActivity {
             if (UserInfo.getCurrLog() == null) {
                 Calendar c = Calendar.getInstance();
                 c.setTime(new Date());
-                UserInfo.setCurrLog(CurrDriverLog.getCurrLog(vehicleID, currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
+                UserInfo.setCurrLog(CurrDriverLog.getInstance(vehicleID, currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
                 //currLog = UserInfo.getCurrLog();
                 //Log.d(TAG, "new currLog: " + currLog);
                 Log.d(TAG, "new currLog in UserInfo: " + UserInfo.getCurrLog());
@@ -542,7 +539,6 @@ public class DriverLogActivity extends AppCompatActivity {
         if (locationManager != null) locationManager.removeUpdates(locationListener);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void finishRecord() {   //write to log
 /*
         Log.d(TAG, "finishRecord: ");
@@ -571,7 +567,8 @@ public class DriverLogActivity extends AppCompatActivity {
         if(vehicle.getLogs()==null) vehicle.setLogs(new TreeSet<>());
         //vehicle.getLogs().add(UserInfo.getCurrLog());
         vehicle.getLogs().add(newLog);
-        CurrDriverLog.clearCurrLog();
+        CurrDriverLog.clearInstance();
+        UserInfo.setCurrLog(null);
 
         logsDiv.removeAllViews();
         for (DriverLog log : vehicle.getLogs()) showRecordLog(log);
@@ -740,7 +737,6 @@ public class DriverLogActivity extends AppCompatActivity {
     }
 
     @SuppressLint("ResourceType")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void showRecordLog(DriverLog log) {
         Log.d(TAG, "show record log: " + log);
 
@@ -785,7 +781,7 @@ public class DriverLogActivity extends AppCompatActivity {
         set.connect(dateTextView.getId(), ConstraintSet.START, dateImageView.getId(), ConstraintSet.START);
         set.connect(dateTextView.getId(), ConstraintSet.END, dateImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(dateTextView.getId(), 0.3f);
-        dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTextColor(0xffffffff);
         dateTextView.setGravity(Gravity.CENTER);
         logLineLayout.addView(dateTextView);
@@ -800,7 +796,7 @@ public class DriverLogActivity extends AppCompatActivity {
         set.constrainPercentHeight(timeDistanceTextView.getId(), 0.28f);
         set.setVerticalBias(timeDistanceTextView.getId(), 0.0f);
         timeDistanceTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-        timeDistanceTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) timeDistanceTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         timeDistanceTextView.setTextColor(0xff000000);
         logLineLayout.addView(timeDistanceTextView);
 
@@ -819,7 +815,7 @@ public class DriverLogActivity extends AppCompatActivity {
         set.setVerticalBias(logInfoTextView.getId(), 0.0f);
         logInfoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         logInfoTextView.setTextColor(0xff47b5be);
-        logInfoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) logInfoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         logLineLayout.addView(logInfoTextView);
 
         if (log.getCustID() != null) {

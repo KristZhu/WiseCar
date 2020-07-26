@@ -42,9 +42,8 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.user.vehicle.EditVehicleActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
@@ -128,6 +127,9 @@ public class ParkingReceiptActivity extends AppCompatActivity {
     private final String ADD_PARKING = "/api/v1/parkingreceipts/";
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/parkingreceipt/blockchaininvoke";
+
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -311,7 +313,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         setContentView(R.layout.activity_parking_receipt);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ParkingReceiptActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ParkingReceiptActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         Log.d(TAG, "vehicleID: " + vehicleID);
@@ -413,15 +415,16 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         notesEditText = $(R.id.notesEditText);
         claimableCheckBox = $(R.id.claimableCheckBox);
 
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+        //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         dateEditText.setInputType(InputType.TYPE_NULL);
-        dateEditText.setText(format.format(new Date()));
+        dateEditText.setText(displayDateFormat.format(new Date()));
         dateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ParkingReceiptActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                String str = format.format(date);
+                String str = displayDateFormat.format(date);
                 dateEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         dateEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -429,8 +432,9 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ParkingReceiptActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    String str = format.format(date);
+                    String str = displayDateFormat.format(date);
                     dateEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -438,6 +442,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
             if(saveImageButton.getAlpha()<1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
             //parkingImageDrawable = licenceImageView.getDrawable();
             //...
 
@@ -479,45 +484,49 @@ public class ParkingReceiptActivity extends AppCompatActivity {
         return date;
     }
 
+    private void checkReadyToSave() {
+        if (referenceEditText.getText().toString().length() > 0
+                && dateEditText.getText().toString().length() > 0
+                && hourEditText.getText().toString().length() > 0
+                && feeEditText.getText().toString().length() > 0
+                && notesEditText.getText().toString().length() > 0) {
+            try {
+                date = displayDateFormat.parse(dateEditText.getText().toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            try {
+                hour = Double.parseDouble(hourEditText.getText().toString());
+            } catch (NumberFormatException e) {
+                Toast.makeText(getApplicationContext(), "Please enter correct total hours", Toast.LENGTH_SHORT).show();
+                saveImageButton.setAlpha(0.5f);
+                saveImageButton.setClickable(false);
+                return;
+            }
+            try {
+                fee = Double.parseDouble(feeEditText.getText().toString());
+            } catch (NumberFormatException e) {
+                Toast.makeText(getApplicationContext(), "Please enter correct fees paid", Toast.LENGTH_SHORT).show();
+                saveImageButton.setAlpha(0.5f);
+                saveImageButton.setClickable(false);
+                return;
+            }
+            reference = referenceEditText.getText().toString();
+            notes = notesEditText.getText().toString();
+            claimable = claimableCheckBox.isChecked();
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        } else {
+            saveImageButton.setAlpha(0.5f);
+            saveImageButton.setClickable(false);
+        }
+    }
+
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            if (referenceEditText.getText().toString().length() > 0
-                    && dateEditText.getText().toString().length() > 0
-                    && hourEditText.getText().toString().length() > 0
-                    && feeEditText.getText().toString().length() > 0
-                    && notesEditText.getText().toString().length() > 0) {
-                try {
-                    date = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).parse(dateEditText.getText().toString());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    hour = Double.parseDouble(hourEditText.getText().toString());
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getApplicationContext(), "Please enter correct total hours", Toast.LENGTH_SHORT).show();
-                    saveImageButton.setAlpha(0.5f);
-                    saveImageButton.setClickable(false);
-                    return super.dispatchTouchEvent(ev);
-                }
-                try {
-                    fee = Double.parseDouble(feeEditText.getText().toString());
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getApplicationContext(), "Please enter correct fees paid", Toast.LENGTH_SHORT).show();
-                    saveImageButton.setAlpha(0.5f);
-                    saveImageButton.setClickable(false);
-                    return super.dispatchTouchEvent(ev);
-                }
-                reference = referenceEditText.getText().toString();
-                notes = notesEditText.getText().toString();
-                claimable = claimableCheckBox.isChecked();
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-            } else {
-                saveImageButton.setAlpha(0.5f);
-                saveImageButton.setClickable(false);
-            }
+            checkReadyToSave();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -725,7 +734,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(ParkingReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(ParkingReceiptActivity.this, EditVehicleActivity.class);
+                            Intent intent = new Intent(ParkingReceiptActivity.this, ManageVehicleActivity.class);
                             intent.putExtra("vehicleID", vehicleID);
                             startActivity(intent);
                         }

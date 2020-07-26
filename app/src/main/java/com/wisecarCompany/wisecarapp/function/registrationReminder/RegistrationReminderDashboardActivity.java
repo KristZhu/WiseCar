@@ -67,8 +67,9 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
     private AutoCompleteTextView searchEditText;
     private ImageButton cancelImageButton;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,7 +122,6 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
 
 
     @SuppressLint("ResourceType")
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void showRegReminder(RegistrationReminder reminder) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -167,7 +167,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         set.connect(registrationNoTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(registrationNoTextView.getId(), 0.25f);
         set.setVerticalBias(registrationNoTextView.getId(), 0.0f);
-        registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) registrationNoTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         registrationNoTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         registrationNoTextView.setTextColor(0xff007ba4);
         registrationNoTextView.setText(reminder.getRegistrationNo());
@@ -181,10 +181,10 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         set.connect(dateTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(dateTextView.getId(), 0.2f);
         set.setVerticalBias(dateTextView.getId(), 0.0f);
-        dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) dateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         dateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         dateTextView.setTextColor(0xff000000);
-        dateTextView.setText("Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(reminder.getDate()));
+        dateTextView.setText("Date: " + displayDateFormat.format(reminder.getDate()));
         lineLayout.addView(dateTextView);
 
         TextView payRefTextView = new TextView(this);
@@ -195,7 +195,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         set.connect(payRefTextView.getId(), ConstraintSet.END, lightImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(payRefTextView.getId(), 0.2f);
         set.setVerticalBias(payRefTextView.getId(), 0.0f);
-        payRefTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) payRefTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         payRefTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         payRefTextView.setTextColor(0xff000000);
         payRefTextView.setText("Payment Ref: " + reminder.getPayRef());
@@ -208,10 +208,10 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
         set.connect(expireDateTextView.getId(), ConstraintSet.START, darkImageView.getId(), ConstraintSet.START, 32);
         set.connect(expireDateTextView.getId(), ConstraintSet.END, darkImageView.getId(), ConstraintSet.END);
         set.constrainPercentHeight(expireDateTextView.getId(), 0.2f);
-        expireDateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) expireDateTextView.setAutoSizeTextTypeUniformWithConfiguration(10, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         expireDateTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         expireDateTextView.setTextColor(0xff000000);
-        expireDateTextView.setText("Expiry Date: " + new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).format(reminder.getExpireDate()));
+        expireDateTextView.setText("Expiry Date: " + displayDateFormat.format(reminder.getExpireDate()));
         lineLayout.addView(expireDateTextView);
 
         ImageView sentImageView = new ImageView(this);

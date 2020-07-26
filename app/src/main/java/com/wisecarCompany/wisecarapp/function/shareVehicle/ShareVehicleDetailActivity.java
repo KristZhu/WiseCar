@@ -120,6 +120,9 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private String recurringChecked = "";
     private String visibilityChecked = "";
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+    private SimpleDateFormat displayTimeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,11 +257,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         date = share.getDate();
                         start = share.getStart_time();
                         end = share.getEnd_time();
-                        SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                        SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                        dateEditText.setText(formatDate.format(date));
-                        startEditText.setText(formatTime.format(start));
-                        endEditText.setText(formatTime.format(end));
+                        //SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                        //SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                        dateEditText.setText(displayDateFormat.format(date));
+                        startEditText.setText(displayTimeFormat.format(start));
+                        endEditText.setText(displayTimeFormat.format(end));
 
                         isRecurring = share.isRecurring();
                         Log.d(TAG, "isRecurring: " + isRecurring);
@@ -267,8 +270,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                             recurringDiv.setVisibility(View.VISIBLE);
 
                             endDate = share.getRecurring_end_date();
-                            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                            endDateEditText.setText(format.format(endDate));
+                            //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                            endDateEditText.setText(displayDateFormat.format(endDate));
                             isWeekday = share.getRecurring_days();
                             for (int i = 0; i < 7; i++) {
                                 if (isWeekday[i]) weekdayCheckBox[i].setChecked(true);
@@ -374,6 +377,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             isShare = isOn;
             if (isOn) shareDiv.setVisibility(View.VISIBLE);
             else shareDiv.setVisibility(View.GONE);
+            checkReadyToSave();
         });
 
 
@@ -381,9 +385,10 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format.format(date);
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(date);
                 dateEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         dateEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -391,11 +396,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format.format(date);
+                    //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(date);
                     dateEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-
             }
         });
 
@@ -407,6 +412,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 time.append(minute >= 10 ? minute : "0" + minute);
                 start = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
                 startEditText.setText(time);
+                checkReadyToSave();
             }, 0, 0, true).show();
         });
         startEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -418,6 +424,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     time.append(minute >= 10 ? minute : "0" + minute);
                     start = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                     startEditText.setText(time);
+                    checkReadyToSave();
                 }, 0, 0, true).show();
             }
         });
@@ -430,6 +437,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 time.append(minute >= 10 ? minute : "0" + minute);
                 end = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                 endEditText.setText(time);
+                checkReadyToSave();
             }, 0, 0, true).show();
         });
         endEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -441,6 +449,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     time.append(minute >= 10 ? minute : "0" + minute);
                     end = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
                     endEditText.setText(time);
+                    checkReadyToSave();
                 }, 0, 0, true).show();
             }
         });
@@ -451,6 +460,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             isRecurring = isOn;
             if (isOn) recurringDiv.setVisibility(View.VISIBLE);
             else recurringDiv.setVisibility(View.GONE);
+            checkReadyToSave();
         });
 
 
@@ -458,9 +468,10 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 endDate = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format.format(endDate);
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(endDate);
                 endDateEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         endDateEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -468,11 +479,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ShareVehicleDetailActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     endDate = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format.format(endDate);
+                    //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(endDate);
                     endDateEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
-
             }
         });
 
@@ -543,11 +554,13 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             isVisibility = isOn;
             if (isOn) visibilityDiv.setVisibility(View.VISIBLE);
             else visibilityDiv.setVisibility(View.GONE);
+            checkReadyToSave();
         });
 
 
         saveImageButton.setOnClickListener(v -> {
             if(saveImageButton.getAlpha()<1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
 
             Log.d(TAG, "companyName: " + companyName);
             Log.d(TAG, "custID: " + custID);
@@ -941,28 +954,31 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         void onError(@NonNull String errorMessage);
     }
 
+    private void checkReadyToSave() {
+        if (isShare
+                && companyName != null && companyName.length() > 0
+                && custID != null && custID.length() > 0
+                && date != null
+                && start != null
+                && end != null
+                && (!isRecurring || endDate != null)
+        ) {
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        } else if (!isShare && !NEW) {
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        } else {
+            saveImageButton.setAlpha(0.5f);
+            saveImageButton.setClickable(false);
+        }
+    }
 
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            if (isShare
-                    && companyName != null && companyName.length() > 0
-                    && custID != null && custID.length() > 0
-                    && date != null
-                    && start != null
-                    && end != null
-                    && (!isRecurring || endDate != null)
-            ) {
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-            } else if (!isShare && !NEW) {
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-            } else {
-                saveImageButton.setAlpha(0.5f);
-                saveImageButton.setClickable(false);
-            }
+            checkReadyToSave();
         }
         return super.dispatchTouchEvent(ev);
     }

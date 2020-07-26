@@ -47,7 +47,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.user.vehicle.EditVehicleActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
@@ -96,7 +96,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private TextView recordIDTextView;
     private Button resetButton;
 
-    private EditText dateEditText;
+    private EditText dateTimeEditText;
     private EditText centreEditText;
     private EditText refNoEditText;
     private EditText notesEditText;
@@ -142,6 +142,9 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private String record_id;
     private Bitmap qrCodeBitmap;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,7 +155,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         currentDate = "";
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
         currentDate = format.format(Calendar.getInstance().getTime());
@@ -256,7 +259,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         });
 
 
-        dateEditText = $(R.id.dateEditText);
+        dateTimeEditText = $(R.id.dateTimeEditText);
         centreEditText = $(R.id.centreEditText);
         refNoEditText = $(R.id.refNoEditText);
         notesEditText = $(R.id.notesEditText);
@@ -268,9 +271,9 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         coolingCheckBox = $(R.id.coolingCheckBox);
         lightsCheckBox = $(R.id.lightsCheckBox);
 
-        dateEditText.setInputType(InputType.TYPE_NULL);
-        dateEditText.setOnClickListener(v -> {
-            dateEditText.setText("");
+        dateTimeEditText.setInputType(InputType.TYPE_NULL);
+        dateTimeEditText.setOnClickListener(v -> {
+            dateTimeEditText.setText("");
             date = null;
             Calendar c = Calendar.getInstance();
             new TimePickerDialog(ServiceRecordsActivity.this, (view, hour, minute) -> {
@@ -284,20 +287,21 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                     time.append(minute >= 10 ? minute : "0" + minute);
                     time.append("  ");
                     date = new Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
-                    dateEditText.append(time);
+                    dateTimeEditText.append(time);
                     Log.d(TAG, "date: " + date);
+                    checkReadyToSave();
                 }
             }, 0, 0, true).show();
             new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format1 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format1.format(date);
-                dateEditText.append(str + ", ");
+                //SimpleDateFormat format1 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(date);
+                dateTimeEditText.append(str + ", ");
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
-        dateEditText.setOnFocusChangeListener((v, hasFocus) -> {
+        dateTimeEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                dateEditText.setText("");
+                dateTimeEditText.setText("");
                 Calendar c = Calendar.getInstance();
                 new TimePickerDialog(ServiceRecordsActivity.this, (view, hour, minute) -> {
                     if (date == null)
@@ -309,15 +313,16 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                         time.append(minute >= 10 ? minute : "0" + minute);
                         time.append("  ");
                         date = new Date(date.getTime() + (hour * 60 + minute) * 60 * 1000);
-                        dateEditText.append(time);
+                        dateTimeEditText.append(time);
                         Log.d(TAG, "date: " + date);
+                        checkReadyToSave();
                     }
                 }, 0, 0, true).show();
                 new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format12 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format12.format(date);
-                    dateEditText.append(str + ", ");
+                    //SimpleDateFormat format12 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(date);
+                    dateTimeEditText.append(str + ", ");
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -327,9 +332,10 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 nextDate = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format13.format(nextDate);
+                //SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(nextDate);
                 nextDateEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         nextDateEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -337,9 +343,10 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(ServiceRecordsActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     nextDate = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format14.format(nextDate);
+                    //SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(nextDate);
                     nextDateEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -348,6 +355,8 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
             if(saveImageButton.getAlpha()<1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
+
             //Log.d(TAG, "userID" + UserInfo.getUserID());
             //Log.d(TAG, "vehicle" + vehicle);
             Log.d(TAG, "date: " + date);
@@ -552,28 +561,32 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         }
     }
 
+    private void checkReadyToSave() {
+        centre = centreEditText.getText().toString();
+        refNo = refNoEditText.getText().toString();
+        notes = notesEditText.getText().toString();
+        nextDistance = nextDistanceEditText.getText().toString();
+        if (date != null && centre != null && refNo != null && notes != null && nextDate != null && nextDistance != null
+                && centre.length() > 0 && refNo.length() > 0 && notes.length() > 0 && nextDistance.length() > 0
+        ) {     //allow to click saveImageButton
+            isOil = oilCheckBox.isChecked();
+            isBrake = brakeCheckBox.isChecked();
+            isBattery = batteryCheckBox.isChecked();
+            isCooling = coolingCheckBox.isChecked();
+            isLights = lightsCheckBox.isChecked();
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        } else {
+            saveImageButton.setAlpha(0.5f);
+            saveImageButton.setClickable(false);
+        }
+    }
+
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            centre = centreEditText.getText().toString();
-            refNo = refNoEditText.getText().toString();
-            notes = notesEditText.getText().toString();
-            nextDistance = nextDistanceEditText.getText().toString();
-            if (date != null && centre != null && refNo != null && notes != null && nextDate != null && nextDistance != null
-                    && centre.length() > 0 && refNo.length() > 0 && notes.length() > 0 && nextDistance.length() > 0
-            ) {     //allow to click saveImageButton
-                isOil = oilCheckBox.isChecked();
-                isBrake = brakeCheckBox.isChecked();
-                isBattery = batteryCheckBox.isChecked();
-                isCooling = coolingCheckBox.isChecked();
-                isLights = lightsCheckBox.isChecked();
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-            } else {
-                saveImageButton.setAlpha(0.5f);
-                saveImageButton.setClickable(false);
-            }
+            checkReadyToSave();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -598,18 +611,6 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             assert manager != null;
             manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
-    }
-
-    private static java.util.Date strToDate(String str) {
-        if (str == null || str.length() == 0) return null;
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-        java.util.Date date = null;
-        try {
-            date = format.parse(str);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return date;
     }
 
     private static java.util.Date intToDate(int year, int month, int day) {
@@ -714,13 +715,11 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                                 servicesOptions);
                     }
 
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(ServiceRecordsActivity.this, EditVehicleActivity.class);
-                            intent.putExtra("vehicleID", vehicleID);
-                            startActivity(intent);
-                        }
+                    runOnUiThread(() -> {
+                        Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class);
+                        intent.putExtra("vehicleID", vehicleID);
+                        startActivity(intent);
                     });
                 }
                 Log.e("response", s.toString());

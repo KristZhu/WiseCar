@@ -42,7 +42,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.user.vehicle.EditVehicleActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
@@ -128,6 +128,9 @@ public class FuelReceiptActivity extends AppCompatActivity {
     private final String ADD_FUEL = "/api/v1/fuelreceipts/";
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/fuelreceipt/blockchaininvoke";
+
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -414,15 +417,16 @@ public class FuelReceiptActivity extends AppCompatActivity {
         paidAmountEditText = $(R.id.paidAmountEditText);
         claimableCheckBox = $(R.id.claimableCheckBox);
 
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+        //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         dateEditText.setInputType(InputType.TYPE_NULL);
-        dateEditText.setText(format.format(new Date()));
+        dateEditText.setText(displayDateFormat.format(new Date()));
         dateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(FuelReceiptActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                String str = format.format(date);
+                String str = displayDateFormat.format(date);
                 dateEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         dateEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -430,8 +434,9 @@ public class FuelReceiptActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(FuelReceiptActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    String str = format.format(date);
+                    String str = displayDateFormat.format(date);
                     dateEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -442,14 +447,32 @@ public class FuelReceiptActivity extends AppCompatActivity {
             AlertDialog alertDialog = new AlertDialog.Builder(FuelReceiptActivity.this)
                     //.setTitle("select a cover type")
                     .setIcon(R.mipmap.ic_launcher)
-                    .setItems(types, (dialogInterface, i) -> typeEditText.setText(types[i]))
+                    .setItems(types, (dialogInterface, i) -> {
+                        typeEditText.setText(types[i]);
+                        checkReadyToSave();
+                    })
                     .create();
             alertDialog.show();
+        });
+        typeEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                final String[] types = new String[]{"Unleaded Petrol (ULP)", "Diesel", "Liquefied Petroleum Gas (LPG)", "Electric Vehicle Charge"};
+                AlertDialog alertDialog = new AlertDialog.Builder(FuelReceiptActivity.this)
+                        //.setTitle("select a cover type")
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setItems(types, (dialogInterface, i) -> {
+                            typeEditText.setText(types[i]);
+                            checkReadyToSave();
+                        })
+                        .create();
+                alertDialog.show();
+            }
         });
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
             if(saveImageButton.getAlpha()<1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
             //parkingImageDrawable = licenceImageView.getDrawable();
             //...
 
@@ -491,46 +514,50 @@ public class FuelReceiptActivity extends AppCompatActivity {
         return date;
     }
 
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        View v = getCurrentFocus();
-        if (isShouldHideInput(v, ev)) {
-            hideSoftInput(v.getWindowToken());
-            if(referenceEditText.getText().toString().length()>0
+    private void checkReadyToSave() {
+        if(referenceEditText.getText().toString().length()>0
                 && dateEditText.getText().toString().length()>0
                 && typeEditText.getText().toString().length()>0
                 && fuelAmountEditText.getText().toString().length()>0
                 && paidAmountEditText.getText().toString().length()>0)
-            {
-                try {
-                    date = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault()).parse(dateEditText.getText().toString());
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    fuelAmount = Double.parseDouble(fuelAmountEditText.getText().toString());
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getApplicationContext(), "Please enter correct fuel amount", Toast.LENGTH_SHORT).show();
-                    saveImageButton.setAlpha(0.5f);
-                    saveImageButton.setClickable(false);
-                    return super.dispatchTouchEvent(ev);
-                }
-                try {
-                    paidAmount = Double.parseDouble(paidAmountEditText.getText().toString());
-                } catch (NumberFormatException e) {
-                    Toast.makeText(getApplicationContext(), "Please enter correct paid amount", Toast.LENGTH_SHORT).show();
-                    saveImageButton.setAlpha(0.5f);
-                    saveImageButton.setClickable(false);
-                    return super.dispatchTouchEvent(ev);
-                }
-                reference = referenceEditText.getText().toString();
-                type = typeEditText.getText().toString();
-                claimable = claimableCheckBox.isChecked();
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-            } else {
+        {
+            try {
+                date = displayDateFormat.parse(dateEditText.getText().toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            try {
+                fuelAmount = Double.parseDouble(fuelAmountEditText.getText().toString());
+            } catch (NumberFormatException e) {
+                Toast.makeText(getApplicationContext(), "Please enter correct fuel amount", Toast.LENGTH_SHORT).show();
                 saveImageButton.setAlpha(0.5f);
                 saveImageButton.setClickable(false);
+                return;
             }
+            try {
+                paidAmount = Double.parseDouble(paidAmountEditText.getText().toString());
+            } catch (NumberFormatException e) {
+                Toast.makeText(getApplicationContext(), "Please enter correct paid amount", Toast.LENGTH_SHORT).show();
+                saveImageButton.setAlpha(0.5f);
+                saveImageButton.setClickable(false);
+                return;
+            }
+            reference = referenceEditText.getText().toString();
+            type = typeEditText.getText().toString();
+            claimable = claimableCheckBox.isChecked();
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        } else {
+            saveImageButton.setAlpha(0.5f);
+            saveImageButton.setClickable(false);
+        }
+    }
+
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        View v = getCurrentFocus();
+        if (isShouldHideInput(v, ev)) {
+            hideSoftInput(v.getWindowToken());
+            checkReadyToSave();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -739,7 +766,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(FuelReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(FuelReceiptActivity.this, EditVehicleActivity.class);
+                            Intent intent = new Intent(FuelReceiptActivity.this, ManageVehicleActivity.class);
                             intent.putExtra("vehicleID", vehicleID);
                             startActivity(intent);
                         }

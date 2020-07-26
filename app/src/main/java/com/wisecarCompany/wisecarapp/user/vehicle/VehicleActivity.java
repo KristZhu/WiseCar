@@ -9,7 +9,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -93,6 +92,9 @@ public class VehicleActivity extends AppCompatActivity {
     private Bitmap ImgBitmap;
 
     private Map<String, Vehicle> vehiclesDB;   //vehicle data from db, should update to Userinfo.vehicles
+
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,11 +199,15 @@ public class VehicleActivity extends AppCompatActivity {
         calendarButton.setOnClickListener(v -> startCalendar());
 
         notifyTextView = $(R.id.notifyTextView);
+
+
         registrationDue = new Date();   //get from DB
         nextService = new Date();    //get from DB
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-        String temp = "<font color='#612a00'>Registration Due - " + format.format(registrationDue) + "</font><br/>"
-                + "<font color='#003c00'>Next Service - " + format.format(nextService) + "</font>";
+
+
+        //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+        String temp = "<font color='#612a00'>Registration Due - " + displayDateFormat.format(registrationDue) + "</font><br/>"
+                + "<font color='#003c00'>Next Service - " + displayDateFormat.format(nextService) + "</font>";
         notifyTextView.setText(Html.fromHtml(temp));
         Log.d(TAG, "notify: " + notifyTextView.getText());
 
@@ -372,7 +378,7 @@ public class VehicleActivity extends AppCompatActivity {
         });
 
         Log.d(TAG, "editVehicle, finalVehicleID: " + vehicleID);
-        Intent intent = new Intent(VehicleActivity.this, EditVehicleActivity.class);
+        Intent intent = new Intent(VehicleActivity.this, ManageVehicleActivity.class);
         intent.putExtra("vehicleID", vehicleID);
         startActivity(intent);
     }

@@ -42,7 +42,7 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.user.vehicle.EditVehicleActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
@@ -128,6 +128,8 @@ public class RegistrationReminderActivity extends AppCompatActivity {
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/registrationrecords/blockchaininvoke";
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +137,7 @@ public class RegistrationReminderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_registration_reminder);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(RegistrationReminderActivity.this, EditVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(RegistrationReminderActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         Log.d(TAG, "vehicleID: " + vehicleID);
@@ -246,9 +248,10 @@ public class RegistrationReminderActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(RegistrationReminderActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 date = intToDate(year, monthOfYear, dayOfMonth);
-                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = format13.format(date);
+                //SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = displayDateFormat.format(date);
                 dateEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         dateEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -256,9 +259,10 @@ public class RegistrationReminderActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(RegistrationReminderActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     date = intToDate(year, monthOfYear, dayOfMonth);
-                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = format14.format(date);
+                    //SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = displayDateFormat.format(date);
                     dateEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -273,9 +277,26 @@ public class RegistrationReminderActivity extends AppCompatActivity {
                     .setItems(types, (dialogInterface, i) -> {
                         expireEditText.setText(types[i]);
                         durationMonth = i+1;
+                        checkReadyToSave();
                     })
                     .create();
             alertDialog.show();
+        });
+        expireEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                final String[] types = new String[]{"1 Month", "2 Month", "3 Month", "4 Month", "5 Month", "6 Month",
+                        "7 Month", "8 Month", "9 Month", "10 Month", "11 Month", "12 Month"};
+                AlertDialog alertDialog = new AlertDialog.Builder(RegistrationReminderActivity.this)
+                        //.setTitle("select a cover type")
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setItems(types, (dialogInterface, i) -> {
+                            expireEditText.setText(types[i]);
+                            durationMonth = i+1;
+                            checkReadyToSave();
+                        })
+                        .create();
+                alertDialog.show();
+            }
         });
 
         expireDateEditText.setInputType(InputType.TYPE_NULL);
@@ -304,6 +325,8 @@ public class RegistrationReminderActivity extends AppCompatActivity {
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
             if(saveImageButton.getAlpha()<1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
+
             //Log.d(TAG, "userID" + UserInfo.getUserID());
             //Log.d(TAG, "vehicle" + vehicle);
             Log.d(TAG, "payment: " + payment);
@@ -499,43 +522,47 @@ public class RegistrationReminderActivity extends AppCompatActivity {
         }
     }
 
+    private void checkReadyToSave() {
+        //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+        if(dateEditText.getText().toString().length()>0 && durationMonth>0) {
+            try {
+                date = displayDateFormat.parse(dateEditText.getText().toString());
+                Calendar expireCalendar = Calendar.getInstance();
+                expireCalendar.setTime(date);
+                expireCalendar.add(Calendar.MONTH, durationMonth);
+                expireCalendar.add(Calendar.DAY_OF_MONTH, -1);
+                expireDate = expireCalendar.getTime();
+                expireDateEditText.setText(displayDateFormat.format(expireDate));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        if (paymentEditText.getText().toString().length()>0
+                && dateEditText.getText().toString().length()>0
+                && expireEditText.getText().toString().length()>0
+                && expireDateEditText.getText().toString().length()>0
+        ) {     //allow to click saveImageButton
+            try {
+                payment = paymentEditText.getText().toString();
+                date = displayDateFormat.parse(dateEditText.getText().toString());
+                expireDate = displayDateFormat.parse(expireDateEditText.getText().toString());
+                remind = remindCheckBox.isChecked();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        } else {
+            saveImageButton.setAlpha(0.5f);
+            saveImageButton.setClickable(false);
+        }
+    }
+
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-            if(dateEditText.getText().toString().length()>0 && durationMonth>0) {
-                try {
-                    date = format.parse(dateEditText.getText().toString());
-                    Calendar expireCalendar = Calendar.getInstance();
-                    expireCalendar.setTime(date);
-                    expireCalendar.add(Calendar.MONTH, durationMonth);
-                    expireCalendar.add(Calendar.DAY_OF_MONTH, -1);
-                    expireDate = expireCalendar.getTime();
-                    expireDateEditText.setText(format.format(expireDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (paymentEditText.getText().toString().length()>0
-                    && dateEditText.getText().toString().length()>0
-                    && expireEditText.getText().toString().length()>0
-                    && expireDateEditText.getText().toString().length()>0
-            ) {     //allow to click saveImageButton
-                try {
-                    payment = paymentEditText.getText().toString();
-                    date = format.parse(dateEditText.getText().toString());
-                    expireDate = format.parse(expireDateEditText.getText().toString());
-                    remind = remindCheckBox.isChecked();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-            } else {
-                saveImageButton.setAlpha(0.5f);
-                saveImageButton.setClickable(false);
-            }
+            checkReadyToSave();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -702,7 +729,7 @@ public class RegistrationReminderActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         public void run() {
                             Toast.makeText(RegistrationReminderActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(RegistrationReminderActivity.this, EditVehicleActivity.class);
+                            Intent intent = new Intent(RegistrationReminderActivity.this, ManageVehicleActivity.class);
                             intent.putExtra("vehicleID", vehicleID);
                             startActivity(intent);
                         }

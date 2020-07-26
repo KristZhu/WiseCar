@@ -119,6 +119,8 @@ public class LicenceActivity extends AppCompatActivity {
     private String identifier;
     private String record_id;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
     // TO BE ADJUSTED
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_LICENSE_IDENTIFIER = "/api/v1/driverlicense/identifier/";
@@ -348,7 +350,7 @@ public class LicenceActivity extends AppCompatActivity {
                 Log.d(TAG, "getLicense successfully: " + returnedLicense + " " + returnedIdentifier);
                 idTextView.setText("ID: " + returnedIdentifier);
 
-                SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
 
                 numberEditText.setText(returnedLicense.getNumber());
                 number = returnedLicense.getNumber();
@@ -358,7 +360,7 @@ public class LicenceActivity extends AppCompatActivity {
                 type = returnedLicense.getType();
                 disableEditText(typeEditText);
 
-                startDateEditText.setText(format.format(returnedLicense.getStartDate()));
+                startDateEditText.setText(displayDateFormat.format(returnedLicense.getStartDate()));
                 startDate = returnedLicense.getStartDate();
                 disableEditText(startDateEditText);
 
@@ -366,7 +368,7 @@ public class LicenceActivity extends AppCompatActivity {
                 durationYear = Integer.parseInt(returnedLicense.getExpire());
                 disableEditText(expireEditText);
 
-                expireDateEditText.setText(format.format(returnedLicense.getExpiryDate()));
+                expireDateEditText.setText(displayDateFormat.format(returnedLicense.getExpiryDate()));
                 expireDate = returnedLicense.getExpiryDate();
                 disableEditText(expireDateEditText);
 
@@ -467,13 +469,14 @@ public class LicenceActivity extends AppCompatActivity {
         });
 
         startDateEditText.setInputType(InputType.TYPE_NULL);
-        SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+        //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         startDateEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(LicenceActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 startDate = intToDate(year, monthOfYear, dayOfMonth);
-                String str = format.format(startDate);
+                String str = displayDateFormat.format(startDate);
                 startDateEditText.setText(str);
+                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         startDateEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -481,8 +484,9 @@ public class LicenceActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(LicenceActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     startDate = intToDate(year, monthOfYear, dayOfMonth);
-                    String str = format.format(startDate);
+                    String str = displayDateFormat.format(startDate);
                     startDateEditText.setText(str);
+                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -496,9 +500,25 @@ public class LicenceActivity extends AppCompatActivity {
                     .setItems(types, (dialogInterface, i) -> {
                         expireEditText.setText(types[i]);
                         durationYear = i + 1;
+                        checkReadyToSave();
                     })
                     .create();
             alertDialog.show();
+        });
+        expireEditText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                final String[] types = new String[]{"1 Year", "2 Years", "3 Years", "4 Years", "5 Years", "6 Years", "7 Years", "8 Years", "9 Years", "10 Years"};
+                AlertDialog alertDialog = new AlertDialog.Builder(LicenceActivity.this)
+                        //.setTitle("select a cover type")
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setItems(types, (dialogInterface, i) -> {
+                            expireEditText.setText(types[i]);
+                            durationYear = i + 1;
+                            checkReadyToSave();
+                        })
+                        .create();
+                alertDialog.show();
+            }
         });
 
         expireDateEditText.setInputType(InputType.TYPE_NULL);
@@ -510,6 +530,7 @@ public class LicenceActivity extends AppCompatActivity {
             //licenceImageDrawable = licenceImageView.getDrawable();
             //...
             //UserInfo.getLicence().setLicenceImg();
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
 
             Log.d(TAG, "active: " + active);
             Log.d(TAG, "number: " + number);
@@ -524,7 +545,7 @@ public class LicenceActivity extends AppCompatActivity {
 //                return;
 //            }
 
-            UserInfo.setLicence(new Licence(active, number, type, startDate, expireDate, remind));
+            //UserInfo.setLicence(new Licence(active, number, type, startDate, expireDate, remind));
 
             //db
             uploadLicence();
@@ -553,48 +574,52 @@ public class LicenceActivity extends AppCompatActivity {
         return date;
     }
 
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        View v = getCurrentFocus();
-        if (isShouldHideInput(v, ev)) {
-            hideSoftInput(v.getWindowToken());
-            SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-            if (startDateEditText.getText().toString().length() > 0 && durationYear > 0) {  //calculate expire date
-                try {
-                    startDate = format.parse(startDateEditText.getText().toString());
-                    Calendar expireCalendar = Calendar.getInstance();
-                    expireCalendar.setTime(startDate);
-                    expireCalendar.add(Calendar.YEAR, durationYear);
-                    expireCalendar.add(Calendar.DAY_OF_MONTH, -1);
-                    expireDate = expireCalendar.getTime();
-                    expireDateEditText.setText(format.format(expireDate));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+    private void checkReadyToSave() {
+        //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+        if (startDateEditText.getText().toString().length() > 0 && durationYear > 0) {  //calculate expire date
+            try {
+                startDate = displayDateFormat.parse(startDateEditText.getText().toString());
+                Calendar expireCalendar = Calendar.getInstance();
+                expireCalendar.setTime(startDate);
+                expireCalendar.add(Calendar.YEAR, durationYear);
+                expireCalendar.add(Calendar.DAY_OF_MONTH, -1);
+                expireDate = expireCalendar.getTime();
+                expireDateEditText.setText(displayDateFormat.format(expireDate));
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
-            if (numberEditText.getText().toString().length() > 0
-                    && typeEditText.getText().toString().length() > 0
-                    && startDateEditText.getText().toString().length() > 0
-                    && expireEditText.getText().toString().length() > 0
-                    && expireDateEditText.getText().toString().length() > 0) {
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-                try {
-                    number = numberEditText.getText().toString();
-                    type = typeEditText.getText().toString();
-                    startDate = format.parse(startDateEditText.getText().toString());
-                    expireDate = format.parse(expireDateEditText.getText().toString());
-                    remind = remindCheckBox.isChecked();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                saveImageButton.setAlpha(0.5f);
-                saveImageButton.setClickable(false);
+        }
+        if (numberEditText.getText().toString().length() > 0
+                && typeEditText.getText().toString().length() > 0
+                && startDateEditText.getText().toString().length() > 0
+                && expireEditText.getText().toString().length() > 0
+                && expireDateEditText.getText().toString().length() > 0) {
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+            try {
+                number = numberEditText.getText().toString();
+                type = typeEditText.getText().toString();
+                startDate = displayDateFormat.parse(startDateEditText.getText().toString());
+                expireDate = displayDateFormat.parse(expireDateEditText.getText().toString());
+                remind = remindCheckBox.isChecked();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            saveImageButton.setAlpha(0.5f);
+            saveImageButton.setClickable(false);
 //                Log.d(TAG, "number: " + numberEditText.getText().toString());
 //                Log.d(TAG, "type: " + typeEditText.getText().toString());
 //                Log.d(TAG, "startDate: " + startDateEditText.getText().toString());
 //                Log.d(TAG, "expireDate: " + expireDateEditText.getText().toString());
-            }
+        }
+    }
+
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        View v = getCurrentFocus();
+        if (isShouldHideInput(v, ev)) {
+            hideSoftInput(v.getWindowToken());
+            checkReadyToSave();
         }
         return super.dispatchTouchEvent(ev);
     }
