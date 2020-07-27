@@ -21,6 +21,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.StrictMode;
 import android.provider.DocumentsContract;
@@ -41,10 +42,13 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
+import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -58,18 +62,28 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import net.glxn.qrgen.android.QRCode;
@@ -124,6 +138,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     private static final int PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE = 1;
     private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
 
+
     // TO BE ADJUSTED
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_INSURANCE_RECORD_IDENTIFIER = "/api/v1/insurancerecords/identifier/";
@@ -131,8 +146,6 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     private final String ADD_INSURANCE_RECORD = "/api/v1/insurancerecords/";
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/insurancerecords/blockchaininvoke";
-
-    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
 
     @Override
@@ -157,7 +170,6 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         cameraImageButton = $(R.id.cameraImageButton);
         recordIDTextView = $(R.id.recordIDTextView);
         resetButton = $(R.id.resetButton);
-
 
 
         // TO BE ADJUSTED
@@ -258,10 +270,9 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 start = intToDate(year, monthOfYear, dayOfMonth);
-                //SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = displayDateFormat.format(start);
+                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = format13.format(start);
                 startEditText.setText(str);
-                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         startEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -269,10 +280,9 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     start = intToDate(year, monthOfYear, dayOfMonth);
-                    //SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = displayDateFormat.format(start);
+                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = format14.format(start);
                     startEditText.setText(str);
-                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -282,10 +292,9 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                 end = intToDate(year, monthOfYear, dayOfMonth);
-                //SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = displayDateFormat.format(end);
+                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                String str = format13.format(end);
                 endEditText.setText(str);
-                checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         endEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -293,10 +302,9 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
                     end = intToDate(year, monthOfYear, dayOfMonth);
-                    //SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = displayDateFormat.format(end);
+                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    String str = format14.format(end);
                     endEditText.setText(str);
-                    checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -309,26 +317,9 @@ public class InsuranceRecordActivity extends AppCompatActivity {
             AlertDialog alertDialog = new AlertDialog.Builder(InsuranceRecordActivity.this)
                     //.setTitle("select a cover type")
                     .setIcon(R.mipmap.ic_launcher)
-                    .setItems(types, (dialogInterface, i) -> {
-                        typeEditText.setText(types[i]);
-                        checkReadyToSave();
-                    })
+                    .setItems(types, (dialogInterface, i) -> typeEditText.setText(types[i]))
                     .create();
             alertDialog.show();
-        });
-        typeEditText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                final String[] types = new String[]{"Third Party", "Comprehensive"};
-                AlertDialog alertDialog = new AlertDialog.Builder(InsuranceRecordActivity.this)
-                        //.setTitle("select a cover type")
-                        .setIcon(R.mipmap.ic_launcher)
-                        .setItems(types, (dialogInterface, i) -> {
-                            typeEditText.setText(types[i]);
-                            checkReadyToSave();
-                        })
-                        .create();
-                alertDialog.show();
-            }
         });
 
 /*
@@ -378,9 +369,7 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
-            if(saveImageButton.getAlpha()<1) return;
-            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
-
+            if (saveImageButton.getAlpha() < 1) return;
             //Log.d(TAG, "userID" + UserInfo.getUserID());
             //Log.d(TAG, "vehicle" + vehicle);
             Log.d(TAG, "number: " + number);
@@ -576,38 +565,34 @@ public class InsuranceRecordActivity extends AppCompatActivity {
         }
     }
 
-    private void checkReadyToSave() {
-        if (numberEditText.getText().toString().length()>0
-                && insurerEditText.getText().toString().length()>0
-                && startEditText.getText().toString().length()>0
-                && endEditText.getText().toString().length()>0
-                && typeEditText.getText().toString().length()>0
-            //&& typeSpinner.
-        ) {     //allow to click saveImageButton
-            try {
-                //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                number = numberEditText.getText().toString();
-                insurer = insurerEditText.getText().toString();
-                start = displayDateFormat.parse(startEditText.getText().toString());
-                end = displayDateFormat.parse(endEditText.getText().toString());
-                type = typeEditText.getText().toString();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            saveImageButton.setAlpha(1.0f);
-            saveImageButton.setClickable(true);
-        } else {
-            saveImageButton.setAlpha(0.5f);
-            saveImageButton.setClickable(false);
-        }
-    }
-
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
             //typeSpinnerDiv.setVisibility(View.GONE);
-            checkReadyToSave();
+            if (numberEditText.getText().toString().length() > 0
+                    && insurerEditText.getText().toString().length() > 0
+                    && startEditText.getText().toString().length() > 0
+                    && endEditText.getText().toString().length() > 0
+                    && typeEditText.getText().toString().length() > 0
+                //&& typeSpinner.
+            ) {     //allow to click saveImageButton
+                try {
+                    SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
+                    number = numberEditText.getText().toString();
+                    insurer = insurerEditText.getText().toString();
+                    start = format.parse(startEditText.getText().toString());
+                    end = format.parse(endEditText.getText().toString());
+                    type = typeEditText.getText().toString();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                saveImageButton.setAlpha(1.0f);
+                saveImageButton.setClickable(true);
+            } else {
+                saveImageButton.setAlpha(0.5f);
+                saveImageButton.setClickable(false);
+            }
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -658,7 +643,6 @@ public class InsuranceRecordActivity extends AppCompatActivity {
     }
 
 
-
     // TO BE ADJUSTED
 
     private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
@@ -704,69 +688,225 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 //        void onError(@NonNull String errorMessage);
     }
 
+//    private void uploadServiceRecord() {
+//
+//        Thread thread = new Thread(() -> {
+//            HttpClient httpClient = new DefaultHttpClient();
+//            HttpPost postRequest = new HttpPost(IP_HOST + ADD_INSURANCE_RECORD);
+//
+//            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+//
+//            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+//
+//            try {
+//                reqEntity.addPart("insurance_record_identifier", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+//                Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
+//
+//                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+//                reqEntity.addPart("policy_number", new StringBody(number));
+//                reqEntity.addPart("insurer", new StringBody(insurer));
+//                reqEntity.addPart("start_of_cover", new StringBody(format.format(start)));
+//                reqEntity.addPart("end_of_cover", new StringBody(format.format(end)));
+//                reqEntity.addPart("cover_type", new StringBody(type));
+//                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
+//                Log.e("recordID in request", recordIDTextView.getText().toString());
+//
+//                if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
+//                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                    Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
+//                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
+//                    byte[] qrbyteArray = stream.toByteArray();
+//                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
+//                    reqEntity.addPart("document", recordBody);
+//                }
+//
+//            } catch (UnsupportedEncodingException e) {
+//                e.printStackTrace();
+//            } catch (Exception e) {
+//                try {
+//                    reqEntity.addPart("logo", new StringBody("image error"));
+//                } catch (UnsupportedEncodingException ex) {
+//                    ex.printStackTrace();
+//                }
+//            }
+//
+//            postRequest.setEntity(reqEntity);
+//            HttpResponse response = null;
+//            StringBuilder s = new StringBuilder();
+//            try {
+//                response = httpClient.execute(postRequest);
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
+//                String sResponse;
+//                while ((sResponse = reader.readLine()) != null) {
+//                    s = s.append(sResponse);
+//                }
+//                if (s.toString().contains("success")) {
+//
+//                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
+//                        invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
+//                                number,
+//                                insurer,
+//                                format.format(start),
+//                                format.format(end),
+//                                type,
+//                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
+//                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
+//                    }
+//
+//                    runOnUiThread(new Runnable() {
+//                        public void run() {
+//                            Toast.makeText(InsuranceRecordActivity.this, "success", Toast.LENGTH_LONG).show();
+//                            Intent intent = new Intent(InsuranceRecordActivity.this, EditVehicleActivity.class);
+//                            intent.putExtra("vehicleID", vehicleID);
+//                            startActivity(intent);
+//                        }
+//                    });
+//                }
+//                Log.e("response", s.toString());
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            postRequest.abort();
+//            httpClient.getConnectionManager().shutdown();
+//
+//        });
+//        thread.start();
+//    }
+
     private void uploadServiceRecord() {
 
         Thread thread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + ADD_INSURANCE_RECORD);
 
             MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
+
+            HashMap<String , String> params = new HashMap<>();//xuzheng
+            File file = null;
+            String message = null;
+            String encrypt_hash = null;
+            String s3_temp_path = null;
+
             try {
-                reqEntity.addPart("insurance_record_identifier", new StringBody(serviceIDTextView.getText().toString().substring(4)));
-                Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
-
-                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-                reqEntity.addPart("policy_number", new StringBody(number));
-                reqEntity.addPart("insurer", new StringBody(insurer));
-                reqEntity.addPart("start_of_cover", new StringBody(format.format(start)));
-                reqEntity.addPart("end_of_cover", new StringBody(format.format(end)));
-                reqEntity.addPart("cover_type", new StringBody(type));
-                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
-                Log.e("recordID in request", recordIDTextView.getText().toString());
-
-                if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                params.put("insurance_record_identifier", serviceIDTextView.getText().toString().substring(4));
+                params.put("vehicle_id",vehicleID);
+                params.put("policy_number", number);
+                params.put("insurer", insurer);
+                params.put("start_of_cover",format.format(start));
+                params.put("end_of_cover",format.format(end));
+                params.put("cover_type",type);
+                params.put("record_id",recordIDTextView.getText().toString());
+                if(!((BitmapDrawable) qrImageView.getDrawable()).getBitmap().sameAs(qrCodeBitmap)){
                     Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
-                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] qrbyteArray = stream.toByteArray();
-                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
-                    reqEntity.addPart("document", recordBody);
+
+                    String root = Environment.getExternalStorageDirectory().toString();
+                    File myDir = new File(root + "/saved_images");
+                    myDir.mkdirs();
+
+                    String fname = "insurance.png";
+                    file = new File (myDir, fname);
+                    if (file.exists ()) file.delete ();
+                    file.createNewFile();
+                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, bos);
+
+
+                    bos.flush();
+                    bos.close();
+                }
+                String response = HttpUtil.uploadForm(params,"document", file, "record.png", IP_HOST+ADD_INSURANCE_RECORD);
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+
+                    message = jsonObject.optString("message");
+                    encrypt_hash= jsonObject.optString("encrypt_hash");
+                    s3_temp_path = jsonObject.optString("s3_temp_path");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
 
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+//
+//
+//                reqEntity.addPart("insurance_record_identifier", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+//                Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
+//
+//                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
+//                reqEntity.addPart("policy_number", new StringBody(number));
+//                reqEntity.addPart("insurer", new StringBody(insurer));
+//                reqEntity.addPart("start_of_cover", new StringBody(format.format(start)));
+//                reqEntity.addPart("end_of_cover", new StringBody(format.format(end)));
+//                reqEntity.addPart("cover_type", new StringBody(type));
+//                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
+//                Log.e("recordID in request", recordIDTextView.getText().toString());
+//
+//                Log.e(TAG, String.valueOf(((BitmapDrawable) qrImageView.getDrawable()).getBitmap().sameAs(qrCodeBitmap)));
+//
+//                if (!((BitmapDrawable) qrImageView.getDrawable()).getBitmap().sameAs(qrCodeBitmap)) {
+//                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+//                    Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
+//                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
+//                    byte[] qrbyteArray = stream.toByteArray();
+//                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
+//                    reqEntity.addPart("document", recordBody);
+//                }
+
             } catch (Exception e) {
-                try {
-                    reqEntity.addPart("logo", new StringBody("image error"));
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                }
+                e.printStackTrace();
             }
 
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
-                }
-                if (s.toString().contains("success")) {
+            Log.e("testest", message+"  "+encrypt_hash+"  "+s3_temp_path);
 
-                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
+
+//            URL url = null;
+//            HttpURLConnection conn = null;
+//            try {
+//                url = new URL(IP_HOST + ADD_INSURANCE_RECORD);
+//                conn = (HttpURLConnection) url.openConnection();
+//                conn.setReadTimeout(10000);
+//                conn.setConnectTimeout(15000);
+//                conn.setRequestMethod("POST");
+//                conn.setUseCaches(false);
+//                conn.setDoInput(true);
+//                conn.setDoOutput(true);
+//                conn.setRequestProperty("Connection", "Keep-Alive");
+//                conn.addRequestProperty("Content-length", reqEntity.getContentLength() + "");
+//
+////                conn.addRequestProperty(reqEntity.getContentType().getName(), reqEntity.getContentType().getValue());
+//                conn.addRequestProperty("Content-type", "multipart/form-data;boundary=aifudao7816510d1hq");
+//                conn.connect();
+//                OutputStream os = conn.getOutputStream();
+//                reqEntity.writeTo(conn.getOutputStream());
+//                os.flush();
+//                os.close();
+//
+//            } catch (MalformedURLException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+
+//            try {
+//                InputStream in = new BufferedInputStream(conn.getInputStream());
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//                StringBuilder s = new StringBuilder();
+//                String line;
+//                while ((line = reader.readLine()) != null) {
+//                    s.append(line);
+//                }
+
+                if (message.equals("success")) {
+                    if (!encrypt_hash.equals("") && !s3_temp_path.equals("")) {
                         invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
                                 number,
                                 insurer,
                                 format.format(start),
                                 format.format(end),
                                 type,
-                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
-                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
+                                encrypt_hash,
+                                s3_temp_path);
                     }
 
                     runOnUiThread(new Runnable() {
@@ -778,13 +918,10 @@ public class InsuranceRecordActivity extends AppCompatActivity {
                         }
                     });
                 }
-                Log.e("response", s.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
+//                Log.e("response", s.toString());
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
 
         });
         thread.start();

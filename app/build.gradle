@@ -72,3 +72,4 @@ dependencies {
     api 'org.apache.httpcomponents:httpcore:4.4.10'
     api 'org.apache.httpcomponents:httpmime:4.5.6'
 }
+
