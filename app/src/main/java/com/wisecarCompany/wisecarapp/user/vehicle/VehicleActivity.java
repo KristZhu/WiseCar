@@ -189,10 +189,10 @@ public class VehicleActivity extends AppCompatActivity {
         licenceImageButton.setOnClickListener(v -> startActivity(new Intent(VehicleActivity.this, LicenceActivity.class)));
 
         dashboardDiv = $(R.id.dashboardDiv);
-        dashboardDiv.setOnClickListener(v -> startDashboard());
+        dashboardDiv.setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
 
         calendarDiv = $(R.id.calendarDiv);
-        calendarDiv.setOnClickListener(v -> startCalendar());
+        calendarDiv.setOnClickListener(v ->startActivity(new Intent(this, CalendarActivity.class)));
 
         notifyTextView = $(R.id.notifyTextView1);
 
@@ -308,14 +308,6 @@ public class VehicleActivity extends AppCompatActivity {
         } else {
             return super.onKeyDown(keyCode, event);
         }
-    }
-
-    private void startDashboard() {
-        startActivity(new Intent(this, DashboardActivity.class));
-    }
-
-    private void startCalendar() {
-
     }
 
     private void showVehicles(Map<String, Vehicle> vehicles) {

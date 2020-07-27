@@ -1,0 +1,943 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/wc0bg_dark"
+    tools:context="com.wisecarCompany.wisecarapp.user.vehicle.CalendarActivity">
+
+    <ImageButton
+        android:id="@+id/backImageButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@null"
+        android:padding="0dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.1"
+        app:srcCompat="@drawable/wc0back" />
+
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/backImageButton"
+        app:layout_constraintDimensionRatio="4:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/backImageButton"
+        app:layout_constraintTop_toTopOf="@+id/backImageButton"
+        app:layout_constraintWidth_default="percent"
+        app:layout_constraintWidth_percent="0.3"
+        app:srcCompat="@drawable/wc0title"
+        android:contentDescription="TODO" />
+
+    <ImageView
+        android:id="@+id/titleImageView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backImageButton"
+        app:layout_constraintHeight_percent="0.075"
+        android:background="@drawable/wc0bg_yellow"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/titleImageView"
+        app:layout_constraintBottom_toBottomOf="@id/titleImageView"
+        android:text="My Calendar"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#007ba4" />
+    
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/calendarDiv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/titleImageView"
+        app:layout_constraintHeight_percent="0.5"
+        android:background="#ffffff">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/calendarTopDiv"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintHeight_percent="0.15"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <TextView
+                android:id="@+id/currMonthYearTextView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintWidth_percent="0.6"
+                android:text="July - 2020"
+                android:gravity="center"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#007ba4" />
+            
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/backMonthButtonDiv"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/currMonthYearTextView">
+
+                <TextView
+                    android:id="@+id/backMonthTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHeight_percent="0.5"
+                    app:layout_constraintWidth_percent="0.6"
+                    android:text="Jun"
+                    android:gravity="center"
+                    android:autoSizeTextType="uniform" />
+                
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:src="@drawable/calendar0back"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/backMonthTextView"
+                    app:layout_constraintDimensionRatio="173:200"
+                    app:layout_constraintHeight_percent="0.5"
+                    app:layout_constraintHorizontal_bias="1.0" />
+                
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/forthMonthButtonDiv"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/currMonthYearTextView"
+                app:layout_constraintRight_toRightOf="parent">
+
+                <TextView
+                    android:id="@+id/forthMonthTextView"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHeight_percent="0.5"
+                    app:layout_constraintWidth_percent="0.6"
+                    android:text="Aug"
+                    android:gravity="center"
+                    android:autoSizeTextType="uniform" />
+
+                <ImageView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:src="@drawable/calendar0forth"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toRightOf="@id/forthMonthTextView"
+                    app:layout_constraintRight_toLeftOf="parent"
+                    app:layout_constraintDimensionRatio="173:200"
+                    app:layout_constraintHeight_percent="0.5"
+                    app:layout_constraintHorizontal_bias="1.0" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/weekdayDiv"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/calendarTopDiv"
+            app:layout_constraintHeight_percent="0.15"
+            android:background="#eeeeee">
+
+            <TextView
+                android:id="@+id/sunTextView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.5"
+                android:text="S"
+                android:gravity="center"
+                android:autoSizeTextType="uniform"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/monTextView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/sunTextView"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.5"
+                android:text="M"
+                android:gravity="center"
+                android:autoSizeTextType="uniform"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tueTextView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/monTextView"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.5"
+                android:text="T"
+                android:gravity="center"
+                android:autoSizeTextType="uniform"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/wedTextView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/tueTextView"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.5"
+                android:text="W"
+                android:gravity="center"
+                android:autoSizeTextType="uniform"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/thuTextView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/wedTextView"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.5"
+                android:text="T"
+                android:gravity="center"
+                android:autoSizeTextType="uniform"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/friTextView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/thuTextView"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.5"
+                android:text="F"
+                android:gravity="center"
+                android:autoSizeTextType="uniform"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/satTextView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/friTextView"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.5"
+                android:text="S"
+                android:gravity="center"
+                android:autoSizeTextType="uniform"
+                android:textStyle="bold" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dayLine0Div"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/weekdayDiv"
+            app:layout_constraintHeight_percent="0.12">
+
+            <TextView
+                android:id="@+id/textView00"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:textColor="#ffc909"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView01"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView00"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView02"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView01"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView03"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView02"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView04"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView03"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView05"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView04"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView06"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView05"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dayLine1Div"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dayLine0Div"
+            app:layout_constraintHeight_percent="0.12">
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:textColor="#ffc909"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView10"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView11"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView13"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView12"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView14"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView13"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView15"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView14"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView16"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView15"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dayLine2Div"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dayLine1Div"
+            app:layout_constraintHeight_percent="0.12">
+
+            <TextView
+                android:id="@+id/textView20"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:textColor="#ffc909"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView21"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView20"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView22"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView21"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView23"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView22"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView24"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView23"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView25"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView24"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView26"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView25"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dayLine3Div"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dayLine2Div"
+            app:layout_constraintHeight_percent="0.12">
+
+            <TextView
+                android:id="@+id/textView30"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:textColor="#ffc909"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView31"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView30"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView32"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView31"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView33"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView32"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView34"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView33"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView35"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView34"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView36"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView35"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dayLine4Div"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dayLine3Div"
+            app:layout_constraintHeight_percent="0.12">
+
+            <TextView
+                android:id="@+id/textView40"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:textColor="#ffc909"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView41"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView40"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView42"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView41"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView43"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView42"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView44"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView43"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView45"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView44"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView46"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView45"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dayLine5Div"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dayLine4Div"
+            app:layout_constraintHeight_percent="0.12">
+
+            <TextView
+                android:id="@+id/textView50"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:textColor="#ffc909"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView51"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView50"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView52"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView51"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView53"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView52"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView54"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView53"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView55"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView54"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+            <TextView
+                android:id="@+id/textView56"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/textView55"
+                app:layout_constraintWidth_percent="0.143"
+                app:layout_constraintHeight_percent="0.625"
+                android:gravity="center"
+                android:autoSizeTextType="uniform" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageView
+        android:id="@+id/dividing"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:background="#dddddd"
+        app:layout_constraintTop_toBottomOf="@id/calendarDiv" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dividing"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp">
+
+        <LinearLayout
+            android:id="@+id/noticeDiv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"
+            android:padding="8dp"
+            android:orientation="vertical">
+<!--
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:background="#eeeeee">
+
+                <TextView
+                    android:id="@+id/number"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintWidth_percent="0.1"
+                    app:layout_constraintHeight_percent="0.5"
+                    android:text="1"
+                    android:gravity="center"
+                    android:autoSizeTextType="uniform"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/notice"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintStart_toEndOf="@id/number"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintVertical_bias="0.0"
+                    android:text="Hyundai, SSSSSSSS, Registration Due"
+                    app:layout_constraintDimensionRatio="15:1"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintStart_toEndOf="@id/number"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/notice"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:text="March 12"
+                    app:layout_constraintDimensionRatio="15:1"
+                    android:textStyle="bold"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+-->
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
