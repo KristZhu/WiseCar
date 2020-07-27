@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.user.create;
+package com.wisecarCompany.wisecarapp.user.profile;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -224,6 +224,7 @@ public class CreateUserActivity extends AppCompatActivity{
         });
 
         nextImageButton.setOnClickListener(v -> {
+            if(passImageView.getVisibility()!=View.VISIBLE || confirmPassImageView.getVisibility()!=View.VISIBLE) return;
 
             userImgDrawable = userImgImageView.getDrawable();
             username = usernameEditText.getText().toString();

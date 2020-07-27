@@ -12,7 +12,7 @@ public class CurrDriverLog {
     private boolean pausing = false;
     private double latitude = 0.0;
     private double longitude = 0.0;
-    private long duration = 0;  //last duration before pausing
+    private long duration = 0;  //total recording time (not counting time) in second
     private Map<Date, double[]> locations = new TreeMap<>();  //location every 30s, time:[lat,lng]
 
     private String vehicleID;

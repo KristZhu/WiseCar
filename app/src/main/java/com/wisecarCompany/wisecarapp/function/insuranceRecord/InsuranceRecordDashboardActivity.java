@@ -2,7 +2,6 @@ package com.wisecarCompany.wisecarapp.function.insuranceRecord;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -33,8 +32,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecord;
-import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsSendActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
@@ -260,7 +257,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
             set.constrainPercentWidth(notifyImageView.getId(), 0.1f);
             set.setHorizontalBias(notifyImageView.getId(), 1.0f);
             notifyImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            notifyImageView.setImageDrawable(getResources().getDrawable(R.drawable.dashboard0notification));
+            notifyImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
             lineLayout.addView(notifyImageView);
         }
 

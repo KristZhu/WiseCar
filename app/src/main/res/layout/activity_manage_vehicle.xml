@@ -131,7 +131,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_centerInParent="true"
-                android:src="@drawable/create_user0empty_image"
+                android:src="@drawable/profile0empty_image"
                 app:layout_constraintBottom_toBottomOf="@+id/vehicleBorderImageView"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="@+id/vehicleBorderImageView"
