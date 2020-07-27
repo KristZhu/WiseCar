@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.user.login;
+package com.wisecarCompany.wisecarapp.user.profile;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +17,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -31,7 +30,6 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.create.CreateUserActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,7 +55,7 @@ public class LoginActivity extends AppCompatActivity {
     private ImageButton createUserImageButton;
 
     private String username;
-    private String password;
+    private String hashedPassword;
     private boolean remember;
     private boolean autoLogin;
     private boolean passwordChanged;
@@ -82,10 +80,13 @@ public class LoginActivity extends AppCompatActivity {
         autoLoginCheckBox.setChecked(autoLogin);
 
         if(autoLogin) {
-            login(sp.getString("USERNAME", ""), sp.getString("PASSWORD", ""));
+            login(sp.getString("USERNAME", ""), sp.getString("HASHED_PASSWORD", ""), sp.getInt("PASSWORD_LENGTH", 10));
         } else if(remember) {
             usernameEditText.setText(sp.getString("USERNAME", ""));
-            passwordEditText.setText(sp.getString("PASSWORD", ""));
+            int passwordLength = sp.getInt("PASSWORD_LENGTH", 10);
+            StringBuffer passwordSB = new StringBuffer();
+            for(int i=0; i<passwordLength; i++) passwordSB.append("*");
+            passwordEditText.setText(passwordSB.toString());    //show a fake password with the same length of the real one
             autoLoginCheckBox.setClickable(true);
             autoLoginCheckBox.setAlpha(1.0f);
         }
@@ -122,14 +123,14 @@ public class LoginActivity extends AppCompatActivity {
             if (usernameEditText.getText().toString().length()>0 && passwordEditText.getText().toString().length()>0) {
                 username = usernameEditText.getText().toString();
 //                if(passwordChanged) password = org.apache.commons.codec.digest.DigestUtils.sha256Hex(passwordEditText.getText().toString());
-                if(passwordChanged) password = sha256(passwordEditText.getText().toString());
-                else password = passwordEditText.getText().toString();
+                if(passwordChanged) hashedPassword = sha256(passwordEditText.getText().toString());
+                else hashedPassword = sp.getString("HASHED_PASSWORD", "");
                 remember = rememberCheckBox.isChecked();
                 autoLogin = autoLoginCheckBox.isChecked();
                 Log.d(TAG, "username: " + username);
-                Log.d(TAG, "password: " + password);
+                Log.d(TAG, "hashed password: " + hashedPassword);
                 Log.d(TAG, "password changed: " + passwordChanged);
-                login(username, password);
+                login(username, hashedPassword, passwordEditText.getText().toString().length());
             } else {
                 Toast.makeText(getApplicationContext(), "Please enter username and password", Toast.LENGTH_SHORT).show();
             }
@@ -139,14 +140,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void login(String username, String password) {
+    private void login(String username, String hashedPassword, int passwordLength) {
         Toast.makeText(getApplicationContext(), "Signing in, Please Wait...", Toast.LENGTH_LONG).show();
         String URL = IP_HOST + LOGIN;
         final JSONObject jsonParam = new JSONObject();
         try {
             jsonParam.put("user_name", username);
-            jsonParam.put("password", password);
-            Log.e(TAG, password);//already hashed
+            jsonParam.put("password", hashedPassword);
+            Log.e(TAG, hashedPassword);//already hashed
 //                    jsonParam.put("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password));
 
         } catch (JSONException e) {
@@ -161,7 +162,8 @@ public class LoginActivity extends AppCompatActivity {
                 // Login successfully
                 SharedPreferences.Editor editor = sp.edit()
                         .putString("USERNAME", username)
-                        .putString("PASSWORD", password)
+                        .putString("HASHED_PASSWORD", hashedPassword)
+                        .putInt("PASSWORD_LENGTH", passwordLength)
                         //.putBoolean("REMEMBER_PASSWORD", remember)
                         //.putBoolean("AUTO_LOGIN", autoLogin);
                         .putBoolean("REMEMBER_PASSWORD", true)

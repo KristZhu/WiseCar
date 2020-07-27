@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.wisecarCompany.wisecarapp.user.login.LoginActivity;
+import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 
 public class MainActivity extends AppCompatActivity {
 

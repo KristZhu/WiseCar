@@ -5,7 +5,7 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-tools:context=".user.create.CreateUserActivity2"
+tools:context=".user.profile.CreateUserActivity2"
 android:background="@drawable/wc0bg_dark"
 android:theme="@style/Theme.AppCompat.NoActionBar">
 
@@ -46,7 +46,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent="0.5"
-            app:srcCompat="@drawable/create_user0create_account" />
+            app:srcCompat="@drawable/profile0create_account" />
 
         <ImageView
             android:id="@+id/userFNameImageView"
@@ -60,7 +60,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintTop_toBottomOf="@+id/createAccountImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent="0.3"
-            app:srcCompat="@drawable/create_user0edittext_border_2" />
+            app:srcCompat="@drawable/profile0edittext_border_2" />
 
         <EditText
             android:id="@+id/userFNameEditText"
@@ -98,7 +98,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintTop_toBottomOf="@+id/createAccountImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent="0.3"
-            app:srcCompat="@drawable/create_user0edittext_border_2" />
+            app:srcCompat="@drawable/profile0edittext_border_2" />
 
         <EditText
             android:id="@+id/userLNameEditText"
@@ -137,7 +137,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintTop_toBottomOf="@+id/userFNameImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent=".67"
-            app:srcCompat="@drawable/create_user0edittext_border" />
+            app:srcCompat="@drawable/profile0edittext_border" />
 
         <EditText
             android:id="@+id/dobEditText"
@@ -176,7 +176,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintTop_toBottomOf="@+id/dobImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent=".67"
-            app:srcCompat="@drawable/create_user0edittext_border" />
+            app:srcCompat="@drawable/profile0edittext_border" />
 
         <EditText
             android:id="@+id/address1EditText"
@@ -215,7 +215,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintTop_toBottomOf="@+id/address1ImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent=".67"
-            app:srcCompat="@drawable/create_user0edittext_border" />
+            app:srcCompat="@drawable/profile0edittext_border" />
 
         <EditText
             android:id="@+id/address2EditText"
@@ -254,7 +254,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintTop_toBottomOf="@+id/address2ImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent=".67"
-            app:srcCompat="@drawable/create_user0edittext_border" />
+            app:srcCompat="@drawable/profile0edittext_border" />
 
         <EditText
             android:id="@+id/countryEditText"
@@ -293,7 +293,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintTop_toBottomOf="@+id/countryImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent="0.3"
-            app:srcCompat="@drawable/create_user0edittext_border_2" />
+            app:srcCompat="@drawable/profile0edittext_border_2" />
 
         <EditText
             android:id="@+id/stateEditText"
@@ -332,7 +332,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintTop_toBottomOf="@+id/countryImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent="0.3"
-            app:srcCompat="@drawable/create_user0edittext_border_2" />
+            app:srcCompat="@drawable/profile0edittext_border_2" />
 
         <EditText
             android:id="@+id/postCodeEditText"
@@ -378,7 +378,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             app:layout_constraintTop_toBottomOf="@+id/stateImageView"
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent=".33"
-            app:srcCompat="@drawable/create_user0create" />
+            app:srcCompat="@drawable/profile0create" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

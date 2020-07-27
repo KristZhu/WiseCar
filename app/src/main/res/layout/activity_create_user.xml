@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".user.create.CreateUserActivity"
+    tools:context=".user.profile.CreateUserActivity"
     android:background="@drawable/wc0bg_dark"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
@@ -45,7 +45,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent="0.5"
-                app:srcCompat="@drawable/create_user0create_account" />
+                app:srcCompat="@drawable/profile0create_account" />
 
 
             <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
@@ -54,7 +54,7 @@
                 android:layout_height="0dp"
                 android:layout_centerInParent="true"
                 android:layout_marginTop="16dp"
-                android:src="@drawable/create_user0empty_image"
+                android:src="@drawable/profile0empty_image"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -75,7 +75,7 @@
                 app:layout_constraintEnd_toEndOf="@+id/usernameImageView"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/userImgImageView"
-                app:srcCompat="@drawable/create_user0upload_photo" />
+                app:srcCompat="@drawable/profile0upload_photo" />
 
             <ImageView
                 android:id="@+id/usernameImageView"
@@ -89,7 +89,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/userImgImageView"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent=".67"
-                app:srcCompat="@drawable/create_user0edittext_border" />
+                app:srcCompat="@drawable/profile0edittext_border" />
 
             <EditText
                 android:id="@+id/usernameEditText"
@@ -129,7 +129,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/usernameImageView"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent=".67"
-                app:srcCompat="@drawable/create_user0edittext_border" />
+                app:srcCompat="@drawable/profile0edittext_border" />
 
             <EditText
                 android:id="@+id/userEmailEditText"
@@ -169,7 +169,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/userEmailImageView"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent=".67"
-                app:srcCompat="@drawable/create_user0edittext_border" />
+                app:srcCompat="@drawable/profile0edittext_border" />
 
             <EditText
                 android:id="@+id/passwordEditText"
@@ -205,7 +205,7 @@
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintStart_toEndOf="@+id/passwordEditText"
                 app:layout_constraintTop_toTopOf="@+id/passwordEditText"
-                app:srcCompat="@drawable/create_user0pass" />
+                app:srcCompat="@drawable/profile0pass" />
 
             <ImageView
                 android:id="@+id/confirmPasswordImageView"
@@ -219,7 +219,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/passwordImageView"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent=".67"
-                app:srcCompat="@drawable/create_user0edittext_border" />
+                app:srcCompat="@drawable/profile0edittext_border" />
 
             <EditText
                 android:id="@+id/confirmPasswordEditText"
@@ -255,7 +255,7 @@
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintStart_toEndOf="@+id/confirmPasswordEditText"
                 app:layout_constraintTop_toTopOf="@+id/confirmPasswordEditText"
-                app:srcCompat="@drawable/create_user0pass" />
+                app:srcCompat="@drawable/profile0pass" />
 
             <ImageView
                 android:id="@+id/confirmNoPassImageView"
@@ -266,7 +266,7 @@
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintStart_toEndOf="@+id/confirmPasswordEditText"
                 app:layout_constraintTop_toTopOf="@+id/confirmPasswordEditText"
-                app:srcCompat="@drawable/create_user0nopass" />
+                app:srcCompat="@drawable/profile0nopass" />
 
             <ImageButton
                 android:id="@+id/nextImageButton"
@@ -284,7 +284,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/confirmPasswordImageView"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent=".15"
-                app:srcCompat="@drawable/create_user0next" />
+                app:srcCompat="@drawable/profile0next" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

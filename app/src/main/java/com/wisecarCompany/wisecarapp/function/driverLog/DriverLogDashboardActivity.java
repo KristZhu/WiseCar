@@ -304,7 +304,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Logs Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");
@@ -379,7 +379,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject;
-            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
             try {
                 JSONArray jsonArray = response.getJSONArray("record_list");

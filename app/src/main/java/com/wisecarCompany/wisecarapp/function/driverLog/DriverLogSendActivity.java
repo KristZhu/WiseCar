@@ -191,7 +191,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
             Log.e("Records Response", response.toString());
             JSONObject jsonObject = response;
-            DateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss", Locale.getDefault());
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             DriverLog driverLog;
             try {
 
@@ -290,11 +290,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 Log.e("JSON ERROR MESSAGE", message);
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_LONG).show();
-                    }
-                });
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Failed. Please check if the email address is validated.", Toast.LENGTH_LONG).show());
             }
 
         });

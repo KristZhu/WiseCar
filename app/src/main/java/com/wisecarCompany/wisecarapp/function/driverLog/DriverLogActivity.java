@@ -418,6 +418,7 @@ public class DriverLogActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void recording() {
         Log.d(TAG, "recording...");
         startImageButton.setAlpha(0.5f);
@@ -429,12 +430,10 @@ public class DriverLogActivity extends AppCompatActivity {
         long secD = UserInfo.getCurrLog().getDuration() % 60;
         String minDuration = minD >= 10 ? "" + minD : "0" + minD;
         String secDuration = secD >= 10 ? "" + secD : "0" + secD;
-        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", "
-                + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
+        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
 
         startLocation();
 
-        //currLog cannot sync to UserInfo.getCurrLog at the beginning.
         if(!UserInfo.getCurrLog().isTimerRunning()) {
             new Timer().schedule(new TimerTask() {
                 @SuppressLint("SetTextI18n")
@@ -487,8 +486,7 @@ public class DriverLogActivity extends AppCompatActivity {
                         long secD = UserInfo.getCurrLog().getDuration() % 60;
                         String minDuration = minD >= 10 ? "" + minD : "0" + minD;
                         String secDuration = secD >= 10 ? "" + secD : "0" + secD;
-                        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", "
-                                + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
+                        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
 
                         if (UserInfo.getCurrLog().getDuration() % 30 == 1) { //save log every 30s
                             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
@@ -713,7 +711,12 @@ public class DriverLogActivity extends AppCompatActivity {
                 Log.e("Map", "Location changed : Lat: " + location.getLatitude() + " Lng: " + location.getLongitude());
                 double distanceSinceLastSec = getDistance(UserInfo.getCurrLog().getLongitude(), UserInfo.getCurrLog().getLatitude(), location.getLongitude(), location.getLatitude());
                 Log.d(TAG, "distance(m): " + distanceSinceLastSec);
-                UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + ((int)distanceSinceLastSec) / 100 / 10.0);
+                if(distanceSinceLastSec<=100)   //Vehicle moves less than 100m in a second is reasonable
+                    UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distanceSinceLastSec / 1000.0);
+                else if(Math.abs(UserInfo.getCurrLog().getLongitude())<0.001 && Math.abs(UserInfo.getCurrLog().getLatitude())<0.001)
+                    ;   //lng&lat == 0, which is the defalut value in construction
+                else
+                    Log.e(TAG, "onLocationChanged: Location ERROR!! The vehicle moves " + distanceSinceLastSec + " meters last sec");
                 Log.d(TAG, "km: " + UserInfo.getCurrLog().getKm());
                 UserInfo.getCurrLog().setLatitude(location.getLatitude());
                 UserInfo.getCurrLog().setLongitude(location.getLongitude());
