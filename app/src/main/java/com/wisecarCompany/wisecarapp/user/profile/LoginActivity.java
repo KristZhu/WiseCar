@@ -80,6 +80,11 @@ public class LoginActivity extends AppCompatActivity {
         autoLoginCheckBox.setChecked(autoLogin);
 
         if(autoLogin) {
+            usernameEditText.setText(sp.getString("USERNAME", ""));
+            int passwordLength = sp.getInt("PASSWORD_LENGTH", 10);
+            StringBuffer passwordSB = new StringBuffer();
+            for(int i=0; i<passwordLength; i++) passwordSB.append("*");
+            passwordEditText.setText(passwordSB.toString());    //show a fake password with the same length of the real one
             login(sp.getString("USERNAME", ""), sp.getString("HASHED_PASSWORD", ""), sp.getInt("PASSWORD_LENGTH", 10));
         } else if(remember) {
             usernameEditText.setText(sp.getString("USERNAME", ""));
