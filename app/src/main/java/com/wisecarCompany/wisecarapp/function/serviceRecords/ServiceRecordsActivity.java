@@ -169,6 +169,14 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
 
+        serviceIDTextView = $(R.id.serviceIDTextView);
+        qrImageView = $(R.id.qrImageView);
+        uploadButton = $(R.id.uploadButton);
+        cameraImageButton = $(R.id.cameraImageButton);
+        recordIDTextView = $(R.id.recordIDTextView);
+        resetButton = $(R.id.resetButton);
+
+
         getRecordIdentifier((returnedIdentifier, returnedRecord_id) -> {
 
             Log.e("SERVICE identifier", identifier);
@@ -188,13 +196,6 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
             qrImageView.setImageBitmap(qrCodeBitmap);
         });
-
-        serviceIDTextView = $(R.id.serviceIDTextView);
-        qrImageView = $(R.id.qrImageView);
-        uploadButton = $(R.id.uploadButton);
-        cameraImageButton = $(R.id.cameraImageButton);
-        recordIDTextView = $(R.id.recordIDTextView);
-        resetButton = $(R.id.resetButton);
 
         resetButton.setOnClickListener(v -> qrImageView.setImageBitmap(qrCodeBitmap));
 
@@ -664,10 +665,12 @@ public class ServiceRecordsActivity extends AppCompatActivity {
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
+
                 params.put("service_record_identifier", serviceIDTextView.getText().toString().substring(4));
                 Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
 
                 params.put("record_id", recordIDTextView.getText().toString());
+                Log.e(TAG, recordIDTextView.getText().toString());
 
                 params.put("vehicle_id", vehicleID);
                 params.put("service_date", format.format(date));
@@ -695,7 +698,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
                     bos.flush();
                     bos.close();
                 }
-                String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_SERVICE_RECORD);
+                String response = HttpUtil.uploadForm(params, "document", file, "serviceRecord.png", IP_HOST + ADD_SERVICE_RECORD);
 
                 try {
                     JSONObject jsonObject = new JSONObject(response);
