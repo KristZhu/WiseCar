@@ -22,6 +22,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.StrictMode;
 import android.provider.DocumentsContract;
@@ -39,14 +40,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
@@ -76,6 +80,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class ServiceRecordsActivity extends AppCompatActivity {
@@ -143,7 +148,6 @@ public class ServiceRecordsActivity extends AppCompatActivity {
     private Bitmap qrCodeBitmap;
 
     private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
-
 
 
     @Override
@@ -354,7 +358,7 @@ public class ServiceRecordsActivity extends AppCompatActivity {
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
-            if(saveImageButton.getAlpha()<1) return;
+            if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
 
             //Log.d(TAG, "userID" + UserInfo.getUserID());
@@ -651,85 +655,85 @@ public class ServiceRecordsActivity extends AppCompatActivity {
         }
 
         Thread thread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + ADD_SERVICE_RECORD);
-
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            HashMap<String, String> params = new HashMap<>();
+            File file = null;
+            String message = null;
+            String encrypt_hash = null;
+            String s3_temp_path = null;
 
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
-                reqEntity.addPart("service_record_identifier", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+                params.put("service_record_identifier", serviceIDTextView.getText().toString().substring(4));
                 Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
 
-                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-                reqEntity.addPart("service_date", new StringBody(format.format(date)));
-                reqEntity.addPart("service_center", new StringBody(centre));
-                reqEntity.addPart("service_ref", new StringBody(refNo));
-                reqEntity.addPart("service_option_ids", new StringBody(servicesOptions));
-                reqEntity.addPart("service_notes", new StringBody(notes));
-                reqEntity.addPart("next_service_date", new StringBody(format.format(nextDate)));
-                reqEntity.addPart("next_service_odometer", new StringBody(nextDistance));
+                params.put("record_id", recordIDTextView.getText().toString());
 
-                if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                params.put("vehicle_id", vehicleID);
+                params.put("service_date", format.format(date));
+                params.put("service_center", centre);
+                params.put("service_ref", refNo);
+                params.put("service_option_ids", servicesOptions);
+                params.put("service_notes", notes);
+                params.put("next_service_date", format.format(nextDate));
+                params.put("next_service_odometer", nextDistance);
+
+                if (!((BitmapDrawable) qrImageView.getDrawable()).getBitmap().sameAs(qrCodeBitmap)) {
                     Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
-                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] qrbyteArray = stream.toByteArray();
-                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
-                    reqEntity.addPart("document", recordBody);
+
+                    String root = Environment.getExternalStorageDirectory().toString();
+                    File myDir = new File(root + "/saved_images");
+                    myDir.mkdirs();
+
+                    String fname = "serviceRecord.png";
+                    file = new File(myDir, fname);
+                    if (file.exists()) file.delete();
+                    file.createNewFile();
+                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, bos);
+
+                    bos.flush();
+                    bos.close();
                 }
-                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
-                Log.e("recordID in request", recordIDTextView.getText().toString());
+                String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_SERVICE_RECORD);
 
-
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
                 try {
-                    reqEntity.addPart("logo", new StringBody("image error"));
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
+                    JSONObject jsonObject = new JSONObject(response);
+
+                    message = jsonObject.optString("message");
+                    encrypt_hash = jsonObject.optString("encrypt_hash");
+                    s3_temp_path = jsonObject.optString("s3_temp_path");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
+            Log.e("testest", message + "  " + encrypt_hash + "  " + s3_temp_path);
+
+            if (message.equals("success")) {
+
+                if (!encrypt_hash.equals("") && !s3_temp_path.equals("")) {
+                    invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
+                            format.format(date),
+                            centre,
+                            vehicle.getRegistration_no(),
+                            encrypt_hash,
+                            s3_temp_path,
+                            servicesOptions);
                 }
-                if (s.toString().contains("success")) {
 
-                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
-                                format.format(date),
-                                centre,
-                                vehicle.getRegistration_no(),
-                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
-                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2),
-                                servicesOptions);
-                    }
-
-                    runOnUiThread(() -> {
+                runOnUiThread(new Runnable() {
+                    public void run() {
                         Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class);
                         intent.putExtra("vehicleID", vehicleID);
                         startActivity(intent);
-                    });
-                }
-                Log.e("response", s.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
+                    }
+                });
             }
-
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
-
         });
         thread.start();
     }

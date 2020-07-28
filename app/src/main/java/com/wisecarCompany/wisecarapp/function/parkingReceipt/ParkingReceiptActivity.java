@@ -15,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.StrictMode;
 import android.provider.DocumentsContract;
@@ -37,11 +38,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
@@ -60,10 +63,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -72,6 +77,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class ParkingReceiptActivity extends AppCompatActivity {
@@ -441,7 +447,7 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
-            if(saveImageButton.getAlpha()<1) return;
+            if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
             //parkingImageDrawable = licenceImageView.getDrawable();
             //...
@@ -458,7 +464,8 @@ public class ParkingReceiptActivity extends AppCompatActivity {
             if (claimable && sharedTextView.getText().toString().equals("")) {
                 Toast.makeText(getApplicationContext(), "This vehicle is currently not shared with any company, please uncheck Claimable.", Toast.LENGTH_SHORT).show();
             } else {
-                uploadParkingReceipt();
+                    uploadParkingReceipt();
+
             }
 
         });
@@ -667,87 +674,88 @@ public class ParkingReceiptActivity extends AppCompatActivity {
 
         String finalIsClaim = isClaim;
         Thread thread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + ADD_PARKING);
 
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            HashMap<String, String> params = new HashMap<>();
+            File file = null;
+            String message = null;
+            String encrypt_hash = null;
+            String s3_temp_path = null;
 
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
-                reqEntity.addPart("parking_receipt_identifier", new StringBody(idTextView.getText().toString().substring(4)));
+                params.put("parking_receipt_identifier", idTextView.getText().toString().substring(4));
                 Log.e("identifier in request", idTextView.getText().toString().substring(4));
 
-                reqEntity.addPart("vehicle_id", new StringBody(vehicle.getVehicle_id()));
-                reqEntity.addPart("ticket_reference", new StringBody(reference));
-                reqEntity.addPart("date", new StringBody(format.format(date)));
-                reqEntity.addPart("total_hours", new StringBody(String.valueOf(hour)));
-                reqEntity.addPart("fees_paid", new StringBody(String.valueOf(fee)));
-                reqEntity.addPart("notes", new StringBody(notes));
-                reqEntity.addPart("claimable", new StringBody(finalIsClaim));
-                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
+                params.put("vehicle_id", vehicle.getVehicle_id());
+                params.put("ticket_reference", reference);
+                params.put("date", format.format(date));
+                params.put("total_hours", String.valueOf(hour));
+                params.put("fees_paid", String.valueOf(fee));
+                params.put("notes", notes);
+                params.put("claimable", finalIsClaim);
+                params.put("record_id", recordIDTextView.getText().toString());
                 Log.e("recordID", recordIDTextView.getText().toString());
-                reqEntity.addPart("shared_company_id", new StringBody(sharedTextView.getText().toString()));
+                params.put("shared_company_id", sharedTextView.getText().toString());
 
-                if (parkingImageView.getDrawable() != null) {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+
+                if (!((BitmapDrawable) parkingImageView.getDrawable()).getBitmap()
+                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.licence0camera, null)).getBitmap())) {
                     Bitmap toBeUploaded = ((BitmapDrawable) parkingImageView.getDrawable()).getBitmap();
-                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] qrbyteArray = stream.toByteArray();
-                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
-                    reqEntity.addPart("document", recordBody);
+
+                    String root = Environment.getExternalStorageDirectory().toString();
+                    File myDir = new File(root + "/saved_images");
+                    myDir.mkdirs();
+
+                    String fname = "parking.png";
+                    file = new File(myDir, fname);
+                    if (file.exists()) file.delete();
+                    file.createNewFile();
+                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, bos);
+
+                    bos.flush();
+                    bos.close();
                 }
 
+                String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_PARKING);
 
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
                 try {
-                    reqEntity.addPart("logo", new StringBody("image error"));
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                }
-            }
+                    JSONObject jsonObject = new JSONObject(response);
 
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
+                    message = jsonObject.optString("message");
+                    encrypt_hash = jsonObject.optString("encrypt_hash");
+                    s3_temp_path = jsonObject.optString("s3_temp_path");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if (s.toString().contains("success")) {
 
-                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(idTextView.getText().toString().substring(4),
-                                reference,
-                                String.valueOf(hour),
-                                format.format(date),
-                                String.valueOf(fee),
-                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
-                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
-                    }
-
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(ParkingReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(ParkingReceiptActivity.this, ManageVehicleActivity.class);
-                            intent.putExtra("vehicleID", vehicleID);
-                            startActivity(intent);
-                        }
-                    });
-                }
-                Log.e("response", s.toString());
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+            Log.e("testest", message + "  " + encrypt_hash + "  " + s3_temp_path);
 
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
+            if (message.equals("success")) {
 
+                if (!encrypt_hash.equals("") && !s3_temp_path.equals("")) {
+                    invokeBlockchain(idTextView.getText().toString().substring(4),
+                            reference,
+                            String.valueOf(hour),
+                            format.format(date),
+                            String.valueOf(fee),
+                            encrypt_hash,
+                            s3_temp_path);
+                }
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(ParkingReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(ParkingReceiptActivity.this, ManageVehicleActivity.class);
+                        intent.putExtra("vehicleID", vehicleID);
+                        startActivity(intent);
+                    }
+                });
+            }
         });
         thread.start();
     }

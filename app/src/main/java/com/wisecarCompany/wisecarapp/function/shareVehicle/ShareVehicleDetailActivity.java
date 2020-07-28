@@ -32,6 +32,7 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.fuelReceipt.FuelReceiptActivity;
 import com.wisecarCompany.wisecarapp.viewElement.SwitchButton;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
@@ -48,6 +49,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -559,8 +561,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         saveImageButton.setOnClickListener(v -> {
-            if(saveImageButton.getAlpha()<1) return;
-            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
+            if (saveImageButton.getAlpha() < 1) return;
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_SHORT).show();
 
             Log.d(TAG, "companyName: " + companyName);
             Log.d(TAG, "custID: " + custID);
@@ -697,92 +699,92 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             visibilityChecked += "0";
         }
 
-        MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
+        String URL = IP_HOST + SUBMIT_SHARE_VEHICLE;
+
+        final JSONObject jsonParam = new JSONObject();
+
         try {
-            reqEntity.addPart("cust_id", new StringBody(custID));
-            reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-            reqEntity.addPart("share", new StringBody(shareChecked));
-            reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
-            reqEntity.addPart("recurring", new StringBody(recurringChecked));
+            jsonParam.put("cust_id", custID);
+            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("share", shareChecked);
+            jsonParam.put("date", dateFormat.format(date));
+            jsonParam.put("recurring", recurringChecked);
             if (recurringChecked.equals("1")) {
-                reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
-                reqEntity.addPart("recurring_days", new StringBody(recurringDays));
+                jsonParam.put("recurring_end_date", dateFormat.format(endDate));
+                jsonParam.put("recurring_days", recurringDays);
             }
-            reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
+            jsonParam.put("service_visibility", visibilityChecked);
             if (visibilityChecked.equals("1")) {
                 StringBuilder servicesSB = new StringBuilder();
                 for (int i : servicesVisibility.keySet())
                     if (servicesVisibility.get(i)) servicesSB.append(i);
-                reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
+                jsonParam.put("visible_service_ids", servicesSB.toString());
             }
-            reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
-            reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
+            jsonParam.put("start_time", timeFormat.format(start));
+            jsonParam.put("end_time", timeFormat.format(end));
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        Thread submitingThread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + SUBMIT_SHARE_VEHICLE);
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
-                }
-                if (s.toString().contains("success")) {
-                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
-                    Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
-                    intent.putExtra("vehicleID", vehicleID);
-                    startActivity(intent);
-                }
-                Log.e("response", s.toString());
-                Log.e("share_id", s.toString().substring(s.indexOf("id") + 4));
-            } catch (IOException e) {
-                e.printStackTrace();
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("submit Response", response.toString());
+            if (response.optString("message").equals("success")) {
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
+                Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
+                intent.putExtra("vehicleID", vehicleID);
+                startActivity(intent);
             }
+            Log.e("response", response.toString());
+            Log.e("share_id", response.optString("share_id"));
+        }, error -> {
+            Log.e("ERROR", String.valueOf(error.networkResponse));
 
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
-
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
+            }
         });
 
-        Thread checkingThread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + SHARE_CHECK);
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
+        String checkURL = IP_HOST + SHARE_CHECK;
+
+        JsonObjectRequest checkObjectRequest = new JsonObjectRequest(Request.Method.POST, checkURL, jsonParam, response -> {
+            Log.e("check Response", response.toString());
+            if (response.optString("message").equals("validated")) {
+                Volley.newRequestQueue(ShareVehicleDetailActivity.this).add(objectRequest);
+            }
+        }, error -> {
+            Log.e("ERROR", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if (s.toString().contains("validated")) {
-                    submitingThread.start();
-                }
-                Log.e("response", s.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
+                Log.e("JSON ERROR MESSAGE", message);
             }
 
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
-
         });
-        checkingThread.start();
+        Volley.newRequestQueue(ShareVehicleDetailActivity.this).add(checkObjectRequest);
+
     }
 
 
@@ -808,76 +810,74 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             visibilityChecked += "0";
         }
 
-        MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
+        String URL = IP_HOST + EDIT_SHARE;
+
+        final JSONObject jsonParam = new JSONObject();
+
         try {
-            reqEntity.addPart("cust_id", new StringBody(custID));
-            reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-            reqEntity.addPart("share", new StringBody(shareChecked));
-            reqEntity.addPart("date", new StringBody(dateFormat.format(date)));
-            reqEntity.addPart("recurring", new StringBody(recurringChecked));
+            jsonParam.put("cust_id", custID);
+            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("share", shareChecked);
+            jsonParam.put("date", dateFormat.format(date));
+            jsonParam.put("recurring", recurringChecked);
             if (recurringChecked.equals("1")) {
-                reqEntity.addPart("recurring_end_date", new StringBody(dateFormat.format(endDate)));
-                reqEntity.addPart("recurring_days", new StringBody(recurringDays));
+                jsonParam.put("recurring_end_date", dateFormat.format(endDate));
+                jsonParam.put("recurring_days", recurringDays);
             }
-            reqEntity.addPart("service_visibility", new StringBody(visibilityChecked));
+            jsonParam.put("service_visibility", visibilityChecked);
             if (visibilityChecked.equals("1")) {
                 StringBuilder servicesSB = new StringBuilder();
                 for (int i : servicesVisibility.keySet())
                     if (servicesVisibility.get(i)) servicesSB.append(i);
-                reqEntity.addPart("visible_service_ids", new StringBody(servicesSB.toString()));
+                jsonParam.put("visible_service_ids", servicesSB.toString());
             }
-            reqEntity.addPart("start_time", new StringBody(timeFormat.format(start)));
-            reqEntity.addPart("end_time", new StringBody(timeFormat.format(end)));
+            jsonParam.put("start_time", timeFormat.format(start));
+            jsonParam.put("end_time", timeFormat.format(end));
             if (!isShare) {
-                reqEntity.addPart("mode", new StringBody("0"));
+                jsonParam.put("mode", "0");
             } else {
-                reqEntity.addPart("mode", new StringBody("1"));
+                jsonParam.put("mode", "1");
             }
-            reqEntity.addPart("share_id", new StringBody(shareID));
-
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
+            jsonParam.put("share_id", shareID);
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        Thread Thread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + EDIT_SHARE);
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
-                }
-                if (s.toString().contains("success")) {
-                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
-                    Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
-                    intent.putExtra("vehicleID", vehicleID);
-                    startActivity(intent);
-                    Log.e("response", s.toString());
-                    Log.e("new_share_id", s.toString().substring(s.indexOf("id") + 4));
-                } else if (s.toString().contains("inactivated")) {
-                    Log.e("share_id_inactivated", s.toString().substring(s.indexOf("ed") + 4));
-                }
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Response", response.toString());
+            if (response.optString("message").equals("success")) {
+                runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
+                Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
+                intent.putExtra("vehicleID", vehicleID);
+                startActivity(intent);
+                Log.e("response", response.toString());
+                Log.e("new_share_id", response.optString("new_share_id"));
+            } else if (response.optString("message").equals("new_share_id")) {
+                Log.e("share_id_inactivated", response.optString("share_id_inactivated"));
+            }
+        }, error -> {
+            Log.e("ERROR", String.valueOf(error.networkResponse));
 
-            } catch (IOException e) {
-                e.printStackTrace();
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE", message);
             }
 
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
-
         });
-
-        Thread.start();
+        Volley.newRequestQueue(ShareVehicleDetailActivity.this).add(objectRequest);
     }
 
     private void returnFormerSharingDetails(String share_id, @Nullable final formerSharingCallbacks callbacks) {

@@ -15,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.StrictMode;
 import android.provider.DocumentsContract;
@@ -37,11 +38,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
@@ -61,10 +64,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -73,6 +78,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 public class FuelReceiptActivity extends AppCompatActivity {
@@ -139,7 +145,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
         switch (requestCode) {
             case 0:
                 Log.d(TAG, "onRequestPermissionsResult: MULTI?");
-                if(grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0){
+                if (grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0) {
                     beforeStartCamera();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
@@ -147,7 +153,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
                 break;
             case 1:
                 Log.d(TAG, "onRequestPermissionsResult: STORAGE?");
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     beforeStartStorage();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot upload the image without authorization", Toast.LENGTH_SHORT).show();
@@ -155,7 +161,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
                 break;
             case 2:
                 Log.d(TAG, "onRequestPermissionsResult: CAMERA?");
-                if(grantResults[0] == 0) {
+                if (grantResults[0] == 0) {
                     beforeStartCamera();
                 } else {
                     Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
@@ -165,7 +171,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onActivityResult(int requestCode,int resultCode,Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case TAKE_PHOTO:
@@ -214,7 +220,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
 
     }
 
-    private void beforeStartCamera () {
+    private void beforeStartCamera() {
         //create a file object to store picture
         File outputImage = new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
         try {
@@ -234,77 +240,77 @@ public class FuelReceiptActivity extends AppCompatActivity {
     }
 
 
-    private void beforeStartStorage () {
-        File outputImage = new File(getExternalCacheDir(),"output_image.jpg");
-        try{
-            if(outputImage.exists()){
+    private void beforeStartStorage() {
+        File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
+        try {
+            if (outputImage.exists()) {
                 outputImage.delete();
             }
             outputImage.createNewFile();
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         fuelImageUri = Uri.fromFile(outputImage);
-        Intent intent=new Intent("android.intent.action.GET_CONTENT");
+        Intent intent = new Intent("android.intent.action.GET_CONTENT");
         intent.setType("image/*");
-        intent.putExtra("crop",true);
-        intent.putExtra("scale",true);
+        intent.putExtra("crop", true);
+        intent.putExtra("scale", true);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fuelImageUri);
 
-        startActivityForResult(intent,CHOOSE_PHOTO);
+        startActivityForResult(intent, CHOOSE_PHOTO);
     }
 
-    private void handleImageBeforeKitKat(Intent data){
-        Uri uri=data.getData();
-        String imagePath=getImagePath(uri,null);
+    private void handleImageBeforeKitKat(Intent data) {
+        Uri uri = data.getData();
+        String imagePath = getImagePath(uri, null);
         displayImage(imagePath);
     }
 
     @TargetApi(19)
-    private void handleImageOnKitKat(Intent data){
+    private void handleImageOnKitKat(Intent data) {
         String imagePath = null;
-        Uri uri=data.getData();
-        if(DocumentsContract.isDocumentUri(this,uri)){
+        Uri uri = data.getData();
+        if (DocumentsContract.isDocumentUri(this, uri)) {
             //document type Uri
-            String docId=DocumentsContract.getDocumentId(uri);
-            if("com.android.providers.media.documents".equals(uri.getAuthority())){
-                String id=docId.split(":")[1];
-                String seletion= MediaStore.Images.Media._ID+"="+id;
-                imagePath=getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,seletion);
-            }else if("com.android.providers.downloads.documents".equals(uri.getAuthority())){
-                Uri contentUri= ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),Long.valueOf(docId));
-                imagePath=getImagePath(contentUri,null);
+            String docId = DocumentsContract.getDocumentId(uri);
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                String id = docId.split(":")[1];
+                String seletion = MediaStore.Images.Media._ID + "=" + id;
+                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, seletion);
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
+                imagePath = getImagePath(contentUri, null);
             }
-        }else if("content".equalsIgnoreCase(uri.getScheme())){
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             //content type Uri
-            imagePath=getImagePath(uri,null);
-        }else if("file".equalsIgnoreCase(uri.getScheme())){
+            imagePath = getImagePath(uri, null);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             //file type Uri
-            imagePath=uri.getPath();
+            imagePath = uri.getPath();
         }
         displayImage(imagePath);
     }
 
-    private String getImagePath(Uri uri,String selection){
-        String path=null;
+    private String getImagePath(Uri uri, String selection) {
+        String path = null;
         //get real path
-        Cursor cursor=getContentResolver().query(uri,null,selection,null,null);
-        if(cursor!=null){
-            if(cursor.moveToFirst()){
-                path=cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
             }
             cursor.close();
         }
         return path;
     }
 
-    private void displayImage(String imagePath){
-        if(imagePath!=null){
-            Bitmap bitmap= BitmapFactory.decodeFile(imagePath);
+    private void displayImage(String imagePath) {
+        if (imagePath != null) {
+            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
             fuelImageView.setImageBitmap(bitmap);
             fuelImageBitmap = bitmap;
-        }else{
-            Toast.makeText(this,"failed to get image",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "failed to get image", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -354,7 +360,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
                     .setIcon(R.mipmap.ic_launcher)
                     .setItems(ways, (dialogInterface, i) -> {
                         Log.d(TAG, "onClick: " + ways[i]);
-                        if(i==0) {  //take photo
+                        if (i == 0) {  //take photo
                             int permissionCheckCamera = ContextCompat.checkSelfPermission(FuelReceiptActivity.this, Manifest.permission.CAMERA);
                             int permissionCheckStorage = ContextCompat.checkSelfPermission(FuelReceiptActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
                             Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
@@ -367,22 +373,21 @@ public class FuelReceiptActivity extends AppCompatActivity {
                                 builder.detectFileUriExposure();
                             }
 
-                            if(permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                            if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
                                 ActivityCompat.requestPermissions(
                                         FuelReceiptActivity.this,
                                         new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         MULTI_PERMISSION_CODE
                                 );
-                            }
-                            else if(permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
+                            } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestCamera: ");
                                 ActivityCompat.requestPermissions(
                                         FuelReceiptActivity.this,
                                         new String[]{Manifest.permission.CAMERA},
                                         PERMISSION_CAMERA_REQUEST_CODE
                                 );
-                            } else if(permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
+                            } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestStorage: ");
                                 ActivityCompat.requestPermissions(
                                         FuelReceiptActivity.this,
@@ -392,15 +397,15 @@ public class FuelReceiptActivity extends AppCompatActivity {
                             } else {    //already permitted
                                 beforeStartCamera();
                             }
-                        } else if(i==1) {   //upload from phone
-                            if(ContextCompat.checkSelfPermission(FuelReceiptActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
+                        } else if (i == 1) {   //upload from phone
+                            if (ContextCompat.checkSelfPermission(FuelReceiptActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                                 Log.d(TAG, "onClickPermissionRequestStorage: ");
                                 ActivityCompat.requestPermissions(
                                         FuelReceiptActivity.this,
                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                         PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
                                 );
-                            }else{
+                            } else {
                                 beforeStartStorage();
                             }
                         } else {
@@ -471,7 +476,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
-            if(saveImageButton.getAlpha()<1) return;
+            if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
             //parkingImageDrawable = licenceImageView.getDrawable();
             //...
@@ -515,12 +520,11 @@ public class FuelReceiptActivity extends AppCompatActivity {
     }
 
     private void checkReadyToSave() {
-        if(referenceEditText.getText().toString().length()>0
-                && dateEditText.getText().toString().length()>0
-                && typeEditText.getText().toString().length()>0
-                && fuelAmountEditText.getText().toString().length()>0
-                && paidAmountEditText.getText().toString().length()>0)
-        {
+        if (referenceEditText.getText().toString().length() > 0
+                && dateEditText.getText().toString().length() > 0
+                && typeEditText.getText().toString().length() > 0
+                && fuelAmountEditText.getText().toString().length() > 0
+                && paidAmountEditText.getText().toString().length() > 0) {
             try {
                 date = displayDateFormat.parse(dateEditText.getText().toString());
             } catch (ParseException e) {
@@ -583,7 +587,7 @@ public class FuelReceiptActivity extends AppCompatActivity {
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 
@@ -692,93 +696,99 @@ public class FuelReceiptActivity extends AppCompatActivity {
 
         if (claimable) {
             isClaim = "1";
-        }else{
+        } else {
             isClaim += "0";
         }
 
         String finalIsClaim = isClaim;
         Thread thread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + ADD_FUEL);
-
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
+            HashMap<String, String> params = new HashMap<>();
+            File file = null;
+            String message = null;
+            String encrypt_hash = null;
+            String s3_temp_path = null;
+
             try {
-                reqEntity.addPart("fuel_receipt_identifier", new StringBody(idTextView.getText().toString().substring(4)));
+                params.put("fuel_receipt_identifier", idTextView.getText().toString().substring(4));
                 Log.e("identifier in request", idTextView.getText().toString().substring(4));
 
-                reqEntity.addPart("vehicle_id", new StringBody(vehicle.getVehicle_id()));
-                reqEntity.addPart("invoice_reference", new StringBody(reference));
-                reqEntity.addPart("fuel_date", new StringBody(format.format(date)));
-                reqEntity.addPart("fuel_type", new StringBody(type));
-                reqEntity.addPart("fuel_amount", new StringBody(String.valueOf(fuelAmount)));
-                reqEntity.addPart("paid_amount", new StringBody(String.valueOf(paidAmount)));
-                reqEntity.addPart("claimable", new StringBody(finalIsClaim));
-                reqEntity.addPart("record_id", new StringBody(identifierTextView.getText().toString()));
+                params.put("vehicle_id", vehicle.getVehicle_id());
+                params.put("invoice_reference", reference);
+                params.put("fuel_date", format.format(date));
+                params.put("fuel_type", type);
+                params.put("fuel_amount", String.valueOf(fuelAmount));
+                params.put("paid_amount", String.valueOf(paidAmount));
+                params.put("claimable", finalIsClaim);
+                params.put("record_id", identifierTextView.getText().toString());
                 Log.e("recordID", identifierTextView.getText().toString());
-                reqEntity.addPart("shared_company_id", new StringBody(sharedTextView.getText().toString()));
+                params.put("shared_company_id", sharedTextView.getText().toString());
 
-                if (fuelImageView.getDrawable() != null) {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                Log.e("ImageView null check",
+                        String.valueOf(!((BitmapDrawable) fuelImageView.getDrawable()).getBitmap()
+                                .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.licence0camera, null)).getBitmap())));
+
+                if (!((BitmapDrawable) fuelImageView.getDrawable()).getBitmap()
+                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.licence0camera, null)).getBitmap())) {
                     Bitmap toBeUploaded = ((BitmapDrawable) fuelImageView.getDrawable()).getBitmap();
-                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] qrbyteArray = stream.toByteArray();
-                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
-                    reqEntity.addPart("document", recordBody);
+
+                    String root = Environment.getExternalStorageDirectory().toString();
+                    File myDir = new File(root + "/saved_images");
+                    myDir.mkdirs();
+
+                    String fname = "fuel.png";
+                    file = new File(myDir, fname);
+                    if (file.exists()) file.delete();
+                    file.createNewFile();
+                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, bos);
+
+                    bos.flush();
+                    bos.close();
                 }
 
+                String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_FUEL);
 
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
                 try {
-                    reqEntity.addPart("logo", new StringBody("image error"));
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                }
-            }
+                    JSONObject jsonObject = new JSONObject(response);
 
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
+                    message = jsonObject.optString("message");
+                    encrypt_hash = jsonObject.optString("encrypt_hash");
+                    s3_temp_path = jsonObject.optString("s3_temp_path");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if (s.toString().contains("success")) {
 
-                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(idTextView.getText().toString().substring(4),
-                                reference,
-                                type,
-                                format.format(date),
-                                String.valueOf(fuelAmount),
-                                String.valueOf(paidAmount),
-                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
-                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
-                    }
-
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(FuelReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(FuelReceiptActivity.this, ManageVehicleActivity.class);
-                            intent.putExtra("vehicleID", vehicleID);
-                            startActivity(intent);
-                        }
-                    });
-                }
-                Log.e("response", s.toString());
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
+            Log.e("testest", message + "  " + encrypt_hash + "  " + s3_temp_path);
+
+            if (message.equals("success")) {
+
+                if (!encrypt_hash.equals("") && !s3_temp_path.equals("")) {
+                    invokeBlockchain(idTextView.getText().toString().substring(4),
+                            reference,
+                            type,
+                            format.format(date),
+                            String.valueOf(fuelAmount),
+                            String.valueOf(paidAmount),
+                            encrypt_hash,
+                            s3_temp_path);
+                }
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(FuelReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(FuelReceiptActivity.this, ManageVehicleActivity.class);
+                        intent.putExtra("vehicleID", vehicleID);
+                        startActivity(intent);
+                    }
+                });
+            }
 
         });
         thread.start();

@@ -77,6 +77,7 @@ public class HttpUtil {
                 return null;
             }
         }else {
+            Log.e("point 1", "point 1" );
             if (newFileName == null || newFileName.trim().equals("")) {
                 newFileName = uploadFile.getName();
             }
@@ -104,15 +105,15 @@ public class HttpUtil {
 
             byte[] headerInfo = sb.toString().getBytes("UTF-8");
             byte[] endInfo = ("\r\n--" + BOUNDARY + "--\r\n").getBytes("UTF-8");
-
+            byte[] buf = new byte[10240];
 
             URL url = new URL(urlStr);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             // 设置传输内容的格式，以及长度
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-            conn.setRequestProperty("Content-Length",
-                    String.valueOf(headerInfo.length + uploadFile.length() + endInfo.length));
+//            conn.setRequestProperty("Content-Length",
+//                    String.valueOf(headerInfo.length +buf.length + endInfo.length));
             conn.setDoOutput(true);
 
             OutputStream out = conn.getOutputStream();
@@ -120,7 +121,7 @@ public class HttpUtil {
             // 写入头部 （包含了普通的参数，以及文件的标示等）
             out.write(headerInfo);
             // 写入文件
-            byte[] buf = new byte[10240];
+
             int len;
             while ((len = in.read(buf)) != -1) {
                 out.write(buf, 0, len);
@@ -129,6 +130,8 @@ public class HttpUtil {
             out.write(endInfo);
             in.close();
             out.close();
+            Log.e("point 2 response code", String.valueOf(conn.getResponseCode()));
+            Log.e("response message", conn.getResponseMessage());
             if(conn.getResponseCode() == 200 || conn.getResponseCode() == 201){
                 InputStream inputStream = new BufferedInputStream(conn.getInputStream());
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -144,16 +147,16 @@ public class HttpUtil {
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        //需要上传的文件
-        File file = new File("ss.png");
-        // 普通参数
-        HashMap<String , String> params = new HashMap<>();
-        params.put("user", "admin");
-
-        // conn上传
-        uploadForm(params, "file", file, "ss.jpg", "http://localhost:8080/Web/UploadFile");
-
-    }
+//    public static void main(String[] args) throws IOException {
+//        //需要上传的文件
+//        File file = new File("ss.png");
+//        // 普通参数
+//        HashMap<String , String> params = new HashMap<>();
+//        params.put("user", "admin");
+//
+//        // conn上传
+//        uploadForm(params, "file", file, "ss.jpg", "http://localhost:8080/Web/UploadFile");
+//
+//    }
 
 }
