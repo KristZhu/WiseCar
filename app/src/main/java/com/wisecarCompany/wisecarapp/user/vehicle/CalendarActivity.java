@@ -81,19 +81,23 @@ public class CalendarActivity extends AppCompatActivity {
         };
         setCalendar();
 
+        noticeDiv = $(R.id.noticeDiv);
+        setNotices();
+
         backMonthButtonDiv = $(R.id.backMonthButtonDiv);
         forthMonthButtonDiv = $(R.id.forthMonthButtonDiv);
         backMonthButtonDiv.setOnClickListener(v -> {
             cal.add(Calendar.MONTH, -1);
             setCalendar();
+            noticeDiv.removeAllViews();
+            setNotices();
         });
         forthMonthButtonDiv.setOnClickListener(v -> {
             cal.add(Calendar.MONTH, 1);
             setCalendar();
+            noticeDiv.removeAllViews();
+            setNotices();
         });
-
-        noticeDiv = $(R.id.noticeDiv);
-        setNotices();
 
     }
 
@@ -136,16 +140,24 @@ public class CalendarActivity extends AppCompatActivity {
 
     private void setNotices() {
         int seq = 1;
-        for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) setNotice(entry, true, seq++);
-        for(Map.Entry<Date, String[]> entry: UserInfo.getNotices().entrySet()) setNotice(entry, false, seq++);
+        for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) {
+            Calendar cal2 = Calendar.getInstance();
+            cal2.setTime(entry.getKey());
+            if(cal.get(Calendar.YEAR) != cal2.get(Calendar.YEAR)) continue;
+            if(cal.get(Calendar.MONTH) != cal2.get(Calendar.MONTH)) continue;
+            setNotice(entry, true, seq++);
+        }
+        for(Map.Entry<Date, String[]> entry: UserInfo.getNotices().entrySet()) {
+            Calendar cal2 = Calendar.getInstance();
+            cal2.setTime(entry.getKey());
+            if(cal.get(Calendar.YEAR) != cal2.get(Calendar.YEAR)) continue;
+            if(cal.get(Calendar.MONTH) != cal2.get(Calendar.MONTH)) continue;
+            setNotice(entry, false, seq++);
+        }
     }
 
     @SuppressLint({"ResourceType", "SetTextI18n"})
     private void setNotice(Map.Entry<Date, String[]> notice, boolean isEmergency, int seq) {
-        Calendar cal2 = Calendar.getInstance();
-        cal2.setTime(notice.getKey());
-        if(cal.get(Calendar.YEAR) != cal2.get(Calendar.YEAR)) return;
-        if(cal.get(Calendar.MONTH) != cal2.get(Calendar.MONTH)) return;
         Log.d(TAG, "setNotice: " + notice);
 
         ConstraintLayout noticeLineLayout = new ConstraintLayout(this);
