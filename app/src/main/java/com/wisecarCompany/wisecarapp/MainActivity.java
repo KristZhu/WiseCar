@@ -22,8 +22,16 @@ import android.widget.RemoteViews;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
+import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,14 +50,26 @@ public class MainActivity extends AppCompatActivity {
 
 */
 
-        notification();
+
+        //below are test data:
+        UserInfo.setEmerNotices(new TreeMap<>());
+        UserInfo.setNotices(new TreeMap<>());
+        UserInfo.getNotices().put(intToDate(2020,6,5), new String[]{"Car1","notice1"});
+        UserInfo.getNotices().put(intToDate(2020,6,15), new String[]{"Car2","notice2"});
+        UserInfo.getEmerNotices().put(intToDate(2020,6,25), new String[]{"Car3","notice3"});
+        UserInfo.getEmerNotices().put(intToDate(2020,6,30), new String[]{"Car2","notice4"});
+        UserInfo.getNotices().put(intToDate(2020,7,5), new String[]{"Car1","notice5"});
+        //test data over
+        int seq = 0;
+        for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) notification(entry, seq++);
 
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
         //startActivity(new Intent(MainActivity.this, DashboardActivity.class));
 
     }
 
-    private void notification() {
+    private void notification(Map.Entry<Date, String[]> notice, int seq) {
+        if (notice.getValue().length!=2) Log.e(TAG, "setNotice in status bar: notice value String[] length != 2 ERR0R!!");
 
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         //8.0 and above need channelId
@@ -67,17 +87,36 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification notification = new NotificationCompat.Builder(this, "default")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("标题")
-                .setContentText("这是内容，点击我可以跳转")
+                .setSmallIcon(R.drawable.wisecar_logo)
+                .setContentTitle("Due Date: " + new SimpleDateFormat("dd MMM", Locale.getDefault()).format(notice.getKey()))
+                .setContentText(notice.getValue()[0] + ", " + notice.getValue()[1])
                 .setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setWhen(System.currentTimeMillis())
                 .setContentIntent(pendingIntent)
                 .build();
 
-        manager.notify(1, notification);
+        manager.notify(seq, notification);
 
+    }
+
+    private static java.util.Date intToDate(int year, int month, int day) {
+        StringBuffer sb = new StringBuffer();
+        if (day < 10) sb.append("0" + day);
+        else sb.append(day);
+        sb.append("/");
+        month++;
+        if (month < 10) sb.append("0" + month);
+        else sb.append(month);
+        sb.append("/" + year);
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        java.util.Date date = null;
+        try {
+            date = format.parse(sb.toString());
+        } catch (ParseException e) {
+            return null;
+        }
+        return date;
     }
 
 }

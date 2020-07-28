@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import com.wisecarCompany.wisecarapp.function.driverLog.CurrDriverLog;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 
+import java.util.Date;
 import java.util.Map;
 
 public class UserInfo {
@@ -17,6 +18,8 @@ public class UserInfo {
     private static Bitmap userImg;
     private static Map<String, Vehicle> vehicles; //key: ID
     private static CurrDriverLog currLog;
+    private static Map<Date, String[]> notices;   //value: {regNo, noticeContent}
+    private static Map<Date, String[]> emerNotices;
 
     public static void clear() {
         setUserID(null);
@@ -89,5 +92,21 @@ public class UserInfo {
 
     public static void setCurrLog(CurrDriverLog currLog) {
         UserInfo.currLog = currLog;
+    }
+
+    public static Map<Date, String[]> getNotices() {
+        return notices;
+    }
+
+    public static void setNotices(Map<Date, String[]> notices) {
+        UserInfo.notices = notices;
+    }
+
+    public static Map<Date, String[]> getEmerNotices() {
+        return emerNotices;
+    }
+
+    public static void setEmerNotices(Map<Date, String[]> emerNotices) {
+        UserInfo.emerNotices = emerNotices;
     }
 }

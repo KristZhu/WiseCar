@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.shareVehicle.ShareVehicleListActivity;
+import com.wisecarCompany.wisecarapp.user.UserInfo;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,8 +52,6 @@ public class CalendarActivity extends AppCompatActivity {
     private LinearLayout noticeDiv;
 
     private Calendar cal;
-    private Map<Date, String> notices;
-    private Map<Date, String> emerNotices;
 //  if(Math.abs(cal.getTime().getTime() - new Date().getTime()) <= 7*24*60*60*1000) {   //within 7 days before/from now
 
 
@@ -63,16 +62,6 @@ public class CalendarActivity extends AppCompatActivity {
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(this, VehicleActivity.class)));
-
-        //below are test data:
-        emerNotices = new TreeMap<>();
-        notices = new TreeMap<>();
-        notices.put(intToDate(2020,6,5), "notice1");
-        notices.put(intToDate(2020,6,15), "notice2");
-        emerNotices.put(intToDate(2020,6,25), "emergency1");
-        emerNotices.put(intToDate(2020,6,30), "emergency2");
-        notices.put(intToDate(2020,7,5), "notice3");
-        //test data over
 
         cal = Calendar.getInstance();
         cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH),0, 0, 0);   //still contains millisec, need /1000*1000 to get only date
@@ -92,19 +81,23 @@ public class CalendarActivity extends AppCompatActivity {
         };
         setCalendar();
 
+        noticeDiv = $(R.id.noticeDiv);
+        setNotices();
+
         backMonthButtonDiv = $(R.id.backMonthButtonDiv);
         forthMonthButtonDiv = $(R.id.forthMonthButtonDiv);
         backMonthButtonDiv.setOnClickListener(v -> {
             cal.add(Calendar.MONTH, -1);
             setCalendar();
+            noticeDiv.removeAllViews();
+            setNotices();
         });
         forthMonthButtonDiv.setOnClickListener(v -> {
             cal.add(Calendar.MONTH, 1);
             setCalendar();
+            noticeDiv.removeAllViews();
+            setNotices();
         });
-
-        noticeDiv = $(R.id.noticeDiv);
-        setNotices();
 
     }
 
@@ -117,10 +110,10 @@ public class CalendarActivity extends AppCompatActivity {
         for(int i=0; i<weekIndex; i++) dateTextView[0][i].setText("");  //other days not in this month
         for(int i=1; i<=daysOfMonth; i++) {
             dateTextView[week][weekIndex].setText(i+"");
-            if(emerNotices.containsKey(new Date(cal.getTime().getTime()/1000*1000))) {  //only get date not time
+            if(UserInfo.getEmerNotices().containsKey(new Date(cal.getTime().getTime()/1000*1000))) {  //only get date not time
                 dateTextView[week][weekIndex].setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
                 dateTextView[week][weekIndex].setTextColor(0xffff0000); //red
-            } else if(notices.containsKey(new Date(cal.getTime().getTime()/1000*1000))) {
+            } else if(UserInfo.getNotices().containsKey(new Date(cal.getTime().getTime()/1000*1000))) {
                 dateTextView[week][weekIndex].setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
                 dateTextView[week][weekIndex].setTextColor(0xff71C984); //green
             } else {
@@ -147,16 +140,24 @@ public class CalendarActivity extends AppCompatActivity {
 
     private void setNotices() {
         int seq = 1;
-        for(Map.Entry<Date, String> entry: emerNotices.entrySet()) setNotice(entry, true, seq++);
-        for(Map.Entry<Date, String> entry: notices.entrySet()) setNotice(entry, false, seq++);
+        for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) {
+            Calendar cal2 = Calendar.getInstance();
+            cal2.setTime(entry.getKey());
+            if(cal.get(Calendar.YEAR) != cal2.get(Calendar.YEAR)) continue;
+            if(cal.get(Calendar.MONTH) != cal2.get(Calendar.MONTH)) continue;
+            setNotice(entry, true, seq++);
+        }
+        for(Map.Entry<Date, String[]> entry: UserInfo.getNotices().entrySet()) {
+            Calendar cal2 = Calendar.getInstance();
+            cal2.setTime(entry.getKey());
+            if(cal.get(Calendar.YEAR) != cal2.get(Calendar.YEAR)) continue;
+            if(cal.get(Calendar.MONTH) != cal2.get(Calendar.MONTH)) continue;
+            setNotice(entry, false, seq++);
+        }
     }
 
     @SuppressLint({"ResourceType", "SetTextI18n"})
-    private void setNotice(Map.Entry<Date, String> notice, boolean isEmergency, int seq) {
-        Calendar cal2 = Calendar.getInstance();
-        cal2.setTime(notice.getKey());
-        if(cal.get(Calendar.YEAR) != cal2.get(Calendar.YEAR)) return;
-        if(cal.get(Calendar.MONTH) != cal2.get(Calendar.MONTH)) return;
+    private void setNotice(Map.Entry<Date, String[]> notice, boolean isEmergency, int seq) {
         Log.d(TAG, "setNotice: " + notice);
 
         ConstraintLayout noticeLineLayout = new ConstraintLayout(this);
@@ -186,7 +187,8 @@ public class CalendarActivity extends AppCompatActivity {
         noticeTextView.setId(2);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) noticeTextView.setAutoSizeTextTypeUniformWithConfiguration(14, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         noticeTextView.setTextColor(isEmergency ? 0xffff0000 : 0xff007ba4);
-        noticeTextView.setText(notice.getValue());
+        noticeTextView.setText(notice.getValue()[0] + ", " + notice.getValue()[1]);
+        if (notice.getValue().length!=2) Log.e(TAG, "setNotice: notice value String[] length != 2 ERR0R!!");
         noticeTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         set.connect(noticeTextView.getId(), ConstraintSet.START, seqTextView.getId(), ConstraintSet.END, 8);
         set.connect(noticeTextView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 8);
@@ -221,24 +223,5 @@ public class CalendarActivity extends AppCompatActivity {
 
     private <T extends View> T $(int id) {
         return (T) findViewById(id);
-    }
-
-    private static java.util.Date intToDate(int year, int month, int day) {
-        StringBuffer sb = new StringBuffer();
-        if (day < 10) sb.append("0" + day);
-        else sb.append(day);
-        sb.append("/");
-        month++;
-        if (month < 10) sb.append("0" + month);
-        else sb.append(month);
-        sb.append("/" + year);
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        java.util.Date date = null;
-        try {
-            date = format.parse(sb.toString());
-        } catch (ParseException e) {
-            return null;
-        }
-        return date;
     }
 }
