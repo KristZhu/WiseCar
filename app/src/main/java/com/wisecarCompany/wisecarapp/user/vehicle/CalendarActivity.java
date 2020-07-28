@@ -119,7 +119,7 @@ public class CalendarActivity extends AppCompatActivity {
             } else {
                 dateTextView[week][weekIndex].setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
                 if(weekIndex==0) dateTextView[week][weekIndex].setTextColor(0xffffc909);
-                else dateTextView[week][weekIndex].setTextColor(0xff000000);
+                else dateTextView[week][weekIndex].setTextColor(0xff9fa0a4);
             }
             cal.add(Calendar.DATE, 1);
             weekIndex++;
