@@ -207,7 +207,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 app:layout_constraintBottom_toBottomOf="@id/companyIDTextView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintDimensionRatio="1:1"
-                android:src="@drawable/create_user0nopass"
+                android:src="@drawable/profile0nopass"
                 android:scaleType="fitXY"/>
 
             <TextView

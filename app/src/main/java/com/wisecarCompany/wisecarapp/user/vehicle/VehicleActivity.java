@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -22,7 +23,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,7 +36,7 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.licence.LicenceActivity;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.login.LoginActivity;
+import com.wisecarCompany.wisecarapp.user.profile.UpdateProfileActivity;
 import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 
 import org.json.JSONArray;
@@ -64,26 +64,27 @@ public class VehicleActivity extends AppCompatActivity {
     private TextView userEmailTextView;
     private ImageView userImgImageView;
 
-    private ImageButton backImageButton;
+    private ImageButton menuImageButton;
+    private LinearLayout menuDiv;
+    private ConstraintLayout profileDiv;
+
     private ImageButton settingImageButton;
     private ImageButton editImageButton;
     private ImageButton licenceImageButton;
 
-    private ImageButton dashboardImageButton;
-    private Button dashboardButton;
-    private ImageButton calendarImageButton;
-    private Button calendarButton;
+    private ConstraintLayout dashboardDiv;
+    private ConstraintLayout calendarDiv;
 
     private TextView notifyTextView;
     Date registrationDue;
     Date nextService;
 
-    private Button selectedVehicleTextView; //use button type only to make the format same as others. it is not clickable
+    private TextView selectedVehicleTextView;
     private ImageView selectedVehicleImageView;
     private LinearLayout vehicleLayout;
-    private ImageButton editVehicleImageButton;
+    private ImageButton manageVehicleImageButton;   //go to manage vehicle activity to manage THIS vehicle
     private ImageButton addImageButton;
-    private ImageButton manageImageButton;
+    private ImageButton editVehiclesImageButton;    //pencil, edit all vehicles (delete...) not implemented for now
     //private Map<String, ImageView> vehicleImageViews; //key: registrationNo, value: CircleImageView
 
     private String user_id;
@@ -136,24 +137,23 @@ public class VehicleActivity extends AppCompatActivity {
             userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
         }
 
-        backImageButton = $(R.id.backImageButton);
+        menuImageButton = $(R.id.menuImageButton);
+        menuDiv = $(R.id.menuDiv);
+        profileDiv = $(R.id.profileDiv);
+
+        menuImageButton.setOnClickListener(v -> {
+            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            else menuDiv.setVisibility(View.VISIBLE);
+        });
+
+        profileDiv.setOnClickListener(v -> {
+            Log.d(TAG, "profileDiv click");
+            startActivity(new Intent(this, UpdateProfileActivity.class));
+        });
+
+/*      logout code. for further use
+
         backImageButton.setOnClickListener(v -> {
-/*
-            final String[] ways = new String[]{"Yes", "No"};
-            AlertDialog alertDialog = new AlertDialog.Builder(VehicleActivity.this)
-                    .setTitle("Are you sure you want to log out? ")
-                    .setIcon(R.mipmap.ic_launcher)
-                    .setItems(ways, (dialogInterface, i) -> {
-                        Log.d(TAG, "onClick: " + ways[i]);
-                        if (i == 0) {  //log out
-                            UserInfo.clear();
-                            startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
-                        } else {
-                            //cancel
-                        }
-                    }).create();
-            alertDialog.show();
-*/
             if(UserInfo.getCurrLog()==null) {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                         .setTitle("Are you sure you want to log out? ")
@@ -175,7 +175,7 @@ public class VehicleActivity extends AppCompatActivity {
                         + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
             }
         });
-
+*/
         settingImageButton = $(R.id.settingImageButton);
         editImageButton = $(R.id.editImageButton);
         settingImageButton.setOnClickListener(v -> {
@@ -188,17 +188,13 @@ public class VehicleActivity extends AppCompatActivity {
         licenceImageButton = $(R.id.licenceImageButton);
         licenceImageButton.setOnClickListener(v -> startActivity(new Intent(VehicleActivity.this, LicenceActivity.class)));
 
-        dashboardImageButton = $(R.id.dashboardImageButton);
-        dashboardButton = $(R.id.dashboardButton);
-        dashboardImageButton.setOnClickListener(v -> startDashboard());
-        dashboardButton.setOnClickListener(v -> startDashboard());
+        dashboardDiv = $(R.id.dashboardDiv);
+        dashboardDiv.setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
 
-        calendarImageButton = $(R.id.calendarImageButton);
-        calendarButton = $(R.id.calendarButton);
-        calendarImageButton.setOnClickListener(v -> startCalendar());
-        calendarButton.setOnClickListener(v -> startCalendar());
+        calendarDiv = $(R.id.calendarDiv);
+        calendarDiv.setOnClickListener(v ->startActivity(new Intent(this, CalendarActivity.class)));
 
-        notifyTextView = $(R.id.notifyTextView);
+        notifyTextView = $(R.id.notifyTextView1);
 
 
         registrationDue = new Date();   //get from DB
@@ -214,9 +210,9 @@ public class VehicleActivity extends AppCompatActivity {
         selectedVehicleTextView = $(R.id.selectedVehicleTextView);
         selectedVehicleImageView = $(R.id.selectedVehicleImageView);
         vehicleLayout = $(R.id.vehicleLayout);
-        editVehicleImageButton = $(R.id.editVehicleImageButton);
+        manageVehicleImageButton = $(R.id.manageVehicleImageButton);
         addImageButton = $(R.id.addImageButton);
-        manageImageButton = $(R.id.manageImageButton);
+        editVehiclesImageButton = $(R.id.editVehiclesImageButton);
 
         vehiclesDB = new TreeMap<>((o1, o2) -> o2.compareTo(o1));
 
@@ -253,7 +249,7 @@ public class VehicleActivity extends AppCompatActivity {
 
         addImageButton.setOnClickListener(v -> addVehicle());
 
-        manageImageButton.setOnClickListener(v -> {
+        editVehiclesImageButton.setOnClickListener(v -> {
             //to be implementer
         });
 
@@ -314,14 +310,6 @@ public class VehicleActivity extends AppCompatActivity {
         }
     }
 
-    private void startDashboard() {
-        startActivity(new Intent(this, DashboardActivity.class));
-    }
-
-    private void startCalendar() {
-
-    }
-
     private void showVehicles(Map<String, Vehicle> vehicles) {
         assert vehicles.size() > 0;
 
@@ -331,7 +319,7 @@ public class VehicleActivity extends AppCompatActivity {
         for (String vehicleID : vehicles.keySet()) {
             selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
             selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
-            editVehicleImageButton.setOnClickListener(v -> editVehicle(vehicleID));
+            manageVehicleImageButton.setOnClickListener(v -> manageVehicle(vehicleID));
             break;
         }
 
@@ -347,19 +335,14 @@ public class VehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "onClickVehicle: " + vehicle);
                 selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
                 selectedVehicleImageView.setImageBitmap(vehicle.getImage());
-                editVehicleImageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        editVehicle(vehicleID);
-                    }
-                });
+                manageVehicleImageButton.setOnClickListener(v1 -> manageVehicle(vehicleID));
             });
             //vehicleImageViews.put(vehicles.get(vehicleID).getRegistration_no(), imageView);
         }
     }
 
-    private void editVehicle(String vehicleID) {
-        Log.d(TAG, "editVehicleID: " + vehicleID);
+    private void manageVehicle(String vehicleID) {
+        Log.d(TAG, "manageVehicleID: " + vehicleID);
         //the new added vehicle does not have ID locally. so its id = "a" (temp)
         //if the user wants to edit, the id must be synchronized with db
         returnVehicles(user_id, new vehicleMapCallbacks() {

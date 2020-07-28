@@ -1,6 +1,5 @@
-package com.wisecarCompany.wisecarapp.user.create;
+package com.wisecarCompany.wisecarapp.user.profile;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
@@ -14,7 +13,6 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.text.InputType;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -24,7 +22,7 @@ import android.widget.Toast;
 
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
-import com.wisecarCompany.wisecarapp.user.login.LoginActivity;
+import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;

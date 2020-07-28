@@ -28,6 +28,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+        <activity android:name=".user.vehicle.CalendarActivity"></activity>
+        <activity android:name=".user.profile.UpdateProfileActivity" />
         <activity android:name=".function.fuelReceipt.FuelReceiptSendActivity" />
         <activity android:name=".function.fuelReceipt.FuelReceiptDashboardActivity" />
         <activity android:name=".function.parkingReceipt.ParkingReceiptSendActivity" />
@@ -53,9 +55,9 @@
         <activity android:name=".user.vehicle.ManageVehicleActivity" />
         <activity android:name=".user.vehicle.VehicleActivity" />
         <activity android:name=".user.vehicle.AddVehicleActivity" />
-        <activity android:name=".user.create.CreateUserActivity2" />
-        <activity android:name=".user.login.LoginActivity" />
-        <activity android:name=".user.create.CreateUserActivity" />
+        <activity android:name=".user.profile.CreateUserActivity2" />
+        <activity android:name=".user.profile.LoginActivity" />
+        <activity android:name=".user.profile.CreateUserActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -11,6 +11,8 @@ public class UserInfo {
 
     private static String userID;
     private static String username;
+    private static String fName;
+    private static String lName;
     private static String userEmail;
     private static Bitmap userImg;
     private static Map<String, Vehicle> vehicles; //key: ID
@@ -39,6 +41,22 @@ public class UserInfo {
 
     public static void setUsername(String username) {
         UserInfo.username = username;
+    }
+
+    public static String getfName() {
+        return fName;
+    }
+
+    public static void setfName(String fName) {
+        UserInfo.fName = fName;
+    }
+
+    public static String getlName() {
+        return lName;
+    }
+
+    public static void setlName(String lName) {
+        UserInfo.lName = lName;
     }
 
     public static String getUserEmail() {
