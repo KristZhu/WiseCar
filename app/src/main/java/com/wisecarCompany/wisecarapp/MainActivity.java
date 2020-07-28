@@ -28,6 +28,8 @@ import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -36,7 +38,6 @@ import java.util.TreeMap;
 public class MainActivity extends AppCompatActivity {
 
     String TAG = "main";
-    final int NOTIFYID = 0x123;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,15 +52,29 @@ public class MainActivity extends AppCompatActivity {
 */
 
 
+        UserInfo.setEmerNotices(new TreeMap<>((o1, o2) -> { //sort by the time distance from today
+            Calendar cal = Calendar.getInstance();
+            cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH),0, 0, 0);
+            if(Math.abs(cal.getTime().getTime() - o1.getTime()) < Math.abs(cal.getTime().getTime() - o2.getTime())) return -1;
+            else if(Math.abs(cal.getTime().getTime() - o1.getTime()) > Math.abs(cal.getTime().getTime() - o2.getTime())) return 1;
+            else return 0;
+        }));
+        UserInfo.setNotices(new TreeMap<>((o1, o2) -> {
+            Calendar cal = Calendar.getInstance();
+            cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH),0, 0, 0);
+            if(Math.abs(cal.getTime().getTime() - o1.getTime()) < Math.abs(cal.getTime().getTime() - o2.getTime())) return -1;
+            else if(Math.abs(cal.getTime().getTime() - o1.getTime()) > Math.abs(cal.getTime().getTime() - o2.getTime())) return 1;
+            else return 0;
+        }));
+
         //below are test data:
-        UserInfo.setEmerNotices(new TreeMap<>());
-        UserInfo.setNotices(new TreeMap<>());
         UserInfo.getNotices().put(intToDate(2020,6,5), new String[]{"Car1","notice1"});
         UserInfo.getNotices().put(intToDate(2020,6,15), new String[]{"Car2","notice2"});
         UserInfo.getEmerNotices().put(intToDate(2020,6,25), new String[]{"Car3","notice3"});
         UserInfo.getEmerNotices().put(intToDate(2020,6,30), new String[]{"Car2","notice4"});
         UserInfo.getNotices().put(intToDate(2020,7,5), new String[]{"Car1","notice5"});
         //test data over
+
         int seq = 0;
         for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) notification(entry, seq++);
 
@@ -72,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
         if (notice.getValue().length!=2) Log.e(TAG, "setNotice in status bar: notice value String[] length != 2 ERR0R!!");
 
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        assert manager != null;
+
         //8.0 and above need channelId
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             String channelId = "default";
