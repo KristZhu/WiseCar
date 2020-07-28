@@ -1,13 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    useLibrary 'org.apache.http.legacy'
 
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
     defaultConfig {
-        applicationId "com.example.wisecarapp"
+        applicationId "com.wisecarCompany.wisecarapp"
         minSdkVersion 17
         targetSdkVersion 29
         versionCode 1
@@ -69,7 +68,5 @@ dependencies {
     implementation 'javax.servlet:javax.servlet-api:3.0.1'
     implementation 'net.glxn.qrgen:android:2.0'
 
-    api 'org.apache.httpcomponents:httpcore:4.4.10'
-    api 'org.apache.httpcomponents:httpmime:4.5.6'
 }
 
