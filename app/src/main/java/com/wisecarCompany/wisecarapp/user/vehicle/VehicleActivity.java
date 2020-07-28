@@ -75,9 +75,8 @@ public class VehicleActivity extends AppCompatActivity {
     private ConstraintLayout dashboardDiv;
     private ConstraintLayout calendarDiv;
 
-    private TextView notifyTextView;
-    Date registrationDue;
-    Date nextService;
+    private TextView[] notifyTextView;
+    private ImageView notificationImageView;
 
     private TextView selectedVehicleTextView;
     private ImageView selectedVehicleImageView;
@@ -194,18 +193,37 @@ public class VehicleActivity extends AppCompatActivity {
         calendarDiv = $(R.id.calendarDiv);
         calendarDiv.setOnClickListener(v ->startActivity(new Intent(this, CalendarActivity.class)));
 
-        notifyTextView = $(R.id.notifyTextView1);
-
-
-        registrationDue = new Date();   //get from DB
-        nextService = new Date();    //get from DB
-
-
-        //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-        String temp = "<font color='#612a00'>Registration Due - " + displayDateFormat.format(registrationDue) + "</font><br/>"
-                + "<font color='#003c00'>Next Service - " + displayDateFormat.format(nextService) + "</font>";
-        notifyTextView.setText(Html.fromHtml(temp));
-        Log.d(TAG, "notify: " + notifyTextView.getText());
+        notifyTextView = new TextView[]{$(R.id.notifyTextView0), $(R.id.notifyTextView1)};
+        notificationImageView = $(R.id.notificationImageView);
+        if(UserInfo.getEmerNotices().size()>=2) {
+            notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
+            int i = 0;
+            for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) {
+                String temp = "<font color='#ff0000'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
+                notifyTextView[i++].setText(Html.fromHtml(temp));
+                if(i>=2) break;
+            }
+        } else if(UserInfo.getEmerNotices().size()==1) {
+            notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
+            for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) {
+                String temp = "<font color='#ff0000'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
+                notifyTextView[0].setText(Html.fromHtml(temp));
+                break;
+            }
+            for(Map.Entry<Date, String[]> entry: UserInfo.getNotices().entrySet()) {
+                String temp = "<font color='#0c450c'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
+                notifyTextView[1].setText(Html.fromHtml(temp));
+                break;
+            }
+        } else {
+            notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification));
+            int i = 0;
+            for(Map.Entry<Date, String[]> entry: UserInfo.getNotices().entrySet()) {
+                String temp = "<font color='#0c450c'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
+                notifyTextView[i++].setText(Html.fromHtml(temp));
+                if(i>=2) break;
+            }
+        }
 
         selectedVehicleTextView = $(R.id.selectedVehicleTextView);
         selectedVehicleImageView = $(R.id.selectedVehicleImageView);
