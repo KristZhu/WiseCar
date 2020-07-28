@@ -1,29 +1,20 @@
 package com.wisecarCompany.wisecarapp.user.profile;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
-import android.os.StrictMode;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,24 +28,20 @@ import com.wisecarCompany.wisecarapp.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.security.MessageDigest;
 
-/**
- * Currently, the photo functions are very very crude!!
- * If user takes a new photo, he/she cannot edit it.
- * If the user upload a photo from local storage, he/she can see different ways to edit it.
- * The ways include correct ones such as "Edit Pic", while unrelated as well such as "Open Wechat" (WTH?)
- * More seriously!! If the user choose "Edit Pic", and finish editing, and save. It will CRASH!!
- * I have no idea neither why unrelated ways will appear, nor why crashes.
- * For now, user can only take or select a photo without editing. The basic behaviours work.
- */
+import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
+import cn.bingoogolapple.photopicker.imageloader.BGAImage;
+import cn.bingoogolapple.photopicker.util.BGAPhotoHelper;
+import cn.bingoogolapple.photopicker.util.BGAPhotoPickerUtil;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 
-public class CreateUserActivity extends AppCompatActivity{
+public class CreateUserActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private static final String TAG = "createUser";
 
@@ -70,12 +57,12 @@ public class CreateUserActivity extends AppCompatActivity{
     private String state;
     private String postCode;
 
-    private static final int TAKE_PHOTO = 0;
-    private static final int CHOOSE_PHOTO = 1;
-    private static final int GROP_PHOTO = 2;
-    private static final int MULTI_PERMISSION_CODE = 0;
-    private static final int PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE = 1;
-    private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
+    private static final int REQUEST_CODE_PERMISSION_CHOOSE_PHOTO = 1;
+    private static final int REQUEST_CODE_PERMISSION_TAKE_PHOTO = 2;
+
+    private static final int REQUEST_CODE_CHOOSE_PHOTO = 1;
+    private static final int REQUEST_CODE_TAKE_PHOTO = 2;
+    private static final int REQUEST_CODE_CROP = 3;
 
     private Uri userImgImageUri;
     private Bitmap userImgImageBitmap;
@@ -92,38 +79,8 @@ public class CreateUserActivity extends AppCompatActivity{
     private ImageView confirmNoPassImageView;
     private ImageButton nextImageButton;
 
+    private BGAPhotoHelper mPhotoHelper;
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionsResult: Length: " + grantResults.length);
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 0:
-                Log.d(TAG, "onRequestPermissionsResult: MULTI?");
-                if (grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0) {
-                    beforeStartCamera();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case 1:
-                Log.d(TAG, "onRequestPermissionsResult: STORAGE?");
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    beforeStartStorage();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You cannot upload the image without authorization", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case 2:
-                Log.d(TAG, "onRequestPermissionsResult: CAMERA?");
-                if (grantResults[0] == 0) {
-                    beforeStartCamera();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -161,66 +118,27 @@ public class CreateUserActivity extends AppCompatActivity{
             confirmNoPassImageView.setVisibility(View.INVISIBLE);
         });
 
+        // The directory for storing photos after taking a photo.
+        // Change to the directory where you want to store the photos after you take them.
+        // If this parameter is not passed, there is no camera function
+        File takePhotoDir = new File(Environment.getExternalStorageDirectory(), "BGAPhotoPickerTakePhoto");
+        mPhotoHelper = new BGAPhotoHelper(takePhotoDir);
+
         uploadPhotoImageButton.setOnClickListener(v -> {
-            final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
-            AlertDialog alertDialog3 = new AlertDialog.Builder(CreateUserActivity.this)
+            final String[] ways = new String[]{"Take a photo", "Upload from phone"};
+            AlertDialog alertDialog = new AlertDialog.Builder(CreateUserActivity.this)
                     .setTitle("How to upload? ")
                     .setIcon(R.mipmap.ic_launcher)
                     .setItems(ways, (dialogInterface, i) -> {
                         Log.d(TAG, "onClick: " + ways[i]);
                         if (i == 0) {  //take photo
-                            int permissionCheckCamera = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.CAMERA);
-                            int permissionCheckStorage = ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                            Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
-                            Log.d(TAG, "onClickPermissionCheckStorage: " + permissionCheckStorage);
-
-                            // solve android 7.0 problem
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                                StrictMode.setVmPolicy(builder.build());
-                                builder.detectFileUriExposure();
-                            }
-
-                            if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
-                                ActivityCompat.requestPermissions(
-                                        CreateUserActivity.this,
-                                        new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        MULTI_PERMISSION_CODE
-                                );
-                            } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
-                                Log.d(TAG, "onClickPermissionRequestCamera: ");
-                                ActivityCompat.requestPermissions(
-                                        CreateUserActivity.this,
-                                        new String[]{Manifest.permission.CAMERA},
-                                        PERMISSION_CAMERA_REQUEST_CODE
-                                );
-                            } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                ActivityCompat.requestPermissions(
-                                        CreateUserActivity.this,
-                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                );
-                            } else {    //already permitted
-                                beforeStartCamera();
-                            }
-                        } else if (i == 1) {   //upload from phone
-                            if (ContextCompat.checkSelfPermission(CreateUserActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                                Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                ActivityCompat.requestPermissions(
-                                        CreateUserActivity.this,
-                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                );
-                            } else {
-                                beforeStartStorage();
-                            }
-                        } else {
-                            //cancel
+                            takePhoto();
+                        } else {   //upload from phone
+                            choosePhoto();
                         }
-                    }).create();
-            alertDialog3.show();
+                    }).setNegativeButton("cancel", null)
+                    .create();
+            alertDialog.show();
         });
 
         nextImageButton.setOnClickListener(v -> {
@@ -253,10 +171,9 @@ public class CreateUserActivity extends AppCompatActivity{
 
                 BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
                 userImgImageBitmap = bitmapDrawable.getBitmap();
-                int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
-                int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
-
-                userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
+//                int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
+//                int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
+//                userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
 
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
@@ -287,146 +204,86 @@ public class CreateUserActivity extends AppCompatActivity{
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case TAKE_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    Intent intent = new Intent("com.android.camera.action.CROP");
-                    intent.setDataAndType(userImgImageUri, "image/**");
-                    intent.putExtra("scale", true);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
-                    startActivityForResult(intent, GROP_PHOTO);
-                }
-                break;
-
-            case GROP_PHOTO: //剪裁程序 似乎有bug 不确定是不是由于模拟器！
-                if (resultCode == RESULT_OK) {
-                    try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(userImgImageUri));
-                        userImgImageView.setImageBitmap(bitmap);
-                        userImgImageBitmap = bitmap;
-                        //show
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-
-            case CHOOSE_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    if (Build.VERSION.SDK_INT >= 19) handleImageOnKitKat(data);   //4.4 or above
-                    else handleImageBeforeKitKat(data);    //below 4.4
-                }
-                try {
-                    data.putExtra("scale", true);
-                    //data.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
-                    startActivityForResult(data, GROP_PHOTO);
-                } catch (Exception e) {
-                    Log.d(TAG, "cancel choosing photo");
-                }
-                break;
-
-            default:
-                break;
-        }
-
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        BGAPhotoHelper.onSaveInstanceState(mPhotoHelper, outState);
     }
 
-    private void beforeStartCamera() {
-        //create a file object to store picture
-        File outputImage = new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
-        try {
-            if (outputImage.exists()) {
-                outputImage.delete();
-            }
-            outputImage.createNewFile();
-            Log.d(TAG, "outputImage.createNewFile success ");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        userImgImageUri = Uri.fromFile(outputImage);
-        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
-        startActivityForResult(intent, TAKE_PHOTO);
-        //active camera
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        BGAPhotoHelper.onRestoreInstanceState(mPhotoHelper, savedInstanceState);
     }
 
-
-    private void beforeStartStorage() {
-        File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
-        try {
-            if (outputImage.exists()) {
-                outputImage.delete();
-            }
-            outputImage.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        userImgImageUri = Uri.fromFile(outputImage);
-        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-        intent.setType("image/*");
-        intent.putExtra("crop", true);
-        intent.putExtra("scale", true);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, userImgImageUri);
-
-        startActivityForResult(intent, CHOOSE_PHOTO);
-    }
-
-    private void handleImageBeforeKitKat(Intent data) {
-        Uri uri = data.getData();
-        String imagePath = getImagePath(uri, null);
-        displayImage(imagePath);
-    }
-
-    @TargetApi(19)
-    private void handleImageOnKitKat(Intent data) {
-        String imagePath = null;
-        Uri uri = data.getData();
-        if (DocumentsContract.isDocumentUri(this, uri)) {
-            //document type Uri
-            String docId = DocumentsContract.getDocumentId(uri);
-            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                String id = docId.split(":")[1];
-                String seletion = MediaStore.Images.Media._ID + "=" + id;
-                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, seletion);
-            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
-                imagePath = getImagePath(contentUri, null);
-            }
-        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            //content type Uri
-            imagePath = getImagePath(uri, null);
-        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            //file type Uri
-            imagePath = uri.getPath();
-        }
-        displayImage(imagePath);
-    }
-
-    private String getImagePath(Uri uri, String selection) {
-        String path = null;
-        //get real path
-        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
-            cursor.close();
-        }
-        return path;
-    }
-
-    private void displayImage(String imagePath) {
-        if (imagePath != null) {
-            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-            userImgImageView.setImageBitmap(bitmap);
-            userImgImageBitmap = bitmap;
+    @AfterPermissionGranted(REQUEST_CODE_PERMISSION_CHOOSE_PHOTO)
+    public void choosePhoto() {
+        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            startActivityForResult(mPhotoHelper.getChooseSystemGalleryIntent(), REQUEST_CODE_CHOOSE_PHOTO);
         } else {
-            Toast.makeText(this, "failed to get image", Toast.LENGTH_SHORT).show();
+            EasyPermissions.requestPermissions(this, "Please enable storage permissions to use the App", REQUEST_CODE_PERMISSION_CHOOSE_PHOTO, perms);
         }
     }
 
+    @AfterPermissionGranted(REQUEST_CODE_PERMISSION_TAKE_PHOTO)
+    public void takePhoto() {
+        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            try {
+                startActivityForResult(mPhotoHelper.getTakePhotoIntent(), REQUEST_CODE_TAKE_PHOTO);
+            } catch (Exception e) {
+                BGAPhotoPickerUtil.show("The current device does not support taking photos");
+            }
+        } else {
+            EasyPermissions.requestPermissions(this, "Please enable storage and camera permissions to use the App", REQUEST_CODE_PERMISSION_TAKE_PHOTO, perms);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_CHOOSE_PHOTO) {
+                try {
+                    startActivityForResult(mPhotoHelper.getCropIntent(mPhotoHelper.getFilePathFromUri(data.getData()), 200, 200), REQUEST_CODE_CROP);
+                } catch (Exception e) {
+                    mPhotoHelper.deleteCropFile();
+                    BGAPhotoPickerUtil.show("The current device does not support cropping photos");
+                    e.printStackTrace();
+                }
+            } else if (requestCode == REQUEST_CODE_TAKE_PHOTO) {
+                try {
+                    startActivityForResult(mPhotoHelper.getCropIntent(mPhotoHelper.getCameraFilePath(), 200, 200), REQUEST_CODE_CROP);
+                } catch (Exception e) {
+                    mPhotoHelper.deleteCameraFile();
+                    mPhotoHelper.deleteCropFile();
+                    BGAPhotoPickerUtil.show("The current device does not support cropping photos");
+                    e.printStackTrace();
+                }
+            } else if (requestCode == REQUEST_CODE_CROP) {
+                BGAImage.display(userImgImageView, R.drawable.profile0empty_image, mPhotoHelper.getCropFilePath(), BGABaseAdapterUtil.dp2px(200));
+            }
+        } else {
+            if (requestCode == REQUEST_CODE_CROP) {
+                mPhotoHelper.deleteCameraFile();
+                mPhotoHelper.deleteCropFile();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+    }
 
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();

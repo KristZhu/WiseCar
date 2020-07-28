@@ -58,8 +58,8 @@ dependencies {
 
     implementation 'pub.devrel:easypermissions:3.0.0'
 
-    implementation 'com.github.bumptech.glide:glide:4.9.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+    implementation 'com.github.bumptech.glide:glide:4.10.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
 
     implementation 'com.android.volley:volley:1.1.1'
     implementation 'com.google.code.gson:gson:2.8.5'
@@ -71,5 +71,17 @@ dependencies {
 
     api 'org.apache.httpcomponents:httpcore:4.4.10'
     api 'org.apache.httpcomponents:httpmime:4.5.6'
-}
 
+    implementation 'cn.bingoogolapple:bga-photopicker:2.0.2@aar'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'cn.bingoogolapple:bga-baseadapter:2.0.0@aar'
+
+    implementation 'com.github.bumptech.glide:glide:4.10.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    implementation 'org.xutils:xutils:3.8.3'
+
+}

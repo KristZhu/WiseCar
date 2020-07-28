@@ -1,16 +1,22 @@
 package com.wisecarCompany.wisecarapp.user.profile;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -24,9 +30,18 @@ import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
+import java.io.File;
 import java.security.MessageDigest;
+import java.util.List;
 
-public class UpdateProfileActivity extends AppCompatActivity {
+import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
+import cn.bingoogolapple.photopicker.imageloader.BGAImage;
+import cn.bingoogolapple.photopicker.util.BGAPhotoHelper;
+import cn.bingoogolapple.photopicker.util.BGAPhotoPickerUtil;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class UpdateProfileActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private final static String TAG = "Update Profile";
     private SharedPreferences sp;
@@ -35,10 +50,10 @@ public class UpdateProfileActivity extends AppCompatActivity {
     private String lName;
     private String email;
     private String hashedPassword;
+    private Bitmap userImgBitmap;
+    private boolean passwordChanged;
 
     private ImageButton backImageButton;
-
-    private ImageButton updateImageButton;
 
     private EditText fNameEditText;
     private EditText lNameEditText;
@@ -50,7 +65,19 @@ public class UpdateProfileActivity extends AppCompatActivity {
     private ImageView confirmPassImageView;
     private ImageView confirmNoPassImageView;
 
-    private boolean passwordChanged;
+    private ImageButton uploadPhotoImageButton;
+    private ImageView userImgImageView;
+
+    private ImageButton updateImageButton;
+
+    private static final int REQUEST_CODE_PERMISSION_CHOOSE_PHOTO = 1;
+    private static final int REQUEST_CODE_PERMISSION_TAKE_PHOTO = 2;
+
+    private static final int REQUEST_CODE_CHOOSE_PHOTO = 1;
+    private static final int REQUEST_CODE_TAKE_PHOTO = 2;
+    private static final int REQUEST_CODE_CROP = 3;
+
+    private BGAPhotoHelper mPhotoHelper;
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -79,7 +106,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
         emailEditText.setText(UserInfo.getUserEmail());
 
         int passwordLength = sp.getInt("PASSWORD_LENGTH", 10);
-        StringBuffer passwordSB = new StringBuffer();
+        StringBuilder passwordSB = new StringBuilder();
         for(int i=0; i<passwordLength; i++) passwordSB.append("*");
         passwordEditText.setText(passwordSB.toString());    //show a fake password with the same length of the real one
         confirmPasswordEditText.setText(passwordSB.toString());
@@ -125,14 +152,43 @@ public class UpdateProfileActivity extends AppCompatActivity {
             confirmNoPassImageView.setVisibility(View.INVISIBLE);
         });
 
+        userImgImageView = $(R.id.userImgImageView);
+        if(UserInfo.getUserImg()!=null) userImgImageView.setImageBitmap(UserInfo.getUserImg());
+        uploadPhotoImageButton = $(R.id.uploadPhotoImageButton);
+
+        // The directory for storing photos after taking a photo.
+        // Change to the directory where you want to store the photos after you take them.
+        // If this parameter is not passed, there is no camera function
+        File takePhotoDir = new File(Environment.getExternalStorageDirectory(), "BGAPhotoPickerTakePhoto");
+        mPhotoHelper = new BGAPhotoHelper(takePhotoDir);
+
+        uploadPhotoImageButton.setOnClickListener(v -> {
+            final String[] ways = new String[]{"Take a photo", "Upload from phone"};
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
+                    .setTitle("How to upload? ")
+                    .setIcon(R.mipmap.ic_launcher)
+                    .setItems(ways, (dialogInterface, i) -> {
+                        Log.d(TAG, "onClick: " + ways[i]);
+                        if (i == 0) {  //take photo
+                            takePhoto();
+                        } else {   //upload from phone
+                            choosePhoto();
+                        }
+                    }).setNegativeButton("cancel", null)
+                    .create();
+            alertDialog.show();
+        });
+
         updateImageButton = $(R.id.updateImageButton);
         updateImageButton.setOnClickListener(v -> {
+            BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
+            userImgBitmap = bitmapDrawable.getBitmap();
+            fName = fNameEditText.getText().toString();
+            lName = lNameEditText.getText().toString();
+            email = emailEditText.getText().toString();
+
             if(passwordChanged) {
                 if(passImageView.getVisibility()!=View.VISIBLE || confirmPassImageView.getVisibility()!=View.VISIBLE) return;
-
-                fName = fNameEditText.getText().toString();
-                lName = lNameEditText.getText().toString();
-                email = emailEditText.getText().toString();
                 hashedPassword = sha256(passwordEditText.getText().toString());
 
                 final EditText et = new EditText(this);
@@ -151,23 +207,21 @@ public class UpdateProfileActivity extends AppCompatActivity {
                                         .putBoolean("REMEMBER_PASSWORD", false)
                                         .putBoolean("AUTO_LOGIN", false);
                                 editor.commit();
-                                update(fName, lName, email, hashedPassword);
+                                update(userImgBitmap, fName, lName, email, hashedPassword);
                             } else {
                                 Toast.makeText(this, "Old password incorrect! ", Toast.LENGTH_SHORT).show();
                             }
                         }).setNegativeButton("Cancel", ((dialog, which) -> hideSoftInput(v.getWindowToken())))
                         .show();
             } else {
-                fName = fNameEditText.getText().toString();
-                lName = lNameEditText.getText().toString();
-                email = emailEditText.getText().toString();
-                update(fName, lName, email);
+                update(userImgBitmap, fName, lName, email);
             }
         });
 
     }
 
-    private void update(String fName, String lName, String email, String hashedPassword) {
+    private void update(Bitmap bitmap, String fName, String lName, String email, String hashedPassword) {
+        UserInfo.setUserImg(bitmap);
         UserInfo.setfName(fName);
         UserInfo.setlName(lName);
         UserInfo.setUserEmail(email);
@@ -178,7 +232,8 @@ public class UpdateProfileActivity extends AppCompatActivity {
         startActivity(new Intent(this, LoginActivity.class));
     }
 
-    private void update(String fName, String lName, String email) {
+    private void update(Bitmap bitmap, String fName, String lName, String email) {
+        UserInfo.setUserImg(bitmap);
         UserInfo.setfName(fName);
         UserInfo.setlName(lName);
         UserInfo.setUserEmail(email);
@@ -188,6 +243,90 @@ public class UpdateProfileActivity extends AppCompatActivity {
 
         startActivity(new Intent(this, VehicleActivity.class));
     }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        BGAPhotoHelper.onSaveInstanceState(mPhotoHelper, outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        BGAPhotoHelper.onRestoreInstanceState(mPhotoHelper, savedInstanceState);
+    }
+
+    @AfterPermissionGranted(REQUEST_CODE_PERMISSION_CHOOSE_PHOTO)
+    public void choosePhoto() {
+        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            startActivityForResult(mPhotoHelper.getChooseSystemGalleryIntent(), REQUEST_CODE_CHOOSE_PHOTO);
+        } else {
+            EasyPermissions.requestPermissions(this, "Please enable storage permissions to use the App", REQUEST_CODE_PERMISSION_CHOOSE_PHOTO, perms);
+        }
+    }
+
+    @AfterPermissionGranted(REQUEST_CODE_PERMISSION_TAKE_PHOTO)
+    public void takePhoto() {
+        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            try {
+                startActivityForResult(mPhotoHelper.getTakePhotoIntent(), REQUEST_CODE_TAKE_PHOTO);
+            } catch (Exception e) {
+                BGAPhotoPickerUtil.show("The current device does not support taking photos");
+            }
+        } else {
+            EasyPermissions.requestPermissions(this, "Please enable storage and camera permissions to use the App", REQUEST_CODE_PERMISSION_TAKE_PHOTO, perms);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_CHOOSE_PHOTO) {
+                try {
+                    startActivityForResult(mPhotoHelper.getCropIntent(mPhotoHelper.getFilePathFromUri(data.getData()), 200, 200), REQUEST_CODE_CROP);
+                } catch (Exception e) {
+                    mPhotoHelper.deleteCropFile();
+                    BGAPhotoPickerUtil.show("The current device does not support cropping photos");
+                    e.printStackTrace();
+                }
+            } else if (requestCode == REQUEST_CODE_TAKE_PHOTO) {
+                try {
+                    startActivityForResult(mPhotoHelper.getCropIntent(mPhotoHelper.getCameraFilePath(), 200, 200), REQUEST_CODE_CROP);
+                } catch (Exception e) {
+                    mPhotoHelper.deleteCameraFile();
+                    mPhotoHelper.deleteCropFile();
+                    BGAPhotoPickerUtil.show("The current device does not support cropping photos");
+                    e.printStackTrace();
+                }
+            } else if (requestCode == REQUEST_CODE_CROP) {
+                BGAImage.display(userImgImageView, R.drawable.profile0empty_image, mPhotoHelper.getCropFilePath(), BGABaseAdapterUtil.dp2px(200));
+            }
+        } else {
+            if (requestCode == REQUEST_CODE_CROP) {
+                mPhotoHelper.deleteCameraFile();
+                mPhotoHelper.deleteCropFile();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+    }
+
 
     public static String sha256(String base) {
         try {

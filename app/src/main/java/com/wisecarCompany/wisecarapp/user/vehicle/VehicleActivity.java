@@ -64,9 +64,13 @@ public class VehicleActivity extends AppCompatActivity {
     private TextView userEmailTextView;
     private ImageView userImgImageView;
 
+    private ConstraintLayout imageDiv;
+    private ConstraintLayout mainDiv;
     private ImageButton menuImageButton;
     private LinearLayout menuDiv;
     private ConstraintLayout profileDiv;
+    private ConstraintLayout devicesDiv;
+    private ConstraintLayout aboutDiv;
 
     private ImageButton settingImageButton;
     private ImageButton editImageButton;
@@ -139,18 +143,29 @@ public class VehicleActivity extends AppCompatActivity {
         menuImageButton = $(R.id.menuImageButton);
         menuDiv = $(R.id.menuDiv);
         profileDiv = $(R.id.profileDiv);
+        devicesDiv = $(R.id.devicesDiv);
+        aboutDiv = $(R.id.aboutDiv);
 
+        imageDiv = $(R.id.imageDiv);
+        mainDiv = $(R.id.mainDiv);
         menuImageButton.setOnClickListener(v -> {
-            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
-            else menuDiv.setVisibility(View.VISIBLE);
+            if(menuDiv.getVisibility()==View.VISIBLE) {
+                menuDiv.setVisibility(View.GONE);
+            } else {
+                menuDiv.setVisibility(View.VISIBLE);
+                imageDiv.setClickable(true);
+                mainDiv.setClickable(true);
+                imageDiv.setOnClickListener(v1 -> menuDiv.setVisibility(View.GONE));
+                mainDiv.setOnClickListener(v1 -> menuDiv.setVisibility(View.GONE));
+            }
         });
 
-        profileDiv.setOnClickListener(v -> {
-            Log.d(TAG, "profileDiv click");
-            startActivity(new Intent(this, UpdateProfileActivity.class));
-        });
+        profileDiv.setOnClickListener(v -> startActivity(new Intent(this, UpdateProfileActivity.class)));
+        devicesDiv.setOnClickListener(v -> Toast.makeText(this, "This function is not available now", Toast.LENGTH_SHORT));
+        //aboutDiv.setOnClickListener(v -> startActivity(new Intent(this, AboutActivity.class)));
 
-/*      logout code. for further use
+/*
+        logout code. for further use
 
         backImageButton.setOnClickListener(v -> {
             if(UserInfo.getCurrLog()==null) {
@@ -175,6 +190,7 @@ public class VehicleActivity extends AppCompatActivity {
             }
         });
 */
+
         settingImageButton = $(R.id.settingImageButton);
         editImageButton = $(R.id.editImageButton);
         settingImageButton.setOnClickListener(v -> {

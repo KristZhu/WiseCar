@@ -69,6 +69,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
 
+
 public class DriverLogActivity extends AppCompatActivity {
 
     private final static String TAG = "DriverLogActivity";

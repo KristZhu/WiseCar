@@ -29,7 +29,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".user.vehicle.CalendarActivity"></activity>
+        <activity android:name=".TestActivity"></activity>
+        <activity android:name=".user.vehicle.CalendarActivity" />
         <activity android:name=".user.profile.UpdateProfileActivity" />
         <activity android:name=".function.fuelReceipt.FuelReceiptSendActivity" />
         <activity android:name=".function.fuelReceipt.FuelReceiptDashboardActivity" />

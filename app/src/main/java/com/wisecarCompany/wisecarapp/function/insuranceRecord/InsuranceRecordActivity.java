@@ -4,28 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.DatePickerDialog;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
-import android.os.StrictMode;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -46,50 +36,36 @@ import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
-import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import net.glxn.qrgen.android.QRCode;
 import net.glxn.qrgen.core.image.ImageType;
 
-public class InsuranceRecordActivity extends AppCompatActivity {
+import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
+import cn.bingoogolapple.photopicker.imageloader.BGAImage;
+import cn.bingoogolapple.photopicker.util.BGAPhotoHelper;
+import cn.bingoogolapple.photopicker.util.BGAPhotoPickerUtil;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class InsuranceRecordActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private static final String TAG = "Insurance Record";
 
@@ -131,12 +107,15 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 
     private ImageButton saveImageButton;
 
-    private static final int TAKE_PHOTO = 0;
-    private static final int CHOOSE_PHOTO = 1;
-    private static final int GROP_PHOTO = 2;
-    private static final int MULTI_PERMISSION_CODE = 0;
-    private static final int PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE = 1;
-    private static final int PERMISSION_CAMERA_REQUEST_CODE = 2;
+
+    private static final int REQUEST_CODE_PERMISSION_CHOOSE_PHOTO = 1;
+    private static final int REQUEST_CODE_PERMISSION_TAKE_PHOTO = 2;
+
+    private static final int REQUEST_CODE_CHOOSE_PHOTO = 1;
+    private static final int REQUEST_CODE_TAKE_PHOTO = 2;
+    private static final int REQUEST_CODE_CROP = 3;
+
+    private BGAPhotoHelper mPhotoHelper;
 
 
     // TO BE ADJUSTED
@@ -196,67 +175,32 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 
         resetButton.setOnClickListener(v -> qrImageView.setImageBitmap(qrCodeBitmap));
 
-        uploadButton.setOnClickListener(v -> Log.d(TAG, "upload record: "));
+        uploadButton.setOnClickListener(v -> {
+            Log.d(TAG, "upload record: ");
+            //not implemented
+        });
+
+
+        // The directory for storing photos after taking a photo.
+        // Change to the directory where you want to store the photos after you take them.
+        // If this parameter is not passed, there is no camera function
+        File takePhotoDir = new File(Environment.getExternalStorageDirectory(), "BGAPhotoPickerTakePhoto");
+        mPhotoHelper = new BGAPhotoHelper(takePhotoDir);
 
         cameraImageButton.setOnClickListener(v -> {
-            final String[] ways = new String[]{"Take a photo", "Upload from phone", "Cancel"};
-            AlertDialog alertDialog = new AlertDialog.Builder(InsuranceRecordActivity.this)
+            final String[] ways = new String[]{"Take a photo", "Upload from phone"};
+            AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setTitle("How to upload? ")
                     .setIcon(R.mipmap.ic_launcher)
                     .setItems(ways, (dialogInterface, i) -> {
                         Log.d(TAG, "onClick: " + ways[i]);
                         if (i == 0) {  //take photo
-                            int permissionCheckCamera = ContextCompat.checkSelfPermission(InsuranceRecordActivity.this, Manifest.permission.CAMERA);
-                            int permissionCheckStorage = ContextCompat.checkSelfPermission(InsuranceRecordActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                            Log.d(TAG, "onClickPermissionCheckCamera: " + permissionCheckCamera);
-                            Log.d(TAG, "onClickPermissionCheckStorage: " + permissionCheckStorage);
-
-                            // solve android 7.0 problem
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                                StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                                StrictMode.setVmPolicy(builder.build());
-                                builder.detectFileUriExposure();
-                            }
-
-                            if (permissionCheckCamera == PackageManager.PERMISSION_DENIED && permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                Log.d(TAG, "onClickPermissionRequestCamera&Storage: ");
-                                ActivityCompat.requestPermissions(
-                                        InsuranceRecordActivity.this,
-                                        new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        MULTI_PERMISSION_CODE
-                                );
-                            } else if (permissionCheckCamera == PackageManager.PERMISSION_DENIED) {
-                                Log.d(TAG, "onClickPermissionRequestCamera: ");
-                                ActivityCompat.requestPermissions(
-                                        InsuranceRecordActivity.this,
-                                        new String[]{Manifest.permission.CAMERA},
-                                        PERMISSION_CAMERA_REQUEST_CODE
-                                );
-                            } else if (permissionCheckStorage == PackageManager.PERMISSION_DENIED) {
-                                Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                ActivityCompat.requestPermissions(
-                                        InsuranceRecordActivity.this,
-                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                );
-                            } else {
-                                beforeStartCamera();
-                            }
-                        } else if (i == 1) {   //upload from phone
-                            if (ContextCompat.checkSelfPermission(InsuranceRecordActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                                Log.d(TAG, "onClickPermissionRequestStorage: ");
-                                ActivityCompat.requestPermissions(
-                                        InsuranceRecordActivity.this,
-                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                        PERMISSION_EXTERNAL_STORAGE_REQUEST_CODE
-                                );
-                            } else {
-                                beforeStartStorage();
-                            }
-                        } else {
-                            //cancel
+                            takePhoto();
+                        } else {   //upload from phone
+                            choosePhoto();
                         }
-                    }).create();
+                    }).setNegativeButton("cancel", null)
+                    .create();
             alertDialog.show();
         });
 
@@ -393,177 +337,89 @@ public class InsuranceRecordActivity extends AppCompatActivity {
 
     }
 
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        Log.d(TAG, "onRequestPermissionsResult: Length: " + grantResults.length);
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 0: //permit both camera and storage
-                Log.d(TAG, "onRequestPermissionsResult: MULTI?");
-                if (grantResults[0] == 0 && grantResults[1] == 0 && grantResults[2] == 0) {
-                    beforeStartCamera();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case 1: //permit storage
-                Log.d(TAG, "onRequestPermissionsResult: STORAGE?");
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    beforeStartStorage();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You cannot upload the image without authorization", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case 2: //permit camera
-                Log.d(TAG, "onRequestPermissionsResult: CAMERA?");
-                if (grantResults[0] == 0) {
-                    beforeStartCamera();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You cannot take a photo without authorization", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        BGAPhotoHelper.onSaveInstanceState(mPhotoHelper, outState);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case TAKE_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    Intent intent = new Intent("com.android.camera.action.CROP");
-                    intent.setDataAndType(qrImageUri, "image/**");
-                    intent.putExtra("scale", true);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, qrImageUri);
-                    startActivityForResult(intent, GROP_PHOTO);
-                }
-                break;
-
-            case GROP_PHOTO: //剪裁程序 似乎有bug 不确定是不是由于模拟器！
-                if (resultCode == RESULT_OK) {
-                    try {
-                        Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(qrImageUri));
-                        qrImageView.setImageBitmap(bitmap);
-                        qrImageBitmap = bitmap;
-                        //show
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-                break;
-
-            case CHOOSE_PHOTO:
-                if (resultCode == RESULT_OK) {
-                    if (Build.VERSION.SDK_INT >= 19) {  //4.4 or above
-                        handleImageOnKitKat(data);
-                    } else {    //below 4.4
-                        handleImageBeforeKitKat(data);
-                    }
-                }
-                data.putExtra("scale", true);
-                data.putExtra(MediaStore.EXTRA_OUTPUT, qrImageUri);
-                startActivityForResult(data, GROP_PHOTO);
-                break;
-
-            default:
-                break;
-        }
-
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        BGAPhotoHelper.onRestoreInstanceState(mPhotoHelper, savedInstanceState);
     }
 
-    private void beforeStartCamera() {
-        //create a file object to store picture
-        File outputImage = new File(getExternalCacheDir(), System.currentTimeMillis() + ".jpg");
-        try {
-            if (outputImage.exists()) {
-                outputImage.delete();
-            }
-            outputImage.createNewFile();
-            Log.d(TAG, "outputImage.createNewFile success ");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        qrImageUri = Uri.fromFile(outputImage);
-        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, qrImageUri);
-        startActivityForResult(intent, TAKE_PHOTO);
-        //active camera
-    }
-
-
-    private void beforeStartStorage() {
-        File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
-        try {
-            if (outputImage.exists()) {
-                outputImage.delete();
-            }
-            outputImage.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        qrImageUri = Uri.fromFile(outputImage);
-        Intent intent = new Intent("android.intent.action.GET_CONTENT");
-        intent.setType("image/*");
-        intent.putExtra("crop", true);
-        intent.putExtra("scale", true);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, qrImageUri);
-
-        startActivityForResult(intent, CHOOSE_PHOTO);
-    }
-
-    private void handleImageBeforeKitKat(Intent data) {
-        Uri uri = data.getData();
-        String imagePath = getImagePath(uri, null);
-        displayImage(imagePath);
-    }
-
-    @TargetApi(19)
-    private void handleImageOnKitKat(Intent data) {
-        String imagePath = null;
-        Uri uri = data.getData();
-        if (DocumentsContract.isDocumentUri(this, uri)) {
-            //document type Uri
-            String docId = DocumentsContract.getDocumentId(uri);
-            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                String id = docId.split(":")[1];
-                String seletion = MediaStore.Images.Media._ID + "=" + id;
-                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, seletion);
-            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
-                imagePath = getImagePath(contentUri, null);
-            }
-        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            //content type Uri
-            imagePath = getImagePath(uri, null);
-        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            //file type Uri
-            imagePath = uri.getPath();
-        }
-        displayImage(imagePath);
-    }
-
-    private String getImagePath(Uri uri, String selection) {
-        String path = null;
-        //get real path
-        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
-            cursor.close();
-        }
-        return path;
-    }
-
-    private void displayImage(String imagePath) {
-        if (imagePath != null) {
-            Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-            qrImageView.setImageBitmap(bitmap);
-            qrImageBitmap = bitmap;
+    @AfterPermissionGranted(REQUEST_CODE_PERMISSION_CHOOSE_PHOTO)
+    public void choosePhoto() {
+        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            startActivityForResult(mPhotoHelper.getChooseSystemGalleryIntent(), REQUEST_CODE_CHOOSE_PHOTO);
         } else {
-            Toast.makeText(this, "failed to get image", Toast.LENGTH_SHORT).show();
+            EasyPermissions.requestPermissions(this, "Please enable storage permissions to use the App", REQUEST_CODE_PERMISSION_CHOOSE_PHOTO, perms);
         }
     }
+
+    @AfterPermissionGranted(REQUEST_CODE_PERMISSION_TAKE_PHOTO)
+    public void takePhoto() {
+        String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
+        if (EasyPermissions.hasPermissions(this, perms)) {
+            try {
+                startActivityForResult(mPhotoHelper.getTakePhotoIntent(), REQUEST_CODE_TAKE_PHOTO);
+            } catch (Exception e) {
+                BGAPhotoPickerUtil.show("The current device does not support taking photos");
+            }
+        } else {
+            EasyPermissions.requestPermissions(this, "Please enable storage and camera permissions to use the App", REQUEST_CODE_PERMISSION_TAKE_PHOTO, perms);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CODE_CHOOSE_PHOTO) {
+                try {
+                    startActivityForResult(mPhotoHelper.getCropIntent(mPhotoHelper.getFilePathFromUri(data.getData()), 200, 200), REQUEST_CODE_CROP);
+                } catch (Exception e) {
+                    mPhotoHelper.deleteCropFile();
+                    BGAPhotoPickerUtil.show("The current device does not support cropping photos");
+                    e.printStackTrace();
+                }
+            } else if (requestCode == REQUEST_CODE_TAKE_PHOTO) {
+                try {
+                    startActivityForResult(mPhotoHelper.getCropIntent(mPhotoHelper.getCameraFilePath(), 200, 200), REQUEST_CODE_CROP);
+                } catch (Exception e) {
+                    mPhotoHelper.deleteCameraFile();
+                    mPhotoHelper.deleteCropFile();
+                    BGAPhotoPickerUtil.show("The current device does not support cropping photos");
+                    e.printStackTrace();
+                }
+            } else if (requestCode == REQUEST_CODE_CROP) {
+                BGAImage.display(qrImageView, R.drawable.profile0empty_image, mPhotoHelper.getCropFilePath(), BGABaseAdapterUtil.dp2px(200));
+            }
+        } else {
+            if (requestCode == REQUEST_CODE_CROP) {
+                mPhotoHelper.deleteCameraFile();
+                mPhotoHelper.deleteCropFile();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+    }
+
 
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
