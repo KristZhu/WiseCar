@@ -18,12 +18,15 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RemoteViews;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
 import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.user.profile.CreateUserActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
 import java.text.ParseException;
@@ -79,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) notification(entry, seq++);
 
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
-        //startActivity(new Intent(MainActivity.this, DashboardActivity.class));
+        //startActivity(new Intent(MainActivity.this, CreateUserActivity.class));
 
     }
 
