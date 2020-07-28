@@ -153,8 +153,6 @@ public class VehicleActivity extends AppCompatActivity {
                 menuDiv.setVisibility(View.GONE);
             } else {
                 menuDiv.setVisibility(View.VISIBLE);
-                imageDiv.setClickable(true);
-                mainDiv.setClickable(true);
                 imageDiv.setOnClickListener(v1 -> menuDiv.setVisibility(View.GONE));
                 mainDiv.setOnClickListener(v1 -> menuDiv.setVisibility(View.GONE));
             }
@@ -201,13 +199,22 @@ public class VehicleActivity extends AppCompatActivity {
         });
 
         licenceImageButton = $(R.id.licenceImageButton);
-        licenceImageButton.setOnClickListener(v -> startActivity(new Intent(VehicleActivity.this, LicenceActivity.class)));
+        licenceImageButton.setOnClickListener(v -> {
+            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            else startActivity(new Intent(VehicleActivity.this, LicenceActivity.class));
+        });
 
         dashboardDiv = $(R.id.dashboardDiv);
-        dashboardDiv.setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
+        dashboardDiv.setOnClickListener(v -> {
+            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            else startActivity(new Intent(this, DashboardActivity.class));
+        });
 
         calendarDiv = $(R.id.calendarDiv);
-        calendarDiv.setOnClickListener(v ->startActivity(new Intent(this, CalendarActivity.class)));
+        calendarDiv.setOnClickListener(v -> {
+            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            else startActivity(new Intent(this, CalendarActivity.class));
+        });
 
         notifyTextView = new TextView[]{$(R.id.notifyTextView0), $(R.id.notifyTextView1)};
         notificationImageView = $(R.id.notificationImageView);
@@ -281,9 +288,14 @@ public class VehicleActivity extends AppCompatActivity {
         }
 
 
-        addImageButton.setOnClickListener(v -> addVehicle());
+        addImageButton.setOnClickListener(v -> {
+            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            else addVehicle();
+        });
 
         editVehiclesImageButton.setOnClickListener(v -> {
+            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            else ;
             //to be implementer
         });
 
@@ -369,7 +381,10 @@ public class VehicleActivity extends AppCompatActivity {
                 Log.d(TAG, "onClickVehicle: " + vehicle);
                 selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
                 selectedVehicleImageView.setImageBitmap(vehicle.getImage());
-                manageVehicleImageButton.setOnClickListener(v1 -> manageVehicle(vehicleID));
+                manageVehicleImageButton.setOnClickListener(v1 -> {
+                    if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+                    else manageVehicle(vehicleID);
+                });
             });
             //vehicleImageViews.put(vehicles.get(vehicleID).getRegistration_no(), imageView);
         }
