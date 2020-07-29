@@ -27,11 +27,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
@@ -39,21 +43,24 @@ import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+//import org.apache.http.HttpResponse;
+//import org.apache.http.client.HttpClient;
+//import org.apache.http.client.methods.HttpPost;
+//import org.apache.http.entity.ContentType;
+//import org.apache.http.entity.mime.HttpMultipartMode;
+//import org.apache.http.entity.mime.MultipartEntity;
+//import org.apache.http.entity.mime.content.ByteArrayBody;
+//import org.apache.http.entity.mime.content.StringBody;
+//import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -63,6 +70,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
 
 import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
@@ -255,7 +263,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
-            if(saveImageButton.getAlpha()<1) return;
+            if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
             //parkingImageDrawable = licenceImageView.getDrawable();
             //...
@@ -383,12 +391,11 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
     }
 
     private void checkReadyToSave() {
-        if(referenceEditText.getText().toString().length()>0
-                && dateEditText.getText().toString().length()>0
-                && typeEditText.getText().toString().length()>0
-                && fuelAmountEditText.getText().toString().length()>0
-                && paidAmountEditText.getText().toString().length()>0)
-        {
+        if (referenceEditText.getText().toString().length() > 0
+                && dateEditText.getText().toString().length() > 0
+                && typeEditText.getText().toString().length() > 0
+                && fuelAmountEditText.getText().toString().length() > 0
+                && paidAmountEditText.getText().toString().length() > 0) {
             try {
                 date = displayDateFormat.parse(dateEditText.getText().toString());
             } catch (ParseException e) {
@@ -451,7 +458,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
         }
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 
@@ -560,93 +567,99 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
 
         if (claimable) {
             isClaim = "1";
-        }else{
+        } else {
             isClaim += "0";
         }
 
         String finalIsClaim = isClaim;
         Thread thread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + ADD_FUEL);
-
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
+            HashMap<String, String> params = new HashMap<>();
+            File file = null;
+            String message = null;
+            String encrypt_hash = null;
+            String s3_temp_path = null;
+
             try {
-                reqEntity.addPart("fuel_receipt_identifier", new StringBody(idTextView.getText().toString().substring(4)));
+                params.put("fuel_receipt_identifier", idTextView.getText().toString().substring(4));
                 Log.e("identifier in request", idTextView.getText().toString().substring(4));
 
-                reqEntity.addPart("vehicle_id", new StringBody(vehicle.getVehicle_id()));
-                reqEntity.addPart("invoice_reference", new StringBody(reference));
-                reqEntity.addPart("fuel_date", new StringBody(format.format(date)));
-                reqEntity.addPart("fuel_type", new StringBody(type));
-                reqEntity.addPart("fuel_amount", new StringBody(String.valueOf(fuelAmount)));
-                reqEntity.addPart("paid_amount", new StringBody(String.valueOf(paidAmount)));
-                reqEntity.addPart("claimable", new StringBody(finalIsClaim));
-                reqEntity.addPart("record_id", new StringBody(identifierTextView.getText().toString()));
+                params.put("vehicle_id", vehicle.getVehicle_id());
+                params.put("invoice_reference", reference);
+                params.put("fuel_date", format.format(date));
+                params.put("fuel_type", type);
+                params.put("fuel_amount", String.valueOf(fuelAmount));
+                params.put("paid_amount", String.valueOf(paidAmount));
+                params.put("claimable", finalIsClaim);
+                params.put("record_id", identifierTextView.getText().toString());
                 Log.e("recordID", identifierTextView.getText().toString());
-                reqEntity.addPart("shared_company_id", new StringBody(sharedTextView.getText().toString()));
+                params.put("shared_company_id", sharedTextView.getText().toString());
 
-                if (fuelImageView.getDrawable() != null) {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                Log.e("ImageView null check",
+                        String.valueOf(!((BitmapDrawable) fuelImageView.getDrawable()).getBitmap()
+                                .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.licence0camera, null)).getBitmap())));
+
+                if (!((BitmapDrawable) fuelImageView.getDrawable()).getBitmap()
+                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.licence0camera, null)).getBitmap())) {
                     Bitmap toBeUploaded = ((BitmapDrawable) fuelImageView.getDrawable()).getBitmap();
-                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] qrbyteArray = stream.toByteArray();
-                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
-                    reqEntity.addPart("document", recordBody);
+
+                    String root = Environment.getExternalStorageDirectory().toString();
+                    File myDir = new File(root + "/saved_images");
+                    myDir.mkdirs();
+
+                    String fname = "fuel.png";
+                    file = new File(myDir, fname);
+                    if (file.exists()) file.delete();
+                    file.createNewFile();
+                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, bos);
+
+                    bos.flush();
+                    bos.close();
                 }
 
+                String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_FUEL);
 
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
                 try {
-                    reqEntity.addPart("logo", new StringBody("image error"));
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                }
-            }
+                    JSONObject jsonObject = new JSONObject(response);
 
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
+                    message = jsonObject.optString("message");
+                    encrypt_hash = jsonObject.optString("encrypt_hash");
+                    s3_temp_path = jsonObject.optString("s3_temp_path");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if (s.toString().contains("success")) {
 
-                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(idTextView.getText().toString().substring(4),
-                                reference,
-                                type,
-                                format.format(date),
-                                String.valueOf(fuelAmount),
-                                String.valueOf(paidAmount),
-                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
-                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2));
-                    }
-
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(FuelReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(FuelReceiptActivity.this, ManageVehicleActivity.class);
-                            intent.putExtra("vehicleID", vehicleID);
-                            startActivity(intent);
-                        }
-                    });
-                }
-                Log.e("response", s.toString());
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
+            Log.e("testest", message + "  " + encrypt_hash + "  " + s3_temp_path);
+
+            if (message.equals("success")) {
+
+                if (!encrypt_hash.equals("") && !s3_temp_path.equals("")) {
+                    invokeBlockchain(idTextView.getText().toString().substring(4),
+                            reference,
+                            type,
+                            format.format(date),
+                            String.valueOf(fuelAmount),
+                            String.valueOf(paidAmount),
+                            encrypt_hash,
+                            s3_temp_path);
+                }
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(FuelReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(FuelReceiptActivity.this, ManageVehicleActivity.class);
+                        intent.putExtra("vehicleID", vehicleID);
+                        startActivity(intent);
+                    }
+                });
+            }
 
         });
         thread.start();

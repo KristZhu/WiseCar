@@ -3,6 +3,9 @@ package com.wisecarCompany.wisecarapp.user.vehicle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.Manifest;
 import android.content.Context;
@@ -26,18 +29,22 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+//import org.apache.http.HttpResponse;
+//import org.apache.http.client.HttpClient;
+//import org.apache.http.client.methods.HttpPost;
+//import org.apache.http.entity.ContentType;
+//import org.apache.http.entity.mime.HttpMultipartMode;
+//import org.apache.http.entity.mime.MultipartEntity;
+//import org.apache.http.entity.mime.content.ByteArrayBody;
+//import org.apache.http.entity.mime.content.StringBody;
+//import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -45,6 +52,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
@@ -124,14 +137,14 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
         makeEditText = $(R.id.makeEditText);
         modelEditText = $(R.id.modelEditText);
         descriptionEditText = $(R.id.descriptionEditText);
-        servicesCheckBox = new CheckBox[] {
-            $(R.id.serviceCheckBox),
-            $(R.id.registrationCheckBox),
-            $(R.id.driverCheckBox),
-            $(R.id.parkingCheckBox),
-            $(R.id.insuranceCheckBox),
-            //$(R.id.tollCheckBox),
-            $(R.id.fuelCheckBox)
+        servicesCheckBox = new CheckBox[]{
+                $(R.id.serviceCheckBox),
+                $(R.id.registrationCheckBox),
+                $(R.id.driverCheckBox),
+                $(R.id.parkingCheckBox),
+                $(R.id.insuranceCheckBox),
+                //$(R.id.tollCheckBox),
+                $(R.id.fuelCheckBox)
         };
         saveImageButton = $(R.id.saveImageButton);
 
@@ -162,7 +175,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
         });
 
         saveImageButton.setOnClickListener(v -> {
-            if(saveImageButton.getAlpha()<1) return;
+            if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
 
             vehicleDrawable = vehicleImageView.getDrawable();
@@ -179,16 +192,16 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
             registration_no = rcEditText.getText().toString();
             description = descriptionEditText.getText().toString();
 
-            if(isServices == null) {
+            if (isServices == null) {
                 isServices = new boolean[6];
-                for (int i=0; i<isServices.length; i++){
+                for (int i = 0; i < isServices.length; i++) {
                     isServices[i] = servicesCheckBox[i].isChecked();
                 }
             }
 
             boolean tempB = false;
-            for(boolean b: isServices) tempB = tempB || b;
-            if(!tempB) {
+            for (boolean b : isServices) tempB = tempB || b;
+            if (!tempB) {
                 Toast.makeText(AddVehicleActivity.this, "please select at least one service", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -215,7 +228,13 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
             } else {
 
                 // Write database connection here
-                uploadVehicleInfoByHttpClient();
+
+                if (!((BitmapDrawable) vehicleImageView.getDrawable()).getBitmap()
+                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.vehicle0empty_image, null)).getBitmap())) {
+                    uploadVehicleInfo();
+                } else {
+                    Toast.makeText(this, "Please upload your vehicle photo.", Toast.LENGTH_LONG).show();
+                }
 
             }
 
@@ -318,8 +337,8 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
             if (registration_no != null && make != null && model != null && description != null
                     && registration_no.length() > 0 && make.length() > 0 && model.length() > 0 && description.length() > 0
             ) {
-                if(isServices == null) isServices = new boolean[6];
-                for (int i=0; i<isServices.length; i++){
+                if (isServices == null) isServices = new boolean[6];
+                for (int i = 0; i < isServices.length; i++) {
                     isServices[i] = servicesCheckBox[i].isChecked();
                 }
                 saveImageButton.setAlpha(1.0f);
@@ -353,81 +372,11 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
         }
     }
 
-    private void uploadVehicleInfoByHttpClient() {
+    private void uploadVehicleInfo() {
 
-        final String[] vehicle_id = {""};
-
-        for(int i=0; i<isServices.length; i++) {
-            if(isServices[i]) servicesChoice += i+1;
-        }
-        Log.d(TAG, "uploadVehicleInfoByHttpClient: servicesChoice: " + servicesChoice);
-
-        Thread thread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + ADD_VEHICLE);
-
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-
-
-            try {
-                reqEntity.addPart("make", new StringBody(make));
-                reqEntity.addPart("model", new StringBody(model));
-                reqEntity.addPart("registration_no", new StringBody(registration_no));
-                reqEntity.addPart("description", new StringBody(description));
-                reqEntity.addPart("services", new StringBody(servicesChoice));
-                reqEntity.addPart("state", new StringBody(state));
-                reqEntity.addPart("year", new StringBody(year));
-                reqEntity.addPart("user_id", new StringBody(UserInfo.getUserID()));
-
-                ByteArrayBody vehicleImgBody = new ByteArrayBody(vehicleImgByte, ContentType.IMAGE_PNG, "logo.png");
-                reqEntity.addPart("logo", vehicleImgBody);
-
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                try {
-                    reqEntity.addPart("logo", new StringBody("image error"));
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                }
-            }
-
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                Log.e("add vehicle response", String.valueOf(response));
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
-                }
-                Log.e("response", s.toString());
-                if (s.toString().contains("success")) {
-                    // Add successfully
-                    runOnUiThread(() -> {
-                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
-                    });
-                    int position = s.indexOf("vehicle_id");
-                    vehicle_id[0] = s.substring(position + 12, s.length() - 1);
-                    UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
-                } else {
-                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show());
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
-        });
-        thread.start();
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 }

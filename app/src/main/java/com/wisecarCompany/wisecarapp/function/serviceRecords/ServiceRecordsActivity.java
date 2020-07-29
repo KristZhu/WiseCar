@@ -1,5 +1,6 @@
 package com.wisecarCompany.wisecarapp.function.serviceRecords;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -30,13 +32,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
@@ -45,15 +51,15 @@ import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 import net.glxn.qrgen.android.QRCode;
 import net.glxn.qrgen.core.image.ImageType;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+//import org.apache.http.HttpResponse;
+//import org.apache.http.client.HttpClient;
+//import org.apache.http.client.methods.HttpPost;
+//import org.apache.http.entity.ContentType;
+//import org.apache.http.entity.mime.HttpMultipartMode;
+//import org.apache.http.entity.mime.MultipartEntity;
+//import org.apache.http.entity.mime.content.ByteArrayBody;
+//import org.apache.http.entity.mime.content.StringBody;
+//import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -67,6 +73,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
 
 import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
@@ -145,7 +152,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
     private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
 
-
+    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -164,6 +171,14 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
         Log.d(TAG, "vehicleID: " + vehicleID);
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
+
+        serviceIDTextView = $(R.id.serviceIDTextView);
+        qrImageView = $(R.id.qrImageView);
+        uploadButton = $(R.id.uploadButton);
+        cameraImageButton = $(R.id.cameraImageButton);
+        recordIDTextView = $(R.id.recordIDTextView);
+        resetButton = $(R.id.resetButton);
+
 
         getRecordIdentifier((returnedIdentifier, returnedRecord_id) -> {
 
@@ -184,13 +199,6 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
             qrCodeBitmap = BitmapFactory.decodeFile(qrCodeFile.getPath());
             qrImageView.setImageBitmap(qrCodeBitmap);
         });
-
-        serviceIDTextView = $(R.id.serviceIDTextView);
-        qrImageView = $(R.id.qrImageView);
-        uploadButton = $(R.id.uploadButton);
-        cameraImageButton = $(R.id.cameraImageButton);
-        recordIDTextView = $(R.id.recordIDTextView);
-        resetButton = $(R.id.resetButton);
 
         resetButton.setOnClickListener(v -> qrImageView.setImageBitmap(qrCodeBitmap));
 
@@ -259,7 +267,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                 date = intToDate(year, monthOfYear, dayOfMonth);
                 //SimpleDateFormat format1 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = displayDateFormat.format(date);
-                dateTimeEditText.append(str + ", ");
+                dateTimeEditText.append(str + "  ");
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         dateTimeEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -285,7 +293,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                     date = intToDate(year, monthOfYear, dayOfMonth);
                     //SimpleDateFormat format12 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = displayDateFormat.format(date);
-                    dateTimeEditText.append(str + ", ");
+                    dateTimeEditText.append(str + "  ");
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
@@ -317,7 +325,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
 
         saveImageButton = $(R.id.saveImageButton);
         saveImageButton.setOnClickListener(v -> {
-            if(saveImageButton.getAlpha()<1) return;
+            if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
 
             //Log.d(TAG, "userID" + UserInfo.getUserID());
@@ -437,6 +445,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
 
 
 
+    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     private void checkReadyToSave() {
         centre = centreEditText.getText().toString();
         refNo = refNoEditText.getText().toString();
@@ -527,85 +536,87 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
         }
 
         Thread thread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + ADD_SERVICE_RECORD);
-
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            HashMap<String, String> params = new HashMap<>();
+            File file = null;
+            String message = null;
+            String encrypt_hash = null;
+            String s3_temp_path = null;
 
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             try {
-                reqEntity.addPart("service_record_identifier", new StringBody(serviceIDTextView.getText().toString().substring(4)));
+
+                params.put("service_record_identifier", serviceIDTextView.getText().toString().substring(4));
                 Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
 
-                reqEntity.addPart("vehicle_id", new StringBody(vehicleID));
-                reqEntity.addPart("service_date", new StringBody(format.format(date)));
-                reqEntity.addPart("service_center", new StringBody(centre));
-                reqEntity.addPart("service_ref", new StringBody(refNo));
-                reqEntity.addPart("service_option_ids", new StringBody(servicesOptions));
-                reqEntity.addPart("service_notes", new StringBody(notes));
-                reqEntity.addPart("next_service_date", new StringBody(format.format(nextDate)));
-                reqEntity.addPart("next_service_odometer", new StringBody(nextDistance));
+                params.put("record_id", recordIDTextView.getText().toString());
+                Log.e(TAG, recordIDTextView.getText().toString());
 
-                if (qrImageView.getDrawable() != new BitmapDrawable(getResources(), qrCodeBitmap)) {
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                params.put("vehicle_id", vehicleID);
+                params.put("service_date", format.format(date));
+                params.put("service_center", centre);
+                params.put("service_ref", refNo);
+                params.put("service_option_ids", servicesOptions);
+                params.put("service_notes", notes);
+                params.put("next_service_date", format.format(nextDate));
+                params.put("next_service_odometer", nextDistance);
+
+                if (!((BitmapDrawable) qrImageView.getDrawable()).getBitmap().sameAs(qrCodeBitmap)) {
                     Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
-                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                    byte[] qrbyteArray = stream.toByteArray();
-                    ByteArrayBody recordBody = new ByteArrayBody(qrbyteArray, ContentType.IMAGE_PNG, "record.png");
-                    reqEntity.addPart("document", recordBody);
+
+                    String root = Environment.getExternalStorageDirectory().toString();
+                    File myDir = new File(root + "/saved_images");
+                    myDir.mkdirs();
+
+                    String fname = "serviceRecord.png";
+                    file = new File(myDir, fname);
+                    if (file.exists()) file.delete();
+                    file.createNewFile();
+                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                    toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, bos);
+
+                    bos.flush();
+                    bos.close();
                 }
-                reqEntity.addPart("record_id", new StringBody(recordIDTextView.getText().toString()));
-                Log.e("recordID in request", recordIDTextView.getText().toString());
+                String response = HttpUtil.uploadForm(params, "document", file, "serviceRecord.png", IP_HOST + ADD_SERVICE_RECORD);
 
-
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
                 try {
-                    reqEntity.addPart("logo", new StringBody("image error"));
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
+                    JSONObject jsonObject = new JSONObject(response);
+
+                    message = jsonObject.optString("message");
+                    encrypt_hash = jsonObject.optString("encrypt_hash");
+                    s3_temp_path = jsonObject.optString("s3_temp_path");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
+            Log.e("testest", message + "  " + encrypt_hash + "  " + s3_temp_path);
+
+            if (message.equals("success")) {
+
+                if (!encrypt_hash.equals("") && !s3_temp_path.equals("")) {
+                    invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
+                            format.format(date),
+                            centre,
+                            vehicle.getRegistration_no(),
+                            encrypt_hash,
+                            s3_temp_path,
+                            servicesOptions);
                 }
-                if (s.toString().contains("success")) {
 
-                    if (s.toString().indexOf("s3_temp_path") - s.toString().indexOf("encrypt_hash") > 18) {
-                        invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
-                                format.format(date),
-                                centre,
-                                vehicle.getRegistration_no(),
-                                s.toString().substring(s.toString().indexOf("encrypt_hash") + 15, s.toString().indexOf("s3_temp_path") - 3),
-                                s.toString().substring(s.toString().indexOf("s3_temp_path") + 15, s.toString().length() - 2),
-                                servicesOptions);
-                    }
-
-                    runOnUiThread(() -> {
+                runOnUiThread(new Runnable() {
+                    public void run() {
                         Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class);
                         intent.putExtra("vehicleID", vehicleID);
                         startActivity(intent);
-                    });
-                }
-                Log.e("response", s.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
+                    }
+                });
             }
-
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
-
         });
         thread.start();
     }
