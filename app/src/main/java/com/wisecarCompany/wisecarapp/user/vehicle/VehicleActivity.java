@@ -36,6 +36,7 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.licence.LicenceActivity;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import com.wisecarCompany.wisecarapp.user.profile.UpdateProfileActivity;
 import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 
@@ -71,6 +72,7 @@ public class VehicleActivity extends AppCompatActivity {
     private ConstraintLayout profileDiv;
     private ConstraintLayout devicesDiv;
     private ConstraintLayout aboutDiv;
+    private ConstraintLayout logoutDiv;
 
     private ImageButton settingImageButton;
     private ImageButton editImageButton;
@@ -145,6 +147,7 @@ public class VehicleActivity extends AppCompatActivity {
         profileDiv = $(R.id.profileDiv);
         devicesDiv = $(R.id.devicesDiv);
         aboutDiv = $(R.id.aboutDiv);
+        logoutDiv = $(R.id.logoutDiv);
 
         imageDiv = $(R.id.imageDiv);
         mainDiv = $(R.id.mainDiv);
@@ -162,10 +165,7 @@ public class VehicleActivity extends AppCompatActivity {
         devicesDiv.setOnClickListener(v -> Toast.makeText(this, "This function is not available now", Toast.LENGTH_SHORT));
         //aboutDiv.setOnClickListener(v -> startActivity(new Intent(this, AboutActivity.class)));
 
-/*
-        logout code. for further use
-
-        backImageButton.setOnClickListener(v -> {
+        logoutDiv.setOnClickListener(v -> {
             if(UserInfo.getCurrLog()==null) {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                         .setTitle("Are you sure you want to log out? ")
@@ -177,9 +177,8 @@ public class VehicleActivity extends AppCompatActivity {
                             editor.commit();
                             startActivity(new Intent(VehicleActivity.this, LoginActivity.class));
                         })
-                        .setNegativeButton("Cancel", (dialog, which) -> {
-
-                        }).create();
+                        .setNegativeButton("Cancel", null)
+                        .create();
                 alertDialog.show();
             } else {
                 Toast.makeText(this, "Driver Log for Vehicle "
@@ -187,7 +186,6 @@ public class VehicleActivity extends AppCompatActivity {
                         + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
             }
         });
-*/
 
         settingImageButton = $(R.id.settingImageButton);
         editImageButton = $(R.id.editImageButton);
