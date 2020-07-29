@@ -259,7 +259,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                 date = intToDate(year, monthOfYear, dayOfMonth);
                 //SimpleDateFormat format1 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 String str = displayDateFormat.format(date);
-                dateTimeEditText.append(str + ", ");
+                dateTimeEditText.append(str + "  ");
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
         });
         dateTimeEditText.setOnFocusChangeListener((v, hasFocus) -> {
@@ -285,7 +285,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                     date = intToDate(year, monthOfYear, dayOfMonth);
                     //SimpleDateFormat format12 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                     String str = displayDateFormat.format(date);
-                    dateTimeEditText.append(str + ", ");
+                    dateTimeEditText.append(str + "  ");
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
