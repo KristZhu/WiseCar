@@ -222,6 +222,30 @@
             android:textStyle="bold"
             android:textColor="#888888"/>
 
+        <TextView
+            android:id="@+id/testLng"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:textColor="#000000"
+            app:layout_constraintTop_toBottomOf="@id/timeDistanceTextView"
+            app:layout_constraintBottom_toTopOf="@id/logTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintWidth_percent="0.5" />
+
+        <TextView
+            android:id="@+id/testLat"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:textColor="#000000"
+            app:layout_constraintTop_toBottomOf="@id/timeDistanceTextView"
+            app:layout_constraintBottom_toTopOf="@id/logTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintWidth_percent="0.5" />
+
         <ImageView
             android:id="@+id/dividing"
             android:layout_width="0dp"
