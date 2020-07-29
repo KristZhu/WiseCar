@@ -5,7 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.text.InputType;
 import android.util.Log;
@@ -17,18 +21,27 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
+import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+//import org.apache.http.HttpResponse;
+//import org.apache.http.client.HttpClient;
+//import org.apache.http.client.methods.HttpPost;
+//import org.apache.http.entity.ContentType;
+//import org.apache.http.entity.mime.HttpMultipartMode;
+//import org.apache.http.entity.mime.MultipartEntity;
+//import org.apache.http.entity.mime.content.ByteArrayBody;
+//import org.apache.http.entity.mime.content.StringBody;
+//import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -38,6 +51,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
 
 
@@ -45,7 +59,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
     private final static String TAG = "CreateUser2";
 
-    private byte[] userImg;
+   // private byte[] userImg;
+    private File userImgFile;
     private String username;
     private String userEmail;
     private String password;
@@ -78,7 +93,23 @@ public class CreateUserActivity2 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_user2);
 
-        userImg = (byte[]) this.getIntent().getSerializableExtra("userImg");
+        //userImg = (byte[]) this.getIntent().getSerializableExtra("userImg");
+        String userImgfilepath = this.getIntent().getStringExtra("userImg");
+        //change into byte[]
+        userImgFile = new File(userImgfilepath);
+        //init array with file length
+//        byte[] bytesArray = new byte[(int) file.length()];
+//
+//        FileInputStream fis = null;
+//        try {
+//            fis = new FileInputStream(file);
+//            fis.read(bytesArray); //read file into bytes[]
+//            fis.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        userImg = bytesArray;
+
         username = this.getIntent().getStringExtra("username");
         userEmail = this.getIntent().getStringExtra("userEmail");
         password = this.getIntent().getStringExtra("password");
@@ -129,7 +160,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
             postCode = postCodeEditText.getText().toString();
 
             Log.d(TAG, "--------------------Create User------------------");
-            Log.d(TAG, "userImg: " + Arrays.toString(userImg));
+//            Log.d(TAG, "userImg: " + Arrays.toString(userImg));
             Log.d(TAG, "username: " + username);
             Log.d(TAG, "userEmail: " + userEmail);
             Log.d(TAG, "password: " + password);
@@ -230,72 +261,75 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
     private void uploadByHttpClient() {
         Thread thread = new Thread(() -> {
-            HttpClient httpClient = new DefaultHttpClient();
-            HttpPost postRequest = new HttpPost(IP_HOST + CREATE_USER);
 
-            MultipartEntity reqEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+            HashMap<String, String> params = new HashMap<>();
+
+            String message = null;
+            int user_id = 0;
+
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             try {
-                reqEntity.addPart("user_name", new StringBody(username));
-                reqEntity.addPart("first_name", new StringBody(firstName));
-                reqEntity.addPart("last_name", new StringBody(lastName));
-                reqEntity.addPart("date_of_birth", new StringBody(format.format(dob)));
-                reqEntity.addPart("address_line1", new StringBody(address1));
-                reqEntity.addPart("address_line2", new StringBody(address2));
-                reqEntity.addPart("postcode", new StringBody(postCode));
-                reqEntity.addPart("state", new StringBody(state));
-                reqEntity.addPart("country", new StringBody(country));
-                reqEntity.addPart("email", new StringBody(userEmail));
-                reqEntity.addPart("password", new StringBody(password));
+                params.put("user_name", username);
+                params.put("first_name", firstName);
+                params.put("last_name", lastName);
+                params.put("date_of_birth", format.format(dob));
+                params.put("address_line1", address1);
+                params.put("address_line2", address2);
+                params.put("postcode", postCode);
+                params.put("state", state);
+                params.put("country", country);
+                params.put("email", userEmail);
+                params.put("password", password);
 
-                ByteArrayBody userImgBody = new ByteArrayBody(userImg, ContentType.IMAGE_PNG, "logo.png");
-                reqEntity.addPart("logo", userImgBody);
+//                Bitmap toBeUploaded = BitmapFactory.decodeByteArray(userImg, 0, userImg.length);
+//                String root = Environment.getExternalStorageDirectory().toString();
+//                File myDir = new File(root + "/saved_images");
+//                myDir.mkdirs();
+//
+//                String fname = "userImage.png";
+//                file = new File(myDir, fname);
+//                if (file.exists()) file.delete();
+//                file.createNewFile();
+//                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+//                toBeUploaded.compress(Bitmap.CompressFormat.PNG, 100, bos);
+//
+//                bos.flush();
+//                bos.close();
 
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
+                String response = HttpUtil.uploadForm(params, "logo", userImgFile, "userImage.png", IP_HOST + CREATE_USER);
+                Log.e("response", response);
                 try {
-                    reqEntity.addPart("logo", new StringBody("image error"));
-                } catch (UnsupportedEncodingException ex) {
-                    ex.printStackTrace();
-                }
-            }
+                    JSONObject jsonObject = new JSONObject(response);
 
-            postRequest.setEntity(reqEntity);
-            HttpResponse response = null;
-            StringBuilder s = new StringBuilder();
-            try {
-                response = httpClient.execute(postRequest);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-                String sResponse;
-                while ((sResponse = reader.readLine()) != null) {
-                    s = s.append(sResponse);
+                    message = jsonObject.optString("message");
+                    user_id = jsonObject.optInt("user_id");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                if (s.toString().contains("success")) {
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    Intent intent = new Intent(CreateUserActivity2.this, LoginActivity.class);
-                    int position = s.indexOf("user_id");
-                    Log.e("user_id test: ", "\"" + s.substring(position + 9, s.length() - 1) + "\"");
-                    intent.putExtra("user_id", s.substring(position + 9, s.length() - 1));
-                    startActivity(intent);
-                }
-                Log.e("response", s.toString());
-            } catch (IOException e) {
+
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            postRequest.abort();
-            httpClient.getConnectionManager().shutdown();
+            Log.e("testest", message + "  " + user_id);
 
+
+            if (message != null && message.equals("success")) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                Intent intent = new Intent(CreateUserActivity2.this, LoginActivity.class);
+                intent.putExtra("user_id", user_id);
+                startActivity(intent);
+            }
         });
         thread.start();
     }
 
-    private <T extends View> T $(int id){
+    private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 

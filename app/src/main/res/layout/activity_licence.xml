@@ -150,18 +150,17 @@
 
                 <com.wisecarCompany.wisecarapp.viewElement.SwitchButton
                     android:id="@+id/activeSwitchButton"
-                    android:layout_height="0dp"
                     android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:layout_marginEnd="16dp"
-                    app:layout_constraintWidth_percent="0.15"
-                    app:layout_constraintHorizontal_bias="1.0"
                     app:animate="true"
                     app:borderWidth="0.8dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/shareTextView"
                     app:layout_constraintDimensionRatio="45:25"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/activeTextView"
-                    app:layout_constraintStart_toStartOf="parent"/>
+                    app:layout_constraintWidth_percent="0.15" />
 
                 <TextView
                     android:id="@+id/recordIDTextView"

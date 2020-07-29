@@ -26,9 +26,13 @@ import android.widget.Toast;
 
 import com.wisecarCompany.wisecarapp.R;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.security.MessageDigest;
@@ -174,17 +178,43 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
 //                int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
 //                int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
 //                userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
+                int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
+                int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
 
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-                userImg = bos.toByteArray();
+                userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
+                String filepath = null;
+
+//                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//                userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+//                userImg = bos.toByteArray();
+
+                //xuzheng
+                try {
+                    String root = Environment.getExternalStorageDirectory().toString();
+                    File myDir = new File(root + "/saved_images");
+                    myDir.mkdirs();
+
+                    String fname = "userImg.png";
+                    File file = new File(myDir, fname);
+                    if (file.exists()) file.delete();
+                    file.createNewFile();
+                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+                    userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+                    filepath = file.getAbsolutePath();
+
+                    bos.flush();
+                    bos.close();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                //xuzheng
 
                 username = usernameEditText.getText().toString();
                 userEmail = userEmailEditText.getText().toString();
                 password = passwordEditText.getText().toString();
 
                 startActivity(new Intent(CreateUserActivity.this, CreateUserActivity2.class)
-                        .putExtra("userImg", userImg)
+                        .putExtra("userImg", filepath)
                         .putExtra("username", username)
                         .putExtra("userEmail", userEmail)
 //                        .putExtra("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));
