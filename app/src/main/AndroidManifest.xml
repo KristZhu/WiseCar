@@ -31,8 +31,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".user.profile.AboutActivity"></activity>
-        <activity android:name=".TestActivity" />
+        <activity android:name=".user.profile.AboutActivity" />
         <activity android:name=".user.vehicle.CalendarActivity" />
         <activity android:name=".user.profile.UpdateProfileActivity" />
         <activity android:name=".function.fuelReceipt.FuelReceiptSendActivity" />

@@ -71,11 +71,11 @@ public class MainActivity extends AppCompatActivity {
         }));
 
         //below are test data:
-        UserInfo.getNotices().put(intToDate(2020,6,5), new String[]{"Car1","notice1"});
-        UserInfo.getNotices().put(intToDate(2020,6,15), new String[]{"Car2","notice2"});
-        UserInfo.getEmerNotices().put(intToDate(2020,6,25), new String[]{"Car3","notice3"});
-        UserInfo.getEmerNotices().put(intToDate(2020,6,30), new String[]{"Car2","notice4"});
-        UserInfo.getNotices().put(intToDate(2020,7,5), new String[]{"Car1","notice5"});
+//        UserInfo.getNotices().put(intToDate(2020,6,5), new String[]{"Car1","notice1"});
+//        UserInfo.getNotices().put(intToDate(2020,6,15), new String[]{"Car2","notice2"});
+//        UserInfo.getEmerNotices().put(intToDate(2020,6,25), new String[]{"Car3","notice3"});
+//        UserInfo.getEmerNotices().put(intToDate(2020,6,30), new String[]{"Car2","notice4"});
+//        UserInfo.getNotices().put(intToDate(2020,7,5), new String[]{"Car1","notice5"});
         //test data over
 
         int seq = 0;

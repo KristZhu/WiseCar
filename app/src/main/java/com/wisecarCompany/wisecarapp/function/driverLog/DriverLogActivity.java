@@ -93,6 +93,8 @@ public class DriverLogActivity extends AppCompatActivity {
     private LocationManager locationManager;
     //private CurrDriverLog currLog;    //saver to use UserInfo.getCurrLog
 
+    private final int REQUEST_CODE_PERMISSION_LOCATION = 0;
+
     private ImageButton backImageButton;
 
     private AutoCompleteTextView searchEditText;
@@ -363,19 +365,16 @@ public class DriverLogActivity extends AppCompatActivity {
 
                 int permissionCheckFineLocation = ContextCompat.checkSelfPermission(DriverLogActivity.this, Manifest.permission.ACCESS_FINE_LOCATION);
                 int permissionCheckCoarseLocation = ContextCompat.checkSelfPermission(DriverLogActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION);
-                Log.d(TAG, "onClickPermissionCheckFineLocation: " + permissionCheckFineLocation);
-                Log.d(TAG, "onClickPermissionCheckCoarseLocation: " + permissionCheckCoarseLocation);
-
                 if (permissionCheckFineLocation == PackageManager.PERMISSION_DENIED || permissionCheckCoarseLocation == PackageManager.PERMISSION_DENIED) {  //first time using this function, or denied before
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {   //10.0
                         ActivityCompat.requestPermissions(this,
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                0
+                                REQUEST_CODE_PERMISSION_LOCATION
                         );
                     } else {
                         ActivityCompat.requestPermissions(this,
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                                0
+                                REQUEST_CODE_PERMISSION_LOCATION
                         );
                     }
                 } else {
@@ -420,13 +419,13 @@ public class DriverLogActivity extends AppCompatActivity {
         Log.d(TAG, "onRequestPermissionsResult: Length: " + grantResults.length);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case 0:
+            case REQUEST_CODE_PERMISSION_LOCATION:
                 Log.d(TAG, "onRequestPermissionsResult?");
                 if (grantResults[0] == 0) {
                     Log.d(TAG, "Permit");
                     recording();
                 } else {
-                    Toast.makeText(getApplicationContext(), "You cannot record without authorization", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "You cannot use driver log without location permissions", Toast.LENGTH_SHORT).show();
                     UserInfo.setCurrLog(null);
                 }
                 break;
