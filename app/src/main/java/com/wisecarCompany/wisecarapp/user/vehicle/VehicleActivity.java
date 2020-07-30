@@ -36,6 +36,7 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.licence.LicenceActivity;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.user.profile.AboutActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import com.wisecarCompany.wisecarapp.user.profile.UpdateProfileActivity;
 import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
@@ -163,7 +164,7 @@ public class VehicleActivity extends AppCompatActivity {
 
         profileDiv.setOnClickListener(v -> startActivity(new Intent(this, UpdateProfileActivity.class)));
         devicesDiv.setOnClickListener(v -> Toast.makeText(this, "This function is not available now", Toast.LENGTH_SHORT));
-        //aboutDiv.setOnClickListener(v -> startActivity(new Intent(this, AboutActivity.class)));
+        aboutDiv.setOnClickListener(v -> startActivity(new Intent(this, AboutActivity.class)));
 
         logoutDiv.setOnClickListener(v -> {
             if(UserInfo.getCurrLog()==null) {
