@@ -102,6 +102,7 @@
                         android:layout_height="wrap_content"
                         android:text="(Sort by Family Name)"
                         android:gravity="end"
+                        android:layout_gravity="bottom"
                         android:textSize="10sp"/>
 
                 </LinearLayout>

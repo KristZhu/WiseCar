@@ -79,21 +79,19 @@ public class LoginActivity extends AppCompatActivity {
         rememberCheckBox.setChecked(remember);
         autoLoginCheckBox.setChecked(autoLogin);
 
-        if(autoLogin) {
-            usernameEditText.setText(sp.getString("USERNAME", ""));
+        username = sp.getString("USERNAME", "");
+        if(username.length()>0) {
+            usernameEditText.setText(username);
             int passwordLength = sp.getInt("PASSWORD_LENGTH", 10);
-            StringBuffer passwordSB = new StringBuffer();
-            for(int i=0; i<passwordLength; i++) passwordSB.append("*");
+            StringBuilder passwordSB = new StringBuilder();
+            for (int i = 0; i < passwordLength; i++) passwordSB.append("*");
             passwordEditText.setText(passwordSB.toString());    //show a fake password with the same length of the real one
-            login(sp.getString("USERNAME", ""), sp.getString("HASHED_PASSWORD", ""), sp.getInt("PASSWORD_LENGTH", 10));
-        } else if(remember) {
-            usernameEditText.setText(sp.getString("USERNAME", ""));
-            int passwordLength = sp.getInt("PASSWORD_LENGTH", 10);
-            StringBuffer passwordSB = new StringBuffer();
-            for(int i=0; i<passwordLength; i++) passwordSB.append("*");
-            passwordEditText.setText(passwordSB.toString());    //show a fake password with the same length of the real one
-            autoLoginCheckBox.setClickable(true);
-            autoLoginCheckBox.setAlpha(1.0f);
+            if (autoLogin) {
+                login(username, sp.getString("HASHED_PASSWORD", ""), sp.getInt("PASSWORD_LENGTH", 10));
+            } else if (remember) {
+                autoLoginCheckBox.setClickable(true);
+                autoLoginCheckBox.setAlpha(1.0f);
+            }
         }
 
         passwordChanged = false;    //only when password is remembered and not changed will it remain false

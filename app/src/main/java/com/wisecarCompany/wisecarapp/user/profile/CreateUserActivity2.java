@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
+import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 
 //import org.apache.http.HttpResponse;
@@ -96,7 +97,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
         //userImg = (byte[]) this.getIntent().getSerializableExtra("userImg");
         String userImgfilepath = this.getIntent().getStringExtra("userImg");
         //change into byte[]
-        userImgFile = new File(userImgfilepath);
+        if(userImgfilepath != null) userImgFile = new File(userImgfilepath);
         //init array with file length
 //        byte[] bytesArray = new byte[(int) file.length()];
 //
@@ -184,6 +185,9 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     && !country.equals("")
                     && !state.equals("") && !postCode.equals("")
             ) {
+
+                UserInfo.setfName(firstName);
+                UserInfo.setlName(lastName);
 
                 uploadByHttpClient();
 
