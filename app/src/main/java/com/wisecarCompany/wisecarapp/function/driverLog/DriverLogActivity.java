@@ -368,14 +368,12 @@ public class DriverLogActivity extends AppCompatActivity {
 
                 if (permissionCheckFineLocation == PackageManager.PERMISSION_DENIED || permissionCheckCoarseLocation == PackageManager.PERMISSION_DENIED) {  //first time using this function, or denied before
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {   //10.0
-                        ActivityCompat.requestPermissions(
-                                this,
+                        ActivityCompat.requestPermissions(this,
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION},
                                 0
                         );
                     } else {
-                        ActivityCompat.requestPermissions(
-                                DriverLogActivity.this,
+                        ActivityCompat.requestPermissions(this,
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                                 0
                         );
@@ -753,12 +751,13 @@ public class DriverLogActivity extends AppCompatActivity {
     private void acquireWakeLock() {
         if (null == wakeLock) {
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, getClass()
-                         .getCanonicalName());
+            //wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, getClass().getCanonicalName());
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getCanonicalName());
             if (null != wakeLock) {
                 wakeLock.acquire();
             }
         }
+        Log.d(TAG, "acquireWakeLock");
     }
 
     private void releaseWakeLock() {
@@ -766,6 +765,7 @@ public class DriverLogActivity extends AppCompatActivity {
             wakeLock.release();
             wakeLock = null;
         }
+        Log.d(TAG, "releaseWakeLock");
     }
 
     @SuppressLint("ResourceType")
