@@ -561,6 +561,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                 params.put("next_service_date", format.format(nextDate));
                 params.put("next_service_odometer", nextDistance);
 
+                /*
                 if (!((BitmapDrawable) qrImageView.getDrawable()).getBitmap().sameAs(qrCodeBitmap)) {
                     Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
 
@@ -578,6 +579,8 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                     bos.flush();
                     bos.close();
                 }
+                */
+                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
                 String response = HttpUtil.uploadForm(params, "document", file, "serviceRecord.png", IP_HOST + ADD_SERVICE_RECORD);
 
                 try {

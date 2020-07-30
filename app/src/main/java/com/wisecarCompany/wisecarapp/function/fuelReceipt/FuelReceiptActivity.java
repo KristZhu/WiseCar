@@ -39,9 +39,9 @@ import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
-import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
+import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 
 //import org.apache.http.HttpResponse;
 //import org.apache.http.client.HttpClient;
@@ -596,7 +596,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
                 params.put("record_id", identifierTextView.getText().toString());
                 Log.e("recordID", identifierTextView.getText().toString());
                 params.put("shared_company_id", sharedTextView.getText().toString());
-
+/*
                 Log.e("ImageView null check",
                         String.valueOf(!((BitmapDrawable) fuelImageView.getDrawable()).getBitmap()
                                 .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.licence0camera, null)).getBitmap())));
@@ -619,7 +619,8 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
                     bos.flush();
                     bos.close();
                 }
-
+*/
+                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
                 String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_FUEL);
 
                 try {

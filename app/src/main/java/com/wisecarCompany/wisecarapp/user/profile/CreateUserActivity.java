@@ -161,7 +161,7 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
             ) {
                 boolean isEmail = false;
                 try {
-                    String check = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+                    String check = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
                     Pattern regex = Pattern.compile(check);
                     Matcher matcher = regex.matcher(userEmail);
                     isEmail = matcher.matches();
@@ -178,17 +178,14 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
 //                int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
 //                int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
 //                userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
-                int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
-                int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
 
-                userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
                 String filepath = null;
 
 //                ByteArrayOutputStream bos = new ByteArrayOutputStream();
 //                userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
 //                userImg = bos.toByteArray();
 
-                //xuzheng
+                /*//xuzheng
                 try {
                     String root = Environment.getExternalStorageDirectory().toString();
                     File myDir = new File(root + "/saved_images");
@@ -207,14 +204,15 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-                //xuzheng
+                //xuzheng*/
+                filepath = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath()).getAbsolutePath();
 
                 username = usernameEditText.getText().toString();
                 userEmail = userEmailEditText.getText().toString();
                 password = passwordEditText.getText().toString();
 
                 startActivity(new Intent(CreateUserActivity.this, CreateUserActivity2.class)
-                        .putExtra("userImg", filepath)
+                        .putExtra("userImgPath", filepath)
                         .putExtra("username", username)
                         .putExtra("userEmail", userEmail)
 //                        .putExtra("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));

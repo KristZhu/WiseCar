@@ -38,9 +38,9 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
+import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 
 //import org.apache.http.HttpResponse;
 //import org.apache.http.client.HttpClient;
@@ -567,6 +567,7 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
                 Log.e("recordID", recordIDTextView.getText().toString());
                 params.put("shared_company_id", sharedTextView.getText().toString());
 
+/*
 
                 if (!((BitmapDrawable) parkingImageView.getDrawable()).getBitmap()
                         .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.licence0camera, null)).getBitmap())) {
@@ -586,7 +587,8 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
                     bos.flush();
                     bos.close();
                 }
-
+*/
+                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
                 String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_PARKING);
 
                 try {

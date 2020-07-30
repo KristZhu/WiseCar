@@ -113,7 +113,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
                     email = emailEditText.getText().toString();
                     boolean isEmail = false;
                     try{
-                        String check = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+                        String check = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
                         Pattern regex = Pattern.compile(check);
                         Matcher matcher = regex.matcher(email);
                         isEmail = matcher.matches();

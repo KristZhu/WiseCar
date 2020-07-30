@@ -101,7 +101,7 @@
                     app:layout_constraintTop_toBottomOf="@id/idTextView"
                     app:layout_constraintWidth_default="percent"
                     app:layout_constraintWidth_percent="0.25"
-                    app:srcCompat="@drawable/licence0camera" />
+                    android:src="@drawable/licence0camera" />
 
                 <Button
                     android:id="@+id/uploadButton"

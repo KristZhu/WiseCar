@@ -566,7 +566,7 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
                 params.put("registration_reminder", finalIsRemind);
                 params.put("record_id", recordIDTextView.getText().toString());
                 Log.e("recordID in request", recordIDTextView.getText().toString());
-
+/*
                 if (!((BitmapDrawable) qrImageView.getDrawable()).getBitmap().sameAs(qrCodeBitmap)) {
                     Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
 
@@ -584,6 +584,8 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
                     bos.flush();
                     bos.close();
                 }
+*/
+                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
                 String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_REGISTRATION_RECORD);
 
                 try {

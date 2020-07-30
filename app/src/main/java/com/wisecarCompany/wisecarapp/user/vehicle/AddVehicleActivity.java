@@ -228,13 +228,15 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
             } else {
 
                 // Write database connection here
-
+/*
                 if (!((BitmapDrawable) vehicleImageView.getDrawable()).getBitmap()
-                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.vehicle0empty_image, null)).getBitmap())) {
+                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.wc0blank_white_circle, null)).getBitmap())) {
                     uploadVehicleInfo();
                 } else {
                     Toast.makeText(this, "Please upload your vehicle photo.", Toast.LENGTH_LONG).show();
                 }
+*/
+                uploadVehicleInfo();
 
             }
 
@@ -396,8 +398,8 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                 params.put("year", year);
                 params.put("user_id", UserInfo.getUserID());
 
-                if (!((BitmapDrawable) vehicleImageView.getDrawable()).getBitmap()
-                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.vehicle0empty_image, null)).getBitmap())) {
+                /*if (!((BitmapDrawable) vehicleImageView.getDrawable()).getBitmap()
+                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.wc0blank_white_circle, null)).getBitmap())) {
                     Bitmap toBeUploaded = ((BitmapDrawable) vehicleImageView.getDrawable()).getBitmap();
 
                     String root = Environment.getExternalStorageDirectory().toString();
@@ -413,7 +415,9 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
                     bos.flush();
                     bos.close();
-                }
+                }*/
+
+                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
 
                 String response = HttpUtil.uploadForm(params, "logo", file, "vehicle.png", IP_HOST + ADD_VEHICLE);
 

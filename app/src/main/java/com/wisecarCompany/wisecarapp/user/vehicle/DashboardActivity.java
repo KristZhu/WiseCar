@@ -61,7 +61,8 @@ public class DashboardActivity extends AppCompatActivity {
 
         userImgImageView = $(R.id.userImgImageView);
         usernameTextView = $(R.id.usernameTextView);
-        userImgImageView.setImageBitmap(UserInfo.getUserImg());
+        if(UserInfo.getUserImg()==null) userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
+        else userImgImageView.setImageBitmap(UserInfo.getUserImg());
         usernameTextView.setText(UserInfo.getUsername());
 
         getServices(new serviceCallbacks() {
