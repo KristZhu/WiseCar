@@ -595,6 +595,7 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
                 params.put("end_of_cover", format.format(end));
                 params.put("cover_type", type);
                 params.put("record_id", recordIDTextView.getText().toString());
+/*
                 if (!((BitmapDrawable) qrImageView.getDrawable()).getBitmap().sameAs(qrCodeBitmap)) {
                     Bitmap toBeUploaded = ((BitmapDrawable) qrImageView.getDrawable()).getBitmap();
 
@@ -612,6 +613,8 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
                     bos.flush();
                     bos.close();
                 }
+*/
+                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
                 String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_INSURANCE_RECORD);
 
                 try {

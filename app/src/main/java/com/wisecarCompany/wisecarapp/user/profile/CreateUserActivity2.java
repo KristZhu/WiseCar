@@ -95,7 +95,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
         setContentView(R.layout.activity_create_user2);
 
         //userImg = (byte[]) this.getIntent().getSerializableExtra("userImg");
-        String userImgfilepath = this.getIntent().getStringExtra("userImg");
+        String userImgfilepath = this.getIntent().getStringExtra("userImgPath");
         //change into byte[]
         if(userImgfilepath != null) userImgFile = new File(userImgfilepath);
         //init array with file length

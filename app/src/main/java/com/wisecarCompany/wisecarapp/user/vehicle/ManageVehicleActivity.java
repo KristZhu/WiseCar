@@ -30,6 +30,7 @@ import com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationR
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsActivity;
 import com.wisecarCompany.wisecarapp.function.shareVehicle.ShareVehicleListActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,7 +51,7 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
 
     private ImageButton backImageButton;
 
-    private ImageView vehicleImageView;
+    private CircleImageView vehicleImageView;
     private TextView makeRegistrationNoTextView;
     private TextView vinTextView;
     private TextView registrationTextView;
@@ -85,7 +86,8 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         Log.d(TAG, "vehicle: " + vehicle);
 
         vehicleImageView = $(R.id.vehicleImageView);
-        vehicleImageView.setImageBitmap(vehicle.getImage());
+        if(vehicle.getImage()==null) vehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.profile0empty_image));
+        else vehicleImageView.setImageBitmap(vehicle.getImage());
 
         makeRegistrationNoTextView = $(R.id.makeRegistrationNoTextView);
         vinTextView = $(R.id.vinTextView);

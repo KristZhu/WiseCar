@@ -125,7 +125,8 @@ public class VehicleActivity extends AppCompatActivity {
                 public void onSuccess(@NonNull Bitmap value) {
                     Log.e("image bitmap callback", ImgBitmap.toString());
 //                    userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
-                    userImgImageView.setImageBitmap(ImgBitmap);
+                    if(ImgBitmap==null) userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
+                    else userImgImageView.setImageBitmap(ImgBitmap);
                     UserInfo.setUserImg(ImgBitmap);
                 }
             }, new userEmailCallback() {
@@ -140,7 +141,8 @@ public class VehicleActivity extends AppCompatActivity {
             Log.e("stored image bitmap: ", ImgBitmap.toString());
             Log.e("stored email: ", email_address);
             userEmailTextView.setText(email_address);
-            userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
+            if(UserInfo.getUserImg()==null) userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
+            else userImgImageView.setImageBitmap(UserInfo.getUserImg());
         }
 
         menuImageButton = $(R.id.menuImageButton);
@@ -363,15 +365,18 @@ public class VehicleActivity extends AppCompatActivity {
         //default show the first vehicle (latest added, sorted by TreeMap)
         for (String vehicleID : vehicles.keySet()) {
             selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-            selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
+            if(vehicles.get(vehicleID).getImage()==null) selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+            else selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
             manageVehicleImageButton.setOnClickListener(v -> manageVehicle(vehicleID));
             break;
         }
 
         for (String vehicleID : vehicles.keySet()) {
             Vehicle vehicle = vehicles.get(vehicleID);
+            assert vehicle != null;
             CircleImageView imageView = new CircleImageView(VehicleActivity.this);
-            imageView.setImageBitmap(vehicle.getImage());
+            if(vehicle.getImage()==null) imageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+            else imageView.setImageBitmap(vehicle.getImage());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             params.setMargins(0, 0, 16, 0);
             imageView.setLayoutParams(params);
@@ -379,7 +384,8 @@ public class VehicleActivity extends AppCompatActivity {
             imageView.setOnClickListener(v -> {
                 Log.d(TAG, "onClickVehicle: " + vehicle);
                 selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-                selectedVehicleImageView.setImageBitmap(vehicle.getImage());
+                if(vehicle.getImage()==null) selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+                else selectedVehicleImageView.setImageBitmap(vehicle.getImage());
                 manageVehicleImageButton.setOnClickListener(v1 -> {
                     if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
                     else manageVehicle(vehicleID);

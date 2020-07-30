@@ -80,6 +80,7 @@ import cn.bingoogolapple.photopicker.util.BGAPhotoPickerUtil;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
+
 public class LicenceActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private final static String TAG = "LicenceActivity";
@@ -615,7 +616,7 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
                 params.put("record_id", recordIDTextView.getText().toString());
                 Log.e("recordID", recordIDTextView.getText().toString());
 
-                if (!((BitmapDrawable) licenceImageView.getDrawable()).getBitmap()
+                /*if (!((BitmapDrawable) licenceImageView.getDrawable()).getBitmap()
                         .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.licence0camera, null)).getBitmap())) {
                     Bitmap toBeUploaded = ((BitmapDrawable) licenceImageView.getDrawable()).getBitmap();
 
@@ -632,7 +633,9 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
 
                     bos.flush();
                     bos.close();
-                }
+                }*/
+
+                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
 
                 String response = HttpUtil.uploadForm(params, "document", file, "license.png", IP_HOST + ADD_LICENSE);
 
