@@ -247,6 +247,7 @@
             app:layout_constraintWidth_percent="0.5" />
 
         <ImageView
+            android:visibility="invisible"
             android:id="@+id/dividing"
             android:layout_width="0dp"
             android:layout_height="5dp"
