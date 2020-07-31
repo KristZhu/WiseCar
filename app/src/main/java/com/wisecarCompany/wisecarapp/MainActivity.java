@@ -20,20 +20,35 @@ import android.widget.Button;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.profile.CreateUserActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.CalendarActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -42,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
     String TAG = "main";
 
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -51,43 +68,14 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent sender = PendingIntent.getBroadcast(this, 0, intent, 0);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         am.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), 60000, sender);
-
 */
 
-
-        UserInfo.setEmerNotices(new TreeMap<>((o1, o2) -> { //sort by the time distance from today
-            Calendar cal = Calendar.getInstance();
-            cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH),0, 0, 0);
-            if(Math.abs(cal.getTime().getTime() - o1.getTime()) < Math.abs(cal.getTime().getTime() - o2.getTime())) return -1;
-            else if(Math.abs(cal.getTime().getTime() - o1.getTime()) > Math.abs(cal.getTime().getTime() - o2.getTime())) return 1;
-            else return 0;
-        }));
-        UserInfo.setNotices(new TreeMap<>((o1, o2) -> {
-            Calendar cal = Calendar.getInstance();
-            cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH),0, 0, 0);
-            if(Math.abs(cal.getTime().getTime() - o1.getTime()) < Math.abs(cal.getTime().getTime() - o2.getTime())) return -1;
-            else if(Math.abs(cal.getTime().getTime() - o1.getTime()) > Math.abs(cal.getTime().getTime() - o2.getTime())) return 1;
-            else return 0;
-        }));
-
-        //below are test data:
-//        UserInfo.getNotices().put(intToDate(2020,6,5), new String[]{"Car1","notice1"});
-//        UserInfo.getNotices().put(intToDate(2020,6,15), new String[]{"Car2","notice2"});
-//        UserInfo.getEmerNotices().put(intToDate(2020,6,25), new String[]{"Car3","notice3"});
-//        UserInfo.getEmerNotices().put(intToDate(2020,6,30), new String[]{"Car2","notice4"});
-//        UserInfo.getNotices().put(intToDate(2020,7,5), new String[]{"Car1","notice5"});
-        //test data over
-
-        int seq = 0;
-        for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) notification(entry, seq++);
-
-        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        startActivity(new Intent(this, LoginActivity.class));
         //startActivity(new Intent(MainActivity.this, CreateUserActivity.class));
 
     }
 
-    private void notification(Map.Entry<Date, String[]> notice, int seq) {
-        if (notice.getValue().length!=2) Log.e(TAG, "setNotice in status bar: notice value String[] length != 2 ERR0R!!");
+    private void showTaskBarNotifications(Date date, String[] noticeContent, int seq) {
 
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         assert manager != null;
@@ -108,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
 
         Notification notification = new NotificationCompat.Builder(this, "default")
                 .setSmallIcon(R.drawable.wisecar_logo)
-                .setContentTitle("Due Date: " + new SimpleDateFormat("dd MMM", Locale.getDefault()).format(notice.getKey()))
-                .setContentText(notice.getValue()[0] + ", " + notice.getValue()[1])
+                .setContentTitle("Due Date: " + new SimpleDateFormat("dd MMM", Locale.getDefault()).format(date))
+                .setContentText(noticeContent[0] + ", " + noticeContent[1]) //regNo + type
                 .setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setWhen(System.currentTimeMillis())
@@ -118,25 +106,6 @@ public class MainActivity extends AppCompatActivity {
 
         manager.notify(seq, notification);
 
-    }
-
-    private static java.util.Date intToDate(int year, int month, int day) {
-        StringBuffer sb = new StringBuffer();
-        if (day < 10) sb.append("0" + day);
-        else sb.append(day);
-        sb.append("/");
-        month++;
-        if (month < 10) sb.append("0" + month);
-        else sb.append(month);
-        sb.append("/" + year);
-        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        java.util.Date date = null;
-        try {
-            date = format.parse(sb.toString());
-        } catch (ParseException e) {
-            return null;
-        }
-        return date;
     }
 
 }

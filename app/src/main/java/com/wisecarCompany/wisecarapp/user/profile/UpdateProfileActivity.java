@@ -1,13 +1,13 @@
 package com.wisecarCompany.wisecarapp.user.profile;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -25,14 +25,30 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.wisecarCompany.wisecarapp.MainActivity;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.user.licence.Licence;
+import com.wisecarCompany.wisecarapp.user.vehicle.AddVehicleActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
+import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.security.MessageDigest;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
 import cn.bingoogolapple.photopicker.imageloader.BGAImage;
@@ -79,6 +95,9 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
 
     private BGAPhotoHelper mPhotoHelper;
 
+    private String IP_HOST = "http://54.206.19.123:3000";
+    private String UPDATE_PROFILE = "/api/v1/users/updateprofile";
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -101,20 +120,20 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         confirmPassImageView = $(R.id.confirmPassImageView);
         confirmNoPassImageView = $(R.id.confirmNoPassImageView);
 
-        fNameEditText.setText(UserInfo.getfName()==null ? "" : UserInfo.getfName());
-        lNameEditText.setText(UserInfo.getlName()==null ? "" : UserInfo.getlName());
+        fNameEditText.setText(UserInfo.getfName());
+        lNameEditText.setText(UserInfo.getlName());
         emailEditText.setText(UserInfo.getUserEmail());
 
         int passwordLength = sp.getInt("PASSWORD_LENGTH", 10);
         StringBuilder passwordSB = new StringBuilder();
-        for(int i=0; i<passwordLength; i++) passwordSB.append("*");
+        for (int i = 0; i < passwordLength; i++) passwordSB.append("*");
         passwordEditText.setText(passwordSB.toString());    //show a fake password with the same length of the real one
         confirmPasswordEditText.setText(passwordSB.toString());
 
         passwordChanged = false;
         passwordEditText.setOnTouchListener((v, event) -> {
             passImageView.setVisibility(View.INVISIBLE);
-            if(!passwordChanged) {
+            if (!passwordChanged) {
                 passwordChanged = true;
                 passwordEditText.setText("");
                 confirmPasswordEditText.setText("");
@@ -123,7 +142,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         });
         passwordEditText.setOnClickListener(v -> {
             passImageView.setVisibility(View.INVISIBLE);
-            if(!passwordChanged) {
+            if (!passwordChanged) {
                 passwordChanged = true;
                 passwordEditText.setText("");
                 confirmPasswordEditText.setText("");
@@ -131,7 +150,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         });
         passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
             passImageView.setVisibility(View.INVISIBLE);
-            if(!passwordChanged) {
+            if (!passwordChanged) {
                 passwordChanged = true;
                 passwordEditText.setText("");
                 confirmPasswordEditText.setText("");
@@ -153,7 +172,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         });
 
         userImgImageView = $(R.id.userImgImageView);
-        if(UserInfo.getUserImg()!=null) userImgImageView.setImageBitmap(UserInfo.getUserImg());
+        if (UserInfo.getUserImg() != null) userImgImageView.setImageBitmap(UserInfo.getUserImg());
         uploadPhotoImageButton = $(R.id.uploadPhotoImageButton);
 
         // The directory for storing photos after taking a photo.
@@ -187,19 +206,21 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
             lName = lNameEditText.getText().toString();
             email = emailEditText.getText().toString();
 
-            if(passwordChanged) {
-                if(passImageView.getVisibility()!=View.VISIBLE || confirmPassImageView.getVisibility()!=View.VISIBLE) return;
+            if (passwordChanged) {
+                if (passImageView.getVisibility() != View.VISIBLE || confirmPassImageView.getVisibility() != View.VISIBLE)
+                    return;
                 hashedPassword = sha256(passwordEditText.getText().toString());
 
                 final EditText et = new EditText(this);
                 et.setTransformationMethod(PasswordTransformationMethod.getInstance()); //password inputtype
+                et.setHint("Old password");
                 new AlertDialog.Builder(this)
                         .setTitle("You are changing password. Please input old password to verify. ")
                         .setView(et)
                         .setPositiveButton("Confirm", (dialog, which) -> {
                             hideSoftInput(v.getWindowToken());
                             String input = et.getText().toString();
-                            if(sha256(input).equals(sp.getString("HASHED_PASSWORD", ""))) {
+                            if (sha256(input).equals(sp.getString("HASHED_PASSWORD", ""))) {
                                 Toast.makeText(this, "Updating, please wait...", Toast.LENGTH_SHORT).show();
                                 SharedPreferences.Editor editor = sp.edit()
                                         .putString("HASHED_PASSWORD", hashedPassword)
@@ -226,10 +247,9 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         UserInfo.setlName(lName);
         UserInfo.setUserEmail(email);
 
-        File file = mPhotoHelper.getCropFilePath() == null? null: new File(mPhotoHelper.getCameraFilePath());
+        File file = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCameraFilePath());
 
-        //db
-
+        updateProfile(fName, lName, email, hashedPassword, file);
 
         startActivity(new Intent(this, LoginActivity.class));
     }
@@ -242,8 +262,9 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
 
         String hashedPassword = sp.getString("HASHED_PASSWORD", "");
 
-        //db
+        File file = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCameraFilePath());
 
+        updateProfile(fName, lName, email, hashedPassword, file);
 
         startActivity(new Intent(this, VehicleActivity.class));
     }
@@ -358,7 +379,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            if(passwordChanged) {
+            if (passwordChanged) {
                 if (passwordEditText.getText().toString().length() > 0) {
                     if (passwordEditText.getText().toString().length() < 8) {
                         Toast.makeText(this, "Password is too short. It should be at least 8 characters. ", Toast.LENGTH_SHORT).show();
@@ -401,4 +422,54 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
             manager.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
+
+
+    private void updateProfile(String fName, String lName, String email, String hashedPassword, File file) {
+
+        Thread thread = new Thread(() -> {
+
+            HashMap<String, String> params = new HashMap<>();
+            String message = null;
+
+            try {
+                params.put("user_id", UserInfo.getUserID());
+                params.put("first_name", fName);
+                params.put("last_name", lName);
+                params.put("email_address", email);
+                params.put("password", hashedPassword);
+
+                String response = HttpUtil.uploadForm(params, "logo", file, "userImage.png", IP_HOST + UPDATE_PROFILE);
+                if (response == null) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        message = jsonObject.optString("message");
+                        Log.e("testest", message);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (message.equals("success")) {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(UpdateProfileActivity.this, DashboardActivity.class));
+                            }
+                        });
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        });
+        thread.start();
+    }
+
 }

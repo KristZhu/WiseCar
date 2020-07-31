@@ -111,7 +111,6 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
     private CheckBox fuelCheckBox;
     private boolean fuel;
      */
-    private String servicesChoice = "";
 
     private ImageButton backImageButton;
     private Button uploadButton;
@@ -188,10 +187,10 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
             vehicleImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
             vehicleImgByte = bos.toByteArray();
 
-            make = makeEditText.getText().toString();
-            model = modelEditText.getText().toString();
-            registration_no = rcEditText.getText().toString();
-            description = descriptionEditText.getText().toString();
+            make = makeEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+            model = modelEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+            registration_no = rcEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+            description = descriptionEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
 
             if (isServices == null) {
                 isServices = new boolean[6];
@@ -377,11 +376,13 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
     private void uploadVehicleInfo() {
 
+        String servicesChoice = "";
         for (int i = 0; i < isServices.length; i++) {
             if (isServices[i]) servicesChoice += i + 1;
         }
         Log.d(TAG, "uploadVehicleInfoByHttpClient: servicesChoice: " + servicesChoice);
 
+        String finalServicesChoice = servicesChoice;
         Thread thread = new Thread(() -> {
 
             HashMap<String, String> params = new HashMap<>();
@@ -394,7 +395,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                 params.put("model", model);
                 params.put("registration_no", registration_no);
                 params.put("description", description);
-                params.put("services", servicesChoice);
+                params.put("services", finalServicesChoice);
                 params.put("state", state);
                 params.put("year", year);
                 params.put("user_id", UserInfo.getUserID());
@@ -418,40 +419,42 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                     bos.close();
                 }*/
 
-                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
+                file = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCropFilePath());
 
                 String response = HttpUtil.uploadForm(params, "logo", file, "vehicle.png", IP_HOST + ADD_VEHICLE);
+                if (response == null) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        message = jsonObject.optString("message");
+                        vehicle_id = jsonObject.optInt("vehicle_id");
+                        Log.e("testest", message + "  " + vehicle_id);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    message = jsonObject.optString("message");
-                    vehicle_id = jsonObject.optInt("vehicle_id");
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    if (message.equals("success")) {
+                        // Add successfully
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
+                            }
+                        });
+                        UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
+                    }
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            Log.e("testest", message + "  " + vehicle_id);
 
-            if (message.equals("success")) {
-                // Add successfully
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
-                    }
-                });
-                UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
-            } else {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
         });
         thread.start();
     }
