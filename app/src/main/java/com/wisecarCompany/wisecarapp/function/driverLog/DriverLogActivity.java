@@ -6,9 +6,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -20,23 +18,19 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Base64;
@@ -62,7 +56,6 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
@@ -89,9 +82,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
 
-import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
-import cn.bingoogolapple.photopicker.imageloader.BGAImage;
-import cn.bingoogolapple.photopicker.util.BGAPhotoPickerUtil;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -150,6 +140,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
     PowerManager.WakeLock wakeLock;
     private ScreenListener screenListener;
     MediaPlayer mediaPlayer;
+    NotificationManager manager;
 
 
     @SuppressLint({"SetTextI18n", "Assert", "ResourceType"})
@@ -240,7 +231,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             searchEditText.setText("");
 
             LayoutInflater factory = LayoutInflater.from(this);
-            @SuppressLint("InflateParams") View view = factory.inflate(R.layout.layout_driver_log_fliter_alert, null);
+            @SuppressLint("InflateParams") View view = factory.inflate(R.layout.driver_log_fliter_alert, null);
             EditText miniDateEditText = (EditText) view.findViewById(R.id.miniDate);
             EditText maxDateEditText = (EditText) view.findViewById(R.id.maxDate);
             EditText miniMinEditText = (EditText) view.findViewById(R.id.miniMin);
@@ -373,7 +364,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             }
             @Override
             public void onScreenOff() {
-                if(UserInfo.getCurrLog()!=null && !UserInfo.getCurrLog().isPausing()) startVoice();
+                if(UserInfo.getCurrLog()!=null && !UserInfo.getCurrLog().isPausing()) startTurnOnScreenVoice();
             }
             @Override
             public void onUserPresent() {
@@ -437,7 +428,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         super.onDestroy();
     }
 
-    public void startVoice() {
+    public void startTurnOnScreenVoice() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {return;}
         mediaPlayer = MediaPlayer.create(this, R.raw.turn_on_screen);
         mediaPlayer.start();
@@ -454,6 +445,44 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             mediaPlayer.release();
             mediaPlayer = null;
         }
+    }
+
+    private void showTaskBarLogNotification(String time, String distance) {
+
+        manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        assert manager != null;
+
+        //8.0 and above need channelId
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            String channelId = "default";
+            String channelName = "default notice";
+            manager.createNotificationChannel(new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH));
+        }
+
+        //TaskStackBuilder
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(DriverLogActivity.class);
+        stackBuilder.addNextIntent(new Intent(this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
+
+        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification taskBarLogNotification = new NotificationCompat.Builder(this, "default")
+                .setSmallIcon(R.drawable.wisecar_logo)
+                .setContentTitle(time)
+                .setContentText(distance)
+                .setAutoCancel(false)
+                .setOngoing(true)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setWhen(System.currentTimeMillis())
+                .setContentIntent(pendingIntent)
+                .build();
+
+        manager.notify(0, taskBarLogNotification);
+
+    }
+
+    private void stopTaskBarLogNotification() {
+        if(manager!=null) manager.cancel(0);
     }
 
     @Override
@@ -515,7 +544,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         if (!UserInfo.getCurrLog().isTimerRunning()) {
             //both start when clicking start/resume, and END when clicking PAUSE/end, every interval is a different timer
             //the timers here only add second, and display data. Job of getting lng/lat every second is done in getLocation method
-            new Timer().schedule(new TimerTask() {  //this timer adds 1 to currLog.duration every sec
+            new Timer().schedule(new TimerTask() {  //this timer adds 1 to currLog.duration every sec and save log every 30sec
                 @SuppressLint("SetTextI18n")
                 @Override
                 public void run() {
@@ -529,6 +558,17 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                     } else {
                         Log.d(TAG, "timer: currLog: " + UserInfo.getCurrLog());
                         UserInfo.getCurrLog().setDuration(UserInfo.getCurrLog().getDuration() + 1);
+
+                        if (UserInfo.getCurrLog().getDuration() % 30 == 1) { //save log every 30s
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                            String time = format.format(new Date());
+                            Log.d(TAG, "send log every 30s: ");
+                            Log.d(TAG, "time: " + time);
+                            Log.d(TAG, "lat: " + UserInfo.getCurrLog().getLatitude());
+                            Log.d(TAG, "lng: " + UserInfo.getCurrLog().getLongitude());
+
+                            UserInfo.getCurrLog().getLocations().put(new Date(), new double[]{UserInfo.getCurrLog().getLatitude(), UserInfo.getCurrLog().getLongitude()});
+                        }
                     }
                 }
             }, 500, 1000);
@@ -549,22 +589,14 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                     long secD = UserInfo.getCurrLog().getDuration() % 60;
                     String minDuration = minD >= 10 ? "" + minD : "0" + minD;
                     String secDuration = secD >= 10 ? "" + secD : "0" + secD;
+
                     timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
+                    showTaskBarLogNotification("Driver Log", timeDistanceTextView.getText().toString());
+
                     TextView testLng = $(R.id.testLng);
                     testLng.setText("" + UserInfo.getCurrLog().getLongitude());
                     TextView testLat = $(R.id.testLat);
                     testLat.setText("" + UserInfo.getCurrLog().getLatitude());
-
-                    if (UserInfo.getCurrLog().getDuration() % 30 == 1) { //save log every 30s
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                        String time = format.format(new Date());
-                        Log.d(TAG, "send log every 30s: ");
-                        Log.d(TAG, "time: " + time);
-                        Log.d(TAG, "lat: " + UserInfo.getCurrLog().getLatitude());
-                        Log.d(TAG, "lng: " + UserInfo.getCurrLog().getLongitude());
-
-                        UserInfo.getCurrLog().getLocations().put(new Date(), new double[]{UserInfo.getCurrLog().getLatitude(), UserInfo.getCurrLog().getLongitude()});
-                    }
                 }
             }
         }, 1000, 1000);
@@ -610,6 +642,8 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        stopTaskBarLogNotification();
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
         if (locationManager != null) locationManager.removeUpdates(locationListener);
