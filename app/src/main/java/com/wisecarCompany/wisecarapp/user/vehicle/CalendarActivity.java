@@ -1,5 +1,7 @@
 package com.wisecarCompany.wisecarapp.user.vehicle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -19,12 +21,23 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -45,6 +58,9 @@ public class CalendarActivity extends AppCompatActivity {
     private TextView[][] dateTextView;
 
     private LinearLayout noticeDiv;
+
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_CALENDAR_NOTIFICATION = "/api/v1/notification/calendar";
 
     private Calendar cal;
 //  if(Math.abs(cal.getTime().getTime() - new Date().getTime()) <= 7*24*60*60*1000) {   //within 7 days before/from now
@@ -92,6 +108,19 @@ public class CalendarActivity extends AppCompatActivity {
             setCalendar();
             noticeDiv.removeAllViews();
             setNotices();
+        });
+
+
+        getTwoClosestNotifications(new calendarCallbacks() {
+            @Override
+            public void onSuccess(@NonNull Map<Date, String[]> value) {
+
+            }
+
+            @Override
+            public void onError(@NonNull String errorMessage) {
+
+            }
         });
 
     }
@@ -233,5 +262,79 @@ public class CalendarActivity extends AppCompatActivity {
 
     private <T extends View> T $(int id) {
         return (T) findViewById(id);
+    }
+
+    private void getTwoClosestNotifications(@Nullable final calendarCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_CALENDAR_NOTIFICATION;
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("current_date", format.format(new Date()));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Notification response: ", response.toString());
+            JSONArray jsonArray;
+            JSONObject jsonObject;
+            Map<Date, String[]> notifications = new HashMap<>();
+            try {
+                jsonArray = response.getJSONArray("results");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+
+                    Date date = null;
+
+                    try {
+                        date = format.parse(jsonObject.optString("expiry_date"));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    String[] notiInfo = new String[3];
+                    notiInfo[0] = (jsonObject.optString("registration_no"));
+                    notiInfo[1] = (jsonObject.optString("type"));
+                    notiInfo[2] = (jsonObject.optString("date_diff"));
+
+                    notifications.put(date, notiInfo);
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(notifications);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }, error -> {
+
+//                Log.e("ERROR!!!", error.toString());
+//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("No notification: ", message);
+                if (callbacks != null)
+                    callbacks.onError(message);
+            }
+        });
+
+        Volley.newRequestQueue(CalendarActivity.this).add(objectRequest);
+    }
+
+    public interface calendarCallbacks {
+        void onSuccess(@NonNull Map<Date, String[]> value);
+
+        void onError(@NonNull String errorMessage);
     }
 }
