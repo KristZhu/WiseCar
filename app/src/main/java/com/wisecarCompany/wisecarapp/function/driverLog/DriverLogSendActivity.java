@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -25,6 +26,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -294,5 +296,20 @@ public class DriverLogSendActivity extends AppCompatActivity {
         });
         Volley.newRequestQueue(DriverLogSendActivity.this).add(objectRequest);
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, DriverLogDashboardActivity.class));
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            startActivity(new Intent(this, DriverLogDashboardActivity.class));
+            return true;    //stop calling super method
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 }

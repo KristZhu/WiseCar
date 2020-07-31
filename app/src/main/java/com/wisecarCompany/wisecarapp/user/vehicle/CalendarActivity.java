@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -213,6 +214,21 @@ public class CalendarActivity extends AppCompatActivity {
 
     }
 
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, VehicleActivity.class));
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            startActivity(new Intent(this, VehicleActivity.class));
+            return true;    //stop calling super method
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
+    }
 
 
     private <T extends View> T $(int id) {

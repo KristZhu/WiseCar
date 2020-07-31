@@ -226,6 +226,8 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         UserInfo.setlName(lName);
         UserInfo.setUserEmail(email);
 
+        File file = mPhotoHelper.getCropFilePath() == null? null: new File(mPhotoHelper.getCameraFilePath());
+
         //db
 
 
@@ -237,6 +239,8 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         UserInfo.setfName(fName);
         UserInfo.setlName(lName);
         UserInfo.setUserEmail(email);
+
+        String hashedPassword = sp.getString("HASHED_PASSWORD", "");
 
         //db
 
