@@ -6,6 +6,7 @@ import com.wisecarCompany.wisecarapp.function.driverLog.CurrDriverLog;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class UserInfo {

@@ -45,8 +45,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -59,6 +63,7 @@ public class VehicleActivity extends AppCompatActivity {
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_IMG_EMAIL = "/api/v1/users/";
     private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
+    private final String GET_CLOSEST_NOTIFICATIONS = "/api/v1/notification/gettwoclosest";
 
     private SharedPreferences sp;
 
@@ -125,7 +130,8 @@ public class VehicleActivity extends AppCompatActivity {
                 public void onSuccess(@NonNull Bitmap value) {
                     Log.e("image bitmap callback", ImgBitmap.toString());
 //                    userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
-                    if(ImgBitmap==null) userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
+                    if (ImgBitmap == null)
+                        userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
                     else userImgImageView.setImageBitmap(ImgBitmap);
                     UserInfo.setUserImg(ImgBitmap);
                 }
@@ -141,7 +147,8 @@ public class VehicleActivity extends AppCompatActivity {
             Log.e("stored image bitmap: ", ImgBitmap.toString());
             Log.e("stored email: ", email_address);
             userEmailTextView.setText(email_address);
-            if(UserInfo.getUserImg()==null) userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
+            if (UserInfo.getUserImg() == null)
+                userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
             else userImgImageView.setImageBitmap(UserInfo.getUserImg());
         }
 
@@ -155,7 +162,7 @@ public class VehicleActivity extends AppCompatActivity {
         imageDiv = $(R.id.imageDiv);
         mainDiv = $(R.id.mainDiv);
         menuImageButton.setOnClickListener(v -> {
-            if(menuDiv.getVisibility()==View.VISIBLE) {
+            if (menuDiv.getVisibility() == View.VISIBLE) {
                 menuDiv.setVisibility(View.GONE);
             } else {
                 menuDiv.setVisibility(View.VISIBLE);
@@ -169,7 +176,7 @@ public class VehicleActivity extends AppCompatActivity {
         aboutDiv.setOnClickListener(v -> startActivity(new Intent(this, AboutActivity.class)));
 
         logoutDiv.setOnClickListener(v -> {
-            if(UserInfo.getCurrLog()==null) {
+            if (UserInfo.getCurrLog() == null) {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                         .setTitle("Are you sure you want to log out? ")
                         .setPositiveButton("OK", (dialog, which) -> {
@@ -201,53 +208,67 @@ public class VehicleActivity extends AppCompatActivity {
 
         licenceImageButton = $(R.id.licenceImageButton);
         licenceImageButton.setOnClickListener(v -> {
-            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
             else startActivity(new Intent(VehicleActivity.this, LicenceActivity.class));
         });
 
         dashboardDiv = $(R.id.dashboardDiv);
         dashboardDiv.setOnClickListener(v -> {
-            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
             else startActivity(new Intent(this, DashboardActivity.class));
         });
 
         calendarDiv = $(R.id.calendarDiv);
         calendarDiv.setOnClickListener(v -> {
-            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
             else startActivity(new Intent(this, CalendarActivity.class));
         });
 
         notifyTextView = new TextView[]{$(R.id.notifyTextView0), $(R.id.notifyTextView1)};
         notificationImageView = $(R.id.notificationImageView);
-        if(UserInfo.getEmerNotices().size()>=2) {
-            notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
-            int i = 0;
-            for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) {
-                String temp = "<font color='#ff0000'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
-                notifyTextView[i++].setText(Html.fromHtml(temp));
-                if(i>=2) break;
+
+        getTwoClosestNotifications(new notificationsCallbacks() {
+            @Override
+            public void onSuccess(@NonNull Map<Date, String[]> value) {
+
+                UserInfo.setEmerNotices(value);
+
+                if (UserInfo.getEmerNotices().size() >= 2) {
+                    notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
+                    int i = 0;
+                    for (Map.Entry<Date, String[]> entry : UserInfo.getEmerNotices().entrySet()) {
+                        String temp = "<font color='#ff0000'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
+                        notifyTextView[i++].setText(Html.fromHtml(temp));
+                        if (i >= 2) break;
+                    }
+                } else if (UserInfo.getEmerNotices().size() == 1) {
+                    notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
+                    for (Map.Entry<Date, String[]> entry : UserInfo.getEmerNotices().entrySet()) {
+                        String temp = "<font color='#ff0000'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
+                        notifyTextView[0].setText(Html.fromHtml(temp));
+                        break;
+                    }
+                    for (Map.Entry<Date, String[]> entry : UserInfo.getNotices().entrySet()) {
+                        String temp = "<font color='#0c450c'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
+                        notifyTextView[1].setText(Html.fromHtml(temp));
+                        break;
+                    }
+                } else {
+                    notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification));
+                    int i = 0;
+                    for (Map.Entry<Date, String[]> entry : UserInfo.getNotices().entrySet()) {
+                        String temp = "<font color='#0c450c'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
+                        notifyTextView[i++].setText(Html.fromHtml(temp));
+                        if (i >= 2) break;
+                    }
+                }
             }
-        } else if(UserInfo.getEmerNotices().size()==1) {
-            notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
-            for(Map.Entry<Date, String[]> entry: UserInfo.getEmerNotices().entrySet()) {
-                String temp = "<font color='#ff0000'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
-                notifyTextView[0].setText(Html.fromHtml(temp));
-                break;
+
+            @Override
+            public void onError(@NonNull String errorMessage) {
+
             }
-            for(Map.Entry<Date, String[]> entry: UserInfo.getNotices().entrySet()) {
-                String temp = "<font color='#0c450c'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
-                notifyTextView[1].setText(Html.fromHtml(temp));
-                break;
-            }
-        } else {
-            notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification));
-            int i = 0;
-            for(Map.Entry<Date, String[]> entry: UserInfo.getNotices().entrySet()) {
-                String temp = "<font color='#0c450c'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
-                notifyTextView[i++].setText(Html.fromHtml(temp));
-                if(i>=2) break;
-            }
-        }
+        });
 
         selectedVehicleTextView = $(R.id.selectedVehicleTextView);
         selectedVehicleImageView = $(R.id.selectedVehicleImageView);
@@ -290,12 +311,12 @@ public class VehicleActivity extends AppCompatActivity {
 
 
         addImageButton.setOnClickListener(v -> {
-            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
             else addVehicle();
         });
 
         editVehiclesImageButton.setOnClickListener(v -> {
-            if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
             else ;
             //to be implementer
         });
@@ -316,7 +337,7 @@ public class VehicleActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(UserInfo.getCurrLog()==null) {
+        if (UserInfo.getCurrLog() == null) {
             AlertDialog alertDialog = new AlertDialog.Builder(this)
                     .setTitle("Are you sure you want to exit? ")
                     .setPositiveButton("OK", (dialog, which) -> {
@@ -335,8 +356,8 @@ public class VehicleActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_BACK) {
-            if(UserInfo.getCurrLog()==null) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (UserInfo.getCurrLog() == null) {
                 AlertDialog alertDialog = new AlertDialog.Builder(this)
                         .setTitle("Are you sure you want to exit? ")
                         .setPositiveButton("OK", (dialog, which) -> {
@@ -365,7 +386,8 @@ public class VehicleActivity extends AppCompatActivity {
         //default show the first vehicle (latest added, sorted by TreeMap)
         for (String vehicleID : vehicles.keySet()) {
             selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-            if(vehicles.get(vehicleID).getImage()==null) selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+            if (vehicles.get(vehicleID).getImage() == null)
+                selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
             else selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
             manageVehicleImageButton.setOnClickListener(v -> manageVehicle(vehicleID));
             break;
@@ -375,7 +397,8 @@ public class VehicleActivity extends AppCompatActivity {
             Vehicle vehicle = vehicles.get(vehicleID);
             assert vehicle != null;
             CircleImageView imageView = new CircleImageView(VehicleActivity.this);
-            if(vehicle.getImage()==null) imageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+            if (vehicle.getImage() == null)
+                imageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
             else imageView.setImageBitmap(vehicle.getImage());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             params.setMargins(0, 0, 16, 0);
@@ -384,10 +407,11 @@ public class VehicleActivity extends AppCompatActivity {
             imageView.setOnClickListener(v -> {
                 Log.d(TAG, "onClickVehicle: " + vehicle);
                 selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-                if(vehicle.getImage()==null) selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+                if (vehicle.getImage() == null)
+                    selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
                 else selectedVehicleImageView.setImageBitmap(vehicle.getImage());
                 manageVehicleImageButton.setOnClickListener(v1 -> {
-                    if(menuDiv.getVisibility()==View.VISIBLE) menuDiv.setVisibility(View.GONE);
+                    if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
                     else manageVehicle(vehicleID);
                 });
             });
@@ -572,5 +596,78 @@ public class VehicleActivity extends AppCompatActivity {
 
     private <T extends View> T $(int id) {
         return (T) findViewById(id);
+    }
+
+    private void getTwoClosestNotifications(@Nullable final notificationsCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_CLOSEST_NOTIFICATIONS;
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("current_date", format.format(new Date()));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Notification response: ", response.toString());
+            JSONArray jsonArray;
+            JSONObject jsonObject;
+            Map<Date, String[]> notifications = new HashMap<>();
+            try {
+                jsonArray = response.getJSONArray("results");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+
+                    Date date = null;
+                    try {
+                        date = format.parse(jsonObject.optString("expiry_date"));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    String[] notiInfo = new String[3];
+                    notiInfo[0] = (jsonObject.optString("registration_no"));
+                    notiInfo[1] = (jsonObject.optString("type"));
+                    notiInfo[2] = (jsonObject.optString("date_diff"));
+
+                    notifications.put(date, notiInfo);
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(notifications);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }, error -> {
+
+//                Log.e("ERROR!!!", error.toString());
+//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("No notification: ", message);
+                if (callbacks != null)
+                    callbacks.onError(message);
+            }
+        });
+
+        Volley.newRequestQueue(VehicleActivity.this).add(objectRequest);
+    }
+
+    public interface notificationsCallbacks {
+        void onSuccess(@NonNull Map<Date, String[]> value);
+
+        void onError(@NonNull String errorMessage);
     }
 }

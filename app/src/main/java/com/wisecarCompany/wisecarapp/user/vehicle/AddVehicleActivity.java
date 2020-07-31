@@ -417,40 +417,42 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                     bos.close();
                 }*/
 
-                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
+                file = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCropFilePath());
 
                 String response = HttpUtil.uploadForm(params, "logo", file, "vehicle.png", IP_HOST + ADD_VEHICLE);
+                if (response == null) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        message = jsonObject.optString("message");
+                        vehicle_id = jsonObject.optInt("vehicle_id");
+                        Log.e("testest", message + "  " + vehicle_id);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    message = jsonObject.optString("message");
-                    vehicle_id = jsonObject.optInt("vehicle_id");
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    if (message.equals("success")) {
+                        // Add successfully
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
+                            }
+                        });
+                        UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
+                    }
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            Log.e("testest", message + "  " + vehicle_id);
 
-            if (message.equals("success")) {
-                // Add successfully
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
-                    }
-                });
-                UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
-            } else {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
         });
         thread.start();
     }
