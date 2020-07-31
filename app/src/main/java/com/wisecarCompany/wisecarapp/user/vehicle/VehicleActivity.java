@@ -5,10 +5,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.NotificationCompat;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,6 +55,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -62,6 +69,7 @@ public class VehicleActivity extends AppCompatActivity {
 
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_IMG_EMAIL = "/api/v1/users/";
+    private String GET_FNAME_LNAME = "/api/v1/users/getprofile";
     private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
     private final String GET_CLOSEST_NOTIFICATIONS = "/api/v1/notification/gettwoclosest";
 
@@ -128,16 +136,21 @@ public class VehicleActivity extends AppCompatActivity {
             loadUserEmailImg(user_id, new userImageCallback() {
                 @Override
                 public void onSuccess(@NonNull Bitmap value) {
+                    ImgBitmap = value;
                     Log.e("image bitmap callback", ImgBitmap.toString());
 //                    userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
-                    if (ImgBitmap == null)
+                    if (ImgBitmap == null) {
                         userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
-                    else userImgImageView.setImageBitmap(ImgBitmap);
-                    UserInfo.setUserImg(ImgBitmap);
+                    }
+                    else {
+                        userImgImageView.setImageBitmap(ImgBitmap);
+                        UserInfo.setUserImg(ImgBitmap);
+                    }
                 }
             }, new userEmailCallback() {
                 @Override
                 public void onSuccess(@NonNull String value) {
+                    email_address = value;
                     Log.e("email: ", email_address);
                     userEmailTextView.setText(email_address);
                     UserInfo.setUserEmail(email_address);
@@ -150,6 +163,16 @@ public class VehicleActivity extends AppCompatActivity {
             if (UserInfo.getUserImg() == null)
                 userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
             else userImgImageView.setImageBitmap(UserInfo.getUserImg());
+        }
+
+        if(UserInfo.getfName()==null || UserInfo.getlName()==null){
+            loadFNameLName(new getProfileCallback() {
+                @Override
+                public void onSuccess(@NonNull String fName, String lName) {
+                    UserInfo.setfName(fName);
+                    UserInfo.setlName(lName);
+                }
+            });
         }
 
         menuImageButton = $(R.id.menuImageButton);
@@ -229,10 +252,33 @@ public class VehicleActivity extends AppCompatActivity {
 
         getTwoClosestNotifications(new notificationsCallbacks() {
             @Override
-            public void onSuccess(@NonNull Map<Date, String[]> value) {
+            public void onSuccess(@NonNull Map<Date, List<String[]>> value) {
 
-                UserInfo.setEmerNotices(value);
-
+                boolean containEmergency = false;
+                int i = 0;
+                for(Date date: value.keySet()) {
+                    for(String[] contents: value.get(date)) {
+                        boolean isEmergent;
+                        try{
+                            isEmergent = Integer.parseInt(contents[2])<=7;
+                        } catch (NumberFormatException e) {
+                            Calendar currDateCal = Calendar.getInstance();
+                            currDateCal.set(currDateCal.get(Calendar.YEAR), currDateCal.get(Calendar.MONTH), currDateCal.get(Calendar.DAY_OF_MONTH),0, 0, 0);
+                            isEmergent = Math.abs(currDateCal.getTime().getTime() - date.getTime()) <= 7*24*60*60*1000;
+                        }
+                        if(isEmergent) {
+                            containEmergency = true;
+                            String temp = "<font color='#ff0000'>" + contents[0] + "<br>" + contents[1] + " - " + displayDateFormat.format(date) + "</font>";
+                            notifyTextView[i++].setText(Html.fromHtml(temp));
+                        } else {
+                            String temp = "<font color='#0c450c'>" + contents[0] + "<br>" + contents[1] + " - " + displayDateFormat.format(date) + "</font>";
+                            notifyTextView[0].setText(Html.fromHtml(temp));
+                        }
+                    }
+                }
+                if(containEmergency) notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
+                else notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification));
+/*
                 if (UserInfo.getEmerNotices().size() >= 2) {
                     notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
                     int i = 0;
@@ -262,6 +308,7 @@ public class VehicleActivity extends AppCompatActivity {
                         if (i >= 2) break;
                     }
                 }
+*/
             }
 
             @Override
@@ -473,9 +520,6 @@ public class VehicleActivity extends AppCompatActivity {
     }
  */
 
-    private void startInbox() {
-
-    }
 
     private void loadUserEmailImg(String user_id, @Nullable final userImageCallback imageCallback, @Nullable final userEmailCallback emailCallback) {
         String URL = IP_HOST + GET_IMG_EMAIL + user_id;
@@ -483,9 +527,9 @@ public class VehicleActivity extends AppCompatActivity {
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response", response.toString());
             byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
-            ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+            Bitmap ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
             Log.e("image bitmap method: ", ImgBitmap == null ? "null img" : ImgBitmap.toString());
-            email_address = response.optString("email_address");
+            String email_address = response.optString("email_address");
             if (ImgBitmap == null) {
                 Log.e("No image: ", "this user has no image");
             }
@@ -528,6 +572,47 @@ public class VehicleActivity extends AppCompatActivity {
 //        void onError(@NonNull Throwable throwable);
     }
 
+
+    private void loadFNameLName(@Nullable final getProfileCallback callbacks) {
+        String URL = IP_HOST + GET_FNAME_LNAME;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("user_id", UserInfo.getUserID());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Response: ", response.toString());
+            if (response.optString("message").equals("success"))
+                callbacks.onSuccess(response.optString("first_name"), response.optString("last_name"));
+        }, error -> {
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+        });
+
+        Volley.newRequestQueue(this).add(objectRequest);
+    }
+
+    public interface getProfileCallback {
+        void onSuccess(@NonNull String fName, String lName);
+//        void onError(@NonNull String errorMessage);
+    }
+
     private void returnVehicles(String user_id, @Nullable final vehicleMapCallbacks callbacks) {
 
         String URL = IP_HOST + GET_VEHICLE_LIST + user_id;
@@ -543,7 +628,7 @@ public class VehicleActivity extends AppCompatActivity {
 
                     Vehicle vehicle = new Vehicle();
 
-                    vehicle.setRegistration_no(jsonObject.optString("registration_no"));
+                    vehicle.setRegistration_no(jsonObject.optString("registration_no").replaceAll("\r\n|\r|\n", ""));
                     vehicle.setMake_name(jsonObject.optString("make_name"));
                     vehicle.setModel_name(jsonObject.optString("model_name"));
                     vehicle.setMake_year(jsonObject.optString("make_year"));
@@ -594,10 +679,6 @@ public class VehicleActivity extends AppCompatActivity {
         void onError(@NonNull String errorMessage);
     }
 
-    private <T extends View> T $(int id) {
-        return (T) findViewById(id);
-    }
-
     private void getTwoClosestNotifications(@Nullable final notificationsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_CLOSEST_NOTIFICATIONS;
@@ -616,7 +697,13 @@ public class VehicleActivity extends AppCompatActivity {
             Log.e("Notification response: ", response.toString());
             JSONArray jsonArray;
             JSONObject jsonObject;
-            Map<Date, String[]> notifications = new HashMap<>();
+
+            Calendar currDateCal = Calendar.getInstance();
+            currDateCal.set(currDateCal.get(Calendar.YEAR), currDateCal.get(Calendar.MONTH), currDateCal.get(Calendar.DAY_OF_MONTH),0, 0, 0);
+            Map<Date, List<String[]>> notifications = new TreeMap<>((o1, o2) -> { //sort by the time distance from today
+                return Long.compare(Math.abs(currDateCal.getTime().getTime() - o1.getTime()), Math.abs(currDateCal.getTime().getTime() - o2.getTime()));
+            });
+
             try {
                 jsonArray = response.getJSONArray("results");
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -634,7 +721,10 @@ public class VehicleActivity extends AppCompatActivity {
                     notiInfo[1] = (jsonObject.optString("type"));
                     notiInfo[2] = (jsonObject.optString("date_diff"));
 
-                    notifications.put(date, notiInfo);
+                    List<String[]> contents = notifications.get(date);
+                    if(contents==null) contents = new ArrayList<>();
+                    contents.add(notiInfo);
+                    notifications.put(date, contents);
                 }
                 if (callbacks != null)
                     callbacks.onSuccess(notifications);
@@ -666,8 +756,13 @@ public class VehicleActivity extends AppCompatActivity {
     }
 
     public interface notificationsCallbacks {
-        void onSuccess(@NonNull Map<Date, String[]> value);
+        void onSuccess(@NonNull Map<Date, List<String[]>> value);
 
         void onError(@NonNull String errorMessage);
+    }
+
+    
+    private <T extends View> T $(int id) {
+        return (T) findViewById(id);
     }
 }

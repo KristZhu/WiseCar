@@ -111,7 +111,6 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
     private CheckBox fuelCheckBox;
     private boolean fuel;
      */
-    private String servicesChoice = "";
 
     private ImageButton backImageButton;
     private Button uploadButton;
@@ -188,10 +187,10 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
             vehicleImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
             vehicleImgByte = bos.toByteArray();
 
-            make = makeEditText.getText().toString();
-            model = modelEditText.getText().toString();
-            registration_no = rcEditText.getText().toString();
-            description = descriptionEditText.getText().toString();
+            make = makeEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+            model = modelEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+            registration_no = rcEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+            description = descriptionEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
 
             if (isServices == null) {
                 isServices = new boolean[6];
@@ -377,11 +376,13 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
     private void uploadVehicleInfo() {
 
+        String servicesChoice = "";
         for (int i = 0; i < isServices.length; i++) {
             if (isServices[i]) servicesChoice += i + 1;
         }
         Log.d(TAG, "uploadVehicleInfoByHttpClient: servicesChoice: " + servicesChoice);
 
+        String finalServicesChoice = servicesChoice;
         Thread thread = new Thread(() -> {
 
             HashMap<String, String> params = new HashMap<>();
@@ -394,7 +395,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                 params.put("model", model);
                 params.put("registration_no", registration_no);
                 params.put("description", description);
-                params.put("services", servicesChoice);
+                params.put("services", finalServicesChoice);
                 params.put("state", state);
                 params.put("year", year);
                 params.put("user_id", UserInfo.getUserID());

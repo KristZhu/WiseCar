@@ -96,7 +96,6 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
     private BGAPhotoHelper mPhotoHelper;
 
     private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_PROFILE = "/api/v1/users/getprofile";
     private String UPDATE_PROFILE = "/api/v1/users/updateprofile";
 
 
@@ -121,21 +120,8 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         confirmPassImageView = $(R.id.confirmPassImageView);
         confirmNoPassImageView = $(R.id.confirmNoPassImageView);
 
-        fNameEditText.setText(UserInfo.getfName() == null ? "" : UserInfo.getfName());
-        lNameEditText.setText(UserInfo.getlName() == null ? "" : UserInfo.getlName());
-
-        if(fNameEditText.getText().toString().equals("") || lNameEditText.getText().toString().equals("")){
-            getProfile(new getProfileCallback() {
-                @Override
-                public void onSuccess(@NonNull String fName, String lName) {
-                    fNameEditText.setText(fName);
-                    lNameEditText.setText(lName);
-                    UserInfo.setfName(fName);
-                    UserInfo.setlName(lName);
-                }
-            });
-        }
-
+        fNameEditText.setText(UserInfo.getfName());
+        lNameEditText.setText(UserInfo.getlName());
         emailEditText.setText(UserInfo.getUserEmail());
 
         int passwordLength = sp.getInt("PASSWORD_LENGTH", 10);
@@ -437,54 +423,6 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         }
     }
 
-
-    private void getProfile(@Nullable final getProfileCallback callbacks) {
-
-        String URL = IP_HOST + GET_PROFILE;
-
-        final JSONObject jsonParam = new JSONObject();
-        try {
-
-            jsonParam.put("user_id", UserInfo.getUserID());
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
-            Log.e("Response: ", response.toString());
-
-            if (response.optString("message").equals("success"))
-                callbacks.onSuccess(response.optString("first_name"), response.optString("last_name"));
-
-        }, error -> {
-
-            NetworkResponse networkResponse = error.networkResponse;
-            if (networkResponse != null && networkResponse.data != null) {
-                String JSONError = new String(networkResponse.data);
-                JSONObject messageJO;
-                String message = "";
-                try {
-                    messageJO = new JSONObject(JSONError);
-                    message = messageJO.optString("message");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                Log.e("Error", message);
-//                    if (callbacks != null)
-//                        callbacks.onError(message);
-            }
-
-        });
-
-        Volley.newRequestQueue(UpdateProfileActivity.this).add(objectRequest);
-    }
-
-    public interface getProfileCallback {
-        void onSuccess(@NonNull String fName, String lName);
-
-//        void onError(@NonNull String errorMessage);
-    }
 
     private void updateProfile(String fName, String lName, String email, String hashedPassword, File file) {
 
