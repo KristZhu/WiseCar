@@ -363,30 +363,20 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             }
         });
 
-        /* Turn on the screen whenever it is turned off
-         * seems to have bugs...
-        getWindow().addFlags(
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        */
 
         screenListener = new ScreenListener(this);
         screenListener.register(new ScreenListener.ScreenStateListener() {
             String TAG = "screenListener";
             @Override
             public void onScreenOn() {
-                Log.d(TAG, "onScreenOn");
+                stopVoice();
             }
             @Override
             public void onScreenOff() {
-                Log.d(TAG, "onScreenOff");
                 if(UserInfo.getCurrLog()!=null && !UserInfo.getCurrLog().isPausing()) startVoice();
             }
             @Override
             public void onUserPresent() {
-                Log.d(TAG, "onUserPresent");
                 stopVoice();
             }
         });
@@ -404,20 +394,17 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             startRecording();
         }
 
-        //currLog = UserInfo.getCurrLog();  //always use UserInfo.getCurrLog()
-        //Log.d(TAG, "set currLog = UserInfo.getCurrLog(), currLog: " + currLog);
-
         startImageButton.setOnClickListener(v -> {
             if (UserInfo.getCurrLog() == null) {
                 startRecording();
             } else {
-                Toast.makeText(getApplicationContext(), "You already start a record", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "You already start a record", Toast.LENGTH_SHORT).show();
             }
         });
 
         pauseResumeImageButton.setOnClickListener(v -> {
             if (UserInfo.getCurrLog() == null) {
-                Toast.makeText(getApplicationContext(), "Please start a record first", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Please start a record first", Toast.LENGTH_SHORT).show();
                 return;
             }
             if (UserInfo.getCurrLog().isPausing()) {    //resume
@@ -432,7 +419,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
         endImageButton.setOnClickListener(v -> {
             if (UserInfo.getCurrLog() == null) {
-                Toast.makeText(getApplicationContext(), "Please start a record first", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Please start a record first", Toast.LENGTH_SHORT).show();
                 return;
             }
             ending();
@@ -517,7 +504,11 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         String secDuration = secD >= 10 ? "" + secD : "0" + secD;
         timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
 
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         startLocation();
 
@@ -596,6 +587,12 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                 + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
         timeDistanceTextView.setText(timeDistanceTextView.getText().toString() + " (paused)");
 
+        getWindow().clearFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
         if (locationManager != null) locationManager.removeUpdates(locationListener);
     }
@@ -607,6 +604,12 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         endImageButton.setAlpha(0.5f);
         timeDistanceTextView.setText("");
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
+
+        getWindow().clearFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                        | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                        | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
         if (locationManager != null) locationManager.removeUpdates(locationListener);
