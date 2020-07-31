@@ -22,6 +22,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -800,6 +801,21 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
         editText.setCursorVisible(false);
         editText.setKeyListener(null);
         editText.setTextColor(Color.GRAY);
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, VehicleActivity.class));
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            startActivity(new Intent(this, VehicleActivity.class));
+            return true;    //stop calling super method
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
 }

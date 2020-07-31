@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -278,6 +279,21 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
 
     private <T extends View> T $(int id){
         return (T) findViewById(id);
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, VehicleActivity.class));
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            startActivity(new Intent(this, VehicleActivity.class));
+            return true;    //stop calling super method
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
 }

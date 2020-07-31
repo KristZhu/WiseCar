@@ -7,12 +7,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,18 +27,23 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.speech.tts.TextToSpeech;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -52,10 +62,13 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
+import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
+import com.wisecarCompany.wisecarapp.viewElement.ScreenListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -135,6 +148,8 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
     private LinearLayout logsDiv;
 
     PowerManager.WakeLock wakeLock;
+    private ScreenListener screenListener;
+    MediaPlayer mediaPlayer;
 
 
     @SuppressLint({"SetTextI18n", "Assert", "ResourceType"})
@@ -348,6 +363,34 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             }
         });
 
+        /* Turn on the screen whenever it is turned off
+         * seems to have bugs...
+        getWindow().addFlags(
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        */
+
+        screenListener = new ScreenListener(this);
+        screenListener.register(new ScreenListener.ScreenStateListener() {
+            String TAG = "screenListener";
+            @Override
+            public void onScreenOn() {
+                Log.d(TAG, "onScreenOn");
+            }
+            @Override
+            public void onScreenOff() {
+                Log.d(TAG, "onScreenOff");
+                if(UserInfo.getCurrLog()!=null && !UserInfo.getCurrLog().isPausing()) startVoice();
+            }
+            @Override
+            public void onUserPresent() {
+                Log.d(TAG, "onUserPresent");
+                stopVoice();
+            }
+        });
+
         startImageButton = $(R.id.startImageButton);
         pauseResumeImageButton = $(R.id.pauseResumeImageButton);
         endImageButton = $(R.id.endImageButton);
@@ -358,17 +401,15 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         } else if (UserInfo.getCurrLog().isPausing()) {
             pausing();
         } else {
-            recording();
+            startRecording();
         }
 
-        //currLog = UserInfo.getCurrLog();
+        //currLog = UserInfo.getCurrLog();  //always use UserInfo.getCurrLog()
         //Log.d(TAG, "set currLog = UserInfo.getCurrLog(), currLog: " + currLog);
 
         startImageButton.setOnClickListener(v -> {
             if (UserInfo.getCurrLog() == null) {
-
-                recording();
-
+                startRecording();
             } else {
                 Toast.makeText(getApplicationContext(), "You already start a record", Toast.LENGTH_LONG).show();
             }
@@ -381,7 +422,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             }
             if (UserInfo.getCurrLog().isPausing()) {    //resume
                 UserInfo.getCurrLog().setPausing(false);
-                recording();
+                startRecording();
             } else { //pause
                 UserInfo.getCurrLog().setPausing(true);
                 UserInfo.getCurrLog().setCountPause(UserInfo.getCurrLog().getCountPause() + 1);
@@ -402,6 +443,33 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
     }
 
     @Override
+    protected void onDestroy() {
+        if (screenListener != null) {
+            screenListener.unregister();
+        }
+        super.onDestroy();
+    }
+
+    public void startVoice() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {return;}
+        mediaPlayer = MediaPlayer.create(this, R.raw.turn_on_screen);
+        mediaPlayer.start();
+        mediaPlayer.setOnCompletionListener(mp -> {
+            if (mediaPlayer == null) {return;}
+            mediaPlayer.start();
+            mediaPlayer.setLooping(true);
+        });
+    }
+
+    public void stopVoice() {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
@@ -417,57 +485,47 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
     }
 
     @AfterPermissionGranted(REQUEST_CODE_PERMISSION_LOCATION)
-    @SuppressLint("SetTextI18n")
-    private void recording() {
+    private void startRecording() {
         String[] perms;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {   //>=10.0, NEVER TESTED!!
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             perms = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION};
         } else {
             perms = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
         }
         if (EasyPermissions.hasPermissions(this, perms)) {
+            recording();
+        } else {
+            EasyPermissions.requestPermissions(this, "Please enable location permissions to use the App", REQUEST_CODE_PERMISSION_LOCATION, perms);
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void recording() {
+        if(UserInfo.getCurrLog()==null) {
             UserInfo.setCurrLog(CurrDriverLog.getInstance(vehicleID, currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
-            Log.d(TAG, "new currLog in UserInfo: " + UserInfo.getCurrLog());
-            Log.d(TAG, "recording...");
-            startImageButton.setAlpha(0.5f);
-            pauseResumeImageButton.setAlpha(1.0f);
-            endImageButton.setAlpha(1.0f);
-            pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
-            timeDistanceTextView.setTextColor(0xff007ba4);
-            long minD = UserInfo.getCurrLog().getDuration() / 60;
-            long secD = UserInfo.getCurrLog().getDuration() % 60;
-            String minDuration = minD >= 10 ? "" + minD : "0" + minD;
-            String secDuration = secD >= 10 ? "" + secD : "0" + secD;
-            timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
+        }
+        Log.d(TAG, "currLog in UserInfo: " + UserInfo.getCurrLog());
+        Log.d(TAG, "recording...");
+        startImageButton.setAlpha(0.5f);
+        pauseResumeImageButton.setAlpha(1.0f);
+        endImageButton.setAlpha(1.0f);
+        pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
+        timeDistanceTextView.setTextColor(0xff007ba4);
+        long minD = UserInfo.getCurrLog().getDuration() / 60;
+        long secD = UserInfo.getCurrLog().getDuration() % 60;
+        String minDuration = minD >= 10 ? "" + minD : "0" + minD;
+        String secDuration = secD >= 10 ? "" + secD : "0" + secD;
+        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
 
-            acquireWakeLock();
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-            startLocation();
+        startLocation();
 
-            if (!UserInfo.getCurrLog().isTimerRunning()) {
-                //both start when clicking start/resume, and END when clicking PAUSE/end, every interval is a different timer
-                //the timers here only add second, and display data. Job of getting lng/lat every second is done in getLocation method
-                new Timer().schedule(new TimerTask() {  //this timer adds 1 to currLog.duration every sec
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void run() {
-                        if (UserInfo.getCurrLog() == null) {
-                            Log.d(TAG, "timer: end");
-                            this.cancel();
-                        } else if (UserInfo.getCurrLog().isPausing()) {
-                            Log.d(TAG, "timer: pause");
-                            this.cancel();
-                            UserInfo.getCurrLog().setTimerRunning(false);
-                        } else {
-                            Log.d(TAG, "timer: currLog: " + UserInfo.getCurrLog());
-                            UserInfo.getCurrLog().setDuration(UserInfo.getCurrLog().getDuration() + 1);   //the only difference
-                        }
-                    }
-                }, 500, 1000);
-                UserInfo.getCurrLog().setTimerRunning(true);
-            }
-            new Timer().schedule(new TimerTask() {  //this timer sets timerDistanceTextView
+        if (!UserInfo.getCurrLog().isTimerRunning()) {
+            //both start when clicking start/resume, and END when clicking PAUSE/end, every interval is a different timer
+            //the timers here only add second, and display data. Job of getting lng/lat every second is done in getLocation method
+            new Timer().schedule(new TimerTask() {  //this timer adds 1 to currLog.duration every sec
+                @SuppressLint("SetTextI18n")
                 @Override
                 public void run() {
                     if (UserInfo.getCurrLog() == null) {
@@ -478,33 +536,47 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                         this.cancel();
                         UserInfo.getCurrLog().setTimerRunning(false);
                     } else {
-                        long minD = UserInfo.getCurrLog().getDuration() / 60;
-                        long secD = UserInfo.getCurrLog().getDuration() % 60;
-                        String minDuration = minD >= 10 ? "" + minD : "0" + minD;
-                        String secDuration = secD >= 10 ? "" + secD : "0" + secD;
-                        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
-                        TextView testLng = $(R.id.testLng);
-                        testLng.setText("" + UserInfo.getCurrLog().getLongitude());
-                        TextView testLat = $(R.id.testLat);
-                        testLat.setText("" + UserInfo.getCurrLog().getLatitude());
-
-                        if (UserInfo.getCurrLog().getDuration() % 30 == 1) { //save log every 30s
-                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                            String time = format.format(new Date());
-                            Log.d(TAG, "send log every 30s: ");
-                            Log.d(TAG, "time: " + time);
-                            Log.d(TAG, "lat: " + UserInfo.getCurrLog().getLatitude());
-                            Log.d(TAG, "lng: " + UserInfo.getCurrLog().getLongitude());
-
-                            UserInfo.getCurrLog().getLocations().put(new Date(), new double[]{UserInfo.getCurrLog().getLatitude(), UserInfo.getCurrLog().getLongitude()});
-                        }
+                        Log.d(TAG, "timer: currLog: " + UserInfo.getCurrLog());
+                        UserInfo.getCurrLog().setDuration(UserInfo.getCurrLog().getDuration() + 1);
                     }
                 }
-            }, 1000, 1000);
-
-        } else {
-            EasyPermissions.requestPermissions(this, "Please enable location permissions to use the App", REQUEST_CODE_PERMISSION_LOCATION, perms);
+            }, 500, 1000);
+            UserInfo.getCurrLog().setTimerRunning(true);
         }
+        new Timer().schedule(new TimerTask() {  //this timer sets timerDistanceTextView
+            @Override
+            public void run() {
+                if (UserInfo.getCurrLog() == null) {
+                    Log.d(TAG, "timer: end");
+                    this.cancel();
+                } else if (UserInfo.getCurrLog().isPausing()) {
+                    Log.d(TAG, "timer: pause");
+                    this.cancel();
+                    UserInfo.getCurrLog().setTimerRunning(false);
+                } else {
+                    long minD = UserInfo.getCurrLog().getDuration() / 60;
+                    long secD = UserInfo.getCurrLog().getDuration() % 60;
+                    String minDuration = minD >= 10 ? "" + minD : "0" + minD;
+                    String secDuration = secD >= 10 ? "" + secD : "0" + secD;
+                    timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
+                    TextView testLng = $(R.id.testLng);
+                    testLng.setText("" + UserInfo.getCurrLog().getLongitude());
+                    TextView testLat = $(R.id.testLat);
+                    testLat.setText("" + UserInfo.getCurrLog().getLatitude());
+
+                    if (UserInfo.getCurrLog().getDuration() % 30 == 1) { //save log every 30s
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                        String time = format.format(new Date());
+                        Log.d(TAG, "send log every 30s: ");
+                        Log.d(TAG, "time: " + time);
+                        Log.d(TAG, "lat: " + UserInfo.getCurrLog().getLatitude());
+                        Log.d(TAG, "lng: " + UserInfo.getCurrLog().getLongitude());
+
+                        UserInfo.getCurrLog().getLocations().put(new Date(), new double[]{UserInfo.getCurrLog().getLatitude(), UserInfo.getCurrLog().getLongitude()});
+                    }
+                }
+            }
+        }, 1000, 1000);
 
     }
 
@@ -524,9 +596,6 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                 + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
         timeDistanceTextView.setText(timeDistanceTextView.getText().toString() + " (paused)");
 
-        releaseWakeLock();
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
         if (locationManager != null) locationManager.removeUpdates(locationListener);
     }
@@ -538,9 +607,6 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         endImageButton.setAlpha(0.5f);
         timeDistanceTextView.setText("");
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
-
-        releaseWakeLock();
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
         if (locationManager != null) locationManager.removeUpdates(locationListener);
@@ -718,10 +784,10 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             if(UserInfo.getCurrLog()==null) return;
             if (location != null) {
                 Log.e("Map", "Location changed : Lat: " + location.getLatitude() + " Lng: " + location.getLongitude());
-                //currLog.getLng/Lat is the data of last sec (or default 0, 0 at beginning)
+                //currLog.getLng/Lat() is the data of last sec (or default 0, 0 at beginning); location.getLng/Lat() is the curr data
                 double distanceSinceLastSec = getDistance(UserInfo.getCurrLog().getLongitude(), UserInfo.getCurrLog().getLatitude(), location.getLongitude(), location.getLatitude());
                 Log.d(TAG, "distance(m): " + distanceSinceLastSec);
-                if(Math.abs(UserInfo.getCurrLog().getLongitude())<0.001 && Math.abs(UserInfo.getCurrLog().getLatitude())<0.001)
+                if(Math.abs(UserInfo.getCurrLog().getLongitude())<0.000001 && Math.abs(UserInfo.getCurrLog().getLatitude())<0.000001)
                     Log.d(TAG, "The first sec of this log");   //lng&lat == 0, which is the defalut value in construction
                 else
                     UserInfo.getCurrLog().setKm(UserInfo.getCurrLog().getKm() + distanceSinceLastSec / 1000.0);
@@ -745,26 +811,6 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
     private double rad(double d) {
         return d * Math.PI / 180.0;
-    }
-
-    private void acquireWakeLock() {    //seems useless
-        if (null == wakeLock) {
-            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getCanonicalName());
-            if (null != wakeLock) {
-                wakeLock.acquire();
-                Log.d(TAG, "acquireWakeLock Success");
-            }
-        }
-        Log.d(TAG, "acquireWakeLock");
-    }
-
-    private void releaseWakeLock() {
-        if (null != wakeLock && wakeLock.isHeld()) {
-            wakeLock.release();
-            wakeLock = null;
-        }
-        Log.d(TAG, "releaseWakeLock");
     }
 
     @SuppressLint("ResourceType")
@@ -1225,6 +1271,21 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             return null;
         }
         return date;
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+            return true;    //stop calling super method
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
 }

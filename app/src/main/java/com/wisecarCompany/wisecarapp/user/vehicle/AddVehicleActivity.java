@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -453,6 +454,21 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
             }
         });
         thread.start();
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
+            return true;    //stop calling super method
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
     private <T extends View> T $(int id) {

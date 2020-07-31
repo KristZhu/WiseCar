@@ -9,6 +9,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -218,6 +219,22 @@ public class DashboardActivity extends AppCompatActivity {
         void onSuccess(@NonNull List<Integer> value);
 
         void onError(@NonNull String errorMsg);
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this, VehicleActivity.class));
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            startActivity(new Intent(this, VehicleActivity.class));
+            return true;    //stop calling super method
+        } else {
+            return super.onKeyDown(keyCode, event);
+        }
     }
 
 }
