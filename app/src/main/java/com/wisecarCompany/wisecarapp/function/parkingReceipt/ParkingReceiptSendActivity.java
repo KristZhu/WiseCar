@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -25,8 +26,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,6 +45,9 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_PARKING_RECEIPT_INFO = "/api/v1/parkingreceipts/getrecordbyid";
     private String SEND_EMAIL = "/api/v1/parkingreceipts/sendemail";
+
+    private SharedPreferences sp;
+    private String userID;
 
     private String receiptID;
 
@@ -72,6 +74,10 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_parking_receipt_send);
+
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
         receiptID = (String) this.getIntent().getStringExtra("receiptID");
         Log.d(TAG, "receiptID: " + receiptID);
@@ -247,7 +253,7 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
             jsonParam.put("service_id", "4");
             jsonParam.put("email_to_address", receipt.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
             jsonParam.put("ticket_reference", receipt.getRefNo());
             jsonParam.put("date", dateFormat.format(receipt.getDate()));
             jsonParam.put("total_hours", receipt.getHours());

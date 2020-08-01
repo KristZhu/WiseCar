@@ -10,6 +10,7 @@ import androidx.core.content.res.ResourcesCompat;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -75,6 +76,9 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String ADD_VEHICLE = "/api/v1/vehicles/";
 
+    private SharedPreferences sp;
+    private String userID;
+
     private ImageView vehicleImageView;
     private Uri vehicleImageUri;
     private Bitmap vehicleImageBitmap;
@@ -130,6 +134,10 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_vehicle);
+
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
         vehicleImageView = $(R.id.vehicleImageView);
         uploadButton = $(R.id.uploadButton);
@@ -208,7 +216,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
 
             Log.d(TAG, "--------------------Add Vehicle------------------");
-            Log.d(TAG, "userID: " + UserInfo.getUserID());
+            Log.d(TAG, "userID: " + userID);
             Log.d(TAG, "rc: " + registration_no);
             Log.d(TAG, "make: " + make);
             Log.d(TAG, "model: " + model);
@@ -398,7 +406,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                 params.put("services", finalServicesChoice);
                 params.put("state", state);
                 params.put("year", year);
-                params.put("user_id", UserInfo.getUserID());
+                params.put("user_id", userID);
 
                 /*if (!((BitmapDrawable) vehicleImageView.getDrawable()).getBitmap()
                         .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.wc0blank_white_circle, null)).getBitmap())) {

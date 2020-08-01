@@ -186,9 +186,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     && !state.equals("") && !postCode.equals("")
             ) {
 
-                UserInfo.setfName(firstName);
-                UserInfo.setlName(lastName);
-
                 uploadByHttpClient();
 
             } else {

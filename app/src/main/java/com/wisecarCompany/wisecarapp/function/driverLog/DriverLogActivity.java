@@ -98,6 +98,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
     private final String GET_COMPANY_LIST = "/api/v1/customers/customer/list";
 
     private String vehicleID;
+    private String regNo;
     private Vehicle vehicle;
 
     private LocationManager locationManager;
@@ -151,6 +152,8 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
         vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
         Log.d(TAG, "vehicleID: " + vehicleID);
+        regNo = (String) this.getIntent().getStringExtra("regNo");
+        Log.d(TAG, "regNo: " + regNo);
         vehicle = UserInfo.getVehicles().get(vehicleID);
         Log.d(TAG, "vehicle: " + vehicle);
 
@@ -462,7 +465,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         //TaskStackBuilder
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(DriverLogActivity.class);
-        stackBuilder.addNextIntent(new Intent(this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
+        stackBuilder.addNextIntent(new Intent(this, DriverLogActivity.class).putExtra("vehicleID", vehicleID).putExtra("regNo", regNo));
 
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -518,7 +521,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
     @SuppressLint("SetTextI18n")
     private void recording() {
         if(UserInfo.getCurrLog()==null) {
-            UserInfo.setCurrLog(CurrDriverLog.getInstance(vehicleID, currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
+            UserInfo.setCurrLog(CurrDriverLog.getInstance(vehicleID, regNo, currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
         }
         Log.d(TAG, "currLog in UserInfo: " + UserInfo.getCurrLog());
         Log.d(TAG, "recording...");

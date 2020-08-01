@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -25,8 +26,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,12 +46,14 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
     private String GET_FUEL_RECEIPT_INFO = "/api/v1/fuelreceipts/getrecordbyid";
     private String SEND_EMAIL = "/api/v1/fuelreceipts/sendemail";
 
+    private SharedPreferences sp;
+    private String userID;
+
     private String receiptID;
 
     private ImageButton backImageButton;
 
     private TextView headerTextView;
-    private TextView invoiceRefTextView;
     private TextView dateTextView;
     private TextView typeTextView;
     private TextView fuelAmountTextView;
@@ -71,6 +72,10 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fuel_receipt_send);
+
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
         receiptID = (String) this.getIntent().getStringExtra("receiptID");
         Log.d(TAG, "receiptID: " + receiptID);
@@ -247,7 +252,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
             jsonParam.put("service_id", "6");
             jsonParam.put("email_to_address", receipt.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
             jsonParam.put("invoice_ref", receipt.getInvoiceRef());
             jsonParam.put("date", dateFormat.format(receipt.getDate()));
             jsonParam.put("fuel_type", receipt.getType());

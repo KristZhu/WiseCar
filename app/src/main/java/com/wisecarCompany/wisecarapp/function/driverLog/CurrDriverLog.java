@@ -16,6 +16,7 @@ public class CurrDriverLog {
     private Map<Date, double[]> locations = new TreeMap<>();  //location every 30s, time:[lat,lng]
 
     private String vehicleID;
+    private String regNo;
     private String custID;
     private Date startTime;
     private double claimRate;
@@ -35,8 +36,9 @@ public class CurrDriverLog {
         currLog = null;
     }
 
-    private CurrDriverLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
+    private CurrDriverLog(String vehicleID, String regNo, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
         this.vehicleID = vehicleID;
+        this.regNo = regNo;
         this.custID = custID;
         this.startTime = startTime;
         this.claimRate = claimRate;
@@ -45,9 +47,21 @@ public class CurrDriverLog {
         this.companyLogo = companyLogo;
     }
 
-    public static CurrDriverLog getInstance(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
-        currLog = new CurrDriverLog(vehicleID, custID, startTime, claimRate, shareID, companyName, companyLogo);
+    public static CurrDriverLog getInstance(String vehicleID, String regNo, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
+        currLog = new CurrDriverLog(vehicleID, regNo, custID, startTime, claimRate, shareID, companyName, companyLogo);
         return currLog;
+    }
+
+    public static CurrDriverLog getInstance() {
+        return currLog;
+    }
+
+    public String getRegNo() {
+        return regNo;
+    }
+
+    public void setRegNo(String regNo) {
+        this.regNo = regNo;
     }
 
     public boolean isPausing() {

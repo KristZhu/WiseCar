@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -25,8 +26,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,8 +43,14 @@ import javax.security.auth.login.LoginException;
 
 public class DriverLogSendActivity extends AppCompatActivity {
 
-
     private final static String TAG = "Service Records Send";
+
+    private String IP_HOST = "http://54.206.19.123:3000";
+    private String GET_DRIVER_LOG_INFO = "/api/v1/drivelog/getrecordbyid";
+    private String SEND_EMAIL = "/api/v1/drivelog/sendemail";
+
+    private SharedPreferences sp;
+    private String userID;
 
     private String logID;
 
@@ -63,10 +68,6 @@ public class DriverLogSendActivity extends AppCompatActivity {
     private Button sendButton;
     private String email;
 
-    private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_DRIVER_LOG_INFO = "/api/v1/drivelog/getrecordbyid";
-    private String SEND_EMAIL = "/api/v1/drivelog/sendemail";
-
     private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
     private SimpleDateFormat displayTimeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
 
@@ -75,6 +76,10 @@ public class DriverLogSendActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_log_send);
+
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
         logID = (String) this.getIntent().getStringExtra("logID");
         Log.d(TAG, "logID: " + logID);
@@ -251,7 +256,7 @@ public class DriverLogSendActivity extends AppCompatActivity {
             jsonParam.put("service_id", "3");
             jsonParam.put("email_to_address", log.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
             jsonParam.put("registration_no", log.getRegistrationNo());
             jsonParam.put("date", dateFormat.format(log.getStartTime()));
             jsonParam.put("start_time", timeFormat.format(log.getStartTime()));

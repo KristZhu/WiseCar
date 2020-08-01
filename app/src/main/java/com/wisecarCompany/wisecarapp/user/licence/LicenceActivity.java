@@ -12,6 +12,7 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -86,6 +87,18 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
 
     private final static String TAG = "LicenceActivity";
 
+    // TO BE ADJUSTED
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_LICENSE_IDENTIFIER = "/api/v1/driverlicense/identifier/";
+    private final String ADD_LICENSE = "/api/v1/driverlicense";
+    private final String GET_LICENSE = "/api/v1/driverlicense/getdriverlicense";
+    private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
+    private final String INVOKE_BLOCKCHAIN = "/api/v1/driverlicense/blockchaininvoke";
+
+    private SharedPreferences sp;
+    private String userID;
+    private String username;
+
     private ImageButton backImageButton;
 
     private CircleImageView licenceImageView;
@@ -129,22 +142,17 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
 
     private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
-    // TO BE ADJUSTED
-    private final String IP_HOST = "http://54.206.19.123:3000";
-    private final String GET_LICENSE_IDENTIFIER = "/api/v1/driverlicense/identifier/";
-    private final String ADD_LICENSE = "/api/v1/driverlicense";
-    private final String GET_LICENSE = "/api/v1/driverlicense/getdriverlicense";
-    private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
-    private final String INVOKE_BLOCKCHAIN = "/api/v1/driverlicense/blockchaininvoke";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_licence);
 
-        Log.d(TAG, "username: " + UserInfo.getUsername());
-        Log.d(TAG, "userID: " + UserInfo.getUserID());
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        username = sp.getString("USERNAME", "");
+        Log.d(TAG, "username: " + username);
+        Log.d(TAG, "userID: " + userID);
 
 
         backImageButton = $(R.id.backImageButton);
@@ -532,7 +540,7 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
 
     private void getIdentifier(@Nullable final recordIdentifierCallback callbacks) {
 
-        String URL = IP_HOST + GET_LICENSE_IDENTIFIER + UserInfo.getUsername() + "/" + UserInfo.getUserID();
+        String URL = IP_HOST + GET_LICENSE_IDENTIFIER + username + "/" + userID;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -606,7 +614,7 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
                 params.put("driver_license_identifier", idTextView.getText().toString().substring(4));
                 Log.e("identifier in request", idTextView.getText().toString().substring(4));
 
-                params.put("user_id", UserInfo.getUserID());
+                params.put("user_id", userID);
                 params.put("license_no", number);
                 params.put("license_type", type);
                 params.put("start_date", format.format(startDate));
@@ -736,7 +744,7 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
 
         } catch (JSONException e) {
             e.printStackTrace();
