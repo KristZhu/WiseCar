@@ -10,6 +10,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,7 +35,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONArray;
@@ -58,6 +58,9 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
     private String GET_FUEL_RECEIPT = "/api/v1/fuelreceipts/getallrecordbyuser";
     private String GET_FUEL_BY_REG_NO = "/api/v1/fuelreceipts/getrecordbyuserregisno";
 
+    private SharedPreferences sp;
+    private String userID;
+
     private ImageButton backImageButton;
 
     private LinearLayout mainDiv;
@@ -73,6 +76,10 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fuel_receipt_dashboard);
+
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
@@ -292,7 +299,7 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -365,7 +372,7 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
             jsonParam.put("registration_no", regNo);
 
         } catch (JSONException e) {

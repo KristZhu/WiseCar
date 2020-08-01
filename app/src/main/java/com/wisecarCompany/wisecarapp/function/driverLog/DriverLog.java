@@ -64,7 +64,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
         this.sentBefore = sentBefore;
         this.id = id;
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public DriverLog(String registrationNo, Date startTime, Date endTime, double km, int mins, String companyName) {
@@ -73,7 +73,7 @@ public class DriverLog implements Comparable<DriverLog> {
         this.km = km;
         this.mins = mins;
         this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public DriverLog(String vehicleID, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
@@ -241,7 +241,7 @@ public class DriverLog implements Comparable<DriverLog> {
     }
 
     public void setRegistrationNo(String registrationNo) {
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public String getId() {

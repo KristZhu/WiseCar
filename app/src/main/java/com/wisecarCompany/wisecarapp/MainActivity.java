@@ -35,11 +35,12 @@ public class MainActivity extends AppCompatActivity {
         intent.setAction("VIDEO_TIMER");
         PendingIntent sender = PendingIntent.getBroadcast(this, 0, intent, 0);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+        assert am != null;
         am.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), 60*1000, sender);
 
 
 
-        //startActivity(new Intent(this, LoginActivity.class));
+        startActivity(new Intent(this, LoginActivity.class));
         //startActivity(new Intent(MainActivity.this, CreateUserActivity.class));
 
     }

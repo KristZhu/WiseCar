@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -25,8 +26,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,6 +45,9 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
     private String IP_HOST = "http://54.206.19.123:3000";
     private String GET_REGISTRATION_INFO = "/api/v1/registrationrecords/getrecordbyid";
     private String SEND_EMAIL = "/api/v1/registrationrecords/sendemail";
+
+    private SharedPreferences sp;
+    private String userID;
 
     private String reminderID;
 
@@ -69,6 +71,9 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration_reminder_send);
 
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
         reminderID = (String) this.getIntent().getStringExtra("reminderID");
         Log.d(TAG, "reminderID: " + reminderID);
@@ -234,7 +239,7 @@ public class RegistrationReminderSendActivity extends AppCompatActivity {
             jsonParam.put("service_id", "2");
             jsonParam.put("email_to_address", reminder.getEmailAddress());
             jsonParam.put("submit_date_time", format.format(new Date()));
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
             jsonParam.put("registration_payment_ref", reminder.getPayRef());
             jsonParam.put("date", dateFormat.format(reminder.getDate()));
             jsonParam.put("expiry_date", dateFormat.format(reminder.getExpireDate()));

@@ -7,7 +7,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -27,7 +31,6 @@ import com.wisecarCompany.wisecarapp.function.insuranceRecord.InsuranceRecordDas
 import com.wisecarCompany.wisecarapp.function.parkingReceipt.ParkingReceiptDashboardActivity;
 import com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationReminderDashboardActivity;
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsDashboardActivity;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,8 +45,13 @@ public class DashboardActivity extends AppCompatActivity {
 
     private final String TAG = "dashboard";
 
-    private String IP_HOST = "http://54.206.19.123:3000";
-    private String GET_SERVICES = "/api/v1/services/getservicebyuid";
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String GET_SERVICES = "/api/v1/services/getservicebyuid";
+    private final String GET_IMG = "/api/v1/users/";
+
+    private SharedPreferences sp;
+    private String userID;
+    private String username;
 
     private ImageButton backImageButton;
 
@@ -57,14 +65,24 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        username = sp.getString("USERNAME", "");
+        Log.d(TAG, "userID: " + userID);
+        Log.d(TAG, "username: " + username);
+
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(DashboardActivity.this, VehicleActivity.class)));
 
         userImgImageView = $(R.id.userImgImageView);
         usernameTextView = $(R.id.usernameTextView);
-        if(UserInfo.getUserImg()==null) userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
-        else userImgImageView.setImageBitmap(UserInfo.getUserImg());
-        usernameTextView.setText(UserInfo.getUsername());
+        usernameTextView.setText(username);
+        loadUserImg(new userImageCallback() {
+            @Override
+            public void onSuccess(@NonNull Bitmap value) {
+                userImgImageView.setImageBitmap(value);
+            }
+        });
 
         getServices(new serviceCallbacks() {
             @Override
@@ -168,7 +186,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -219,6 +237,47 @@ public class DashboardActivity extends AppCompatActivity {
         void onSuccess(@NonNull List<Integer> value);
 
         void onError(@NonNull String errorMsg);
+    }
+
+    private void loadUserImg(@Nullable final userImageCallback imageCallback) {
+        String URL = IP_HOST + GET_IMG + userID;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response", response.toString());
+            byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
+            Bitmap ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+            Log.e("image bitmap method: ", ImgBitmap == null ? "null img" : ImgBitmap.toString());
+            if (ImgBitmap == null) {
+                Log.e("No image: ", "this user has no image");
+            }
+            if (ImgBitmap != null)
+                imageCallback.onSuccess(ImgBitmap);
+        }, error -> {
+            Log.e("ERROR!!!", error.toString());
+            Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE!!!", message);
+            }
+        });
+
+        Volley.newRequestQueue(this).add(objectRequest);
+    }
+
+    public interface userImageCallback {
+        void onSuccess(@NonNull Bitmap value);
+
+//        void onError(@NonNull String error);
     }
 
 

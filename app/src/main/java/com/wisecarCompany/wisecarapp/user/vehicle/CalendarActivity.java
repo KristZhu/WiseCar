@@ -8,6 +8,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,7 +27,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +38,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,6 +50,9 @@ public class CalendarActivity extends AppCompatActivity {
 
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_CALENDAR_NOTIFICATION = "/api/v1/notification/calendar";
+
+    private SharedPreferences sp;
+    private String userID;
 
     private ImageButton backImageButton;
 
@@ -66,13 +68,16 @@ public class CalendarActivity extends AppCompatActivity {
     private LinearLayout noticeDiv;
 
     private Calendar cal;
-//  if(Math.abs(cal.getTime().getTime() - new Date().getTime()) <= 7*24*60*60*1000) {   //within 7 days before/from now
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
+
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(this, VehicleActivity.class)));
@@ -227,26 +232,6 @@ public class CalendarActivity extends AppCompatActivity {
                 setNotice(date, contents, isEmergent, seq++);
             }
         }
-/*
-        for(Map.Entry<Date, List<String[]>> oneDayNotices: UserInfo.getEmerNotices().entrySet()) {
-            Calendar cal2 = Calendar.getInstance();
-            cal2.setTime(oneDayNotices.getKey());
-            if(cal.get(Calendar.YEAR) != cal2.get(Calendar.YEAR)) continue;
-            if(cal.get(Calendar.MONTH) != cal2.get(Calendar.MONTH)) continue;
-            for(String[] singleNoticeContents: oneDayNotices.getValue()){
-                setNotice(oneDayNotices.getKey(), singleNoticeContents, true, seq++);
-            }
-        }
-        for(Map.Entry<Date, List<String[]>> oneDayNotices: UserInfo.getNotices().entrySet()) {
-            Calendar cal2 = Calendar.getInstance();
-            cal2.setTime(oneDayNotices.getKey());
-            if(cal.get(Calendar.YEAR) != cal2.get(Calendar.YEAR)) continue;
-            if(cal.get(Calendar.MONTH) != cal2.get(Calendar.MONTH)) continue;
-            for(String[] singleNoticeContents: oneDayNotices.getValue()){
-                setNotice(oneDayNotices.getKey(), singleNoticeContents, false, seq++);
-            }
-        }
-*/
     }
 
     @SuppressLint({"ResourceType", "SetTextI18n"})
@@ -321,7 +306,7 @@ public class CalendarActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
             jsonParam.put("current_date", format.format(new Date()));
 
         } catch (JSONException e) {

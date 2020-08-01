@@ -164,6 +164,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "onResponse: Success");
                 // Login successfully
                 SharedPreferences.Editor editor = sp.edit()
+                        .putString("USER_ID", response.optString("user_id"))
                         .putString("USERNAME", username)
                         .putString("HASHED_PASSWORD", hashedPassword)
                         .putInt("PASSWORD_LENGTH", passwordLength)
@@ -174,8 +175,6 @@ public class LoginActivity extends AppCompatActivity {
                 editor.commit();
 
                 UserInfo.clear();
-                UserInfo.setUsername(username);
-                UserInfo.setUserID(response.optString("user_id"));
                 startActivity(new Intent(LoginActivity.this, VehicleActivity.class));
             } else {
                 Toast.makeText(this, "Please check your username or password", Toast.LENGTH_SHORT).show();

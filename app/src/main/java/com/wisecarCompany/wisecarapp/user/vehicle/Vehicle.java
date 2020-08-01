@@ -20,7 +20,7 @@ public class Vehicle implements Comparable<Vehicle> {
     private String make_year;
     private String state;
     private String description;
-    private int user_id;
+    private String user_id;
     private String user_name;
     private Bitmap image;
     private String state_name;
@@ -32,13 +32,26 @@ public class Vehicle implements Comparable<Vehicle> {
     }
 
     public Vehicle(String registration_no, String make_name, String model_name, String make_year, String state, String description, Bitmap image) {
-        this.registration_no = registration_no;
+        this.registration_no = registration_no.replaceAll("\r\n|\r|\n", "");
         this.make_name = make_name;
         this.model_name = model_name;
         this.make_year = make_year;
         this.state = state;
         this.description = description;
         this.image = image;
+    }
+
+    public Vehicle(String vehicle_id, String registration_no, String make_name, String model_name, String make_year, String description, String user_id, String user_name, Bitmap image, String state_name) {
+        this.vehicle_id = vehicle_id;
+        this.registration_no = registration_no.replaceAll("\r\n|\r|\n", "");
+        this.make_name = make_name;
+        this.model_name = model_name;
+        this.make_year = make_year;
+        this.description = description;
+        this.user_id = user_id;
+        this.user_name = user_name;
+        this.image = image;
+        this.state_name = state_name;
     }
 
     public String getVehicle_id() {
@@ -54,7 +67,7 @@ public class Vehicle implements Comparable<Vehicle> {
     }
 
     public void setRegistration_no(String registration_no) {
-        this.registration_no = registration_no;
+        this.registration_no = registration_no.replaceAll("\r\n|\r|\n", "");
     }
 
     public String getMake_name() {
@@ -97,11 +110,11 @@ public class Vehicle implements Comparable<Vehicle> {
         this.description = description;
     }
 
-    public int getUser_id() {
+    public String getUser_id() {
         return user_id;
     }
 
-    public void setUser_id(int user_id) {
+    public void setUser_id(String user_id) {
         this.user_id = user_id;
     }
 
@@ -117,6 +130,11 @@ public class Vehicle implements Comparable<Vehicle> {
         return image;
     }
 
+    public void setImage(Bitmap image) {
+        this.image = image;
+    }
+
+/*
     public void setImage(byte[] imageByte) {
         Bitmap imageBitmap = BitmapFactory.decodeByteArray(imageByte, 0, imageByte.length);
         this.image = imageBitmap;
@@ -127,6 +145,7 @@ public class Vehicle implements Comparable<Vehicle> {
         Bitmap imageBitmap = BitmapFactory.decodeByteArray(imageByte, 0, imageByte.length);
         this.image = imageBitmap;
     }
+*/
 
     public String getState_name() {
         return state_name;

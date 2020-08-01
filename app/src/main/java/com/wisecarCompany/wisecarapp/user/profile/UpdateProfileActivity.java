@@ -11,11 +11,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -60,17 +62,22 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class UpdateProfileActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private final static String TAG = "Update Profile";
+    private final String GET_IMG_EMAIL = "/api/v1/users/";
+    private String GET_FNAME_LNAME = "/api/v1/users/getprofile";
     private SharedPreferences sp;
 
+    private String userID;
     private String fName;
     private String lName;
     private String email;
     private String hashedPassword;
-    private Bitmap userImgBitmap;
+    //private Bitmap userImgBitmap;
+    private File userImgFile;
     private boolean passwordChanged;
 
     private ImageButton backImageButton;
 
+    private ImageView userImgImageView;
     private EditText fNameEditText;
     private EditText lNameEditText;
     private EditText emailEditText;
@@ -82,7 +89,6 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
     private ImageView confirmNoPassImageView;
 
     private ImageButton uploadPhotoImageButton;
-    private ImageView userImgImageView;
 
     private ImageButton updateImageButton;
 
@@ -106,23 +112,42 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         setContentView(R.layout.activity_update_profile);
 
         sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(this, VehicleActivity.class)));
 
+        userImgImageView = $(R.id.userImgImageView);
         fNameEditText = $(R.id.fNameEditText);
         lNameEditText = $(R.id.lNameEditText);
         emailEditText = $(R.id.emailEditText);
+
+        loadUserEmailImg(new userImageCallback() {
+            @Override
+            public void onSuccess(@NonNull Bitmap value) {
+                userImgImageView.setImageBitmap(value);
+            }
+        }, new userEmailCallback() {
+            @Override
+            public void onSuccess(@NonNull String value) {
+                emailEditText.setText(value);
+            }
+        });
+
+        loadFNameLName(new getFLNameCallback(){
+            @Override
+            public void onSuccess(@NonNull String fName, String lName) {
+                fNameEditText.setText(fName);
+                lNameEditText.setText(lName);
+            }
+        });
+
         passwordEditText = $(R.id.passwordEditText);
         confirmPasswordEditText = $(R.id.passwordConfirmEditText);
-
         passImageView = $(R.id.passImageView);
         confirmPassImageView = $(R.id.confirmPassImageView);
         confirmNoPassImageView = $(R.id.confirmNoPassImageView);
-
-        fNameEditText.setText(UserInfo.getfName());
-        lNameEditText.setText(UserInfo.getlName());
-        emailEditText.setText(UserInfo.getUserEmail());
 
         int passwordLength = sp.getInt("PASSWORD_LENGTH", 10);
         StringBuilder passwordSB = new StringBuilder();
@@ -171,8 +196,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
             confirmNoPassImageView.setVisibility(View.INVISIBLE);
         });
 
-        userImgImageView = $(R.id.userImgImageView);
-        if (UserInfo.getUserImg() != null) userImgImageView.setImageBitmap(UserInfo.getUserImg());
+
         uploadPhotoImageButton = $(R.id.uploadPhotoImageButton);
 
         // The directory for storing photos after taking a photo.
@@ -200,8 +224,9 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
 
         updateImageButton = $(R.id.updateImageButton);
         updateImageButton.setOnClickListener(v -> {
-            BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
-            userImgBitmap = bitmapDrawable.getBitmap();
+            //BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
+            //userImgBitmap = bitmapDrawable.getBitmap();
+            userImgFile = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCameraFilePath());
             fName = fNameEditText.getText().toString();
             lName = lNameEditText.getText().toString();
             email = emailEditText.getText().toString();
@@ -228,45 +253,30 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
                                         .putBoolean("REMEMBER_PASSWORD", false)
                                         .putBoolean("AUTO_LOGIN", false);
                                 editor.commit();
-                                update(userImgBitmap, fName, lName, email, hashedPassword);
+                                update(userImgFile, fName, lName, email, hashedPassword);
                             } else {
                                 Toast.makeText(this, "Old password incorrect! ", Toast.LENGTH_SHORT).show();
                             }
                         }).setNegativeButton("Cancel", ((dialog, which) -> hideSoftInput(v.getWindowToken())))
                         .show();
             } else {
-                update(userImgBitmap, fName, lName, email);
+                update(userImgFile, fName, lName, email);
             }
         });
 
     }
 
-    private void update(Bitmap bitmap, String fName, String lName, String email, String hashedPassword) {
-        UserInfo.setUserImg(bitmap);
-        UserInfo.setfName(fName);
-        UserInfo.setlName(lName);
-        UserInfo.setUserEmail(email);
+    private void update(File userImgFile, String fName, String lName, String email, String hashedPassword) {
 
-        File file = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCameraFilePath());
+        updateProfile(fName, lName, email, hashedPassword, userImgFile, true);
 
-        updateProfile(fName, lName, email, hashedPassword, file);
-
-        startActivity(new Intent(this, LoginActivity.class));
     }
 
-    private void update(Bitmap bitmap, String fName, String lName, String email) {
-        UserInfo.setUserImg(bitmap);
-        UserInfo.setfName(fName);
-        UserInfo.setlName(lName);
-        UserInfo.setUserEmail(email);
+    private void update(File userImgFile, String fName, String lName, String email) {
 
-        String hashedPassword = sp.getString("HASHED_PASSWORD", "");
+        String unchangedHashedPassword = sp.getString("HASHED_PASSWORD", "");
+        updateProfile(fName, lName, email, unchangedHashedPassword, userImgFile, false);
 
-        File file = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCameraFilePath());
-
-        updateProfile(fName, lName, email, hashedPassword, file);
-
-        startActivity(new Intent(this, VehicleActivity.class));
     }
 
 
@@ -357,7 +367,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(base.getBytes("UTF-8"));
-            StringBuffer hexString = new StringBuffer();
+            StringBuilder hexString = new StringBuilder();
 
             for (int i = 0; i < hash.length; i++) {
                 String hex = Integer.toHexString(0xff & hash[i]);
@@ -424,7 +434,99 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
     }
 
 
-    private void updateProfile(String fName, String lName, String email, String hashedPassword, File file) {
+    private void loadUserEmailImg(@Nullable final userImageCallback imageCallback, @Nullable final userEmailCallback emailCallback) {
+        String URL = IP_HOST + GET_IMG_EMAIL + userID;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            Log.e("Response", response.toString());
+            byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
+            Bitmap imgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+            Log.e("image bitmap method: ", imgBitmap == null ? "null img" : imgBitmap.toString());
+            String email_address = response.optString("email_address");
+            if (imgBitmap == null) {
+                Log.e("No image: ", "this user has no image");
+            }
+            if (imgBitmap != null)
+                imageCallback.onSuccess(imgBitmap);
+            if (emailCallback != null)
+                emailCallback.onSuccess(email_address);
+        }, error -> {
+            Log.e("ERROR!!!", error.toString());
+            Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("JSON ERROR MESSAGE!!!", message);
+            }
+        });
+
+        Volley.newRequestQueue(this).add(objectRequest);
+    }
+
+    public interface userImageCallback {
+        void onSuccess(@NonNull Bitmap value);
+
+//        void onError(@NonNull String error);
+    }
+
+    public interface userEmailCallback {
+        void onSuccess(@NonNull String value);
+
+//        void onError(@NonNull Throwable throwable);
+    }
+
+
+    private void loadFNameLName(@Nullable final getFLNameCallback callbacks) {
+        String URL = IP_HOST + GET_FNAME_LNAME;
+
+        final JSONObject jsonParam = new JSONObject();
+        try {
+            jsonParam.put("user_id", userID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
+            Log.e("Response: ", response.toString());
+            if (response.optString("message").equals("success"))
+                callbacks.onSuccess(response.optString("first_name"), response.optString("last_name"));
+        }, error -> {
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("Error", message);
+//                    if (callbacks != null)
+//                        callbacks.onError(message);
+            }
+        });
+
+        Volley.newRequestQueue(this).add(objectRequest);
+    }
+
+    public interface getFLNameCallback {
+        void onSuccess(@NonNull String fName, String lName);
+//        void onError(@NonNull String errorMessage);
+    }
+
+
+    private void updateProfile(String fName, String lName, String email, String hashedPassword, File file, boolean passwordChanged) {
 
         Thread thread = new Thread(() -> {
 
@@ -432,7 +534,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
             String message = null;
 
             try {
-                params.put("user_id", UserInfo.getUserID());
+                params.put("user_id", userID);
                 params.put("first_name", fName);
                 params.put("last_name", lName);
                 params.put("email_address", email);
@@ -455,11 +557,10 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
                     }
 
                     if (message.equals("success")) {
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(UpdateProfileActivity.this, DashboardActivity.class));
-                            }
+                        runOnUiThread(() -> {
+                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                            if(passwordChanged) startActivity(new Intent(UpdateProfileActivity.this, LoginActivity.class));
+                            else startActivity(new Intent(UpdateProfileActivity.this, VehicleActivity.class));
                         });
                     }
                 }
