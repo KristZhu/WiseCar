@@ -35,7 +35,7 @@ public class DriverLog implements Comparable<DriverLog> {
     private String emailAddress;
 
     public DriverLog(CurrDriverLog currLog) {
-        vehicleID = currLog.getVehicleID();
+        vehicleID = currLog.getVehicle().getVehicle_id();
         custID = currLog.getCustID();
         startTime = currLog.getStartTime();
         claimRate = currLog.getClaimRate();

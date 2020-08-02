@@ -71,9 +71,6 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
 
     private final static String TAG = "Fuel Receipt";
 
-    private Vehicle vehicle;
-    private String vehicleID;
-
     private ImageButton backImageButton;
 
     private CircleImageView fuelImageView;
@@ -138,10 +135,10 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
         identifierTextView = $(R.id.recordIDTextView);
         sharedTextView = $(R.id.sharedTextView);
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
+        assert UserInfo.getCurrVehicle() != null;
 
         getIdentifier((returnedIdentifier, returnedRecord_id) -> {
 
@@ -387,7 +384,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
                 date = displayDateFormat.parse(dateEditText.getText().toString());
             } catch (ParseException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "System error", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "System error", Toast.LENGTH_SHORT).show();
                 return;
             }
             try {
@@ -455,7 +452,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
 
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-        String URL = IP_HOST + GET_FUEL_IDENTIFIER + vehicle.getRegistration_no() + "/" + format.format(new Date());
+        String URL = IP_HOST + GET_FUEL_IDENTIFIER + UserInfo.getCurrVehicle().getRegistration_no() + "/" + format.format(new Date());
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -504,7 +501,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("vehicle_id", vehicle.getVehicle_id());
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
             jsonParam.put("current_date_time", format.format(new Date()));
 
         } catch (JSONException e) {
@@ -573,7 +570,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
                 params.put("fuel_receipt_identifier", idTextView.getText().toString().substring(4));
                 Log.e("identifier in request", idTextView.getText().toString().substring(4));
 
-                params.put("vehicle_id", vehicle.getVehicle_id());
+                params.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
                 params.put("invoice_reference", reference);
                 params.put("fuel_date", format.format(date));
                 params.put("fuel_type", type);
@@ -644,7 +641,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
                     public void run() {
                         Toast.makeText(FuelReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(FuelReceiptActivity.this, ManageVehicleActivity.class);
-                        intent.putExtra("vehicleID", vehicleID);
+                        intent.putExtra("vehicleID", UserInfo.getCurrVehicle().getVehicle_id());
                         startActivity(intent);
                     }
                 });
@@ -703,13 +700,13 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ManageVehicleActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ManageVehicleActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);

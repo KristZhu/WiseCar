@@ -79,9 +79,6 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
 
     private static final String TAG = "Service Records";
 
-    private Vehicle vehicle;
-    private String vehicleID;
-
     private ImageButton backImageButton;
 
     private TextView serviceIDTextView;
@@ -154,15 +151,15 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
         currentDate = "";
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class)));
 
         SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
         currentDate = format.format(Calendar.getInstance().getTime());
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
+        assert UserInfo.getCurrVehicle() != null;
 
         serviceIDTextView = $(R.id.serviceIDTextView);
         qrImageView = $(R.id.qrImageView);
@@ -544,7 +541,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                 params.put("record_id", recordIDTextView.getText().toString());
                 Log.e(TAG, recordIDTextView.getText().toString());
 
-                params.put("vehicle_id", vehicleID);
+                params.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
                 params.put("service_date", format.format(date));
                 params.put("service_center", centre);
                 params.put("service_ref", refNo);
@@ -597,7 +594,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                     invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
                             format.format(date),
                             centre,
-                            vehicle.getRegistration_no(),
+                            UserInfo.getCurrVehicle().getRegistration_no(),
                             encrypt_hash,
                             s3_temp_path,
                             servicesOptions);
@@ -607,7 +604,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                     public void run() {
                         Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class);
-                        intent.putExtra("vehicleID", vehicleID);
+                        intent.putExtra("vehicleID", UserInfo.getCurrVehicle().getVehicle_id());
                         startActivity(intent);
                     }
                 });
@@ -664,7 +661,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
 
     private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_RECORD_IDENTIFIER + vehicle.getRegistration_no() + "/" + currentDate;
+        String URL = IP_HOST + GET_SERVICE_RECORD_IDENTIFIER + UserInfo.getCurrVehicle().getRegistration_no() + "/" + currentDate;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -711,13 +708,13 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ManageVehicleActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ManageVehicleActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);

@@ -159,7 +159,10 @@
                 app:layout_constraintBottom_toTopOf="@id/subDividing"
                 app:layout_constraintLeft_toLeftOf="@id/subDividing"
                 app:layout_constraintRight_toRightOf="@id/subDividing"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 app:autoSizeTextType="uniform"
+                android:autoSizeMaxTextSize="20dp"
                 android:textColor="#007BA4"
                 android:textStyle="bold" />
 

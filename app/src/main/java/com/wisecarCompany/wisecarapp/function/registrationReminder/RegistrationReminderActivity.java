@@ -76,9 +76,6 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
 
     private static final String TAG = "Registration Reminder";
 
-    private Vehicle vehicle;
-    private String vehicleID;
-
     private ImageButton backImageButton;
 
     private TextView serviceIDTextView;
@@ -135,12 +132,12 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
         setContentView(R.layout.activity_registration_reminder);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(RegistrationReminderActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(RegistrationReminderActivity.this, ManageVehicleActivity.class)));
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
+        assert UserInfo.getCurrVehicle() != null;
 
         serviceIDTextView = $(R.id.serviceIDTextView);
         qrImageView = $(R.id.qrImageView);
@@ -410,7 +407,7 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
                 expireDateEditText.setText(displayDateFormat.format(expireDate));
             } catch (ParseException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -428,7 +425,7 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
                 saveImageButton.setClickable(true);
             } catch (ParseException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT).show();
             }
         } else {
             saveImageButton.setAlpha(0.5f);
@@ -492,7 +489,7 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
 
     private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
 
-        String URL = IP_HOST + GET_REGISTRATION_RECORD_IDENTIFIER + vehicle.getRegistration_no() + "/" + currentDate;
+        String URL = IP_HOST + GET_REGISTRATION_RECORD_IDENTIFIER + UserInfo.getCurrVehicle().getRegistration_no() + "/" + currentDate;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -555,7 +552,7 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
                 params.put("registration_record_identifier", serviceIDTextView.getText().toString().substring(4));
                 Log.e("identifier in request", serviceIDTextView.getText().toString().substring(4));
 
-                params.put("vehicle_id", vehicleID);
+                params.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
                 params.put("payment_no", payment);
                 params.put("registration_date", format.format(date));
                 params.put("expires_in", String.valueOf(durationMonth));
@@ -616,7 +613,7 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
                     public void run() {
                         Toast.makeText(RegistrationReminderActivity.this, "success", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(RegistrationReminderActivity.this, ManageVehicleActivity.class);
-                        intent.putExtra("vehicleID", vehicleID);
+                        intent.putExtra("vehicleID", UserInfo.getCurrVehicle().getVehicle_id());
                         startActivity(intent);
                     }
                 });
@@ -674,13 +671,13 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ManageVehicleActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ManageVehicleActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);

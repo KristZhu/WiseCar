@@ -166,7 +166,7 @@ public class VehicleActivity extends AppCompatActivity {
                 alertDialog.show();
             } else {
                 Toast.makeText(this, "Driver Log for Vehicle "
-                        + UserInfo.getCurrLog().getRegNo()
+                        + UserInfo.getCurrLog().getVehicle().getRegistration_no()
                         + " is still in process. Please end it first. ", Toast.LENGTH_SHORT).show();
             }
         });
@@ -247,35 +247,22 @@ public class VehicleActivity extends AppCompatActivity {
         addImageButton = $(R.id.addImageButton);
         //editVehiclesImageButton = $(R.id.editVehiclesImageButton);
 
-        //get vehicle data from db and store locally only when there is no vehicle locally
-        //it is because this user either just log in or really has no vehicles
-        //every time the user adds a new vehicle, it will add to local, and upload to db. so no need to get data from db later.
-        if (UserInfo.getVehicles() == null || UserInfo.getVehicles().size() == 0) {
-            returnVehicles(new vehicleMapCallbacks() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onSuccess(@NonNull Map<String, Vehicle> vehiclesDB) {
-                    UserInfo.setVehicles(vehiclesDB);
-                    Log.d(TAG, "vehicle DB: " + vehiclesDB);
+        returnVehicles(new vehicleMapCallbacks() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onSuccess(@NonNull Map<String, Vehicle> vehiclesDB) {
+                //UserInfo.setVehicles(vehiclesDB);
+                Log.d(TAG, "vehicle DB: " + vehiclesDB);
 
-                    if (vehiclesDB.size() == 0) {
-                        selectedVehicleTextView.setText("No Vehicle");
-                        selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
-                    } else {
-                        showVehicles(vehiclesDB);
-                    }
-                }
+                showVehicles(vehiclesDB);
+            }
 
-                @Override
-                public void onError(@NonNull String errorMessage) {
-                    Log.e("return vehicles error: ", errorMessage);
-                }
+            @Override
+            public void onError(@NonNull String errorMessage) {
+                Log.e("return vehicles error: ", errorMessage);
+            }
 
-            });
-        } else {
-            Log.d(TAG, "vehicle local: " + UserInfo.getVehicles());
-            showVehicles(UserInfo.getVehicles());
-        }
+        });
 
 
         addImageButton.setOnClickListener(v -> {
@@ -319,7 +306,7 @@ public class VehicleActivity extends AppCompatActivity {
             alertDialog.show();
         } else {
             Toast.makeText(this, "Driver Log for Vehicle "
-                    + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
+                    + UserInfo.getCurrLog().getVehicle().getRegistration_no()
                     + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
         }
     }
@@ -339,7 +326,7 @@ public class VehicleActivity extends AppCompatActivity {
                 alertDialog.show();
             } else {
                 Toast.makeText(this, "Driver Log for Vehicle "
-                        + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
+                        + UserInfo.getCurrLog().getVehicle().getRegistration_no()
                         + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
             }
             return true;    //stop calling super method
@@ -348,87 +335,70 @@ public class VehicleActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void showVehicles(Map<String, Vehicle> vehicles) {
-        assert vehicles.size() > 0;
-
         //vehicleImageViews = new HashMap<>();
-
-        //default show the first vehicle (latest added, sorted by TreeMap)
-        for (String vehicleID : vehicles.keySet()) {
-            selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-            if (vehicles.get(vehicleID).getImage() == null)
-                selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
-            else selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
-            manageVehicleImageButton.setOnClickListener(v -> manageVehicle(vehicleID));
-            break;
-        }
-
-        for (String vehicleID : vehicles.keySet()) {
-            Vehicle vehicle = vehicles.get(vehicleID);
-            assert vehicle != null;
-            CircleImageView imageView = new CircleImageView(VehicleActivity.this);
-            if (vehicle.getImage() == null)
-                imageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
-            else imageView.setImageBitmap(vehicle.getImage());
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            params.setMargins(0, 0, 16, 0);
-            imageView.setLayoutParams(params);
-            vehicleLayout.addView(imageView);
-            imageView.setOnClickListener(v -> {
-                Log.d(TAG, "onClickVehicle: " + vehicle);
-                selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-                if (vehicle.getImage() == null)
-                    selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
-                else selectedVehicleImageView.setImageBitmap(vehicle.getImage());
-                manageVehicleImageButton.setOnClickListener(v1 -> {
-                    if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
-                    else manageVehicle(vehicleID);
-                });
-            });
-            //vehicleImageViews.put(vehicles.get(vehicleID).getRegistration_no(), imageView);
+        if(vehicles.size()==0 && UserInfo.getNewVehicle()==null) {  //totally new user
+            selectedVehicleTextView.setText("No Vehicle");
+            selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
+        } else if(vehicles.size()==0) { //just finish adding the first vehicle
+            showSelectedVehicle(UserInfo.getNewVehicle());  //show the newly added vehicle as selected
+            showVehicleInScrollView(UserInfo.getNewVehicle());
+        } else if(UserInfo.getNewVehicle()==null) { //has vehicles, return from other activities, not add
+            for (Map.Entry<String, Vehicle> vehicleEntry: vehicles.entrySet()) {    //show the first vehicle in vehicles map as selected
+                showSelectedVehicle(vehicleEntry.getValue());
+                break;
+            }
+            for (Map.Entry<String, Vehicle> vehicleEntry: vehicles.entrySet()) {    //show all vehicles
+                showVehicleInScrollView(vehicleEntry.getValue());
+                //vehicleImageViews.put(vehicles.get(vehicleID), imageView);
+            }
+        } else {    //has vehicle, and just added a new one
+            showSelectedVehicle(UserInfo.getNewVehicle());  //show the newly added vehicle as selected
+            showVehicleInScrollView(UserInfo.getNewVehicle());
+            //vehicleImageViews.put(UserInfo.getNewVehicle.get(vehicleID), imageView);
+            for (Map.Entry<String, Vehicle> vehicleEntry: vehicles.entrySet()) {    //show all vehicles
+                showVehicleInScrollView(vehicleEntry.getValue());
+                //vehicleImageViews.put(vehicles.get(vehicleID), imageView);
+            }
         }
     }
 
-    private void manageVehicle(String vehicleID) {
-        Log.d(TAG, "manageVehicleID: " + vehicleID);
-        //the new added vehicle does not have ID locally. so its id = "a" (temp)
-        //if the user wants to edit, the id must be synchronized with db
-        returnVehicles(new vehicleMapCallbacks() {
-            @Override
-            public void onSuccess(@NonNull Map<String, Vehicle> vehiclesDB) {
-                UserInfo.setVehicles(vehiclesDB);
-                Log.d(TAG, "manageVehicle, vehicle DB: " + vehiclesDB);
-
-            }
-
-            @Override
-            public void onError(@NonNull String errorMessage) {
-                Log.e("return vehicles error: ", errorMessage);
-            }
-
+    @SuppressLint("SetTextI18n")
+    private void showSelectedVehicle(Vehicle vehicle) {
+        selectedVehicleTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
+        if (vehicle.getImage() == null)
+            selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+        else
+            selectedVehicleImageView.setImageBitmap(vehicle.getImage());
+        manageVehicleImageButton.setOnClickListener(v -> {
+            if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            else manageVehicle(vehicle);
         });
+    }
 
-        Log.d(TAG, "editVehicle, finalVehicleID: " + vehicleID);
-        Intent intent = new Intent(VehicleActivity.this, ManageVehicleActivity.class);
-        intent.putExtra("vehicleID", vehicleID);
-        startActivity(intent);
+    private void showVehicleInScrollView(Vehicle vehicle) {
+        CircleImageView imageView = new CircleImageView(VehicleActivity.this);
+        if (vehicle.getImage() == null) imageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+        else imageView.setImageBitmap(vehicle.getImage());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.setMargins(0, 0, 16, 0);
+        imageView.setLayoutParams(params);
+        vehicleLayout.addView(imageView);
+        imageView.setOnClickListener(v -> {
+            Log.d(TAG, "onClickVehicleID: " + vehicle.getVehicle_id());
+            showSelectedVehicle(vehicle);
+        });
+    }
+
+    private void manageVehicle(Vehicle vehicle) {
+        Log.d(TAG, "manageVehicle: " + vehicle);
+        UserInfo.setCurrVehicle(vehicle);
+        startActivity(new Intent(VehicleActivity.this, ManageVehicleActivity.class));
     }
 
     private void addVehicle() {
-        Log.d(TAG, "addVehicle: ");
-        returnVehicles(new vehicleMapCallbacks() {
-            @Override
-            public void onSuccess(@NonNull Map<String, Vehicle> vehiclesDB) {
-                UserInfo.setVehicles(vehiclesDB);
-                Log.d(TAG, "addVehicle, vehicle DB: " + vehiclesDB);
-            }
-
-            @Override
-            public void onError(@NonNull String errorMessage) {
-                Log.e("return vehicles error: ", errorMessage);
-            }
-
-        });
+        Log.d(TAG, "addVehicle");
         startActivity(new Intent(VehicleActivity.this, AddVehicleActivity.class));
     }
 

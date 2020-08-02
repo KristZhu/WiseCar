@@ -71,9 +71,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private final String EDIT_SHARE = "/api/v1/sharevehicle/update";
     private final String GET_HISTORY = "/api/v1/sharevehicle/sharedetailapp/";
 
-    private String vehicleID;
-    private Vehicle vehicle;
-
     private boolean NEW;  //new add or edit
 
     private String shareID;
@@ -121,13 +118,12 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_vehicle_detail);
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        //vehicleID = "303";
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
+        assert UserInfo.getCurrVehicle() != null;
+
         NEW = (boolean) this.getIntent().getSerializableExtra("NEW");
-        //NEW = true;
         Log.d(TAG, "NEW: " + NEW);
 
 
@@ -227,8 +223,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             isRecurring = false;
             isVisibility = false;
 
-            Log.d(TAG, "new share services: " + vehicle.getServices());
-            for (int i : vehicle.getServices()) servicesVisibility.put(i, true);
+            Log.d(TAG, "new share services: " + UserInfo.getCurrVehicle().getServices());
+            for (int i : UserInfo.getCurrVehicle().getServices()) servicesVisibility.put(i, true);
 
 
         } else {    //edit
@@ -307,7 +303,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class)));
 
 
         shareSwitchButton.setOnToggleChanged(isOn -> {
@@ -453,7 +449,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                 Calendar todayCal = Calendar.getInstance();
                 todayCal.set(todayCal.get(Calendar.YEAR), todayCal.get(Calendar.MONTH), todayCal.get(Calendar.DAY_OF_MONTH),0, 0, 0);   //still contains millisec, need /1000*1000 to get only date
-                if (date.before(todayCal.getTime())) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
+                if (date.before(new Date(todayCal.getTime().getTime()/1000*1000))) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
                     Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -639,7 +635,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         try {
             jsonParam.put("cust_id", custID);
-            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
             jsonParam.put("share", isShare ? "1" : "0");
             jsonParam.put("date", dateFormat.format(date));
             jsonParam.put("recurring", isRecurring ? "1" : "0");
@@ -665,9 +661,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Log.e("submit Response", response.toString());
             if (response.optString("message").equals("success")) {
                 runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
-                Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
-                intent.putExtra("vehicleID", vehicleID);
-                startActivity(intent);
+                startActivity(new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class));
             }
             Log.e("response", response.toString());
             Log.e("share_id", response.optString("share_id"));
@@ -735,7 +729,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         try {
             jsonParam.put("cust_id", custID);
-            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
             jsonParam.put("share", isShare ? "1" : "0");
             jsonParam.put("date", dateFormat.format(date));
             jsonParam.put("recurring", isRecurring ? "1" : "0");
@@ -767,7 +761,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             if (response.optString("message").equals("success")) {
                 runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
                 Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
-                intent.putExtra("vehicleID", vehicleID);
+                intent.putExtra("vehicleID", UserInfo.getCurrVehicle().getVehicle_id());
                 startActivity(intent);
                 Log.e("response", response.toString());
                 Log.e("new_share_id", response.optString("new_share_id"));
@@ -945,13 +939,13 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ShareVehicleListActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ShareVehicleListActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);
