@@ -18,7 +18,7 @@ public class InsuranceRecord {
 
     public InsuranceRecord(String id, String registrationNo, String policyNo, String insurer, Date endDate, boolean sentBefore) {
         this.id = id;
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
         this.policyNo = policyNo;
         this.insurer = insurer;
         this.endDate = endDate;
@@ -44,11 +44,11 @@ public class InsuranceRecord {
     }
 
     public String getRegistrationNo() {
-        return registrationNo;
+        return registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public void setRegistrationNo(String registrationNo) {
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public String getPolicyNo() {

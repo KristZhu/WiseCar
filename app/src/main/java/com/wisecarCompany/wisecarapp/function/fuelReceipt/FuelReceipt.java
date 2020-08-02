@@ -19,7 +19,7 @@ public class FuelReceipt {
 
     public FuelReceipt(String id, String registrationNo, Date date, String ref, String companyName, boolean sentBefore) {
         this.id = id;
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
         this.date = date;
         this.invoiceRef = ref;
         this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
@@ -46,11 +46,11 @@ public class FuelReceipt {
     }
 
     public String getRegistrationNo() {
-        return registrationNo;
+        return registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public void setRegistrationNo(String registrationNo) {
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public Date getDate() {

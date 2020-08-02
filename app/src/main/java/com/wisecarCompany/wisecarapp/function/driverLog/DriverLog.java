@@ -237,7 +237,7 @@ public class DriverLog implements Comparable<DriverLog> {
     }
 
     public String getRegistrationNo() {
-        return registrationNo;
+        return registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public void setRegistrationNo(String registrationNo) {

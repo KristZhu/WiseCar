@@ -8,10 +8,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -26,13 +22,8 @@ import android.widget.Toast;
 
 import com.wisecarCompany.wisecarapp.R;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.List;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.security.MessageDigest;
@@ -49,18 +40,6 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
 
     private static final String TAG = "createUser";
 
-    private byte[] userImg;
-    private String username;
-    private String userEmail;
-    private String password;
-    private java.util.Date dob;
-    private String licence;
-    private String address1;
-    private String address2;
-    private String country;
-    private String state;
-    private String postCode;
-
     private static final int REQUEST_CODE_PERMISSION_CHOOSE_PHOTO = 1;
     private static final int REQUEST_CODE_PERMISSION_TAKE_PHOTO = 2;
 
@@ -68,9 +47,20 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
     private static final int REQUEST_CODE_TAKE_PHOTO = 2;
     private static final int REQUEST_CODE_CROP = 3;
 
-    private Uri userImgImageUri;
-    private Bitmap userImgImageBitmap;
-    private Drawable userImgDrawable;
+    private BGAPhotoHelper mPhotoHelper;
+
+    private String userImgFilePath;
+    private String username;
+    private String userEmail;
+    private String password;
+
+    private java.util.Date dob;
+    private String licence;
+    private String address1;
+    private String address2;
+    private String country;
+    private String state;
+    private String postCode;
 
     private ImageView userImgImageView;
     private ImageButton uploadPhotoImageButton;
@@ -82,8 +72,6 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
     private ImageView confirmPassImageView;
     private ImageView confirmNoPassImageView;
     private ImageButton nextImageButton;
-
-    private BGAPhotoHelper mPhotoHelper;
 
 
     @SuppressLint("ClickableViewAccessibility")
@@ -146,9 +134,9 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
         });
 
         nextImageButton.setOnClickListener(v -> {
-            if(passImageView.getVisibility()!=View.VISIBLE || confirmPassImageView.getVisibility()!=View.VISIBLE) return;
+            //if(passImageView.getVisibility()!=View.VISIBLE || confirmPassImageView.getVisibility()!=View.VISIBLE) return;
 
-            userImgDrawable = userImgImageView.getDrawable();
+            userImgFilePath =  mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath()).getAbsolutePath();
             username = usernameEditText.getText().toString();
             userEmail = userEmailEditText.getText().toString();
             password = passwordEditText.getText().toString();
@@ -157,7 +145,6 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
                     && !userEmail.equals("")
                     && !password.equals("")
                     && confirmPasswordEditText.getText().toString().equals(password)
-                //&& userImgDrawable!=null
             ) {
                 boolean isEmail = false;
                 try {
@@ -173,46 +160,8 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
                     return;
                 }
 
-                BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
-                userImgImageBitmap = bitmapDrawable.getBitmap();
-//                int width = (int) Math.round(userImgImageBitmap.getWidth() / 1.5);
-//                int height = (int) Math.round(userImgImageBitmap.getHeight() / 1.5);
-//                userImgImageBitmap = Bitmap.createScaledBitmap(userImgImageBitmap, width, height, true);
-
-                String filepath = null;
-
-//                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//                userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-//                userImg = bos.toByteArray();
-
-                /*//xuzheng
-                try {
-                    String root = Environment.getExternalStorageDirectory().toString();
-                    File myDir = new File(root + "/saved_images");
-                    myDir.mkdirs();
-
-                    String fname = "userImg.png";
-                    File file = new File(myDir, fname);
-                    if (file.exists()) file.delete();
-                    file.createNewFile();
-                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-                    userImgImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-                    filepath = file.getAbsolutePath();
-
-                    bos.flush();
-                    bos.close();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-                //xuzheng*/
-                filepath = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath()).getAbsolutePath();
-
-                username = usernameEditText.getText().toString();
-                userEmail = userEmailEditText.getText().toString();
-                password = passwordEditText.getText().toString();
-
                 startActivity(new Intent(CreateUserActivity.this, CreateUserActivity2.class)
-                        .putExtra("userImgPath", filepath)
+                        .putExtra("userImgPath", userImgFilePath)
                         .putExtra("username", username)
                         .putExtra("userEmail", userEmail)
 //                        .putExtra("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));

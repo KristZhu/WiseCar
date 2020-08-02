@@ -54,6 +54,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
     private ImageButton backImageButton;
 
     private TextView headerTextView;
+    private TextView invoiceRefTextView;
     private TextView dateTextView;
     private TextView typeTextView;
     private TextView fuelAmountTextView;
@@ -101,6 +102,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
 
                 //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 headerTextView.setText("Invoice Ref: " + receipt.getInvoiceRef());
+                invoiceRefTextView.setText(receipt.getInvoiceRef());
                 dateTextView.setText(displayDateFormat.format(receipt.getDate()));
                 typeTextView.setText(receipt.getType());
                 fuelAmountTextView.setText((int)receipt.getFuelAmount() + "L");

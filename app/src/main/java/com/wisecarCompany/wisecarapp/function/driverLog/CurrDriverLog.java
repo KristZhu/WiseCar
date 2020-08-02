@@ -38,7 +38,7 @@ public class CurrDriverLog {
 
     private CurrDriverLog(String vehicleID, String regNo, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
         this.vehicleID = vehicleID;
-        this.regNo = regNo;
+        this.regNo = regNo.replaceAll("\r\n|\r|\n", "");
         this.custID = custID;
         this.startTime = startTime;
         this.claimRate = claimRate;
@@ -57,11 +57,11 @@ public class CurrDriverLog {
     }
 
     public String getRegNo() {
-        return regNo;
+        return regNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public void setRegNo(String regNo) {
-        this.regNo = regNo;
+        this.regNo = regNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public boolean isPausing() {

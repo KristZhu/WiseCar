@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,18 +32,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
-import com.wisecarCompany.wisecarapp.function.shareVehicle.ShareVehicleListActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
@@ -65,10 +59,6 @@ import net.glxn.qrgen.core.image.ImageType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -325,7 +315,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
         });
 
 
-        saveImageButton = $(R.id.saveImageButton);
+        saveImageButton = $(R.id.shareImageButton);
         saveImageButton.setOnClickListener(v -> {
             if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();

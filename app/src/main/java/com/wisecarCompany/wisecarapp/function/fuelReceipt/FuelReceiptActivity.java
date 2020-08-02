@@ -1,13 +1,10 @@
 package com.wisecarCompany.wisecarapp.function.fuelReceipt;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -28,9 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -56,15 +50,7 @@ import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -91,9 +77,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
     private ImageButton backImageButton;
 
     private CircleImageView fuelImageView;
-    private Uri fuelImageUri;
-    private Bitmap fuelImageBitmap;
-    private Drawable fuelImageDrawable;
+    private File fuelImgFile;
 
     private TextView idTextView;
     private Button uploadButton;
@@ -262,10 +246,9 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
             }
         });
 
-        saveImageButton = $(R.id.saveImageButton);
+        saveImageButton = $(R.id.shareImageButton);
         saveImageButton.setOnClickListener(v -> {
             if (saveImageButton.getAlpha() < 1) return;
-            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
             //parkingImageDrawable = licenceImageView.getDrawable();
             //...
 
@@ -276,11 +259,13 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
             Log.d(TAG, "paidAmount: " + paidAmount);
             Log.d(TAG, "claimable: " + claimable);
 
+            fuelImgFile = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
 
             //db
             if (claimable && sharedTextView.getText().toString().equals("")) {
                 Toast.makeText(getApplicationContext(), "This vehicle is currently not shared with any company, please uncheck Claimable.", Toast.LENGTH_SHORT).show();
             } else {
+                Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
                 uploadFuelReceipt();
             }
 
@@ -391,6 +376,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
         return date;
     }
 
+    @SuppressLint("ShowToast")
     private void checkReadyToSave() {
         if (referenceEditText.getText().toString().length() > 0
                 && dateEditText.getText().toString().length() > 0
@@ -401,6 +387,8 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
                 date = displayDateFormat.parse(dateEditText.getText().toString());
             } catch (ParseException e) {
                 e.printStackTrace();
+                Toast.makeText(this, "System error", Toast.LENGTH_SHORT);
+                return;
             }
             try {
                 fuelAmount = Double.parseDouble(fuelAmountEditText.getText().toString());
@@ -563,22 +551,20 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
     }
 
     private void uploadFuelReceipt() {
-
+/*
         String isClaim = "";
-
         if (claimable) {
             isClaim = "1";
         } else {
             isClaim += "0";
         }
-
         String finalIsClaim = isClaim;
+*/
         Thread thread = new Thread(() -> {
 
             DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
             HashMap<String, String> params = new HashMap<>();
-            File file = null;
             String message = null;
             String encrypt_hash = null;
             String s3_temp_path = null;
@@ -593,7 +579,8 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
                 params.put("fuel_type", type);
                 params.put("fuel_amount", String.valueOf(fuelAmount));
                 params.put("paid_amount", String.valueOf(paidAmount));
-                params.put("claimable", finalIsClaim);
+                //params.put("claimable", finalIsClaim);
+                params.put("claimable", claimable ? "1" : "0");
                 params.put("record_id", identifierTextView.getText().toString());
                 Log.e("recordID", identifierTextView.getText().toString());
                 params.put("shared_company_id", sharedTextView.getText().toString());
@@ -621,8 +608,8 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
                     bos.close();
                 }
 */
-                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
-                String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_FUEL);
+
+                String response = HttpUtil.uploadForm(params, "document", fuelImgFile, "record.png", IP_HOST + ADD_FUEL);
 
                 try {
                     JSONObject jsonObject = new JSONObject(response);
