@@ -1,12 +1,12 @@
 package com.wisecarCompany.wisecarapp.function.registrationReminder;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -55,15 +55,7 @@ import net.glxn.qrgen.core.image.ImageType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -292,7 +284,7 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
             }
         });
 */
-        saveImageButton = $(R.id.saveImageButton);
+        saveImageButton = $(R.id.shareImageButton);
         saveImageButton.setOnClickListener(v -> {
             if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
@@ -404,6 +396,7 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
     }
 
 
+    @SuppressLint("ShowToast")
     private void checkReadyToSave() {
         //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         if (dateEditText.getText().toString().length() > 0 && durationMonth > 0) {
@@ -417,6 +410,8 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
                 expireDateEditText.setText(displayDateFormat.format(expireDate));
             } catch (ParseException e) {
                 e.printStackTrace();
+                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT);
+                return;
             }
         }
         if (paymentEditText.getText().toString().length() > 0
@@ -429,11 +424,12 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
                 date = displayDateFormat.parse(dateEditText.getText().toString());
                 expireDate = displayDateFormat.parse(expireDateEditText.getText().toString());
                 remind = remindCheckBox.isChecked();
+                saveImageButton.setAlpha(1.0f);
+                saveImageButton.setClickable(true);
             } catch (ParseException e) {
                 e.printStackTrace();
+                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT);
             }
-            saveImageButton.setAlpha(1.0f);
-            saveImageButton.setClickable(true);
         } else {
             saveImageButton.setAlpha(0.5f);
             saveImageButton.setClickable(false);

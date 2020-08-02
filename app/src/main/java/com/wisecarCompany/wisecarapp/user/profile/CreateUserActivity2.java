@@ -60,11 +60,15 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
     private final static String TAG = "CreateUser2";
 
+    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String CREATE_USER = "/api/v1/users/register";
+
    // private byte[] userImg;
     private File userImgFile;
     private String username;
     private String userEmail;
     private String password;
+
     private String firstName;
     private String lastName;
     private java.util.Date dob;
@@ -86,8 +90,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
     private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
-    private final String IP_HOST = "http://54.206.19.123:3000";
-    private final String CREATE_USER = "/api/v1/users/register";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

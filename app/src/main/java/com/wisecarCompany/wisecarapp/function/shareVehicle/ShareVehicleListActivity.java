@@ -29,6 +29,7 @@ import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
+import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,7 +54,7 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
     private ImageButton backImageButton;
     private TextView headerTextView;
-    private ImageView vehicleImageView;
+    private CircleImageView vehicleImageView;
 
     private LinearLayout shareLayout;
 
@@ -84,7 +85,8 @@ public class ShareVehicleListActivity extends AppCompatActivity {
         headerTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
 
         vehicleImageView = $(R.id.vehicleImageView);
-        vehicleImageView.setImageBitmap(vehicle.getImage());
+        if(vehicle.getImage()==null) vehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
+        //else vehicleImageView.setImageBitmap(vehicle.getImage());
 
 
         shareLayout = $(R.id.sharesLayout);

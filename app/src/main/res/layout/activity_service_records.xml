@@ -663,7 +663,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
-            android:id="@+id/saveImageButton"
+            android:id="@+id/shareImageButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"

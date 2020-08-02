@@ -53,10 +53,11 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
     private ImageButton backImageButton;
 
     private CircleImageView vehicleImageView;
-    private TextView makeRegistrationNoTextView;
-    private TextView vinTextView;
-    private TextView registrationTextView;
-    private TextView serviceTextView;
+    //private TextView makeRegistrationNoTextView;
+    //private TextView vinTextView;
+    //private TextView registrationTextView;
+    //private TextView serviceTextView;
+    private TextView regTextView;
 
     private LinearLayout servicesLayout;
 
@@ -74,12 +75,10 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         if (vehicleID.equals("a")) {
             //id = "a" means the vehicle is newly added and it is a fake id, and synchronizing process is not finished
             //jump back to VehicleActivity to wait for synchronizing
-            for (String newID : UserInfo.getVehicles().keySet()) {
-                UserInfo.setVehicles(null);
-                Toast.makeText(ManageVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(ManageVehicleActivity.this, VehicleActivity.class));
-                return;
-            }
+            UserInfo.setVehicles(null);
+            Toast.makeText(ManageVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(ManageVehicleActivity.this, VehicleActivity.class));
+            return;
         }
         Log.d(TAG, "vehicleID: " + vehicleID);
 
@@ -90,12 +89,13 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         if(vehicle.getImage()==null) vehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.profile0empty_image));
         else vehicleImageView.setImageBitmap(vehicle.getImage());
 
-        makeRegistrationNoTextView = $(R.id.makeRegistrationNoTextView);
-        vinTextView = $(R.id.vinTextView);
-        registrationTextView = $(R.id.registrationCheckBox);
-        serviceTextView = $(R.id.serviceTextView);
-
-        makeRegistrationNoTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
+        //makeRegistrationNoTextView = $(R.id.makeRegistrationNoTextView);
+        //vinTextView = $(R.id.vinTextView);
+        //registrationTextView = $(R.id.registrationCheckBox);
+        //serviceTextView = $(R.id.serviceTextView);
+        //makeRegistrationNoTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
+        regTextView = $(R.id.regTextView);
+        regTextView.setText(vehicle.getRegistration_no());
 
         loadServices(vehicleID, new servicesCallbacks() {
             @Override

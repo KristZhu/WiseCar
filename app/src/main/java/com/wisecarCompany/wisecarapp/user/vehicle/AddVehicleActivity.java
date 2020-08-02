@@ -3,9 +3,6 @@ package com.wisecarCompany.wisecarapp.user.vehicle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import android.Manifest;
 import android.content.Context;
@@ -13,8 +10,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -46,20 +41,9 @@ import com.wisecarCompany.wisecarapp.user.UserInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.util.List;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
@@ -80,12 +64,10 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
     private String userID;
 
     private ImageView vehicleImageView;
-    private Uri vehicleImageUri;
+    private File vehicleImgFile;
     private Bitmap vehicleImageBitmap;
-    private Drawable vehicleDrawable;
-    private byte[] vehicleImgByte;
 
-    private EditText rcEditText;
+    private EditText regEditText;
     private String registration_no;
     private EditText makeEditText;
     private String make;
@@ -94,8 +76,8 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
     private EditText descriptionEditText;
     private String description;
 
-    private String year = "2020";
-    private String state = "1";
+    private String year = "";
+    private String state = "";
 
     private CheckBox[] servicesCheckBox;
     private boolean[] isServices;
@@ -141,7 +123,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
         vehicleImageView = $(R.id.vehicleImageView);
         uploadButton = $(R.id.uploadButton);
-        rcEditText = $(R.id.rcEditText);
+        regEditText = $(R.id.regEditText);
         makeEditText = $(R.id.makeEditText);
         modelEditText = $(R.id.modelEditText);
         descriptionEditText = $(R.id.descriptionEditText);
@@ -154,7 +136,11 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                 //$(R.id.tollCheckBox),
                 $(R.id.fuelCheckBox)
         };
-        saveImageButton = $(R.id.saveImageButton);
+
+        for(int i=0; i<servicesCheckBox.length; i++)
+            servicesCheckBox[i].setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+
+        saveImageButton = $(R.id.shareImageButton);
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class)));
@@ -184,36 +170,19 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
         saveImageButton.setOnClickListener(v -> {
             if (saveImageButton.getAlpha() < 1) return;
-            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_SHORT).show();
 
-            vehicleDrawable = vehicleImageView.getDrawable();
-
-            BitmapDrawable bitmapDrawable = (BitmapDrawable) vehicleDrawable;
-            vehicleImageBitmap = bitmapDrawable.getBitmap();
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            vehicleImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos);
-            vehicleImgByte = bos.toByteArray();
-
+            //compulsory items are checked values are assigned in checkReadyToSave()
+            //following are just an insurance in case of bugs, and may be deleted
+            registration_no = regEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
             make = makeEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
             model = modelEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
-            registration_no = rcEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
             description = descriptionEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+            if (isServices == null) isServices = new boolean[6];
+            for (int i = 0; i < isServices.length; i++) isServices[i] = servicesCheckBox[i].isChecked();
 
-            if (isServices == null) {
-                isServices = new boolean[6];
-                for (int i = 0; i < isServices.length; i++) {
-                    isServices[i] = servicesCheckBox[i].isChecked();
-                }
-            }
-
-            boolean tempB = false;
-            for (boolean b : isServices) tempB = tempB || b;
-            if (!tempB) {
-                Toast.makeText(AddVehicleActivity.this, "please select at least one service", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
+            vehicleImgFile = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCropFilePath());
+            vehicleImageBitmap = ((BitmapDrawable)(vehicleImageView.getDrawable())).getBitmap();
 
             Log.d(TAG, "--------------------Add Vehicle------------------");
             Log.d(TAG, "userID: " + userID);
@@ -229,8 +198,9 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
             //Log.d(TAG, "toll: " + isServices[5]);
             Log.d(TAG, "fuel: " + isServices[5]);
 
-            if (UserInfo.getVehicles() == null)
+            if (UserInfo.getVehicles() == null) //first vehicle added
                 UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
+
             if (UserInfo.getVehicles().containsKey("a")) {   //last new added vehicle has not synchronized. should not happen logically
                 Toast.makeText(AddVehicleActivity.this, "failed to add vehicle", Toast.LENGTH_SHORT).show();
             } else {
@@ -336,27 +306,40 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
     }
 
 
+    private void checkReadyToSave() {
+        registration_no = regEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+        make = makeEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+        model = modelEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+        description = descriptionEditText.getText().toString().replaceAll("\r\n|\r|\n", "");
+        if (registration_no != null && make != null && model != null && description != null
+                && registration_no.length() > 0 && make.length() > 0 && model.length() > 0 && description.length() > 0
+        ) {
+            if (isServices == null) isServices = new boolean[6];
+            for (int i = 0; i < isServices.length; i++) isServices[i] = servicesCheckBox[i].isChecked();
+            boolean tempB = false;
+            for (boolean b : isServices) tempB = tempB || b;
+            if (!tempB) {
+                Toast.makeText(AddVehicleActivity.this, "please select at least one service", Toast.LENGTH_SHORT).show();
+                saveImageButton.setAlpha(0.5f);
+                saveImageButton.setClickable(false);
+            }
+            saveImageButton.setAlpha(1.0f);
+            saveImageButton.setClickable(true);
+        } else {
+            saveImageButton.setAlpha(0.5f);
+            saveImageButton.setClickable(false);
+        }
+    }
+
     public boolean dispatchTouchEvent(MotionEvent ev) {
         View v = getCurrentFocus();
         if (isShouldHideInput(v, ev)) {
             hideSoftInput(v.getWindowToken());
-            registration_no = rcEditText.getText().toString();
+            registration_no = regEditText.getText().toString();
             make = makeEditText.getText().toString();
             model = modelEditText.getText().toString();
             description = descriptionEditText.getText().toString();
-            if (registration_no != null && make != null && model != null && description != null
-                    && registration_no.length() > 0 && make.length() > 0 && model.length() > 0 && description.length() > 0
-            ) {
-                if (isServices == null) isServices = new boolean[6];
-                for (int i = 0; i < isServices.length; i++) {
-                    isServices[i] = servicesCheckBox[i].isChecked();
-                }
-                saveImageButton.setAlpha(1.0f);
-                saveImageButton.setClickable(true);
-            } else {
-                saveImageButton.setAlpha(0.5f);
-                saveImageButton.setClickable(false);
-            }
+            checkReadyToSave();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -384,17 +367,16 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
     private void uploadVehicleInfo() {
 
-        String servicesChoice = "";
+        StringBuilder servicesChoice = new StringBuilder();
         for (int i = 0; i < isServices.length; i++) {
-            if (isServices[i]) servicesChoice += i + 1;
+            if (isServices[i]) servicesChoice.append(i + 1);
         }
         Log.d(TAG, "uploadVehicleInfoByHttpClient: servicesChoice: " + servicesChoice);
 
-        String finalServicesChoice = servicesChoice;
+        String finalServicesChoice = servicesChoice.toString();
         Thread thread = new Thread(() -> {
 
             HashMap<String, String> params = new HashMap<>();
-            File file = null;
             String message = null;
             int vehicle_id = 0;
 
@@ -427,15 +409,9 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                     bos.close();
                 }*/
 
-                file = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCropFilePath());
-
-                String response = HttpUtil.uploadForm(params, "logo", file, "vehicle.png", IP_HOST + ADD_VEHICLE);
+                String response = HttpUtil.uploadForm(params, "logo", vehicleImgFile, "vehicle.png", IP_HOST + ADD_VEHICLE);
                 if (response == null) {
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show());
                 } else {
                     try {
                         JSONObject jsonObject = new JSONObject(response);
@@ -448,12 +424,11 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
                     if (message.equals("success")) {
                         // Add successfully
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
-                            }
+                        runOnUiThread(() -> {
+                            Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
                         });
+                        //the newly added vehicle cannot display immediately at VehicleActivity, show a fake with ID = "a" for now
                         UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
                     }
                 }

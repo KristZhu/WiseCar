@@ -6,12 +6,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,15 +39,10 @@ import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -103,8 +98,8 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
 
     private String number;
     private String insurer;
-    private Date start;
-    private Date end;
+    private Date startDate;
+    private Date endDate;
     private String type;
 
     private ImageButton saveImageButton;
@@ -217,9 +212,9 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
         startEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
-                start = intToDate(year, monthOfYear, dayOfMonth);
+                startDate = intToDate(year, monthOfYear, dayOfMonth);
 //                SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = displayDateFormat.format(start);
+                String str = displayDateFormat.format(startDate);
                 startEditText.setText(str);
                 checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -228,9 +223,9 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
             if (hasFocus) {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
-                    start = intToDate(year, monthOfYear, dayOfMonth);
+                    startDate = intToDate(year, monthOfYear, dayOfMonth);
 //                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = displayDateFormat.format(start);
+                    String str = displayDateFormat.format(startDate);
                     startEditText.setText(str);
                     checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -241,9 +236,9 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
         endEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
-                end = intToDate(year, monthOfYear, dayOfMonth);
+                endDate = intToDate(year, monthOfYear, dayOfMonth);
                 //SimpleDateFormat format13 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                String str = displayDateFormat.format(end);
+                String str = displayDateFormat.format(endDate);
                 endEditText.setText(str);
                 checkReadyToSave();
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -252,9 +247,9 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
             if (hasFocus) {
                 Calendar c = Calendar.getInstance();
                 new DatePickerDialog(InsuranceRecordActivity.this, (view, year, monthOfYear, dayOfMonth) -> {
-                    end = intToDate(year, monthOfYear, dayOfMonth);
+                    endDate = intToDate(year, monthOfYear, dayOfMonth);
 //                    SimpleDateFormat format14 = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
-                    String str = displayDateFormat.format(end);
+                    String str = displayDateFormat.format(endDate);
                     endEditText.setText(str);
                     checkReadyToSave();
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
@@ -336,7 +331,7 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
 */
 
 
-        saveImageButton = $(R.id.saveImageButton);
+        saveImageButton = $(R.id.shareImageButton);
         saveImageButton.setOnClickListener(v -> {
             if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
@@ -344,8 +339,8 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
             //Log.d(TAG, "vehicle" + vehicle);
             Log.d(TAG, "number: " + number);
             Log.d(TAG, "insurer: " + insurer);
-            Log.d(TAG, "start: " + start);
-            Log.d(TAG, "end: " + end);
+            Log.d(TAG, "start: " + startDate);
+            Log.d(TAG, "end: " + endDate);
             Log.d(TAG, "type: " + type);
 
 //            if(start.before(new Date()) || end.after(new Date()) || start.after(end)) {
@@ -447,6 +442,7 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
     }
 
 
+    @SuppressLint("ShowToast")
     private void checkReadyToSave() {
         if (numberEditText.getText().toString().length() > 0
                 && insurerEditText.getText().toString().length() > 0
@@ -459,14 +455,15 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
                 //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                 number = numberEditText.getText().toString();
                 insurer = insurerEditText.getText().toString();
-                start = displayDateFormat.parse(startEditText.getText().toString());
-                end = displayDateFormat.parse(endEditText.getText().toString());
+                startDate = displayDateFormat.parse(startEditText.getText().toString());
+                endDate = displayDateFormat.parse(endEditText.getText().toString());
                 type = typeEditText.getText().toString();
+                saveImageButton.setAlpha(1.0f);
+                saveImageButton.setClickable(true);
             } catch (ParseException e) {
                 e.printStackTrace();
+                Toast.makeText(this, "System error", Toast.LENGTH_SHORT);
             }
-            saveImageButton.setAlpha(1.0f);
-            saveImageButton.setClickable(true);
         } else {
             saveImageButton.setAlpha(0.5f);
             saveImageButton.setClickable(false);
@@ -592,8 +589,8 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
                 params.put("vehicle_id", vehicleID);
                 params.put("policy_number", number);
                 params.put("insurer", insurer);
-                params.put("start_of_cover", format.format(start));
-                params.put("end_of_cover", format.format(end));
+                params.put("start_of_cover", format.format(startDate));
+                params.put("end_of_cover", format.format(endDate));
                 params.put("cover_type", type);
                 params.put("record_id", recordIDTextView.getText().toString());
 /*
@@ -639,8 +636,8 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
                     invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
                             number,
                             insurer,
-                            format.format(start),
-                            format.format(end),
+                            format.format(startDate),
+                            format.format(endDate),
                             type,
                             encrypt_hash,
                             s3_temp_path);

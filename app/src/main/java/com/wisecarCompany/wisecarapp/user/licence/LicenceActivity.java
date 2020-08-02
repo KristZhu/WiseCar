@@ -4,20 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -43,29 +37,11 @@ import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 import com.wisecarCompany.wisecarapp.viewElement.SwitchButton;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
 
-//import org.apache.http.HttpResponse;
-//import org.apache.http.client.HttpClient;
-//import org.apache.http.client.methods.HttpPost;
-//import org.apache.http.entity.ContentType;
-//import org.apache.http.entity.mime.HttpMultipartMode;
-//import org.apache.http.entity.mime.MultipartEntity;
-//import org.apache.http.entity.mime.content.ByteArrayBody;
-//import org.apache.http.entity.mime.content.StringBody;
-//import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -95,39 +71,6 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
     private final String BLOCKCHAIN_IP = "http://13.236.209.122:3000";
     private final String INVOKE_BLOCKCHAIN = "/api/v1/driverlicense/blockchaininvoke";
 
-    private SharedPreferences sp;
-    private String userID;
-    private String username;
-
-    private ImageButton backImageButton;
-
-    private CircleImageView licenceImageView;
-    private Uri licenceImageUri;
-    private Bitmap licenceImageBitmap;
-    private Drawable licenceImageDrawable;
-
-    private TextView idTextView;
-    private TextView recordIDTextView;
-    private Button uploadButton;
-
-    private boolean active;
-    private String number;
-    private String type;
-    private Date startDate;
-    private int durationYear;
-    private Date expireDate;
-    private boolean remind;
-
-    private SwitchButton activeSwitchButton;
-    private EditText numberEditText;
-    private EditText typeEditText;
-    private EditText startDateEditText;
-    private EditText expireEditText;
-    private EditText expireDateEditText;
-    private CheckBox remindCheckBox;
-
-    private ImageButton saveImageButton;
-
     private static final int REQUEST_CODE_PERMISSION_CHOOSE_PHOTO = 1;
     private static final int REQUEST_CODE_PERMISSION_TAKE_PHOTO = 2;
 
@@ -139,6 +82,36 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
 
     private String identifier;
     private String record_id;
+
+    private SharedPreferences sp;
+    private String userID;
+    private String username;
+
+    private File licenceImgFile;
+    private boolean active;
+    private String number;
+    private String type;
+    private Date startDate;
+    private int durationYear;
+    private Date expireDate;
+    private boolean remind;
+
+    private ImageButton backImageButton;
+
+    private TextView idTextView;
+    private TextView recordIDTextView;
+    private Button uploadButton;
+
+    private CircleImageView licenceImageView;
+    private SwitchButton activeSwitchButton;
+    private EditText numberEditText;
+    private EditText typeEditText;
+    private EditText startDateEditText;
+    private EditText expireEditText;
+    private EditText expireDateEditText;
+    private CheckBox remindCheckBox;
+
+    private ImageButton saveImageButton;
 
     private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
@@ -328,14 +301,12 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
         expireDateEditText.setInputType(InputType.TYPE_NULL);
 
 
-        saveImageButton = $(R.id.saveImageButton);
+        saveImageButton = $(R.id.shareImageButton);
         saveImageButton.setOnClickListener(v -> {
             if (saveImageButton.getAlpha() < 1) return;
-            //licenceImageDrawable = licenceImageView.getDrawable();
-            //...
-            //UserInfo.getLicence().setLicenceImg();
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
 
+            //values are assigned in checkReadyToSave()
             Log.d(TAG, "active: " + active);
             Log.d(TAG, "number: " + number);
             Log.d(TAG, "type: " + type);
@@ -343,6 +314,8 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
             Log.d(TAG, "durationYear: " + durationYear);
             Log.d(TAG, "expireDate: " + expireDate);
             Log.d(TAG, "remind: " + remind);
+
+            licenceImgFile = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
 
 //            if(startDate.after(new Date()) || expireDate.before(new Date()) || startDate.after(expireDate)) {
 //                Toast.makeText(getApplicationContext(), "Please select correct date", Toast.LENGTH_SHORT).show();
@@ -462,6 +435,7 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
         return date;
     }
 
+    @SuppressLint("ShowToast")
     private void checkReadyToSave() {
         //SimpleDateFormat format = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
         if (startDateEditText.getText().toString().length() > 0 && durationYear > 0) {  //calculate expire date
@@ -475,6 +449,8 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
                 expireDateEditText.setText(displayDateFormat.format(expireDate));
             } catch (ParseException e) {
                 e.printStackTrace();
+                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT);
+                return;
             }
         }
         if (numberEditText.getText().toString().length() > 0
@@ -482,16 +458,17 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
                 && startDateEditText.getText().toString().length() > 0
                 && expireEditText.getText().toString().length() > 0
                 && expireDateEditText.getText().toString().length() > 0) {
-            saveImageButton.setAlpha(1.0f);
-            saveImageButton.setClickable(true);
             try {
                 number = numberEditText.getText().toString();
                 type = typeEditText.getText().toString();
                 startDate = displayDateFormat.parse(startDateEditText.getText().toString());
                 expireDate = displayDateFormat.parse(expireDateEditText.getText().toString());
                 remind = remindCheckBox.isChecked();
+                saveImageButton.setAlpha(1.0f);
+                saveImageButton.setClickable(true);
             } catch (ParseException e) {
                 e.printStackTrace();
+                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT);
             }
         } else {
             saveImageButton.setAlpha(0.5f);
@@ -603,7 +580,6 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
 
         Thread thread = new Thread(() -> {
             HashMap<String, String> params = new HashMap<>();
-            File file = null;
             String message = null;
             String encrypt_hash = null;
             String s3_temp_path = null;
@@ -644,9 +620,7 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
                     bos.close();
                 }*/
 
-                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
-
-                String response = HttpUtil.uploadForm(params, "document", file, "license.png", IP_HOST + ADD_LICENSE);
+                String response = HttpUtil.uploadForm(params, "document", licenceImgFile, "license.png", IP_HOST + ADD_LICENSE);
 
                 try {
                     JSONObject jsonObject = new JSONObject(response);
