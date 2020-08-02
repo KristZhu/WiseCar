@@ -727,6 +727,7 @@
                         android:id="@+id/logoutIcon"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
+                        android:src="@drawable/vehicle0logout_icon"
                         app:layout_constraintWidth_percent="0.2"
                         app:layout_constraintDimensionRatio="1:1"
                         app:layout_constraintTop_toTopOf="parent"
@@ -748,6 +749,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         android:text="Logout"
                         android:layout_margin="8dp"
+                        android:textColor="#ffc909"
                         android:autoSizeTextType="uniform"
                         android:textStyle="bold" />
 
