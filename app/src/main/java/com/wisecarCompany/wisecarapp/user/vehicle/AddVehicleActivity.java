@@ -1,6 +1,7 @@
 package com.wisecarCompany.wisecarapp.user.vehicle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,10 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -25,6 +28,10 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
@@ -38,6 +45,7 @@ import com.wisecarCompany.wisecarapp.user.UserInfo;
 //import org.apache.http.entity.mime.content.ByteArrayBody;
 //import org.apache.http.entity.mime.content.StringBody;
 //import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -59,6 +67,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String ADD_VEHICLE = "/api/v1/vehicles/";
+    private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
 
     private SharedPreferences sp;
     private String userID;
@@ -120,6 +129,38 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
         sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
         userID = sp.getString("USER_ID", "");
         Log.d(TAG, "userID: " + userID);
+
+        if (UserInfo.getNewVehicle()!=null) {
+            //synchronizing process is not finished
+            //call returnNewVehicle again to syc
+            Toast.makeText(this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
+            returnLastNewVehicle(new newVehicleCallbacks() {
+                @Override
+                public void onSuccess(Vehicle value) {
+                    Log.d(TAG, "return last new vehicle: " + value);
+                    if(value==null) {
+                        Toast.makeText(AddVehicleActivity.this, "Last adding vehicle process has not finished. Please try later. ", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
+                    } else {
+                        UserInfo.setNewVehicle(null);
+                        loadPage();
+                    }
+                }
+                @Override
+                public void onError(@NonNull String errorMessage) {
+                    Toast.makeText(AddVehicleActivity.this, "Load Vehicle Fail. " + errorMessage, Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
+                }
+            });
+
+        } else {
+            loadPage();
+        }
+
+    }
+
+    private void loadPage() {
+        assert UserInfo.getNewVehicle() == null;
 
         vehicleImageView = $(R.id.vehicleImageView);
         uploadButton = $(R.id.uploadButton);
@@ -198,12 +239,12 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
             //Log.d(TAG, "toll: " + isServices[5]);
             Log.d(TAG, "fuel: " + isServices[5]);
 
-            if (UserInfo.getVehicles() == null) //first vehicle added
-                UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
+            //if (UserInfo.getVehicles() == null) //first vehicle added
+            //    UserInfo.setVehicles(new TreeMap<>((o1, o2) -> o2.compareTo(o1)));
 
-            if (UserInfo.getVehicles().containsKey("a")) {   //last new added vehicle has not synchronized. should not happen logically
-                Toast.makeText(AddVehicleActivity.this, "failed to add vehicle", Toast.LENGTH_SHORT).show();
-            } else {
+            //if (UserInfo.getVehicles().containsKey("a")) {   //last new added vehicle has not synchronized. should not happen logically
+            //    Toast.makeText(AddVehicleActivity.this, "failed to add vehicle", Toast.LENGTH_SHORT).show();
+
 
                 // Write database connection here
 /*
@@ -214,12 +255,9 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                     Toast.makeText(this, "Please upload your vehicle photo.", Toast.LENGTH_LONG).show();
                 }
 */
-                uploadVehicleInfo();
-
-            }
+            uploadVehicleInfo();
 
         });
-
     }
 
 
@@ -365,6 +403,86 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
         }
     }
 
+
+    private void returnLastNewVehicle(@Nullable final newVehicleCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_VEHICLE_LIST + userID;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            JSONArray jsonArray;
+            JSONObject jsonObject;
+
+            Vehicle vehicle = null;
+
+            try {
+                jsonArray = response.getJSONArray("vehicle_list");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    Log.e("returnNewV array: ", jsonObject.toString());
+
+                    String regNo = jsonObject.optString("registration_no").replaceAll("\r\n|\r|\n", "");
+                    if(UserInfo.getNewVehicle().getRegistration_no().equals(regNo)) {
+
+                        byte[] logoBase64 = Base64.decode(jsonObject.optString("image"), Base64.DEFAULT);
+                        Bitmap imgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+
+                        vehicle = new Vehicle(
+                                jsonObject.optString("vehicle_id"),
+                                jsonObject.optString("registration_no"),
+                                jsonObject.optString("make_name"),
+                                jsonObject.optString("model_name"),
+                                jsonObject.optString("make_year"),
+                                jsonObject.optString("description"),
+                                jsonObject.optString("user_id"),
+                                jsonObject.optString("user_name"),
+                                imgBitmap,
+                                jsonObject.optString("state_name")
+                        );
+                        if (callbacks != null)
+                            callbacks.onSuccess(vehicle);
+                        break;
+
+                    }
+
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(vehicle);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }, error -> {
+
+//                Log.e("ERROR!!!", error.toString());
+//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("No vehicle: ", message);
+                if (callbacks != null)
+                    callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(this).add(objectRequest);
+    }
+
+    public interface newVehicleCallbacks {
+        void onSuccess(Vehicle value);
+
+        void onError(@NonNull String errorMessage);
+    }
+
+
     private void uploadVehicleInfo() {
 
         StringBuilder servicesChoice = new StringBuilder();
@@ -425,11 +543,10 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                     if (message.equals("success")) {
                         // Add successfully
                         runOnUiThread(() -> {
+                            UserInfo.setNewVehicle(new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
                             Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(AddVehicleActivity.this, VehicleActivity.class));
                         });
-                        //the newly added vehicle cannot display immediately at VehicleActivity, show a fake with ID = "a" for now
-                        UserInfo.getVehicles().put("a", new Vehicle(registration_no, make, model, year, state, description, vehicleImageBitmap));
                     }
                 }
 

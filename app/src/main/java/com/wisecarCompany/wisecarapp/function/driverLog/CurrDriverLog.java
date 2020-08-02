@@ -2,6 +2,8 @@ package com.wisecarCompany.wisecarapp.function.driverLog;
 
 import android.graphics.Bitmap;
 
+import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
+
 import java.util.Date;
 import java.util.Map;
 import java.util.Timer;
@@ -15,8 +17,8 @@ public class CurrDriverLog {
     private long duration = 0;  //total recording time (not counting time) in second
     private Map<Date, double[]> locations = new TreeMap<>();  //location every 30s, time:[lat,lng]
 
-    private String vehicleID;
-    private String regNo;
+    private Vehicle vehicle;
+
     private String custID;
     private Date startTime;
     private double claimRate;
@@ -36,9 +38,8 @@ public class CurrDriverLog {
         currLog = null;
     }
 
-    private CurrDriverLog(String vehicleID, String regNo, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
-        this.vehicleID = vehicleID;
-        this.regNo = regNo.replaceAll("\r\n|\r|\n", "");
+    private CurrDriverLog(Vehicle vehicle, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
+        this.vehicle = vehicle;
         this.custID = custID;
         this.startTime = startTime;
         this.claimRate = claimRate;
@@ -47,8 +48,8 @@ public class CurrDriverLog {
         this.companyLogo = companyLogo;
     }
 
-    public static CurrDriverLog getInstance(String vehicleID, String regNo, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
-        currLog = new CurrDriverLog(vehicleID, regNo, custID, startTime, claimRate, shareID, companyName, companyLogo);
+    public static CurrDriverLog getInstance(Vehicle vehicle, String custID, Date startTime, double claimRate, String shareID, String companyName, Bitmap companyLogo) {
+        currLog = new CurrDriverLog(vehicle, custID, startTime, claimRate, shareID, companyName, companyLogo);
         return currLog;
     }
 
@@ -56,12 +57,12 @@ public class CurrDriverLog {
         return currLog;
     }
 
-    public String getRegNo() {
-        return regNo.replaceAll("\r\n|\r|\n", "");
+    public Vehicle getVehicle() {
+        return vehicle;
     }
 
-    public void setRegNo(String regNo) {
-        this.regNo = regNo.replaceAll("\r\n|\r|\n", "");
+    public void setVehicle(Vehicle vehicle) {
+        this.vehicle = vehicle;
     }
 
     public boolean isPausing() {
@@ -102,14 +103,6 @@ public class CurrDriverLog {
 
     public void setLocations(Map<Date, double[]> locations) {
         this.locations = locations;
-    }
-
-    public String getVehicleID() {
-        return vehicleID;
-    }
-
-    public void setVehicleID(String vehicleID) {
-        this.vehicleID = vehicleID;
     }
 
     public String getCustID() {
@@ -200,7 +193,8 @@ public class CurrDriverLog {
                 ", longitude=" + longitude +
                 ", duration=" + duration +
                 ", locations=" + locations +
-                ", vehicleID='" + vehicleID + '\'' +
+                ", vehicleID='" + vehicle.getVehicle_id() + '\'' +
+                ", regNo='" + vehicle.getRegistration_no() + '\'' +
                 ", custID='" + custID + '\'' +
                 ", startTime=" + startTime +
                 ", claimRate=" + claimRate +

@@ -59,8 +59,6 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
-import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 import com.wisecarCompany.wisecarapp.viewElement.ScreenListener;
 
 import org.json.JSONArray;
@@ -96,10 +94,6 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
     private final String GET_LOG_BY_COMPANY = "/api/v1/drivelog/recentlogbycompany";
     private final String SAVE_LOG = "/api/v1/drivelog/savedrivelog";
     private final String GET_COMPANY_LIST = "/api/v1/customers/customer/list";
-
-    private String vehicleID;
-    private String regNo;
-    private Vehicle vehicle;
 
     private LocationManager locationManager;
     //private CurrDriverLog currLog;    //saver to use UserInfo.getCurrLog
@@ -150,15 +144,22 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_log);
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        regNo = (String) this.getIntent().getStringExtra("regNo");
-        Log.d(TAG, "regNo: " + regNo);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+
+        if(UserInfo.getCurrLog()!=null) {
+            Log.d(TAG, "UserInfo.getCurrLog().getVehicle(): " + UserInfo.getCurrLog().getVehicle());
+            Log.d(TAG, "UserInfo.getCurrVehicle(): " + UserInfo.getCurrVehicle());
+            if(UserInfo.getCurrVehicle()==null || !UserInfo.getCurrVehicle().getVehicle_id().equals(UserInfo.getCurrLog().getVehicle().getVehicle_id())) {
+                Log.e(TAG, "jumped from other vehicle management activities");
+                UserInfo.setCurrVehicle(UserInfo.getCurrLog().getVehicle());
+            }
+        }
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
+        assert UserInfo.getCurrVehicle() != null;
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(DriverLogActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(DriverLogActivity.this, ManageVehicleActivity.class)));
 
         searchEditText = $(R.id.searchEditText);
         cancelImageButton = $(R.id.cancelImageButton);
@@ -168,11 +169,11 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         miniMin = -1;
         maxMin = -1;
 
-        queryRecordLogsByVehicleID(vehicleID, new logsCallbacks() {
+        queryAllRecordLogsOfThisVehicle(new logsCallbacks() {
             @Override
             public void onSuccess(@NonNull Set<DriverLog> logs) {
                 Log.d(TAG, "logs: " + logs);
-                vehicle.setLogs(logs);
+                UserInfo.getCurrVehicle().setLogs(logs);
                 logsDiv.removeAllViews();
                 for (DriverLog log : logs) showRecordLog(log);
             }
@@ -199,7 +200,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                     cancelImageButton.setVisibility(View.VISIBLE);
                     String companyName = searchEditText.getText().toString();
                     String customer_id = companies.get(companyName);
-                    queryRecordLogsByCompany(customer_id, new logsCallbacks() {
+                    queryRecordLogsOfThisVehicleByCompany(customer_id, new logsCallbacks() {
                         @Override
                         public void onSuccess(@NonNull Set<DriverLog> logs) {
                             logsDiv.removeAllViews();
@@ -224,7 +225,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
             searchEditText.setText("");
             cancelImageButton.setVisibility(View.GONE);
             logsDiv.removeAllViews();
-            for (DriverLog log : vehicle.getLogs()) showRecordLog(log);
+            for (DriverLog log : UserInfo.getCurrVehicle().getLogs()) showRecordLog(log);
         });
 
 
@@ -312,7 +313,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                             if(miniDistance>=0 && maxDistance>=0 && miniDistance > maxDistance) throw new Exception();
                             if(miniMin>=0 && maxMin>=0 && miniMin > maxMin) throw new Exception();
                             logsDiv.removeAllViews();
-                            for (DriverLog log : vehicle.getLogs()) showRecordLog(log);
+                            for (DriverLog log : UserInfo.getCurrVehicle().getLogs()) showRecordLog(log);
                         } catch (Exception e) {
                             Toast.makeText(getApplicationContext(), "Please enter correct info", Toast.LENGTH_LONG).show();
                             e.printStackTrace();
@@ -326,7 +327,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
 
         companyTextView = $(R.id.companyTextView);
-        getShareByTime(vehicleID, new Date(), new shareCallbacks() {
+        getShareByTime(new Date(), new shareCallbacks() {
             @Override
             public void onSuccess(String custID, String companyName, double claimRate, String shareID, Date startTime, Date endTime, Bitmap companyLogo) {
                 Log.d(TAG, "getShareByTime onSuccess");
@@ -465,7 +466,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         //TaskStackBuilder
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(DriverLogActivity.class);
-        stackBuilder.addNextIntent(new Intent(this, DriverLogActivity.class).putExtra("vehicleID", vehicleID).putExtra("regNo", regNo));
+        stackBuilder.addNextIntent(new Intent(this, DriverLogActivity.class));
 
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -521,7 +522,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
     @SuppressLint("SetTextI18n")
     private void recording() {
         if(UserInfo.getCurrLog()==null) {
-            UserInfo.setCurrLog(CurrDriverLog.getInstance(vehicleID, regNo, currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
+            UserInfo.setCurrLog(CurrDriverLog.getInstance(UserInfo.getCurrVehicle(), currCustID, new Date(), currClaimRate, currShareID, currCompanyName, currCompanyLogo));
         }
         Log.d(TAG, "currLog in UserInfo: " + UserInfo.getCurrLog());
         Log.d(TAG, "recording...");
@@ -588,18 +589,22 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                     this.cancel();
                     UserInfo.getCurrLog().setTimerRunning(false);
                 } else {
-                    long minD = UserInfo.getCurrLog().getDuration() / 60;
-                    long secD = UserInfo.getCurrLog().getDuration() % 60;
-                    String minDuration = minD >= 10 ? "" + minD : "0" + minD;
-                    String secDuration = secD >= 10 ? "" + secD : "0" + secD;
+                    try {
+                        long minD = UserInfo.getCurrLog().getDuration() / 60;
+                        long secD = UserInfo.getCurrLog().getDuration() % 60;
+                        String minDuration = minD >= 10 ? "" + minD : "0" + minD;
+                        String secDuration = secD >= 10 ? "" + secD : "0" + secD;
 
-                    timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
-                    showTaskBarLogNotification("Driver Log", timeDistanceTextView.getText().toString());
+                        timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
+                        showTaskBarLogNotification("Driver Log", timeDistanceTextView.getText().toString());
 
-                    TextView testLng = $(R.id.testLng);
-                    testLng.setText("" + UserInfo.getCurrLog().getLongitude());
-                    TextView testLat = $(R.id.testLat);
-                    testLat.setText("" + UserInfo.getCurrLog().getLatitude());
+                        TextView testLng = $(R.id.testLng);
+                        testLng.setText("" + UserInfo.getCurrLog().getLongitude());
+                        TextView testLat = $(R.id.testLat);
+                        testLat.setText("" + UserInfo.getCurrLog().getLatitude());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }, 1000, 1000);
@@ -677,14 +682,14 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         Log.d(TAG, "finishRecord: currLog: " + UserInfo.getCurrLog());
         DriverLog newLog = new DriverLog(UserInfo.getCurrLog());
 
-        if(vehicle.getLogs()==null) vehicle.setLogs(new TreeSet<>());
+        if(UserInfo.getCurrVehicle().getLogs()==null) UserInfo.getCurrVehicle().setLogs(new TreeSet<>());
         //vehicle.getLogs().add(UserInfo.getCurrLog());
-        vehicle.getLogs().add(newLog);
+        UserInfo.getCurrVehicle().getLogs().add(newLog);
         CurrDriverLog.clearInstance();
         UserInfo.setCurrLog(null);
 
         logsDiv.removeAllViews();
-        for (DriverLog log : vehicle.getLogs()) showRecordLog(log);
+        for (DriverLog log : UserInfo.getCurrVehicle().getLogs()) showRecordLog(log);
 
         //add newLog to DB
 
@@ -693,7 +698,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         final JSONObject jsonParam = new JSONObject();
         DateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
         try {
-            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
             jsonParam.put("log_start_time", formatDate.format(newLog.getStartTime()));
             jsonParam.put("log_end_time", formatDate.format(newLog.getEndTime()));
             jsonParam.put("km_travelled", newLog.getKm());
@@ -987,14 +992,14 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         return (T) findViewById(id);
     }
 
-    private void getShareByTime(String vehicleID, Date date, @NonNull final shareCallbacks callbacks) {
+    private void getShareByTime(Date date, @NonNull final shareCallbacks callbacks) {
 
         String URL = IP_HOST + GET_CURRENT_SHARE;
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
             jsonParam.put("current_date_time", format.format(date));
 
         } catch (JSONException e) {
@@ -1062,14 +1067,14 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         void onError(@NonNull String errorMessage);
     }
 
-    private void queryRecordLogsByVehicleID(String vehicleID, @Nullable final logsCallbacks callbacks) {
+    private void queryAllRecordLogsOfThisVehicle(@Nullable final logsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_LOG_BY_VID;
         Set<DriverLog> logs = new TreeSet<>();
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1091,7 +1096,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                         byte[] logoBase64 = Base64.decode(response.optString("company_logo"), Base64.DEFAULT);
 
                         log = new DriverLog(
-                                vehicleID,
+                                UserInfo.getCurrVehicle().getVehicle_id(),
                                 formatTime.parse(jsonObject.optString("log_start_date_time")),
                                 formatTime.parse(jsonObject.optString("log_stop_date_time")),
                                 jsonObject.optInt("paused_times"),
@@ -1107,7 +1112,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                         );
                     } else {
                         log = new DriverLog(
-                                vehicleID,
+                                UserInfo.getCurrVehicle().getVehicle_id(),
                                 formatTime.parse(jsonObject.optString("log_start_date_time")),
                                 formatTime.parse(jsonObject.optString("log_stop_date_time")),
                                 jsonObject.optInt("paused_times"),
@@ -1153,14 +1158,14 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
     }
 
-    private void queryRecordLogsByCompany(String customer_id, @Nullable final logsCallbacks callbacks) {
+    private void queryRecordLogsOfThisVehicleByCompany(String customer_id, @Nullable final logsCallbacks callbacks) {
 
         String URL = IP_HOST + GET_LOG_BY_COMPANY;
         Set<DriverLog> logs = new TreeSet<>();
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("vehicle_id", vehicleID);
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
             jsonParam.put("customer_id", customer_id);
 
         } catch (JSONException e) {
@@ -1185,7 +1190,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                     DriverLog log;
 
                     log = new DriverLog(
-                            vehicleID,
+                            UserInfo.getCurrVehicle().getVehicle_id(),
                             format.parse(jsonObject.optString("log_start_date_time")),
                             format.parse(jsonObject.optString("log_stop_date_time")),
                             jsonObject.optInt("paused_times"),
@@ -1315,13 +1320,13 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ManageVehicleActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ManageVehicleActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);

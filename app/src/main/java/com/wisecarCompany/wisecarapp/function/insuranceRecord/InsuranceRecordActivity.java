@@ -66,9 +66,6 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
 
     private static final String TAG = "Insurance Record";
 
-    private Vehicle vehicle;
-    private String vehicleID;
-
     private ImageButton backImageButton;
 
     private TextView serviceIDTextView;
@@ -132,12 +129,12 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
         setContentView(R.layout.activity_insurance_record);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(InsuranceRecordActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(InsuranceRecordActivity.this, ManageVehicleActivity.class)));
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
+        assert UserInfo.getCurrVehicle() != null;
 
         SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
         currentDate = format.format(Calendar.getInstance().getTime());
@@ -462,7 +459,7 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
                 saveImageButton.setClickable(true);
             } catch (ParseException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "System error", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "System error", Toast.LENGTH_SHORT).show();
             }
         } else {
             saveImageButton.setAlpha(0.5f);
@@ -530,7 +527,7 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
 
     private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
 
-        String URL = IP_HOST + GET_INSURANCE_RECORD_IDENTIFIER + vehicle.getRegistration_no() + "/" + currentDate;
+        String URL = IP_HOST + GET_INSURANCE_RECORD_IDENTIFIER + UserInfo.getCurrVehicle().getRegistration_no() + "/" + currentDate;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -586,7 +583,7 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
 
             try {
                 params.put("insurance_record_identifier", serviceIDTextView.getText().toString().substring(4));
-                params.put("vehicle_id", vehicleID);
+                params.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
                 params.put("policy_number", number);
                 params.put("insurer", insurer);
                 params.put("start_of_cover", format.format(startDate));
@@ -647,7 +644,7 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
                     public void run() {
                         Toast.makeText(InsuranceRecordActivity.this, "success", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(InsuranceRecordActivity.this, ManageVehicleActivity.class);
-                        intent.putExtra("vehicleID", vehicleID);
+                        intent.putExtra("vehicleID", UserInfo.getCurrVehicle().getVehicle_id());
                         startActivity(intent);
                     }
                 });
@@ -705,13 +702,13 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ManageVehicleActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ManageVehicleActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);

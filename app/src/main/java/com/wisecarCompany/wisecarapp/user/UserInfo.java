@@ -7,20 +7,30 @@ import java.util.Map;
 
 public class UserInfo {     //try to delete it totally in the future. Use SharePreference of query DB
 
-    private static Map<String, Vehicle> vehicles; //key: ID
+    private static Vehicle currVehicle;
+    private static Vehicle newVehicle;
     private static CurrDriverLog currLog;
 
     public static void clear() {
-        setVehicles(null);
+        setNewVehicle(null);
+        setCurrVehicle(null);
         setCurrLog(null);
     }
 
-    public static Map<String, Vehicle> getVehicles() {
-        return vehicles;
+    public static Vehicle getCurrVehicle() {
+        return currVehicle;
     }
 
-    public static void setVehicles(Map<String, Vehicle> vehicles) {
-        UserInfo.vehicles = vehicles;
+    public static void setCurrVehicle(Vehicle currVehicle) {
+        UserInfo.currVehicle = currVehicle;
+    }
+
+    public static Vehicle getNewVehicle() {
+        return newVehicle;
+    }
+
+    public static void setNewVehicle(Vehicle newVehicle) {
+        UserInfo.newVehicle = newVehicle;
     }
 
     public static CurrDriverLog getCurrLog() {

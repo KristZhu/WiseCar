@@ -449,7 +449,7 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
                 expireDateEditText.setText(displayDateFormat.format(expireDate));
             } catch (ParseException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -468,7 +468,7 @@ public class LicenceActivity extends AppCompatActivity implements EasyPermission
                 saveImageButton.setClickable(true);
             } catch (ParseException e) {
                 e.printStackTrace();
-                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT);
+                Toast.makeText(this, "System Error", Toast.LENGTH_SHORT).show();
             }
         } else {
             saveImageButton.setAlpha(0.5f);

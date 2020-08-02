@@ -8,7 +8,11 @@ import androidx.constraintlayout.widget.ConstraintSet;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -46,9 +50,10 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
     private final static String TAG = "Manage Vehicle";
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_SERVICE = "/api/v1/services/";
+    private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
 
-    private String vehicleID;
-    private Vehicle vehicle;
+    private SharedPreferences sp;
+    private String userID;
 
     private ImageButton backImageButton;
 
@@ -70,24 +75,53 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_vehicle);
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        assert vehicleID != null;
-        if (vehicleID.equals("a")) {
-            //id = "a" means the vehicle is newly added and it is a fake id, and synchronizing process is not finished
-            //jump back to VehicleActivity to wait for synchronizing
-            UserInfo.setVehicles(null);
-            Toast.makeText(ManageVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(ManageVehicleActivity.this, VehicleActivity.class));
-            return;
-        }
-        Log.d(TAG, "vehicleID: " + vehicleID);
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        if (UserInfo.getNewVehicle()!=null || UserInfo.getCurrVehicle().getVehicle_id()==null) {
+            //synchronizing process is not finished
+            //call returnNewVehicle again to syc
+            Toast.makeText(ManageVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
+            returnNewVehicle(new newVehicleCallbacks() {
+                @Override
+                public void onSuccess(Vehicle value) {
+                    Log.d(TAG, "return new vehicle: " + value);
+                    if(value==null) {
+                        Toast.makeText(ManageVehicleActivity.this, "Adding vehicle process has not finished. Please try later. ", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(ManageVehicleActivity.this, VehicleActivity.class));
+                    } else {
+                        UserInfo.setNewVehicle(null);
+                        UserInfo.setCurrVehicle(value);
+                        loadPage();
+                    }
+                }
+                @Override
+                public void onError(@NonNull String errorMessage) {
+                    Toast.makeText(ManageVehicleActivity.this, "Load Vehicle Fail. " + errorMessage, Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(ManageVehicleActivity.this, VehicleActivity.class));
+                }
+            });
+
+        } else {
+            loadPage();
+        }
+
+    }
+
+    private void loadPage() {
+        assert UserInfo.getNewVehicle()==null;
+        assert UserInfo.getCurrVehicle()!=null;
+
+        backImageButton = $(R.id.backImageButton);
+        backImageButton.setOnClickListener(v -> {
+            UserInfo.setCurrVehicle(null);
+            startActivity(new Intent(ManageVehicleActivity.this, VehicleActivity.class));
+        });
 
         vehicleImageView = $(R.id.vehicleImageView);
-        if(vehicle.getImage()==null) vehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.profile0empty_image));
-        else vehicleImageView.setImageBitmap(vehicle.getImage());
+        if(UserInfo.getCurrVehicle().getImage()==null) vehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.profile0empty_image));
+        else vehicleImageView.setImageBitmap(UserInfo.getCurrVehicle().getImage());
 
         //makeRegistrationNoTextView = $(R.id.makeRegistrationNoTextView);
         //vinTextView = $(R.id.vinTextView);
@@ -95,22 +129,18 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         //serviceTextView = $(R.id.serviceTextView);
         //makeRegistrationNoTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
         regTextView = $(R.id.regTextView);
-        regTextView.setText(vehicle.getRegistration_no());
+        regTextView.setText(UserInfo.getCurrVehicle().getRegistration_no());
 
-        loadServices(vehicleID, new servicesCallbacks() {
+        servicesLayout = $(R.id.servicesLayout);
+
+        shareImageButton = $(R.id.shareImageButton);
+
+        loadServices(new servicesCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Integer> services) {
                 services = new ArrayList<>(new TreeSet<>(services));
                 Log.e("services", String.valueOf(services));
-                vehicle.setServices(services);
-                UserInfo.getVehicles().get(vehicleID).setServices(services);    //don't know why... it cannot sync
-                //for(int i: services) vehicle.getServices().add(i);
-                Log.d(TAG, "services: " + vehicle.getServices());
-                Log.d(TAG, "this vehicle: " + vehicle);
-                Log.d(TAG, "services in UserInfo: " + UserInfo.getVehicles().get(vehicleID).getServices());
-                Log.d(TAG, "this vehicle in UserInfo: " + UserInfo.getVehicles().get(vehicleID));
-
-                servicesLayout = $(R.id.servicesLayout);
+                UserInfo.getCurrVehicle().setServices(services);
                 //int column = 3;
                 int column = 2;
                 for (int i = 0; i < services.size(); i += column) {
@@ -123,30 +153,30 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
                         switch (services.get(i + j)) {
                             case 1:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0service_button));
-                                imageViews[j].setOnClickListener(v -> startServiceRecords(vehicleID));
+                                imageViews[j].setOnClickListener(v -> startServiceRecords());
                                 break;
                             case 2:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0driver_button));
-                                imageViews[j].setOnClickListener(v -> startDriverlog(vehicleID));
+                                imageViews[j].setOnClickListener(v -> startDriverlog());
                                 break;
                             case 3:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0registration_button));
-                                imageViews[j].setOnClickListener(v -> startRegistrationReminder(vehicleID));
+                                imageViews[j].setOnClickListener(v -> startRegistrationReminder());
                                 break;
                             case 4:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0parking_button));
-                                imageViews[j].setOnClickListener(v -> startParkingReceipts(vehicleID));
+                                imageViews[j].setOnClickListener(v -> startParkingReceipts());
                                 break;
                             case 5:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0insurance_button));
-                                imageViews[j].setOnClickListener(v -> startInsuranceRecord(vehicleID));
+                                imageViews[j].setOnClickListener(v -> startInsuranceRecord());
                                 break;
                             //case 6:
-                                //imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button));
-                                //break;
+                            //    imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0toll_button));
+                            //    break;
                             case 6:
                                 imageViews[j].setImageDrawable(getResources().getDrawable(R.drawable.edit_vehicle0fuel_button));
-                                imageViews[j].setOnClickListener(v -> startFuelReceipts(vehicleID));
+                                imageViews[j].setOnClickListener(v -> startFuelReceipts());
                                 break;
                         }
                         set.connect(imageViews[j].getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 16);
@@ -164,8 +194,7 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
                     servicesLayout.addView(servicesLineLayout);
                 }
 
-                shareImageButton = $(R.id.shareImageButton);
-                shareImageButton.setOnClickListener(v -> shareVehicle(vehicleID));
+                shareImageButton.setOnClickListener(v -> shareVehicle());
 
             }
 
@@ -174,15 +203,91 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
                 Log.e("No service", errorMessage);
             }
         });
-
-        backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ManageVehicleActivity.this, VehicleActivity.class)));
-
     }
 
-    private void loadServices(String vehicle_id, @Nullable final servicesCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE + vehicle_id;
+    private void returnNewVehicle(@Nullable final newVehicleCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_VEHICLE_LIST + userID;
+
+        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
+            JSONArray jsonArray;
+            JSONObject jsonObject;
+
+            Vehicle vehicle = null;
+
+            try {
+                jsonArray = response.getJSONArray("vehicle_list");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    Log.e("returnNewV array: ", jsonObject.toString());
+
+                    String regNo = jsonObject.optString("registration_no").replaceAll("\r\n|\r|\n", "");
+                    if(UserInfo.getNewVehicle().getRegistration_no().equals(regNo)) {
+
+                        byte[] logoBase64 = Base64.decode(jsonObject.optString("image"), Base64.DEFAULT);
+                        Bitmap imgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
+
+                        vehicle = new Vehicle(
+                                jsonObject.optString("vehicle_id"),
+                                jsonObject.optString("registration_no"),
+                                jsonObject.optString("make_name"),
+                                jsonObject.optString("model_name"),
+                                jsonObject.optString("make_year"),
+                                jsonObject.optString("description"),
+                                jsonObject.optString("user_id"),
+                                jsonObject.optString("user_name"),
+                                imgBitmap,
+                                jsonObject.optString("state_name")
+                        );
+                        if (callbacks != null)
+                            callbacks.onSuccess(vehicle);
+                        break;
+
+                    }
+
+                }
+                if (callbacks != null)
+                    callbacks.onSuccess(vehicle);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }, error -> {
+
+//                Log.e("ERROR!!!", error.toString());
+//                Log.e("ERROR!!!", String.valueOf(error.networkResponse));
+
+            NetworkResponse networkResponse = error.networkResponse;
+            if (networkResponse != null && networkResponse.data != null) {
+                String JSONError = new String(networkResponse.data);
+                JSONObject messageJO;
+                String message = "";
+                try {
+                    messageJO = new JSONObject(JSONError);
+                    message = messageJO.optString("message");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.e("No vehicle: ", message);
+                if (callbacks != null)
+                    callbacks.onError(message);
+            }
+
+        });
+
+        Volley.newRequestQueue(this).add(objectRequest);
+    }
+
+    public interface newVehicleCallbacks {
+        void onSuccess(Vehicle value);
+
+        void onError(@NonNull String errorMessage);
+    }
+
+
+    private void loadServices(@Nullable final servicesCallbacks callbacks) {
+
+        String URL = IP_HOST + GET_SERVICE + UserInfo.getCurrVehicle().getVehicle_id();
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -228,53 +333,53 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         Volley.newRequestQueue(ManageVehicleActivity.this).add(objectRequest);
     }
 
-
     public interface servicesCallbacks {
         void onSuccess(@NonNull List<Integer> value);
 
         void onError(@NonNull String errorMessage);
     }
 
-    private void startServiceRecords(String vehicleID) {
-        Log.d(TAG, "ServiceRecordsVehicleID: " + vehicleID);
-        startActivity(new Intent(ManageVehicleActivity.this, ServiceRecordsActivity.class).putExtra("vehicleID", vehicleID));
+
+    private void startServiceRecords() {
+        Log.d(TAG, "ServiceRecords");
+        startActivity(new Intent(ManageVehicleActivity.this, ServiceRecordsActivity.class));
     }
 
-    private void startDriverlog(String vehicleID) {
-        Log.d(TAG, "DriverLogVehicleID: " + vehicleID);
-        if(UserInfo.getCurrLog()==null || UserInfo.getCurrLog().getVehicleID().equals(vehicleID)) {
-            startActivity(new Intent(ManageVehicleActivity.this, DriverLogActivity.class).putExtra("vehicleID", vehicleID));
+    private void startDriverlog() {
+        Log.d(TAG, "DriverLog");
+        if(UserInfo.getCurrLog()==null || UserInfo.getCurrLog().getVehicle().getVehicle_id().equals(UserInfo.getCurrVehicle().getVehicle_id())) {
+            startActivity(new Intent(ManageVehicleActivity.this, DriverLogActivity.class));
         } else {
             Toast.makeText(this, "Driver Log for Vehicle "
-                    + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
-                    + " is still in process. Please stop it first before starting a new vehicle driver log. ", Toast.LENGTH_LONG).show();
+                    + UserInfo.getCurrLog().getVehicle().getRegistration_no()
+                    + " is still in process. Please stop it first before starting a new vehicle driver log. ", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void startRegistrationReminder(String vehicleID) {
-        Log.d(TAG, "RegistrationReminderVehicleID: " + vehicleID);
-        startActivity(new Intent(ManageVehicleActivity.this, RegistrationReminderActivity.class).putExtra("vehicleID", vehicleID));
+    private void startRegistrationReminder() {
+        Log.d(TAG, "RegistrationReminder");
+        startActivity(new Intent(ManageVehicleActivity.this, RegistrationReminderActivity.class));
     }
 
-    private void startParkingReceipts(String vehicleID) {
-        Log.d(TAG, "ParkingReceiptsVehicleID: " + vehicleID);
-        startActivity(new Intent(ManageVehicleActivity.this, ParkingReceiptActivity.class).putExtra("vehicleID", vehicleID));
+    private void startParkingReceipts() {
+        Log.d(TAG, "ParkingReceipts");
+        startActivity(new Intent(ManageVehicleActivity.this, ParkingReceiptActivity.class));
     }
 
-    private void startInsuranceRecord(String vehicleID) {
-        Log.d(TAG, "InsuranceRecordVehicleID: " + vehicleID);
-        startActivity(new Intent(ManageVehicleActivity.this, InsuranceRecordActivity.class).putExtra("vehicleID", vehicleID));
+    private void startInsuranceRecord() {
+        Log.d(TAG, "InsuranceRecord");
+        startActivity(new Intent(ManageVehicleActivity.this, InsuranceRecordActivity.class));
     }
 
-    private void startFuelReceipts(String vehicleID) {
-        Log.d(TAG, "FuelReceiptsVehicleID: " + vehicleID);
-        startActivity(new Intent(ManageVehicleActivity.this, FuelReceiptActivity.class).putExtra("vehicleID", vehicleID));
+    private void startFuelReceipts() {
+        Log.d(TAG, "FuelReceipts");
+        startActivity(new Intent(ManageVehicleActivity.this, FuelReceiptActivity.class));
     }
 
-    private void shareVehicle(String vehicleID) {
-        Log.d(TAG, "shared vehicle ID: " + vehicleID);
-        Log.d(TAG, "shared vehicle services: " + UserInfo.getVehicles().get(vehicleID).getServices());
-        startActivity(new Intent(ManageVehicleActivity.this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID));
+    private void shareVehicle() {
+        Log.d(TAG, "shared vehicle");
+        Log.d(TAG, "shared vehicle services: " + UserInfo.getCurrVehicle().getServices());
+        startActivity(new Intent(ManageVehicleActivity.this, ShareVehicleListActivity.class));
     }
 
     private <T extends View> T $(int id){
@@ -283,12 +388,14 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
 
     @Override
     public void onBackPressed() {
+        UserInfo.setCurrVehicle(null);
         startActivity(new Intent(this, VehicleActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
+            UserInfo.setCurrVehicle(null);
             startActivity(new Intent(this, VehicleActivity.class));
             return true;    //stop calling super method
         } else {
