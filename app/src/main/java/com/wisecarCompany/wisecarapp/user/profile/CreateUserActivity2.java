@@ -20,9 +20,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.stephentuso.welcome.WelcomeHelper;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.user.introduction.WisecarWelcomeActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 
 //import org.apache.http.HttpResponse;
@@ -87,6 +89,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private EditText stateEditText;
     private EditText postCodeEditText;
     private ImageButton createImageButton;
+
+    WelcomeHelper welcomeScreen;
 
     private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
@@ -322,14 +326,22 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+
+                        welcomeScreen = new WelcomeHelper(CreateUserActivity2.this, WisecarWelcomeActivity.class);
+                        //welcomeScreen.show(savedInstanceState);
+                        welcomeScreen.forceShow();
                     }
                 });
-                Intent intent = new Intent(CreateUserActivity2.this, LoginActivity.class);
-                intent.putExtra("user_id", user_id);
-                startActivity(intent);
+                startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id).putExtra("newCreatedUsername", username));
             }
         });
         thread.start();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        welcomeScreen.onSaveInstanceState(outState);
     }
 
     private <T extends View> T $(int id) {

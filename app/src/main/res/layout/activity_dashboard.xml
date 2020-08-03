@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/wc0bg_dark"
+    android:background="@color/darkBG"
     tools:context=".user.vehicle.DashboardActivity"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
@@ -27,7 +27,7 @@
         app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.1"
-        app:srcCompat="@drawable/wc0back" />
+        app:srcCompat="@drawable/back_icon" />
 
     <ImageView
         android:id="@+id/logoImageView"
@@ -42,7 +42,7 @@
         app:layout_constraintTop_toTopOf="@+id/backImageButton"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.3"
-        app:srcCompat="@drawable/wc0title"
+        app:srcCompat="@drawable/title"
         android:contentDescription="TODO" />
 
 
@@ -92,7 +92,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/wc0bg_yellow"
+        android:background="@color/yellowBG"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"

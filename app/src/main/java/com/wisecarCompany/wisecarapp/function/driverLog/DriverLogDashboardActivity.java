@@ -130,7 +130,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
     }
 
 
-    @SuppressLint("ResourceType")
+    @SuppressLint({"ResourceType", "SetTextI18n"})
     private void showDriverLog(DriverLog log) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

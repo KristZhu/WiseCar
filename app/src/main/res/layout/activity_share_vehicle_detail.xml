@@ -6,7 +6,7 @@ android:id="@+id/bg"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".function.shareVehicle.ShareVehicleDetailActivity"
-android:background="@drawable/wc0bg_dark"
+android:background="@color/darkBG"
 android:theme="@style/Theme.AppCompat.NoActionBar">
 
 <ImageButton
@@ -28,7 +28,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
     app:layout_constraintVertical_bias="0.0"
     app:layout_constraintWidth_default="percent"
     app:layout_constraintWidth_percent="0.1"
-    app:srcCompat="@drawable/wc0back" />
+    app:srcCompat="@drawable/back_icon" />
 
 <TextView
     android:id="@+id/headerTextView"
@@ -51,7 +51,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
     android:id="@+id/mainDiv"
     android:layout_width="match_parent"
     android:layout_height="0dp"
-    android:background="@drawable/wc0bg_light"
+    android:background="@color/lightBG"
     app:layout_constraintTop_toBottomOf="@id/backImageButton"
     app:layout_constraintVertical_bias="0.0"
     android:layout_marginTop="8dp"
@@ -75,13 +75,13 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
         android:id="@+id/infoDiv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/wc0bg_light">
+        android:background="@color/lightBG">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/rowDiv1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/wc0bg_yellow"
+            android:background="@color/yellowBG"
             android:padding="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -164,7 +164,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
             android:id="@+id/rowDiv2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/wc0bg_light"
+            android:background="@color/lightBG"
             android:padding="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

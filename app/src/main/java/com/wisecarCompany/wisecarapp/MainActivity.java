@@ -14,6 +14,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
+import com.stephentuso.welcome.WelcomeHelper;
+import com.wisecarCompany.wisecarapp.user.introduction.WisecarWelcomeActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
@@ -26,17 +28,21 @@ public class MainActivity extends AppCompatActivity {
     String TAG = "main";
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+/*
         Intent intent = new Intent(this, VehicleActivity.class);
         intent.setAction("VIDEO_TIMER");
         PendingIntent sender = PendingIntent.getBroadcast(this, 0, intent, 0);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         assert am != null;
         am.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), 60*1000, sender);
+*/
+
 
 
 
@@ -44,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         //startActivity(new Intent(MainActivity.this, CreateUserActivity.class));
 
     }
-
 
 }
 

@@ -471,7 +471,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification taskBarLogNotification = new NotificationCompat.Builder(this, "default")
-                .setSmallIcon(R.drawable.wisecar_logo)
+                .setSmallIcon(R.drawable.logo_white_bg)
                 .setContentTitle(time)
                 .setContentText(distance)
                 .setAutoCancel(false)

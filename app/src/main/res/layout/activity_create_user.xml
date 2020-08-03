@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".user.profile.CreateUserActivity"
-    android:background="@drawable/wc0bg_dark"
+    android:background="@color/darkBG"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
     <ScrollView
@@ -31,7 +31,7 @@
                 app:layout_constraintVertical_bias="0.05"
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent="0.5"
-                app:srcCompat="@drawable/wc0title" />
+                app:srcCompat="@drawable/title" />
 
             <ImageView
                 android:id="@+id/createAccountImageView"

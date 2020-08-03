@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -310,6 +311,13 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                 }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
+
+        oilCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        brakeCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        batteryCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        batteryCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        coolingCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        lightsCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
 
 
         saveImageButton = $(R.id.shareImageButton);
