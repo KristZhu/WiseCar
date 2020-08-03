@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.viewElement;
+package com.wisecarCompany.wisecarapp.element;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

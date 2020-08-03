@@ -35,7 +35,7 @@ import com.wisecarCompany.wisecarapp.function.registrationReminder.RegistrationR
 import com.wisecarCompany.wisecarapp.function.serviceRecords.ServiceRecordsActivity;
 import com.wisecarCompany.wisecarapp.function.shareVehicle.ShareVehicleListActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
+import com.wisecarCompany.wisecarapp.element.CircleImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;

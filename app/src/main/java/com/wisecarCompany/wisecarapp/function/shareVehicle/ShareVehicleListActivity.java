@@ -28,8 +28,7 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
-import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
+import com.wisecarCompany.wisecarapp.element.CircleImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;

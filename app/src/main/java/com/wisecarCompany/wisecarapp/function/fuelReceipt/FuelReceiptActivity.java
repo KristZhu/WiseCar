@@ -35,8 +35,7 @@ import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
-import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
+import com.wisecarCompany.wisecarapp.element.CircleImageView;
 
 //import org.apache.http.HttpResponse;
 //import org.apache.http.client.HttpClient;

@@ -110,7 +110,7 @@
                 app:layout_constraintWidth_percent="0.5"
                 android:background="#000000" />
 
-            <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
+            <com.wisecarCompany.wisecarapp.element.CircleImageView
                 android:id="@+id/vehicleBorderImageView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -126,7 +126,7 @@
                 app:layout_constraintWidth_default="percent"
                 app:layout_constraintWidth_percent="0.3" />
 
-            <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
+            <com.wisecarCompany.wisecarapp.element.CircleImageView
                 android:id="@+id/vehicleImageView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
