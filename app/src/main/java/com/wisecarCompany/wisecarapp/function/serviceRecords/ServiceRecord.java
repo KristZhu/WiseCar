@@ -27,7 +27,7 @@ public class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
     }
 
     public ServiceRecord(String registrationNo, Date date, String refNo, Date nextDate, double nextDistance, boolean sentBefore) {
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
         this.date = date;
         this.refNo = refNo;
         this.nextDate = nextDate;
@@ -37,7 +37,7 @@ public class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
 
     public ServiceRecord(String id, String registrationNo, Date date, String refNo, Date nextDate, double nextDistance, boolean sentBefore) {
         this.id = id;
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
         this.date = date;
         this.refNo = refNo;
         this.nextDate = nextDate;
@@ -65,11 +65,11 @@ public class ServiceRecord implements Comparable<ServiceRecord>, Serializable {
     }
 
     public String getRegistrationNo() {
-        return registrationNo;
+        return registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public void setRegistrationNo(String registrationNo) {
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public Date getDate() {

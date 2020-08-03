@@ -10,6 +10,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,9 +35,7 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.DashboardActivity;
-import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -59,6 +58,9 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
     private String GET_DRIVE_LOGS = "/api/v1/drivelog/getallrecordbyuser";
     private String GET_LOGS_BY_REG_NO = "/api/v1/drivelog/getrecordbyuserregisno";
 
+    private SharedPreferences sp;
+    private String userID;
+
     private ImageButton backImageButton;
 
     private LinearLayout mainDiv;
@@ -75,6 +77,10 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_log_dashboard);
+
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        Log.d(TAG, "userID: " + userID);
 
         backImageButton = $(R.id.backImageButton);
         backImageButton.setOnClickListener(v -> startActivity(new Intent(this, DashboardActivity.class)));
@@ -124,7 +130,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
     }
 
 
-    @SuppressLint("ResourceType")
+    @SuppressLint({"ResourceType", "SetTextI18n"})
     private void showDriverLog(DriverLog log) {
         ConstraintLayout lineLayout = new ConstraintLayout(this);
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -297,7 +303,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -371,7 +377,7 @@ public class DriverLogDashboardActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
             jsonParam.put("registration_no", regNo);
 
         } catch (JSONException e) {

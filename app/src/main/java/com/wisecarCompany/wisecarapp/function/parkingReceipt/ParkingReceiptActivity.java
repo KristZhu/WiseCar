@@ -1,13 +1,10 @@
 package com.wisecarCompany.wisecarapp.function.parkingReceipt;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -28,9 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
@@ -55,15 +49,7 @@ import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -84,15 +70,10 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
 
     private final static String TAG = "Parking Receipt";
 
-    private Vehicle vehicle;
-    private String vehicleID;
-
     private ImageButton backImageButton;
 
     private CircleImageView parkingImageView;
-    private Uri parkingImageUri;
-    private Bitmap parkingImageBitmap;
-    private Drawable parkingImageDrawable;
+    private File parkingImgFile;
 
     private TextView idTextView;
     private Button uploadButton;
@@ -145,12 +126,11 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
         setContentView(R.layout.activity_parking_receipt);
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ParkingReceiptActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ParkingReceiptActivity.this, ManageVehicleActivity.class)));
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
 
         idTextView = $(R.id.idTextView);
         parkingImageView = $(R.id.parkingImageView);
@@ -232,10 +212,9 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
             }
         });
 
-        saveImageButton = $(R.id.saveImageButton);
+        saveImageButton = $(R.id.shareImageButton);
         saveImageButton.setOnClickListener(v -> {
             if (saveImageButton.getAlpha() < 1) return;
-            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
             //parkingImageDrawable = licenceImageView.getDrawable();
             //...
 
@@ -246,13 +225,14 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
             Log.d(TAG, "notes: " + notes);
             Log.d(TAG, "claimable: " + claimable);
 
+            parkingImgFile = mPhotoHelper.getCropFilePath()==null ? null : new File(mPhotoHelper.getCropFilePath());
 
             //db
             if (claimable && sharedTextView.getText().toString().equals("")) {
                 Toast.makeText(getApplicationContext(), "This vehicle is currently not shared with any company, please uncheck Claimable.", Toast.LENGTH_SHORT).show();
             } else {
-                    uploadParkingReceipt();
-
+                Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_SHORT).show();
+                uploadParkingReceipt();
             }
 
         });
@@ -361,6 +341,7 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
         return date;
     }
 
+    @SuppressLint("ShowToast")
     private void checkReadyToSave() {
         if (referenceEditText.getText().toString().length() > 0
                 && dateEditText.getText().toString().length() > 0
@@ -371,6 +352,8 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
                 date = displayDateFormat.parse(dateEditText.getText().toString());
             } catch (ParseException e) {
                 e.printStackTrace();
+                Toast.makeText(this, "System error", Toast.LENGTH_SHORT).show();
+                return;
             }
             try {
                 hour = Double.parseDouble(hourEditText.getText().toString());
@@ -437,7 +420,7 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
 
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-        String URL = IP_HOST + GET_PARKING_IDENTIFIER + vehicle.getRegistration_no() + "/" + format.format(new Date());
+        String URL = IP_HOST + GET_PARKING_IDENTIFIER + UserInfo.getCurrVehicle().getRegistration_no() + "/" + format.format(new Date());
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -486,7 +469,7 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("vehicle_id", vehicle.getVehicle_id());
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
             jsonParam.put("current_date_time", format.format(new Date()));
 
         } catch (JSONException e) {
@@ -533,20 +516,19 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
     }
 
     private void uploadParkingReceipt() {
-
+/*
         String isClaim = "";
-
         if (claimable) {
             isClaim = "1";
         } else {
             isClaim += "0";
         }
-
         String finalIsClaim = isClaim;
+*/
+
         Thread thread = new Thread(() -> {
 
             HashMap<String, String> params = new HashMap<>();
-            File file = null;
             String message = null;
             String encrypt_hash = null;
             String s3_temp_path = null;
@@ -557,13 +539,14 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
                 params.put("parking_receipt_identifier", idTextView.getText().toString().substring(4));
                 Log.e("identifier in request", idTextView.getText().toString().substring(4));
 
-                params.put("vehicle_id", vehicle.getVehicle_id());
+                params.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
                 params.put("ticket_reference", reference);
                 params.put("date", format.format(date));
                 params.put("total_hours", String.valueOf(hour));
                 params.put("fees_paid", String.valueOf(fee));
                 params.put("notes", notes);
-                params.put("claimable", finalIsClaim);
+                //params.put("claimable", finalIsClaim);
+                params.put("claimable", claimable ? "1" : "0");
                 params.put("record_id", recordIDTextView.getText().toString());
                 Log.e("recordID", recordIDTextView.getText().toString());
                 params.put("shared_company_id", sharedTextView.getText().toString());
@@ -589,8 +572,7 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
                     bos.close();
                 }
 */
-                file = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
-                String response = HttpUtil.uploadForm(params, "document", file, "record.png", IP_HOST + ADD_PARKING);
+                String response = HttpUtil.uploadForm(params, "document", parkingImgFile, "record.png", IP_HOST + ADD_PARKING);
 
                 try {
                     JSONObject jsonObject = new JSONObject(response);
@@ -623,7 +605,7 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
                     public void run() {
                         Toast.makeText(ParkingReceiptActivity.this, "success", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(ParkingReceiptActivity.this, ManageVehicleActivity.class);
-                        intent.putExtra("vehicleID", vehicleID);
+                        intent.putExtra("vehicleID", UserInfo.getCurrVehicle().getVehicle_id());
                         startActivity(intent);
                     }
                 });
@@ -681,13 +663,13 @@ public class ParkingReceiptActivity extends AppCompatActivity implements EasyPer
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ManageVehicleActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ManageVehicleActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);

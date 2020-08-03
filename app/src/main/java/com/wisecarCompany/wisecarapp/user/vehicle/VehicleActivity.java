@@ -35,7 +35,7 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.licence.LicenceActivity;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.profile.AboutActivity;
+import com.wisecarCompany.wisecarapp.user.introduction.AboutActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import com.wisecarCompany.wisecarapp.user.profile.UpdateProfileActivity;
 import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
@@ -60,19 +60,14 @@ public class VehicleActivity extends AppCompatActivity {
     private static final String TAG = "Vehicle";
 
     private final String IP_HOST = "http://54.206.19.123:3000";
-    private final String GET_IMG_EMAIL = "/api/v1/users/";
-    private String GET_FNAME_LNAME = "/api/v1/users/getprofile";
+    private final String GET_IMG = "/api/v1/users/";
     private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
     private final String GET_CLOSEST_NOTIFICATIONS = "/api/v1/notification/gettwoclosest";
 
     private SharedPreferences sp;
+    private String userID;
+    private String username;
 
-    private TextView usernameTextView;
-    private TextView userEmailTextView;
-    private ImageView userImgImageView;
-
-    private ConstraintLayout imageDiv;
-    private ConstraintLayout mainDiv;
     private ImageButton menuImageButton;
     private LinearLayout menuDiv;
     private ConstraintLayout profileDiv;
@@ -80,9 +75,16 @@ public class VehicleActivity extends AppCompatActivity {
     private ConstraintLayout aboutDiv;
     private ConstraintLayout logoutDiv;
 
-    private ImageButton settingImageButton;
-    private ImageButton editImageButton;
+    private TextView usernameTextView;
+    //private TextView userEmailTextView;  //depreciated
+    private ImageView userImgImageView;
+
+    //private ImageButton settingImageButton;   //depreciated
+    //private ImageButton editImageButton;      //depreciated
     private ImageButton licenceImageButton;
+
+    private ConstraintLayout imageDiv;
+    private ConstraintLayout mainDiv;
 
     private ConstraintLayout dashboardDiv;
     private ConstraintLayout calendarDiv;
@@ -95,77 +97,35 @@ public class VehicleActivity extends AppCompatActivity {
     private LinearLayout vehicleLayout;
     private ImageButton manageVehicleImageButton;   //go to manage vehicle activity to manage THIS vehicle
     private ImageButton addImageButton;
-    private ImageButton editVehiclesImageButton;    //pencil, edit all vehicles (delete...) not implemented for now
+    //private ImageButton editVehiclesImageButton;    //pencil, edit all vehicles (delete...) not implemented for now
     //private Map<String, ImageView> vehicleImageViews; //key: registrationNo, value: CircleImageView
 
-    private String user_id;
-    private String email_address;
-    private String user_name;
-    private Bitmap ImgBitmap;
-
-    private Map<String, Vehicle> vehiclesDB;   //vehicle data from db, should update to Userinfo.vehicles
-
-    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+    private final SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
 
+    @SuppressLint("ShowToast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vehicle);
 
-        usernameTextView = $(R.id.usernameTextView);
-        userEmailTextView = $(R.id.userEmailTextView);
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
+        userID = sp.getString("USER_ID", "");
+        username = sp.getString("USERNAME", "");
+        Log.d(TAG, "userID: " + userID);
+        Log.d(TAG, "username: " + username);
+
         userImgImageView = $(R.id.userImgImageView);
+        usernameTextView = $(R.id.usernameTextView);
+        //userEmailTextView = $(R.id.userEmailTextView);
 
-        user_id = UserInfo.getUserID();
-        //user_id = "179";
-        user_name = UserInfo.getUsername();
-        usernameTextView.setText(user_name);
-
-        email_address = UserInfo.getUserEmail();
-        ImgBitmap = UserInfo.getUserImg();
-        if (email_address == null || ImgBitmap == null) {
-            loadUserEmailImg(user_id, new userImageCallback() {
-                @Override
-                public void onSuccess(@NonNull Bitmap value) {
-                    ImgBitmap = value;
-                    Log.e("image bitmap callback", ImgBitmap.toString());
-//                    userImgImageView.setImageDrawable(new BitmapDrawable(getResources(), ImgBitmap));
-                    if (ImgBitmap == null) {
-                        userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
-                    }
-                    else {
-                        userImgImageView.setImageBitmap(ImgBitmap);
-                        UserInfo.setUserImg(ImgBitmap);
-                    }
-                }
-            }, new userEmailCallback() {
-                @Override
-                public void onSuccess(@NonNull String value) {
-                    email_address = value;
-                    Log.e("email: ", email_address);
-                    userEmailTextView.setText(email_address);
-                    UserInfo.setUserEmail(email_address);
-                }
-            });
-        } else {
-            Log.e("stored image bitmap: ", ImgBitmap.toString());
-            Log.e("stored email: ", email_address);
-            userEmailTextView.setText(email_address);
-            if (UserInfo.getUserImg() == null)
-                userImgImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_user));
-            else userImgImageView.setImageBitmap(UserInfo.getUserImg());
-        }
-
-        if(UserInfo.getfName()==null || UserInfo.getlName()==null){
-            loadFNameLName(new getProfileCallback() {
-                @Override
-                public void onSuccess(@NonNull String fName, String lName) {
-                    UserInfo.setfName(fName);
-                    UserInfo.setlName(lName);
-                }
-            });
-        }
+        usernameTextView.setText(username);
+        loadUserImg(new userImageCallback() {
+            @Override
+            public void onSuccess(@NonNull Bitmap value) {  //if no user image, it will not return onSuccess
+                userImgImageView.setImageBitmap(value);
+            }
+        });
 
         menuImageButton = $(R.id.menuImageButton);
         menuDiv = $(R.id.menuDiv);
@@ -196,7 +156,6 @@ public class VehicleActivity extends AppCompatActivity {
                         .setTitle("Are you sure you want to log out? ")
                         .setPositiveButton("OK", (dialog, which) -> {
                             UserInfo.clear();
-                            sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
                             SharedPreferences.Editor editor = sp.edit()
                                     .putBoolean("AUTO_LOGIN", false);
                             editor.commit();
@@ -207,19 +166,21 @@ public class VehicleActivity extends AppCompatActivity {
                 alertDialog.show();
             } else {
                 Toast.makeText(this, "Driver Log for Vehicle "
-                        + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
-                        + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
+                        + UserInfo.getCurrLog().getVehicle().getRegistration_no()
+                        + " is still in process. Please end it first. ", Toast.LENGTH_SHORT).show();
             }
         });
 
+/*
         settingImageButton = $(R.id.settingImageButton);
         editImageButton = $(R.id.editImageButton);
         settingImageButton.setOnClickListener(v -> {
-            //to be implemented
+
         });
         editImageButton.setOnClickListener(v -> {
-            //to be implemented
+
         });
+*/
 
         licenceImageButton = $(R.id.licenceImageButton);
         licenceImageButton.setOnClickListener(v -> {
@@ -270,37 +231,7 @@ public class VehicleActivity extends AppCompatActivity {
                 }
                 if(containEmergency) notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
                 else notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification));
-/*
-                if (UserInfo.getEmerNotices().size() >= 2) {
-                    notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
-                    int i = 0;
-                    for (Map.Entry<Date, String[]> entry : UserInfo.getEmerNotices().entrySet()) {
-                        String temp = "<font color='#ff0000'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
-                        notifyTextView[i++].setText(Html.fromHtml(temp));
-                        if (i >= 2) break;
-                    }
-                } else if (UserInfo.getEmerNotices().size() == 1) {
-                    notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
-                    for (Map.Entry<Date, String[]> entry : UserInfo.getEmerNotices().entrySet()) {
-                        String temp = "<font color='#ff0000'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
-                        notifyTextView[0].setText(Html.fromHtml(temp));
-                        break;
-                    }
-                    for (Map.Entry<Date, String[]> entry : UserInfo.getNotices().entrySet()) {
-                        String temp = "<font color='#0c450c'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
-                        notifyTextView[1].setText(Html.fromHtml(temp));
-                        break;
-                    }
-                } else {
-                    notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification));
-                    int i = 0;
-                    for (Map.Entry<Date, String[]> entry : UserInfo.getNotices().entrySet()) {
-                        String temp = "<font color='#0c450c'>" + entry.getValue()[0] + "<br>" + entry.getValue()[1] + " - " + displayDateFormat.format(entry.getKey()) + "</font>";
-                        notifyTextView[i++].setText(Html.fromHtml(temp));
-                        if (i >= 2) break;
-                    }
-                }
-*/
+
             }
 
             @Override
@@ -314,39 +245,24 @@ public class VehicleActivity extends AppCompatActivity {
         vehicleLayout = $(R.id.vehicleLayout);
         manageVehicleImageButton = $(R.id.manageVehicleImageButton);
         addImageButton = $(R.id.addImageButton);
-        editVehiclesImageButton = $(R.id.editVehiclesImageButton);
+        //editVehiclesImageButton = $(R.id.editVehiclesImageButton);
 
-        vehiclesDB = new TreeMap<>((o1, o2) -> o2.compareTo(o1));
+        returnVehicles(new vehicleMapCallbacks() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onSuccess(@NonNull Map<String, Vehicle> vehiclesDB) {
+                //UserInfo.setVehicles(vehiclesDB);
+                Log.d(TAG, "vehicle DB: " + vehiclesDB);
 
-        //get vehicle data from db and store locally only when there is no vehicle locally
-        //it is because this user either just log in or really has no vehicles
-        //every time the user adds a new vehicle, it will add to local, and upload to db. so no need to get data from db later.
-        if (UserInfo.getVehicles() == null || UserInfo.getVehicles().size() == 0) {
-            returnVehicles(user_id, new vehicleMapCallbacks() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void onSuccess(@NonNull Map<String, Vehicle> value) {
-                    UserInfo.setVehicles(vehiclesDB);
-                    Log.d(TAG, "vehicle DB: " + vehiclesDB);
+                showVehicles(vehiclesDB);
+            }
 
-                    if (vehiclesDB.size() == 0) {
-                        selectedVehicleTextView.setText("No Vehicle");
-                        selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
-                    } else {
-                        showVehicles(vehiclesDB);
-                    }
-                }
+            @Override
+            public void onError(@NonNull String errorMessage) {
+                Log.e("return vehicles error: ", errorMessage);
+            }
 
-                @Override
-                public void onError(@NonNull String errorMessage) {
-                    Log.e("return vehicles error: ", errorMessage);
-                }
-
-            });
-        } else {
-            Log.d(TAG, "vehicle local: " + UserInfo.getVehicles());
-            showVehicles(UserInfo.getVehicles());
-        }
+        });
 
 
         addImageButton.setOnClickListener(v -> {
@@ -354,11 +270,13 @@ public class VehicleActivity extends AppCompatActivity {
             else addVehicle();
         });
 
+/*
         editVehiclesImageButton.setOnClickListener(v -> {
             if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
             else ;
             //to be implementer
         });
+*/
 
     }
 
@@ -388,7 +306,7 @@ public class VehicleActivity extends AppCompatActivity {
             alertDialog.show();
         } else {
             Toast.makeText(this, "Driver Log for Vehicle "
-                    + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
+                    + UserInfo.getCurrLog().getVehicle().getRegistration_no()
                     + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
         }
     }
@@ -408,7 +326,7 @@ public class VehicleActivity extends AppCompatActivity {
                 alertDialog.show();
             } else {
                 Toast.makeText(this, "Driver Log for Vehicle "
-                        + UserInfo.getVehicles().get(UserInfo.getCurrLog().getVehicleID()).getRegistration_no()
+                        + UserInfo.getCurrLog().getVehicle().getRegistration_no()
                         + " is still in process. Please stop it first. ", Toast.LENGTH_LONG).show();
             }
             return true;    //stop calling super method
@@ -417,87 +335,70 @@ public class VehicleActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void showVehicles(Map<String, Vehicle> vehicles) {
-        assert vehicles.size() > 0;
-
         //vehicleImageViews = new HashMap<>();
-
-        //default show the first vehicle (latest added, sorted by TreeMap)
-        for (String vehicleID : vehicles.keySet()) {
-            selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-            if (vehicles.get(vehicleID).getImage() == null)
-                selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
-            else selectedVehicleImageView.setImageBitmap(vehicles.get(vehicleID).getImage());
-            manageVehicleImageButton.setOnClickListener(v -> manageVehicle(vehicleID));
-            break;
-        }
-
-        for (String vehicleID : vehicles.keySet()) {
-            Vehicle vehicle = vehicles.get(vehicleID);
-            assert vehicle != null;
-            CircleImageView imageView = new CircleImageView(VehicleActivity.this);
-            if (vehicle.getImage() == null)
-                imageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
-            else imageView.setImageBitmap(vehicle.getImage());
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            params.setMargins(0, 0, 16, 0);
-            imageView.setLayoutParams(params);
-            vehicleLayout.addView(imageView);
-            imageView.setOnClickListener(v -> {
-                Log.d(TAG, "onClickVehicle: " + vehicle);
-                selectedVehicleTextView.setText(vehicles.get(vehicleID).getMake_name() + " - " + vehicles.get(vehicleID).getRegistration_no());
-                if (vehicle.getImage() == null)
-                    selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
-                else selectedVehicleImageView.setImageBitmap(vehicle.getImage());
-                manageVehicleImageButton.setOnClickListener(v1 -> {
-                    if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
-                    else manageVehicle(vehicleID);
-                });
-            });
-            //vehicleImageViews.put(vehicles.get(vehicleID).getRegistration_no(), imageView);
+        if(vehicles.size()==0 && UserInfo.getNewVehicle()==null) {  //totally new user
+            selectedVehicleTextView.setText("No Vehicle");
+            selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
+        } else if(vehicles.size()==0) { //just finish adding the first vehicle
+            showSelectedVehicle(UserInfo.getNewVehicle());  //show the newly added vehicle as selected
+            showVehicleInScrollView(UserInfo.getNewVehicle());
+        } else if(UserInfo.getNewVehicle()==null) { //has vehicles, return from other activities, not add
+            for (Map.Entry<String, Vehicle> vehicleEntry: vehicles.entrySet()) {    //show the first vehicle in vehicles map as selected
+                showSelectedVehicle(vehicleEntry.getValue());
+                break;
+            }
+            for (Map.Entry<String, Vehicle> vehicleEntry: vehicles.entrySet()) {    //show all vehicles
+                showVehicleInScrollView(vehicleEntry.getValue());
+                //vehicleImageViews.put(vehicles.get(vehicleID), imageView);
+            }
+        } else {    //has vehicle, and just added a new one
+            showSelectedVehicle(UserInfo.getNewVehicle());  //show the newly added vehicle as selected
+            showVehicleInScrollView(UserInfo.getNewVehicle());
+            //vehicleImageViews.put(UserInfo.getNewVehicle.get(vehicleID), imageView);
+            for (Map.Entry<String, Vehicle> vehicleEntry: vehicles.entrySet()) {    //show all vehicles
+                showVehicleInScrollView(vehicleEntry.getValue());
+                //vehicleImageViews.put(vehicles.get(vehicleID), imageView);
+            }
         }
     }
 
-    private void manageVehicle(String vehicleID) {
-        Log.d(TAG, "manageVehicleID: " + vehicleID);
-        //the new added vehicle does not have ID locally. so its id = "a" (temp)
-        //if the user wants to edit, the id must be synchronized with db
-        returnVehicles(user_id, new vehicleMapCallbacks() {
-            @Override
-            public void onSuccess(@NonNull Map<String, Vehicle> value) {
-                UserInfo.setVehicles(vehiclesDB);
-                Log.d(TAG, "editVehicle, vehicle DB: " + vehiclesDB);
-
-            }
-
-            @Override
-            public void onError(@NonNull String errorMessage) {
-                Log.e("return vehicles error: ", errorMessage);
-            }
-
+    @SuppressLint("SetTextI18n")
+    private void showSelectedVehicle(Vehicle vehicle) {
+        selectedVehicleTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
+        if (vehicle.getImage() == null)
+            selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.blank_white_circle));
+        else
+            selectedVehicleImageView.setImageBitmap(vehicle.getImage());
+        manageVehicleImageButton.setOnClickListener(v -> {
+            if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
+            else manageVehicle(vehicle);
         });
+    }
 
-        Log.d(TAG, "editVehicle, finalVehicleID: " + vehicleID);
-        Intent intent = new Intent(VehicleActivity.this, ManageVehicleActivity.class);
-        intent.putExtra("vehicleID", vehicleID);
-        startActivity(intent);
+    private void showVehicleInScrollView(Vehicle vehicle) {
+        CircleImageView imageView = new CircleImageView(VehicleActivity.this);
+        if (vehicle.getImage() == null) imageView.setImageDrawable(getResources().getDrawable(R.drawable.blank_white_circle));
+        else imageView.setImageBitmap(vehicle.getImage());
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params.setMargins(0, 0, 16, 0);
+        imageView.setLayoutParams(params);
+        vehicleLayout.addView(imageView);
+        imageView.setOnClickListener(v -> {
+            Log.d(TAG, "onClickVehicleID: " + vehicle.getVehicle_id());
+            showSelectedVehicle(vehicle);
+        });
+    }
+
+    private void manageVehicle(Vehicle vehicle) {
+        Log.d(TAG, "manageVehicle: " + vehicle);
+        UserInfo.setCurrVehicle(vehicle);
+        startActivity(new Intent(VehicleActivity.this, ManageVehicleActivity.class));
     }
 
     private void addVehicle() {
-        Log.d(TAG, "addVehicle: ");
-        returnVehicles(user_id, new vehicleMapCallbacks() {
-            @Override
-            public void onSuccess(@NonNull Map<String, Vehicle> value) {
-                UserInfo.setVehicles(vehiclesDB);
-                Log.d(TAG, "addVehicle, vehicle DB: " + vehiclesDB);
-            }
-
-            @Override
-            public void onError(@NonNull String errorMessage) {
-                Log.e("return vehicles error: ", errorMessage);
-            }
-
-        });
+        Log.d(TAG, "addVehicle");
         startActivity(new Intent(VehicleActivity.this, AddVehicleActivity.class));
     }
 
@@ -512,23 +413,19 @@ public class VehicleActivity extends AppCompatActivity {
     }
  */
 
-
-    private void loadUserEmailImg(String user_id, @Nullable final userImageCallback imageCallback, @Nullable final userEmailCallback emailCallback) {
-        String URL = IP_HOST + GET_IMG_EMAIL + user_id;
+    private void loadUserImg(@Nullable final userImageCallback imageCallback) {
+        String URL = IP_HOST + GET_IMG + userID;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response", response.toString());
             byte[] logoBase64 = Base64.decode(response.optString("logo"), Base64.DEFAULT);
             Bitmap ImgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
             Log.e("image bitmap method: ", ImgBitmap == null ? "null img" : ImgBitmap.toString());
-            String email_address = response.optString("email_address");
             if (ImgBitmap == null) {
                 Log.e("No image: ", "this user has no image");
             }
             if (ImgBitmap != null)
                 imageCallback.onSuccess(ImgBitmap);
-            if (emailCallback != null)
-                emailCallback.onSuccess(email_address);
         }, error -> {
             Log.e("ERROR!!!", error.toString());
             Log.e("ERROR!!!", String.valueOf(error.networkResponse));
@@ -548,7 +445,7 @@ public class VehicleActivity extends AppCompatActivity {
             }
         });
 
-        Volley.newRequestQueue(VehicleActivity.this).add(objectRequest);
+        Volley.newRequestQueue(this).add(objectRequest);
     }
 
     public interface userImageCallback {
@@ -557,79 +454,50 @@ public class VehicleActivity extends AppCompatActivity {
 //        void onError(@NonNull String error);
     }
 
+    private void returnVehicles(@Nullable final vehicleMapCallbacks callbacks) {
 
-    public interface userEmailCallback {
-        void onSuccess(@NonNull String value);
-
-//        void onError(@NonNull Throwable throwable);
-    }
-
-
-    private void loadFNameLName(@Nullable final getProfileCallback callbacks) {
-        String URL = IP_HOST + GET_FNAME_LNAME;
-
-        final JSONObject jsonParam = new JSONObject();
-        try {
-            jsonParam.put("user_id", UserInfo.getUserID());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.POST, URL, jsonParam, response -> {
-            Log.e("Response: ", response.toString());
-            if (response.optString("message").equals("success"))
-                callbacks.onSuccess(response.optString("first_name"), response.optString("last_name"));
-        }, error -> {
-            NetworkResponse networkResponse = error.networkResponse;
-            if (networkResponse != null && networkResponse.data != null) {
-                String JSONError = new String(networkResponse.data);
-                JSONObject messageJO;
-                String message = "";
-                try {
-                    messageJO = new JSONObject(JSONError);
-                    message = messageJO.optString("message");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                Log.e("Error", message);
-//                    if (callbacks != null)
-//                        callbacks.onError(message);
-            }
-        });
-
-        Volley.newRequestQueue(this).add(objectRequest);
-    }
-
-    public interface getProfileCallback {
-        void onSuccess(@NonNull String fName, String lName);
-//        void onError(@NonNull String errorMessage);
-    }
-
-    private void returnVehicles(String user_id, @Nullable final vehicleMapCallbacks callbacks) {
-
-        String URL = IP_HOST + GET_VEHICLE_LIST + user_id;
+        String URL = IP_HOST + GET_VEHICLE_LIST + userID;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
             JSONArray jsonArray;
             JSONObject jsonObject;
+
+            Map<String, Vehicle> vehiclesDB = new TreeMap<>((o1, o2) -> o2.compareTo(o1));;   //vehicle data from db, should update to Userinfo.vehicles
+
             try {
                 jsonArray = response.getJSONArray("vehicle_list");
                 for (int i = 0; i < jsonArray.length(); i++) {
                     jsonObject = jsonArray.getJSONObject(i);
 
-                    Vehicle vehicle = new Vehicle();
+                    byte[] logoBase64 = Base64.decode(jsonObject.optString("image"), Base64.DEFAULT);
+                    Bitmap imgBitmap = BitmapFactory.decodeByteArray(logoBase64, 0, logoBase64.length);
 
-                    vehicle.setRegistration_no(jsonObject.optString("registration_no").replaceAll("\r\n|\r|\n", ""));
+                    Vehicle vehicle = new Vehicle(
+                            jsonObject.optString("vehicle_id"),
+                            jsonObject.optString("registration_no"),
+                            jsonObject.optString("make_name"),
+                            jsonObject.optString("model_name"),
+                            jsonObject.optString("make_year"),
+                            jsonObject.optString("description"),
+                            jsonObject.optString("user_id"),
+                            jsonObject.optString("user_name"),
+                            imgBitmap,
+                            jsonObject.optString("state_name")
+                    );
+/*
+                    vehicle.setRegistration_no(jsonObject.optString("registration_no"));
                     vehicle.setMake_name(jsonObject.optString("make_name"));
                     vehicle.setModel_name(jsonObject.optString("model_name"));
                     vehicle.setMake_year(jsonObject.optString("make_year"));
                     vehicle.setDescription(jsonObject.optString("description"));
-                    vehicle.setUser_id(jsonObject.optInt("user_id"));
+                    vehicle.setUser_id(jsonObject.optString("user_id"));
                     vehicle.setUser_name(jsonObject.optString("user_name"));
-                    vehicle.setImage(jsonObject.optString("image"));
+                    //vehicle.setImage(jsonObject.optString("image"));
+                    vehicle.setImage(imgBitmap);
                     vehicle.setState_name(jsonObject.optString("state_name"));
                     vehicle.setVehicle_id(jsonObject.optString("vehicle_id"));
+*/
 
                     vehiclesDB.put(vehicle.getVehicle_id(), vehicle);
 
@@ -678,7 +546,7 @@ public class VehicleActivity extends AppCompatActivity {
 
         final JSONObject jsonParam = new JSONObject();
         try {
-            jsonParam.put("user_id", UserInfo.getUserID());
+            jsonParam.put("user_id", userID);
             jsonParam.put("current_date", format.format(new Date()));
 
         } catch (JSONException e) {

@@ -24,15 +24,17 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/wisecar_logo"
+        android:icon="@drawable/logo_white_bg"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@drawable/wisecar_logo"
+        android:roundIcon="@drawable/logo_white_bg"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-
-        <activity android:name=".user.profile.AboutActivity" />
+        <activity
+            android:name=".user.introduction.WisecarWelcomeActivity"
+            android:theme="@style/WelcomeScreenTheme" />
+        <activity android:name=".user.introduction.AboutActivity" />
         <activity android:name=".user.vehicle.CalendarActivity" />
         <activity android:name=".user.profile.UpdateProfileActivity" />
         <activity android:name=".function.fuelReceipt.FuelReceiptSendActivity" />

@@ -1,88 +1,36 @@
 package com.wisecarCompany.wisecarapp.user;
 
-import android.graphics.Bitmap;
-
 import com.wisecarCompany.wisecarapp.function.driverLog.CurrDriverLog;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
-public class UserInfo {
+public class UserInfo {     //try to delete it totally in the future. Use SharePreference of query DB
 
-    private static String userID;
-    private static String username;
-    private static String fName;
-    private static String lName;
-    private static String userEmail;
-    private static Bitmap userImg;
-    private static Map<String, Vehicle> vehicles; //key: ID
+    private static Vehicle currVehicle;
+    private static Vehicle newVehicle;
     private static CurrDriverLog currLog;
 
     public static void clear() {
-        setUserID(null);
-        setUsername(null);
-        setUserEmail(null);
-        setUserImg(null);
-        setVehicles(null);
+        setNewVehicle(null);
+        setCurrVehicle(null);
         setCurrLog(null);
     }
 
-    public static String getUserID() {
-        return userID;
+    public static Vehicle getCurrVehicle() {
+        return currVehicle;
     }
 
-    public static void setUserID(String userID) {
-        UserInfo.userID = userID;
+    public static void setCurrVehicle(Vehicle currVehicle) {
+        UserInfo.currVehicle = currVehicle;
     }
 
-    public static String getUsername() {
-        return username;
+    public static Vehicle getNewVehicle() {
+        return newVehicle;
     }
 
-    public static void setUsername(String username) {
-        UserInfo.username = username;
-    }
-
-    public static String getfName() {
-        return fName;
-    }
-
-    public static void setfName(String fName) {
-        UserInfo.fName = fName;
-    }
-
-    public static String getlName() {
-        return lName;
-    }
-
-    public static void setlName(String lName) {
-        UserInfo.lName = lName;
-    }
-
-    public static String getUserEmail() {
-        return userEmail;
-    }
-
-    public static void setUserEmail(String userEmail) {
-        UserInfo.userEmail = userEmail;
-    }
-
-    public static Bitmap getUserImg() {
-        return userImg;
-    }
-
-    public static void setUserImg(Bitmap userImg) {
-        UserInfo.userImg = userImg;
-    }
-
-    public static Map<String, Vehicle> getVehicles() {
-        return vehicles;
-    }
-
-    public static void setVehicles(Map<String, Vehicle> vehicles) {
-        UserInfo.vehicles = vehicles;
+    public static void setNewVehicle(Vehicle newVehicle) {
+        UserInfo.newVehicle = newVehicle;
     }
 
     public static CurrDriverLog getCurrLog() {

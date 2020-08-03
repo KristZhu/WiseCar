@@ -19,7 +19,7 @@ public class ParkingReceipt {
 
     public ParkingReceipt(String id, String registrationNo, Date date, String refNo, String companyName, boolean sentBefore) {
         this.id = id;
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
         this.date = date;
         this.refNo = refNo;
         this.companyName = companyName!=null && companyName.equals("null") ? null : companyName;
@@ -46,11 +46,11 @@ public class ParkingReceipt {
     }
 
     public String getRegistrationNo() {
-        return registrationNo;
+        return registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public void setRegistrationNo(String registrationNo) {
-        this.registrationNo = registrationNo;
+        this.registrationNo = registrationNo.replaceAll("\r\n|\r|\n", "");
     }
 
     public Date getDate() {

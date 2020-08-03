@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,24 +26,20 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
-import com.wisecarCompany.wisecarapp.function.shareVehicle.ShareVehicleListActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
@@ -65,10 +60,6 @@ import net.glxn.qrgen.core.image.ImageType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -88,9 +79,6 @@ import pub.devrel.easypermissions.EasyPermissions;
 public class ServiceRecordsActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private static final String TAG = "Service Records";
-
-    private Vehicle vehicle;
-    private String vehicleID;
 
     private ImageButton backImageButton;
 
@@ -164,15 +152,15 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
         currentDate = "";
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class)));
 
         SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
         currentDate = format.format(Calendar.getInstance().getTime());
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
+        assert UserInfo.getCurrVehicle() != null;
 
         serviceIDTextView = $(R.id.serviceIDTextView);
         qrImageView = $(R.id.qrImageView);
@@ -324,8 +312,15 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
             }
         });
 
+        oilCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        brakeCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        batteryCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        batteryCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        coolingCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
+        lightsCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> checkReadyToSave());
 
-        saveImageButton = $(R.id.saveImageButton);
+
+        saveImageButton = $(R.id.shareImageButton);
         saveImageButton.setOnClickListener(v -> {
             if (saveImageButton.getAlpha() < 1) return;
             Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_LONG).show();
@@ -554,7 +549,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                 params.put("record_id", recordIDTextView.getText().toString());
                 Log.e(TAG, recordIDTextView.getText().toString());
 
-                params.put("vehicle_id", vehicleID);
+                params.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
                 params.put("service_date", format.format(date));
                 params.put("service_center", centre);
                 params.put("service_ref", refNo);
@@ -607,7 +602,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                     invokeBlockchain(serviceIDTextView.getText().toString().substring(4),
                             format.format(date),
                             centre,
-                            vehicle.getRegistration_no(),
+                            UserInfo.getCurrVehicle().getRegistration_no(),
                             encrypt_hash,
                             s3_temp_path,
                             servicesOptions);
@@ -617,7 +612,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
                     public void run() {
                         Toast.makeText(ServiceRecordsActivity.this, "success", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(ServiceRecordsActivity.this, ManageVehicleActivity.class);
-                        intent.putExtra("vehicleID", vehicleID);
+                        intent.putExtra("vehicleID", UserInfo.getCurrVehicle().getVehicle_id());
                         startActivity(intent);
                     }
                 });
@@ -674,7 +669,7 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
 
     private void getRecordIdentifier(@Nullable final recordIdentifierCallback callbacks) {
 
-        String URL = IP_HOST + GET_SERVICE_RECORD_IDENTIFIER + vehicle.getRegistration_no() + "/" + currentDate;
+        String URL = IP_HOST + GET_SERVICE_RECORD_IDENTIFIER + UserInfo.getCurrVehicle().getRegistration_no() + "/" + currentDate;
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response: ", response.toString());
@@ -721,13 +716,13 @@ public class ServiceRecordsActivity extends AppCompatActivity implements EasyPer
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ManageVehicleActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ManageVehicleActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);

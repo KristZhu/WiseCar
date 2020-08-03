@@ -29,6 +29,7 @@ import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
+import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,12 +49,9 @@ public class ShareVehicleListActivity extends AppCompatActivity {
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String GET_SHARED_LIST = "/api/v1/sharevehicle/sharedcompanylist/";
 
-    private String vehicleID;
-    private Vehicle vehicle;
-
     private ImageButton backImageButton;
     private TextView headerTextView;
-    private ImageView vehicleImageView;
+    private CircleImageView vehicleImageView;
 
     private LinearLayout shareLayout;
 
@@ -70,25 +68,27 @@ public class ShareVehicleListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_vehicle_list);
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        //vehicleID = "303";
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
-        Log.d(TAG, "services: " + vehicle.getServices());
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
+        assert UserInfo.getCurrVehicle() != null;
+
+        Log.d(TAG, "services: " + UserInfo.getCurrVehicle().getServices());
+        assert UserInfo.getCurrVehicle().getServices() != null;
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleListActivity.this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleListActivity.this, ManageVehicleActivity.class)));
 
         headerTextView = $(R.id.headerTextView);
-        headerTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
+        headerTextView.setText(UserInfo.getCurrVehicle().getMake_name() + " - " + UserInfo.getCurrVehicle().getRegistration_no());
 
         vehicleImageView = $(R.id.vehicleImageView);
-        vehicleImageView.setImageBitmap(vehicle.getImage());
+        if(UserInfo.getCurrVehicle().getImage()==null) vehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
+        else vehicleImageView.setImageBitmap(UserInfo.getCurrVehicle().getImage());
 
 
         shareLayout = $(R.id.sharesLayout);
-        returnSharedList(vehicleID, new sharedCallbacks() {
+        returnSharedList(new sharedCallbacks() {
             @Override
             public void onSuccess(@NonNull Map<String, Share> shares) { //key: shareID
                 Log.e("map", String.valueOf(shares.size()));
@@ -261,30 +261,29 @@ public class ShareVehicleListActivity extends AppCompatActivity {
     }
 
     private void addShare() {
-        Log.d(TAG, "addShare: " + vehicleID);
-        Intent intent = new Intent(ShareVehicleListActivity.this, ShareVehicleDetailActivity.class);
-        intent.putExtra("vehicleID", vehicleID);
-        intent.putExtra("NEW", true);
-        startActivity(intent);
+        Log.d(TAG, "addShare");
+        startActivity(new Intent(
+                ShareVehicleListActivity.this, ShareVehicleDetailActivity.class)
+                .putExtra("NEW", true)
+        );
     }
 
     private void editShare(String shareID) {
-        Log.d(TAG, "editShare: " + vehicleID);
         Log.d(TAG, "editShare: shareID: " + shareID);
-        Intent intent = new Intent(ShareVehicleListActivity.this, ShareVehicleDetailActivity.class);
-        intent.putExtra("vehicleID", vehicleID);
-        intent.putExtra("shareID", shareID);
-        intent.putExtra("NEW", false);
-        startActivity(intent);
+        startActivity(new Intent(
+                ShareVehicleListActivity.this, ShareVehicleDetailActivity.class)
+                .putExtra("shareID", shareID)
+                .putExtra("NEW", false)
+        );
     }
 
     private <T extends View> T $(int id) {
         return (T) findViewById(id);
     }
 
-    private void returnSharedList(String vehicleID, @Nullable final sharedCallbacks callbacks) {
+    private void returnSharedList(@Nullable final sharedCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_SHARED_LIST + vehicleID;
+        String URL = IP_HOST + GET_SHARED_LIST + UserInfo.getCurrVehicle().getVehicle_id();
 
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
             Log.e("Response", response.toString());
@@ -367,13 +366,13 @@ public class ShareVehicleListActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ManageVehicleActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ManageVehicleActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ManageVehicleActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);

@@ -33,8 +33,6 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.function.fuelReceipt.FuelReceiptActivity;
-import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 import com.wisecarCompany.wisecarapp.viewElement.SwitchButton;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
@@ -50,11 +48,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -78,9 +71,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private final String EDIT_SHARE = "/api/v1/sharevehicle/update";
     private final String GET_HISTORY = "/api/v1/sharevehicle/sharedetailapp/";
 
-    private String vehicleID;
-    private Vehicle vehicle;
-
     private boolean NEW;  //new add or edit
 
     private String shareID;
@@ -89,7 +79,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private ImageButton saveImageButton;
 
     private AutoCompleteTextView searchEditText;
-    private ImageButton addImageButton;
+    //private ImageButton addImageButton;
     private TextView companyNameTextView;
     private String companyName;
     private TextView companyIDTextView;
@@ -100,17 +90,17 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private boolean isShare;
     private ConstraintLayout shareDiv;
     private EditText dateEditText;
-    private java.util.Date date;
-    private EditText startEditText;
-    private java.util.Date start;
-    private EditText endEditText;
-    private java.util.Date end;
+    private Date date;
+    private EditText startTimeEditText;
+    private Date startTime;
+    private EditText endTimeEditText;
+    private Date endTime;
     private SwitchButton recurringSwitchButton;
     private boolean isRecurring = false;
 
     private ConstraintLayout recurringDiv;
     private EditText endDateEditText;
-    private java.util.Date endDate;
+    private Date endDate;
     private CheckBox[] weekdayCheckBox;
     private boolean[] isWeekday;    //0: Sun, 6: Sat
 
@@ -118,11 +108,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
     private boolean isVisibility = false;
     private LinearLayout visibilityDiv;
     private Map<Integer, Boolean> servicesVisibility = new TreeMap<>();   //value: visibility
-
-    private String recurringDays = "";
-    private String shareChecked = "";
-    private String recurringChecked = "";
-    private String visibilityChecked = "";
 
     private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
     private SimpleDateFormat displayTimeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
@@ -133,18 +118,17 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_share_vehicle_detail);
 
-        vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
-        //vehicleID = "303";
-        Log.d(TAG, "vehicleID: " + vehicleID);
-        vehicle = UserInfo.getVehicles().get(vehicleID);
-        Log.d(TAG, "vehicle: " + vehicle);
+        //vehicleID = (String) this.getIntent().getStringExtra("vehicleID");
+        //vehicle = UserInfo.getVehicles().get(vehicleID);
+        Log.d(TAG, "currVehicle: " + UserInfo.getCurrVehicle());
+        assert UserInfo.getCurrVehicle() != null;
+
         NEW = (boolean) this.getIntent().getSerializableExtra("NEW");
-        //NEW = true;
         Log.d(TAG, "NEW: " + NEW);
 
 
         searchEditText = $(R.id.searchEditText);
-        addImageButton = $(R.id.addImageButton);
+        //addImageButton = $(R.id.addImageButton);
         companyIDTextView = $(R.id.companyIDTextView);
         companyNameTextView = $(R.id.companyNameTextView);
         cancelImageButton = $(R.id.cancelImageButton);
@@ -154,10 +138,10 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         dateEditText = $(R.id.dateEditText);
         dateEditText.setInputType(InputType.TYPE_NULL);
-        startEditText = $(R.id.startEditText);
-        startEditText.setInputType(InputType.TYPE_NULL);
-        endEditText = $(R.id.endEditText);
-        endEditText.setInputType(InputType.TYPE_NULL);
+        startTimeEditText = $(R.id.startEditText);
+        startTimeEditText.setInputType(InputType.TYPE_NULL);
+        endTimeEditText = $(R.id.endEditText);
+        endTimeEditText.setInputType(InputType.TYPE_NULL);
 
         recurringSwitchButton = $(R.id.recurringSwitchButton);
         recurringDiv = $(R.id.recurringDiv);
@@ -178,7 +162,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         visibilitySwitchButton = $(R.id.visibilitySwitchButton);
         visibilityDiv = $(R.id.visibilityDiv);
 
-        saveImageButton = $(R.id.saveImageButton);
+        saveImageButton = $(R.id.shareImageButton);
 
 
         if (NEW) {
@@ -198,6 +182,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         companyNameTextView.setText(companyName);
                         custID = companies.get(companyName);
                         cancelImageButton.setVisibility(View.VISIBLE);
+                        checkReadyToSave();
                     });
                     /*
                     addImageButton.setOnClickListener(v -> {
@@ -231,19 +216,20 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 companyIDTextView.setText("");
                 searchEditText.setText("");
                 cancelImageButton.setVisibility(View.INVISIBLE);
+                checkReadyToSave();
             });
 
             isShare = false;
             isRecurring = false;
             isVisibility = false;
 
-            Log.d(TAG, "new share services: " + vehicle.getServices());
-            for (int i : vehicle.getServices()) servicesVisibility.put(i, true);
+            Log.d(TAG, "new share services: " + UserInfo.getCurrVehicle().getServices());
+            for (int i : UserInfo.getCurrVehicle().getServices()) servicesVisibility.put(i, true);
 
 
         } else {    //edit
             shareID = (String) this.getIntent().getStringExtra("shareID");
-            returnFormerSharingDetails(shareID, new formerSharingCallbacks() {
+            returnFormerSharingDetails(new formerSharingCallbacks() {
                 @Override
                 public void onSuccess(@NonNull Share share) {
 
@@ -251,7 +237,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                     custID = share.getCust_id();
                     companyNameTextView.setText(companyName);
                     companyIDTextView.setText(custID);
-                    searchEditText.setInputType(InputType.TYPE_NULL);
+                    searchEditText.setKeyListener(null);
 
                     isShare = share.isShare();
                     if (isShare) {
@@ -259,13 +245,13 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                         shareDiv.setVisibility(View.VISIBLE);
 
                         date = share.getDate();
-                        start = share.getStart_time();
-                        end = share.getEnd_time();
+                        startTime = share.getStart_time();
+                        endTime = share.getEnd_time();
                         //SimpleDateFormat formatDate = new SimpleDateFormat("ddMMM yyyy", Locale.getDefault());
                         //SimpleDateFormat formatTime = new SimpleDateFormat("HH:mm", Locale.getDefault());
                         dateEditText.setText(displayDateFormat.format(date));
-                        startEditText.setText(displayTimeFormat.format(start));
-                        endEditText.setText(displayTimeFormat.format(end));
+                        startTimeEditText.setText(displayTimeFormat.format(startTime));
+                        endTimeEditText.setText(displayTimeFormat.format(endTime));
 
                         isRecurring = share.isRecurring();
                         Log.d(TAG, "isRecurring: " + isRecurring);
@@ -285,67 +271,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
                         servicesVisibility = share.getServicesVisibility();
                         Log.d(TAG, "servicesVisibility: " + servicesVisibility);
-
-                        List<Map.Entry<Integer, Boolean>> servicesList = new ArrayList<>(servicesVisibility.entrySet());
-                        Log.d(TAG, "servicesVisibility: " + servicesVisibility);
-                        for (int i = 0; i < servicesList.size(); i += 2) {
-                            ConstraintLayout servicesLineLayout = new ConstraintLayout(ShareVehicleDetailActivity.this);
-                            ConstraintSet set = new ConstraintSet();
-                            CheckBox[] checkBoxes = new CheckBox[Math.min(servicesVisibility.size() - i, 2)];
-                            for (int j = 0; j < checkBoxes.length; j++) {
-                                checkBoxes[j] = new CheckBox(getApplicationContext());
-                                checkBoxes[j].setId(j);
-                                checkBoxes[j].setButtonDrawable(getResources().getDrawable(R.drawable.vehicle0checkbox_style_2));
-                                checkBoxes[j].setTextColor(0xffffffff);
-                                switch (servicesList.get(i + j).getKey()) {
-                                    case 1:
-                                        checkBoxes[j].setText("Service Records");
-                                        checkBoxes[j].setChecked(servicesVisibility.get(1));
-                                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(1, isChecked));
-                                        break;
-                                    case 2:
-                                        checkBoxes[j].setText("Driver Log");
-                                        checkBoxes[j].setChecked(servicesVisibility.get(2));
-                                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(2, isChecked));
-                                        break;
-                                    case 3:
-                                        checkBoxes[j].setText("Registration Reminder");
-                                        checkBoxes[j].setChecked(servicesVisibility.get(3));
-                                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(3, isChecked));
-                                        break;
-                                    case 4:
-                                        checkBoxes[j].setText("Parking Receipts");
-                                        checkBoxes[j].setChecked(servicesVisibility.get(4));
-                                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(4, isChecked));
-                                        break;
-                                    case 5:
-                                        checkBoxes[j].setText("Insurance");
-                                        checkBoxes[j].setChecked(servicesVisibility.get(5));
-                                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(5, isChecked));
-                                        break;
-//                                    case 6:
-//                                        checkBoxes[j].setText("Toll");
-//                                        checkBoxes[j].setChecked(servicesVisibility.get(6));
-//                                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(6, isChecked));
-//                                        break;
-                                    case 6:
-                                        checkBoxes[j].setText("Fuel");
-                                        checkBoxes[j].setChecked(servicesVisibility.get(6));
-                                        checkBoxes[j].setOnCheckedChangeListener((buttonView, isChecked) -> servicesVisibility.put(6, isChecked));
-                                        break;
-                                }
-                                set.connect(checkBoxes[j].getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 16);
-                                set.connect(checkBoxes[j].getId(), ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 16);
-                                set.connect(checkBoxes[j].getId(), ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM);
-                                set.connect(checkBoxes[j].getId(), ConstraintSet.RIGHT, ConstraintSet.PARENT_ID, ConstraintSet.RIGHT);
-                                set.constrainPercentWidth(checkBoxes[j].getId(), 0.5f);
-                                set.constrainHeight(checkBoxes[j].getId(), ConstraintSet.WRAP_CONTENT);
-                                set.setHorizontalBias(checkBoxes[j].getId(), (float) (1.0 * j));
-                                servicesLineLayout.addView(checkBoxes[j]);
-                            }
-                            set.applyTo(servicesLineLayout);
-                            visibilityDiv.addView(servicesLineLayout);
-                        }
+                        // this callback does not return immediately, so servicesVisibility at beginning is null
+                        // and nothing will be added to visibilityDiv when showVisibilityCheckBoxes is called once this activity is created
+                        // so here to call again
+                        visibilityDiv.removeAllViews();
+                        showVisibilityCheckBoxes();
 
                         isVisibility = false;
                         for (int i : servicesVisibility.keySet()) {
@@ -373,7 +303,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
 
         backImageButton = $(R.id.backImageButton);
-        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID)));
+        backImageButton.setOnClickListener(v -> startActivity(new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class)));
 
 
         shareSwitchButton.setOnToggleChanged(isOn -> {
@@ -408,51 +338,51 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             }
         });
 
-        startEditText.setOnClickListener(v -> {
+        startTimeEditText.setOnClickListener(v -> {
             new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
                 StringBuffer time = new StringBuffer();
                 time.append(hour >= 10 ? hour : "0" + hour);
                 time.append(":");
                 time.append(minute >= 10 ? minute : "0" + minute);
-                start = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
-                startEditText.setText(time);
+                startTime = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000); //otherwise there is timezone problem
+                startTimeEditText.setText(time);
                 checkReadyToSave();
             }, 0, 0, true).show();
         });
-        startEditText.setOnFocusChangeListener((v, hasFocus) -> {
+        startTimeEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
                     StringBuffer time = new StringBuffer();
                     time.append(hour >= 10 ? hour : "0" + hour);
                     time.append(":");
                     time.append(minute >= 10 ? minute : "0" + minute);
-                    start = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
-                    startEditText.setText(time);
+                    startTime = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                    startTimeEditText.setText(time);
                     checkReadyToSave();
                 }, 0, 0, true).show();
             }
         });
 
-        endEditText.setOnClickListener(v -> {
+        endTimeEditText.setOnClickListener(v -> {
             new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
                 StringBuffer time = new StringBuffer();
                 time.append(hour >= 10 ? hour : "0" + hour);
                 time.append(":");
                 time.append(minute >= 10 ? minute : "0" + minute);
-                end = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
-                endEditText.setText(time);
+                endTime = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                endTimeEditText.setText(time);
                 checkReadyToSave();
             }, 0, 0, true).show();
         });
-        endEditText.setOnFocusChangeListener((v, hasFocus) -> {
+        endTimeEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 new TimePickerDialog(ShareVehicleDetailActivity.this, (view, hour, minute) -> {
                     StringBuffer time = new StringBuffer();
                     time.append(hour >= 10 ? hour : "0" + hour);
                     time.append(":");
                     time.append(minute >= 10 ? minute : "0" + minute);
-                    end = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
-                    endEditText.setText(time);
+                    endTime = new Date(intToDate(1970, 0, 1).getTime() + (hour * 60 + minute) * 60 * 1000);
+                    endTimeEditText.setText(time);
                     checkReadyToSave();
                 }, 0, 0, true).show();
             }
@@ -492,8 +422,91 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         });
 
 
-        List<Map.Entry<Integer, Boolean>> servicesList = new ArrayList<>(servicesVisibility.entrySet());
         Log.d(TAG, "servicesVisibility: " + servicesVisibility);
+        visibilityDiv.removeAllViews();
+        showVisibilityCheckBoxes();
+
+        visibilitySwitchButton.setOnToggleChanged(isOn -> {
+            Log.d(TAG, "visibility: " + isOn);
+            isVisibility = isOn;
+            if (isOn) visibilityDiv.setVisibility(View.VISIBLE);
+            else visibilityDiv.setVisibility(View.GONE);
+            checkReadyToSave();
+        });
+
+
+        saveImageButton.setOnClickListener(v -> {
+            if (saveImageButton.getAlpha() < 1) return;
+
+            Log.d(TAG, "companyName: " + companyName);
+            Log.d(TAG, "custID: " + custID);
+
+            Log.d(TAG, "isShare: " + isShare);
+            if (isShare) {
+                Log.d(TAG, "date: " + date);
+                Log.d(TAG, "start: " + startTime);
+                Log.d(TAG, "end: " + endTime);
+
+                Calendar todayCal = Calendar.getInstance();
+                todayCal.set(todayCal.get(Calendar.YEAR), todayCal.get(Calendar.MONTH), todayCal.get(Calendar.DAY_OF_MONTH),0, 0, 0);   //still contains millisec, need /1000*1000 to get only date
+                if (date.before(new Date(todayCal.getTime().getTime()/1000*1000))) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
+                    Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (startTime.after(endTime)) {
+                    Toast.makeText(getApplicationContext(), "Please enter correct time", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                Log.d(TAG, "isRecurring: " + isRecurring);
+                if (isRecurring) {
+                    Log.d(TAG, "endDate: " + endDate);
+                    boolean day = false;
+                    for (int i = 0; i < 7; i++) {
+                        isWeekday[i] = weekdayCheckBox[i].isChecked();
+                        day = day || isWeekday[i];
+                        Log.d(TAG, "isWeekday" + i + ": " + isWeekday[i]);
+                    }
+                    if (!day) {
+                        Toast.makeText(getApplicationContext(), "Please choose at least one day for recurring, or switch recurring off", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    if (endDate == null || endDate.before(date)) {
+                        Toast.makeText(getApplicationContext(), "Please enter correct end date", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
+                Log.d(TAG, "isVisibility: " + isVisibility);
+                if (isVisibility) {
+                    Log.d(TAG, "visibility: " + servicesVisibility);
+                    boolean visible = false;
+                    for (int i : servicesVisibility.keySet())
+                        visible = visible || servicesVisibility.get(i);
+                    if (!visible) {
+                        Toast.makeText(getApplicationContext(), "Please choose at least one service visible, or switch service visibility off", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                }
+
+            } else {    //cancel share
+                if(NEW) {   //should not happen logically
+                    Toast.makeText(getApplicationContext(), "Please switch share on", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_SHORT).show();
+            if (NEW) addShare();
+            else editShare();
+
+        });
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showVisibilityCheckBoxes() {
+        List<Map.Entry<Integer, Boolean>> servicesList = new ArrayList<>(servicesVisibility.entrySet());
         for (int i = 0; i < servicesList.size(); i += 2) {
             ConstraintLayout servicesLineLayout = new ConstraintLayout(ShareVehicleDetailActivity.this);
             ConstraintSet set = new ConstraintSet();
@@ -552,79 +565,6 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             set.applyTo(servicesLineLayout);
             visibilityDiv.addView(servicesLineLayout);
         }
-
-        visibilitySwitchButton.setOnToggleChanged(isOn -> {
-            Log.d(TAG, "visibility: " + isOn);
-            isVisibility = isOn;
-            if (isOn) visibilityDiv.setVisibility(View.VISIBLE);
-            else visibilityDiv.setVisibility(View.GONE);
-            checkReadyToSave();
-        });
-
-
-        saveImageButton.setOnClickListener(v -> {
-            if (saveImageButton.getAlpha() < 1) return;
-            Toast.makeText(getApplicationContext(), "Saving, Please Wait...", Toast.LENGTH_SHORT).show();
-
-            Log.d(TAG, "companyName: " + companyName);
-            Log.d(TAG, "custID: " + custID);
-            Log.d(TAG, "isShare: " + isShare);
-
-            if (isShare) {
-                Log.d(TAG, "date: " + date);
-                Log.d(TAG, "start: " + start);
-                Log.d(TAG, "end: " + end);
-                Log.d(TAG, "isRecurring: " + isRecurring);
-
-                if (date.before(new Date(new Date().getTime() - 24 * 60 * 60 * 1000))) {   //Start time can be today before real time. In the future, it needs to be after real time. getTime() causes timezone problems
-                    Toast.makeText(getApplicationContext(), "Please enter correct date", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if (start.after(end)) {
-                    Toast.makeText(getApplicationContext(), "Please enter correct time", Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-                if (isRecurring) {
-                    Log.d(TAG, "endDate: " + endDate);
-                    boolean day = false;
-                    for (int i = 0; i < 7; i++) {
-                        isWeekday[i] = weekdayCheckBox[i].isChecked();
-                        day = day || isWeekday[i];
-                        Log.d(TAG, "isWeekday" + i + ": " + isWeekday[i]);
-                    }
-                    if (!day) {
-                        Toast.makeText(getApplicationContext(), "Please choose at least one day for recurring, or switch recurring off", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                    if (endDate == null || endDate.before(date)) {
-                        Toast.makeText(getApplicationContext(), "Please enter correct end date", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                }
-
-                Log.d(TAG, "isVisibility: " + isVisibility);
-                if (isVisibility) {
-                    Log.d(TAG, "visibility: " + servicesVisibility);
-                    boolean visible = false;
-                    for (int i : servicesVisibility.keySet())
-                        visible = visible || servicesVisibility.get(i);
-                    if (!visible) {
-                        Toast.makeText(getApplicationContext(), "Please choose at least one service visible, or switch service visibility off", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                }
-
-            } else {    //cancel share
-
-            }
-
-            if (NEW) shareVehicleCheck();
-            else editShare();
-
-        });
-
     }
 
     private void returnCompanies(@Nullable final companiesCallbacks callbacks) {
@@ -679,26 +619,11 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         void onError(@NonNull String errorMessage);
     }
 
-    private void shareVehicleCheck() {
+    private void addShare() {
 
+        StringBuilder recurringDays = new StringBuilder();
         for (int i = 0; i < 7; i++) {
-            if (isWeekday[i]) recurringDays += i;
-        }
-
-        if (isShare) {
-            shareChecked += "1";
-        } else {
-            shareChecked += "0";
-        }
-        if (isRecurring) {
-            recurringChecked += "1";
-        } else {
-            recurringChecked += "0";
-        }
-        if (isVisibility) {
-            visibilityChecked += "1";
-        } else {
-            visibilityChecked += "0";
+            if (isWeekday[i]) recurringDays.append(i);
         }
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -710,23 +635,23 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         try {
             jsonParam.put("cust_id", custID);
-            jsonParam.put("vehicle_id", vehicleID);
-            jsonParam.put("share", shareChecked);
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
+            jsonParam.put("share", isShare ? "1" : "0");
             jsonParam.put("date", dateFormat.format(date));
-            jsonParam.put("recurring", recurringChecked);
-            if (recurringChecked.equals("1")) {
+            jsonParam.put("recurring", isRecurring ? "1" : "0");
+            if (isRecurring) {
                 jsonParam.put("recurring_end_date", dateFormat.format(endDate));
-                jsonParam.put("recurring_days", recurringDays);
+                jsonParam.put("recurring_days", recurringDays.toString());
             }
-            jsonParam.put("service_visibility", visibilityChecked);
-            if (visibilityChecked.equals("1")) {
+            jsonParam.put("service_visibility", isVisibility ? "1" : "0");
+            if (isVisibility) {
                 StringBuilder servicesSB = new StringBuilder();
                 for (int i : servicesVisibility.keySet())
                     if (servicesVisibility.get(i)) servicesSB.append(i);
                 jsonParam.put("visible_service_ids", servicesSB.toString());
             }
-            jsonParam.put("start_time", timeFormat.format(start));
-            jsonParam.put("end_time", timeFormat.format(end));
+            jsonParam.put("start_time", timeFormat.format(startTime));
+            jsonParam.put("end_time", timeFormat.format(endTime));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -736,9 +661,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             Log.e("submit Response", response.toString());
             if (response.optString("message").equals("success")) {
                 runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
-                Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
-                intent.putExtra("vehicleID", vehicleID);
-                startActivity(intent);
+                startActivity(new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class));
             }
             Log.e("response", response.toString());
             Log.e("share_id", response.optString("share_id"));
@@ -792,26 +715,10 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
     private void editShare() {
 
+        StringBuilder recurringDays = new StringBuilder();
         for (int i = 0; i < 7; i++) {
-            if (isWeekday[i]) recurringDays += i;
+            if (isWeekday[i]) recurringDays.append(i);
         }
-
-        if (isShare) {
-            shareChecked += "1";
-        } else {
-            shareChecked += "0";
-        }
-        if (isRecurring) {
-            recurringChecked += "1";
-        } else {
-            recurringChecked += "0";
-        }
-        if (isVisibility) {
-            visibilityChecked += "1";
-        } else {
-            visibilityChecked += "0";
-        }
-
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
@@ -822,23 +729,23 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
         try {
             jsonParam.put("cust_id", custID);
-            jsonParam.put("vehicle_id", vehicleID);
-            jsonParam.put("share", shareChecked);
+            jsonParam.put("vehicle_id", UserInfo.getCurrVehicle().getVehicle_id());
+            jsonParam.put("share", isShare ? "1" : "0");
             jsonParam.put("date", dateFormat.format(date));
-            jsonParam.put("recurring", recurringChecked);
-            if (recurringChecked.equals("1")) {
+            jsonParam.put("recurring", isRecurring ? "1" : "0");
+            if (isRecurring) {
                 jsonParam.put("recurring_end_date", dateFormat.format(endDate));
-                jsonParam.put("recurring_days", recurringDays);
+                jsonParam.put("recurring_days", recurringDays.toString());
             }
-            jsonParam.put("service_visibility", visibilityChecked);
-            if (visibilityChecked.equals("1")) {
+            jsonParam.put("service_visibility", isVisibility ? "1" : "0");
+            if (isVisibility) {
                 StringBuilder servicesSB = new StringBuilder();
                 for (int i : servicesVisibility.keySet())
                     if (servicesVisibility.get(i)) servicesSB.append(i);
                 jsonParam.put("visible_service_ids", servicesSB.toString());
             }
-            jsonParam.put("start_time", timeFormat.format(start));
-            jsonParam.put("end_time", timeFormat.format(end));
+            jsonParam.put("start_time", timeFormat.format(startTime));
+            jsonParam.put("end_time", timeFormat.format(endTime));
             if (!isShare) {
                 jsonParam.put("mode", "0");
             } else {
@@ -854,7 +761,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
             if (response.optString("message").equals("success")) {
                 runOnUiThread(() -> Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show());
                 Intent intent = new Intent(ShareVehicleDetailActivity.this, ShareVehicleListActivity.class);
-                intent.putExtra("vehicleID", vehicleID);
+                intent.putExtra("vehicleID", UserInfo.getCurrVehicle().getVehicle_id());
                 startActivity(intent);
                 Log.e("response", response.toString());
                 Log.e("new_share_id", response.optString("new_share_id"));
@@ -882,9 +789,9 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         Volley.newRequestQueue(ShareVehicleDetailActivity.this).add(objectRequest);
     }
 
-    private void returnFormerSharingDetails(String share_id, @Nullable final formerSharingCallbacks callbacks) {
+    private void returnFormerSharingDetails(@Nullable final formerSharingCallbacks callbacks) {
 
-        String URL = IP_HOST + GET_HISTORY + share_id;
+        String URL = IP_HOST + GET_HISTORY + shareID;
 
         @SuppressLint("SimpleDateFormat")
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL, null, response -> {
@@ -961,8 +868,8 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
                 && companyName != null && companyName.length() > 0
                 && custID != null && custID.length() > 0
                 && date != null
-                && start != null
-                && end != null
+                && startTime != null
+                && endTime != null
                 && (!isRecurring || endDate != null)
         ) {
             saveImageButton.setAlpha(1.0f);
@@ -1007,7 +914,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         }
     }
 
-    private static java.util.Date intToDate(int year, int month, int day) {
+    private static Date intToDate(int year, int month, int day) {
         StringBuilder sb = new StringBuilder();
         if (day < 10) sb.append("0").append(day);
         else sb.append(day);
@@ -1017,7 +924,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
         else sb.append(month);
         sb.append("/").append(year);
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        java.util.Date date = null;
+        Date date = null;
         try {
             date = format.parse(sb.toString());
         } catch (ParseException e) {
@@ -1032,13 +939,13 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        startActivity(new Intent(this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID));
+        startActivity(new Intent(this, ShareVehicleListActivity.class));
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            startActivity(new Intent(this, ShareVehicleListActivity.class).putExtra("vehicleID", vehicleID));
+            startActivity(new Intent(this, ShareVehicleListActivity.class));
             return true;    //stop calling super method
         } else {
             return super.onKeyDown(keyCode, event);
