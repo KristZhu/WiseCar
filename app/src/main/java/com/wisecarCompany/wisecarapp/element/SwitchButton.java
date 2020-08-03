@@ -1,6 +1,6 @@
 // https://github.com/zj565061763/switchbutton
 
-package com.wisecarCompany.wisecarapp.viewElement;
+package com.wisecarCompany.wisecarapp.element;
 
 import android.content.Context;
 import android.content.res.Resources;

@@ -229,7 +229,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/companyNameTextView" />
 
-            <com.wisecarCompany.wisecarapp.viewElement.SwitchButton
+            <com.wisecarCompany.wisecarapp.element.SwitchButton
                 android:id="@+id/shareSwitchButton"
                 android:layout_height="0dp"
                 android:layout_width="0dp"
@@ -417,7 +417,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/endTextView" />
 
-                <com.wisecarCompany.wisecarapp.viewElement.SwitchButton
+                <com.wisecarCompany.wisecarapp.element.SwitchButton
                     android:id="@+id/recurringSwitchButton"
                     android:layout_height="0dp"
                     android:layout_width="0dp"
@@ -630,7 +630,7 @@ android:theme="@style/Theme.AppCompat.NoActionBar">
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/recurringDiv" />
 
-                <com.wisecarCompany.wisecarapp.viewElement.SwitchButton
+                <com.wisecarCompany.wisecarapp.element.SwitchButton
                     android:id="@+id/visibilitySwitchButton"
                     android:layout_height="0dp"
                     android:layout_width="0dp"

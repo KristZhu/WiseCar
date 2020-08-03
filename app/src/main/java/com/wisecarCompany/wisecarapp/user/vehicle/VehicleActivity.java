@@ -38,7 +38,7 @@ import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.introduction.AboutActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import com.wisecarCompany.wisecarapp.user.profile.UpdateProfileActivity;
-import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
+import com.wisecarCompany.wisecarapp.element.CircleImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -343,22 +343,23 @@ public class VehicleActivity extends AppCompatActivity {
             selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0empty_vehicle));
         } else if(vehicles.size()==0) { //just finish adding the first vehicle
             showSelectedVehicle(UserInfo.getNewVehicle());  //show the newly added vehicle as selected
-            showVehicleInScrollView(UserInfo.getNewVehicle());
+            showVehicleInScrollView(UserInfo.getNewVehicle(), null);
+            //vehicleImageViews.put(vehicles.get(vehicleID), imageView);
         } else if(UserInfo.getNewVehicle()==null) { //has vehicles, return from other activities, not add
             for (Map.Entry<String, Vehicle> vehicleEntry: vehicles.entrySet()) {    //show the first vehicle in vehicles map as selected
                 showSelectedVehicle(vehicleEntry.getValue());
                 break;
             }
             for (Map.Entry<String, Vehicle> vehicleEntry: vehicles.entrySet()) {    //show all vehicles
-                showVehicleInScrollView(vehicleEntry.getValue());
+                showVehicleInScrollView(vehicleEntry.getValue(), null);
                 //vehicleImageViews.put(vehicles.get(vehicleID), imageView);
             }
         } else {    //has vehicle, and just added a new one
             showSelectedVehicle(UserInfo.getNewVehicle());  //show the newly added vehicle as selected
-            showVehicleInScrollView(UserInfo.getNewVehicle());
+            showVehicleInScrollView(UserInfo.getNewVehicle(), null);
             //vehicleImageViews.put(UserInfo.getNewVehicle.get(vehicleID), imageView);
             for (Map.Entry<String, Vehicle> vehicleEntry: vehicles.entrySet()) {    //show all vehicles
-                showVehicleInScrollView(vehicleEntry.getValue());
+                showVehicleInScrollView(vehicleEntry.getValue(), UserInfo.getNewVehicle().getRegistration_no());
                 //vehicleImageViews.put(vehicles.get(vehicleID), imageView);
             }
         }
@@ -367,17 +368,17 @@ public class VehicleActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void showSelectedVehicle(Vehicle vehicle) {
         selectedVehicleTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
-        if (vehicle.getImage() == null)
-            selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.blank_white_circle));
-        else
-            selectedVehicleImageView.setImageBitmap(vehicle.getImage());
+        if (vehicle.getImage() == null) selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.blank_white_circle));
+        else selectedVehicleImageView.setImageBitmap(vehicle.getImage());
         manageVehicleImageButton.setOnClickListener(v -> {
             if (menuDiv.getVisibility() == View.VISIBLE) menuDiv.setVisibility(View.GONE);
             else manageVehicle(vehicle);
         });
     }
 
-    private void showVehicleInScrollView(Vehicle vehicle) {
+    private void showVehicleInScrollView(Vehicle vehicle, String alreadyShownNewAddedVehicleRegNo) {
+        if(vehicle.getRegistration_no().equals(alreadyShownNewAddedVehicleRegNo)) return;
+
         CircleImageView imageView = new CircleImageView(VehicleActivity.this);
         if (vehicle.getImage() == null) imageView.setImageDrawable(getResources().getDrawable(R.drawable.blank_white_circle));
         else imageView.setImageBitmap(vehicle.getImage());

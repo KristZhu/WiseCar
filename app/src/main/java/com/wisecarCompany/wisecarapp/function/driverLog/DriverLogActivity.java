@@ -16,8 +16,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -56,10 +58,11 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.wisecarCompany.wisecarapp.element.AppFrontBackListener;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.viewElement.ScreenListener;
+import com.wisecarCompany.wisecarapp.element.ScreenListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -132,9 +135,6 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
     private LinearLayout logsDiv;
 
-    PowerManager.WakeLock wakeLock;
-    private ScreenListener screenListener;
-    MediaPlayer mediaPlayer;
     NotificationManager manager;
 
 
@@ -359,23 +359,6 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         });
 
 
-        screenListener = new ScreenListener(this);
-        screenListener.register(new ScreenListener.ScreenStateListener() {
-            String TAG = "screenListener";
-            @Override
-            public void onScreenOn() {
-                stopVoice();
-            }
-            @Override
-            public void onScreenOff() {
-                if(UserInfo.getCurrLog()!=null && !UserInfo.getCurrLog().isPausing()) startTurnOnScreenVoice();
-            }
-            @Override
-            public void onUserPresent() {
-                stopVoice();
-            }
-        });
-
         startImageButton = $(R.id.startImageButton);
         pauseResumeImageButton = $(R.id.pauseResumeImageButton);
         endImageButton = $(R.id.endImageButton);
@@ -424,32 +407,6 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
     }
 
-    @Override
-    protected void onDestroy() {
-        if (screenListener != null) {
-            screenListener.unregister();
-        }
-        super.onDestroy();
-    }
-
-    public void startTurnOnScreenVoice() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {return;}
-        mediaPlayer = MediaPlayer.create(this, R.raw.turn_on_screen);
-        mediaPlayer.start();
-        mediaPlayer.setOnCompletionListener(mp -> {
-            if (mediaPlayer == null) {return;}
-            mediaPlayer.start();
-            mediaPlayer.setLooping(true);
-        });
-    }
-
-    public void stopVoice() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-    }
 
     private void showTaskBarLogNotification(String time, String distance) {
 
@@ -537,11 +494,14 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         String secDuration = secD >= 10 ? "" + secD : "0" + secD;
         timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
 
+/*  not compatible with FrontBackListener
+
         getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+*/
 
         startLocation();
 
@@ -627,11 +587,14 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                 + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
         timeDistanceTextView.setText(timeDistanceTextView.getText().toString() + " (paused)");
 
+/*  not compatible with FrontEndListener
+
         getWindow().clearFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+*/
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
         if (locationManager != null) locationManager.removeUpdates(locationListener);
@@ -645,12 +608,14 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         timeDistanceTextView.setText("");
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
 
+/*  not compatible with FrontEndListener
+
         getWindow().clearFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+*/
         stopTaskBarLogNotification();
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);

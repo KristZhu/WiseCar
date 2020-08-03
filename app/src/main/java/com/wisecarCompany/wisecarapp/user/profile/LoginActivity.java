@@ -92,8 +92,6 @@ public class LoginActivity extends AppCompatActivity {
                 autoLoginCheckBox.setClickable(true);
                 autoLoginCheckBox.setAlpha(1.0f);
             }
-        } else {
-            usernameEditText.setText((String)getIntent().getStringExtra("newCreatedUsername")); //maybe null
         }
 
         passwordChanged = false;    //only when password is remembered and not changed will it remain false

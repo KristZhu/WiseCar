@@ -11,18 +11,13 @@ import com.stephentuso.welcome.WelcomeActivity;
 import com.stephentuso.welcome.WelcomeConfiguration;
 import com.wisecarCompany.wisecarapp.R;
 
+
+//https://github.com/stephentuso/welcome-android/
 public class WisecarWelcomeActivity extends WelcomeActivity {
-
-    private SharedPreferences sp;
-    private String username;
-
 
     @SuppressLint("ResourceType")
     @Override
     protected WelcomeConfiguration configuration() {
-
-        //username = sp.getString("USERNAME", "");
-        username = "Krist";
 
         return new WelcomeConfiguration.Builder(this)
                 .defaultBackgroundColor(R.color.darkBG)

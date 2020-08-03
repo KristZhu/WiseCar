@@ -33,9 +33,8 @@ import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.viewElement.SwitchButton;
+import com.wisecarCompany.wisecarapp.element.SwitchButton;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 
 //import org.apache.http.HttpResponse;
 //import org.apache.http.client.HttpClient;
