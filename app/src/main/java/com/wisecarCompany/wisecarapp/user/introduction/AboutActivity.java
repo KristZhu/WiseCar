@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.user.profile;
+package com.wisecarCompany.wisecarapp.user.introduction;
 
 import androidx.appcompat.app.AppCompatActivity;
 

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".user.licence.LicenceActivity"
-    android:background="@drawable/wc0bg_dark"
+    android:background="@color/darkBG"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
     <ImageButton
@@ -27,7 +27,7 @@
         app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.1"
-        app:srcCompat="@drawable/wc0back" />
+        app:srcCompat="@drawable/back_icon" />
 
     <ImageView
         android:id="@+id/logoImageView"
@@ -42,7 +42,7 @@
         app:layout_constraintTop_toTopOf="@+id/backImageButton"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.3"
-        app:srcCompat="@drawable/wc0title"
+        app:srcCompat="@drawable/title"
         android:contentDescription="TODO" />
 
     <ScrollView
@@ -69,7 +69,7 @@
                 android:id="@+id/imageDiv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/wc0bg_light"
+                android:background="@color/lightBG"
                 android:paddingTop="16dp"
                 android:paddingBottom="16dp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -499,7 +499,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/wc0bg_yellow"
+                android:background="@color/yellowBG"
                 app:layout_constraintTop_toBottomOf="@id/rowDiv6"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"

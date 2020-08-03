@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".function.shareVehicle.ShareVehicleListActivity"
-    android:background="@drawable/wc0bg_dark"
+    android:background="@color/darkBG"
     android:theme="@style/Theme.AppCompat.NoActionBar">
 
     <ImageButton
@@ -28,7 +28,7 @@
         app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.1"
-        app:srcCompat="@drawable/wc0back" />
+        app:srcCompat="@drawable/back_icon" />
 
     <TextView
         android:id="@+id/headerTextView"
@@ -48,7 +48,7 @@
         android:id="@+id/imageDiv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/wc0bg_yellow"
+        android:background="@color/yellowBG"
         android:padding="8dp"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,7 +61,7 @@
             android:layout_height="0dp"
             android:layout_centerInParent="true"
             android:layout_margin="16dp"
-            android:src="@drawable/wc0blank_white_circle"
+            android:src="@drawable/blank_white_circle"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -91,7 +91,7 @@
         android:layout_height="0dp"
         android:fadingEdge="vertical"
         android:scrollbars="vertical"
-        android:background="@drawable/wc0bg_light"
+        android:background="@color/lightBG"
         app:layout_constraintBottom_toTopOf="@id/shareDiv"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -220,7 +220,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="1.0"
-        android:background="@drawable/wc0bg_light">
+        android:background="@color/lightBG">
 
         <ImageButton
             android:id="@+id/shareImageButton"

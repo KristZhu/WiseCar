@@ -35,7 +35,7 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 import com.wisecarCompany.wisecarapp.user.licence.LicenceActivity;
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.profile.AboutActivity;
+import com.wisecarCompany.wisecarapp.user.introduction.AboutActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import com.wisecarCompany.wisecarapp.user.profile.UpdateProfileActivity;
 import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
@@ -368,7 +368,7 @@ public class VehicleActivity extends AppCompatActivity {
     private void showSelectedVehicle(Vehicle vehicle) {
         selectedVehicleTextView.setText(vehicle.getMake_name() + " - " + vehicle.getRegistration_no());
         if (vehicle.getImage() == null)
-            selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+            selectedVehicleImageView.setImageDrawable(getResources().getDrawable(R.drawable.blank_white_circle));
         else
             selectedVehicleImageView.setImageBitmap(vehicle.getImage());
         manageVehicleImageButton.setOnClickListener(v -> {
@@ -379,7 +379,7 @@ public class VehicleActivity extends AppCompatActivity {
 
     private void showVehicleInScrollView(Vehicle vehicle) {
         CircleImageView imageView = new CircleImageView(VehicleActivity.this);
-        if (vehicle.getImage() == null) imageView.setImageDrawable(getResources().getDrawable(R.drawable.wc0blank_white_circle));
+        if (vehicle.getImage() == null) imageView.setImageDrawable(getResources().getDrawable(R.drawable.blank_white_circle));
         else imageView.setImageBitmap(vehicle.getImage());
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         params.setMargins(0, 0, 16, 0);

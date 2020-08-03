@@ -249,7 +249,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                 // Write database connection here
 /*
                 if (!((BitmapDrawable) vehicleImageView.getDrawable()).getBitmap()
-                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.wc0blank_white_circle, null)).getBitmap())) {
+                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.blank_white_circle, null)).getBitmap())) {
                     uploadVehicleInfo();
                 } else {
                     Toast.makeText(this, "Please upload your vehicle photo.", Toast.LENGTH_LONG).show();
@@ -509,7 +509,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                 params.put("user_id", userID);
 
                 /*if (!((BitmapDrawable) vehicleImageView.getDrawable()).getBitmap()
-                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.wc0blank_white_circle, null)).getBitmap())) {
+                        .sameAs(((BitmapDrawable) ResourcesCompat.getDrawable(getResources(), R.drawable.blank_white_circle, null)).getBitmap())) {
                     Bitmap toBeUploaded = ((BitmapDrawable) vehicleImageView.getDrawable()).getBitmap();
 
                     String root = Environment.getExternalStorageDirectory().toString();

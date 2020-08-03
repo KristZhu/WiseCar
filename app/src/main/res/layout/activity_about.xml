@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/wc0bg_dark"
-    tools:context=".user.profile.AboutActivity">
+    android:background="@color/darkBG"
+    tools:context=".user.introduction.AboutActivity">
 
     <ImageButton
         android:id="@+id/backImageButton"
@@ -26,7 +26,7 @@
         app:layout_constraintVertical_bias="0.0"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.1"
-        app:srcCompat="@drawable/wc0back" />
+        app:srcCompat="@drawable/back_icon" />
 
     <ImageView
         android:id="@+id/logoImageView"
@@ -41,7 +41,7 @@
         app:layout_constraintTop_toTopOf="@+id/backImageButton"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.3"
-        app:srcCompat="@drawable/wc0title"
+        app:srcCompat="@drawable/title"
         android:contentDescription="TODO" />
 
     <ScrollView
@@ -62,7 +62,7 @@
                 android:id="@+id/bigLogoImageView"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:src="@drawable/wc0logo"
+                android:src="@drawable/logo_transparent_bg"
                 app:layout_constraintDimensionRatio="943:831"
                 app:layout_constraintWidth_percent="0.5"
                 app:layout_constraintTop_toTopOf="parent"
