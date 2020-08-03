@@ -65,7 +65,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private final String IP_HOST = "http://54.206.19.123:3000";
     private final String CREATE_USER = "/api/v1/users/register";
 
-   // private byte[] userImg;
+    // private byte[] userImg;
     private File userImgFile;
     private String username;
     private String userEmail;
@@ -103,7 +103,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
         //userImg = (byte[]) this.getIntent().getSerializableExtra("userImg");
         String userImgfilepath = this.getIntent().getStringExtra("userImgPath");
         //change into byte[]
-        if(userImgfilepath != null) userImgFile = new File(userImgfilepath);
+        if (userImgfilepath != null) userImgFile = new File(userImgfilepath);
         //init array with file length
 //        byte[] bytesArray = new byte[(int) file.length()];
 //
@@ -304,44 +304,46 @@ public class CreateUserActivity2 extends AppCompatActivity {
 //                bos.close();
 
                 String response = HttpUtil.uploadForm(params, "logo", userImgFile, "userImage.png", IP_HOST + CREATE_USER);
-                Log.e("response", response);
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
+                if (response != null) {
+                    Log.e("response", response);
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
 
-                    message = jsonObject.optString("message");
-                    user_id = jsonObject.optInt("user_id");
+                        message = jsonObject.optString("message");
+                        user_id = jsonObject.optInt("user_id");
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    Log.e("testest", message + "  " + user_id);
+
+                    if (message != null && message.equals("success")) {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+
+                                welcomeScreen = new WelcomeHelper(CreateUserActivity2.this, WisecarWelcomeActivity.class);
+                                //welcomeScreen.show(savedInstanceState);
+                                welcomeScreen.forceShow();
+                            }
+                        });
+                        startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id).putExtra("newCreatedUsername", username));
+                    }
+                }
+
+                if (response == null) {
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "This username is taken, please change your username.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            Log.e("testest", message + "  " + user_id);
-
-            if (message.equals("failure")) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "This username is taken, please change your username.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
-            }
-
-            if (message != null && message.equals("success")) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-
-                        welcomeScreen = new WelcomeHelper(CreateUserActivity2.this, WisecarWelcomeActivity.class);
-                        //welcomeScreen.show(savedInstanceState);
-                        welcomeScreen.forceShow();
-                    }
-                });
-                startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id).putExtra("newCreatedUsername", username));
-            }
         });
         thread.start();
     }
