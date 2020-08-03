@@ -318,6 +318,14 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
             Log.e("testest", message + "  " + user_id);
 
+            if (message.equals("failure")) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "This username is taken, please change your username.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
 
             if (message != null && message.equals("success")) {
                 runOnUiThread(new Runnable() {

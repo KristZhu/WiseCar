@@ -429,6 +429,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                         }
                     });
                 } else {
+                    Log.e("Add vehicle response", response);
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         message = jsonObject.optString("message");
