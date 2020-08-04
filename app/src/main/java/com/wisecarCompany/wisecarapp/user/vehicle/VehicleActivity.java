@@ -219,14 +219,14 @@ public class VehicleActivity extends AppCompatActivity {
                             currDateCal.set(currDateCal.get(Calendar.YEAR), currDateCal.get(Calendar.MONTH), currDateCal.get(Calendar.DAY_OF_MONTH),0, 0, 0);
                             isEmergent = Math.abs(currDateCal.getTime().getTime() - date.getTime()) <= 7*24*60*60*1000;
                         }
+                        String temp;
                         if(isEmergent) {
                             containEmergency = true;
-                            String temp = "<font color='#ff0000'>" + contents[0] + "<br>" + contents[1] + " - " + displayDateFormat.format(date) + "</font>";
-                            notifyTextView[i++].setText(Html.fromHtml(temp));
+                            temp = "<font color='#ff0000'>" + contents[0] + "<br>" + contents[1] + " - " + displayDateFormat.format(date) + "</font>";
                         } else {
-                            String temp = "<font color='#0c450c'>" + contents[0] + "<br>" + contents[1] + " - " + displayDateFormat.format(date) + "</font>";
-                            notifyTextView[0].setText(Html.fromHtml(temp));
+                            temp = "<font color='#0c450c'>" + contents[0] + "<br>" + contents[1] + " - " + displayDateFormat.format(date) + "</font>";
                         }
+                        notifyTextView[i++].setText(Html.fromHtml(temp));
                     }
                 }
                 if(containEmergency) notificationImageView.setImageDrawable(getResources().getDrawable(R.drawable.vehicle0notification_red));
