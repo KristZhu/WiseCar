@@ -32,9 +32,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name=".user.introduction.WisecarWelcomeActivity"
-            android:theme="@style/WelcomeScreenTheme" />
+        <activity android:name=".user.introduction.WelcomeActivity" />
         <activity android:name=".user.introduction.AboutActivity" />
         <activity android:name=".user.vehicle.CalendarActivity" />
         <activity android:name=".user.profile.UpdateProfileActivity" />
