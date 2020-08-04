@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 android {
 
@@ -44,6 +46,7 @@ repositories {
     mavenCentral()
     maven { url 'https://maven.google.com' }
     maven { url 'https://jitpack.io' }
+    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
 }
 
 dependencies {
@@ -84,6 +87,9 @@ dependencies {
     implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     implementation 'org.xutils:xutils:3.8.3'
 
-    implementation 'com.stephentuso:welcome:1.4.1'
+    //implementation 'com.stephentuso:welcome:1.4.1'
+    implementation 'com.github.AppIntro:AppIntro:6.0.0'
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
 }

@@ -1,6 +1,7 @@
 package com.wisecarCompany.wisecarapp;
 
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +9,8 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.wisecarCompany.wisecarapp.element.AppFrontBackListener;
+import com.wisecarCompany.wisecarapp.user.introduction.WelcomeActivity;
+import com.wisecarCompany.wisecarapp.user.profile.CreateUserActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -15,13 +18,14 @@ public class MainActivity extends AppCompatActivity {
     String TAG = "main";
 
 
+    @SuppressLint("StringFormatInvalid")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         startActivity(new Intent(this, LoginActivity.class));
-        //startActivity(new Intent(MainActivity.this, CreateUserActivity.class));
+        //startActivity(new Intent(MainActivity.this, WelcomeActivity.class));
 
 
 /*  try to push message every day. Not working at all.
