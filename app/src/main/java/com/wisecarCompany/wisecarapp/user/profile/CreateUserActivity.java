@@ -69,6 +69,7 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
     private EditText userEmailEditText;
     private EditText passwordEditText;
     private ImageView passImageView;
+    private ImageView noPassImageView;
     private EditText confirmPasswordEditText;
     private ImageView confirmPassImageView;
     private ImageView confirmNoPassImageView;
@@ -87,6 +88,7 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
         userEmailEditText = $(R.id.userEmailEditText);
         passwordEditText = $(R.id.passwordEditText);
         passImageView = $(R.id.passImageView);
+        noPassImageView = $(R.id.noPassImageView);
         confirmPasswordEditText = $(R.id.confirmPasswordEditText);
         confirmPassImageView = $(R.id.confirmPassImageView);
         confirmNoPassImageView = $(R.id.confirmNoPassImageView);
@@ -95,10 +97,12 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
 
         passwordEditText.setOnTouchListener((v, event) -> {
             passImageView.setVisibility(View.INVISIBLE);
+            noPassImageView.setVisibility(View.INVISIBLE);
             return false;
         });
         passwordEditText.setOnClickListener(v -> {
             passImageView.setVisibility(View.INVISIBLE);
+            noPassImageView.setVisibility(View.INVISIBLE);
         });
 
         confirmPasswordEditText.setOnTouchListener((v, event) -> {
@@ -145,6 +149,7 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
             if (!username.equals("")
                     && !userEmail.equals("")
                     && !password.equals("")
+                    && password.length()>=8
                     && confirmPasswordEditText.getText().toString().equals(password)
             ) {
                 boolean isEmail = false;
@@ -169,13 +174,15 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
                         .putExtra("hashedPassword", sha256(password)));
             } else {    //not valid info
                 if (username.equals(""))
-                    Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please entry nick name. ", Toast.LENGTH_SHORT).show();
                 else if (userEmail.equals(""))
-                    Toast.makeText(getApplicationContext(), "Please entry email", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please entry email. ", Toast.LENGTH_SHORT).show();
                 else if (password.equals(""))
-                    Toast.makeText(getApplicationContext(), "Please entry password", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(getApplicationContext(), "2 passwords are not the same", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please entry password. ", Toast.LENGTH_SHORT).show();
+                else if (passImageView.getVisibility()!=View.VISIBLE)
+                    Toast.makeText(getApplicationContext(), "Password is not valid. It should contains at least 8 characters. ", Toast.LENGTH_SHORT).show();
+                else if (confirmPassImageView.getVisibility()!=View.VISIBLE)
+                    Toast.makeText(getApplicationContext(), "2 passwords are not the same. ", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -269,9 +276,11 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
             hideSoftInput(v.getWindowToken());
             if (passwordEditText.getText().toString().length() > 0) {
                 if (passwordEditText.getText().toString().length() < 8) {
-                    Toast.makeText(this, "Password is too short. It should be at least 8 characters. ", Toast.LENGTH_SHORT).show();
+                    passImageView.setVisibility(View.INVISIBLE);
+                    noPassImageView.setVisibility(View.VISIBLE);
                 } else {
                     passImageView.setVisibility(View.VISIBLE);
+                    noPassImageView.setVisibility(View.INVISIBLE);
                 }
             }
             if (confirmPasswordEditText.getText().toString().length() > 0) {
