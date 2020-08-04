@@ -551,10 +551,10 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                         timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
                         showTaskBarLogNotification(timeDistanceTextView.getText().toString());
 
-                        TextView testLng = $(R.id.testLng);
-                        testLng.setText("" + UserInfo.getCurrLog().getLongitude());
-                        TextView testLat = $(R.id.testLat);
-                        testLat.setText("" + UserInfo.getCurrLog().getLatitude());
+                        //TextView testLng = $(R.id.testLng);
+                        //testLng.setText("" + UserInfo.getCurrLog().getLongitude());
+                        //TextView testLat = $(R.id.testLat);
+                        //testLat.setText("" + UserInfo.getCurrLog().getLatitude());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
