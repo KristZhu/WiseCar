@@ -149,7 +149,7 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
             ) {
                 boolean isEmail = false;
                 try {
-                    String check = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
+                    String check = "^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_.-]+(\\.[a-zA-Z0-9_-]+)+$";
                     Pattern regex = Pattern.compile(check);
                     Matcher matcher = regex.matcher(userEmail);
                     isEmail = matcher.matches();
@@ -166,7 +166,7 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
                         .putExtra("username", username)
                         .putExtra("userEmail", userEmail)
 //                        .putExtra("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));
-                        .putExtra("password", sha256(password)));
+                        .putExtra("hashedPassword", sha256(password)));
             } else {    //not valid info
                 if (username.equals(""))
                     Toast.makeText(getApplicationContext(), "Please entry nick name", Toast.LENGTH_SHORT).show();

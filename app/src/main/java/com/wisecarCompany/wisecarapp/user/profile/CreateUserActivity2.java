@@ -6,11 +6,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.IBinder;
 import android.text.InputType;
 import android.util.Log;
@@ -21,12 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.stephentuso.welcome.WelcomeHelper;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
-import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.introduction.WisecarWelcomeActivity;
-import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
+import com.wisecarCompany.wisecarapp.user.introduction.WelcomeActivity;
 
 //import org.apache.http.HttpResponse;
 //import org.apache.http.client.HttpClient;
@@ -40,20 +33,11 @@ import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
@@ -72,7 +56,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private File userImgFile;
     private String username;
     private String userEmail;
-    private String password;
+    private String hashedPassword;
 
     private String firstName;
     private String lastName;
@@ -92,8 +76,6 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private EditText stateEditText;
     private EditText postCodeEditText;
     private ImageButton createImageButton;
-
-    WelcomeHelper welcomeScreen;
 
     private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
@@ -124,7 +106,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
         username = this.getIntent().getStringExtra("username");
         userEmail = this.getIntent().getStringExtra("userEmail");
-        password = this.getIntent().getStringExtra("password");
+        hashedPassword = this.getIntent().getStringExtra("hashedPassword");
 
         firstNameEditText = $(R.id.userFNameEditText);
         lastNameEditText = $(R.id.userLNameEditText);
@@ -175,7 +157,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
 //            Log.d(TAG, "userImg: " + Arrays.toString(userImg));
             Log.d(TAG, "username: " + username);
             Log.d(TAG, "userEmail: " + userEmail);
-            Log.d(TAG, "password: " + password);
+            Log.d(TAG, "password: " + hashedPassword);
             Log.d(TAG, "FName: " + firstName);
             Log.d(TAG, "LName: " + lastName);
             Log.d(TAG, "dob: " + dob);
@@ -188,7 +170,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
             if (!username.equals("")
                     && !userEmail.equals("")
-                    && !password.equals("")
+                    && !hashedPassword.equals("")
                     && !firstName.equals("")
                     && !lastName.equals("")
                     && dob != null && dob.before(new java.util.Date())
@@ -291,7 +273,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 params.put("state", state);
                 params.put("country", country);
                 params.put("email", userEmail);
-                params.put("password", password);
+                params.put("password", hashedPassword);
 
 //                Bitmap toBeUploaded = BitmapFactory.decodeByteArray(userImg, 0, userImg.length);
 //                String root = Environment.getExternalStorageDirectory().toString();
@@ -335,23 +317,16 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 });
                 SharedPreferences.Editor editor = sp.edit()
                         .putString("USERNAME", username)
-                        .putString("HASHED_PASSWORD", "")
-                        .putInt("PASSWORD_LENGTH", 0);
+                        .putString("HASHED_PASSWORD", hashedPassword)
+                        .putInt("PASSWORD_LENGTH", 0)
+                        .putBoolean("AUTO_LOGIN", true);
                 editor.commit();
 
-                welcomeScreen = new WelcomeHelper(CreateUserActivity2.this, WisecarWelcomeActivity.class);
-                //welcomeScreen.show(savedInstanceState);
-                welcomeScreen.forceShow();
-                startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id));
+                //startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id));
+                startActivity(new Intent(this, WelcomeActivity.class));
             }
         });
         thread.start();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        welcomeScreen.onSaveInstanceState(outState);
     }
 
     private <T extends View> T $(int id) {
