@@ -91,7 +91,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
     private final static String TAG = "DriverLogActivity";
 
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String GET_CURRENT_SHARE = "/api/v1/drivelog/currentsharedetail";
     private final String GET_LOG_BY_VID = "/api/v1/drivelog/recentlogbyvid";
     private final String GET_LOG_BY_COMPANY = "/api/v1/drivelog/recentlogbycompany";

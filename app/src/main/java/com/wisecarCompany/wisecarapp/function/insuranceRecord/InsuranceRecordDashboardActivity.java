@@ -54,7 +54,7 @@ public class InsuranceRecordDashboardActivity extends AppCompatActivity {
 
     private final static String TAG = "InsurRecordDashboard";
 
-    private String IP_HOST = "http://54.206.19.123:3000";
+    private String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private String GET_INSURANCE_REFCORDS = "/api/v1/insurancerecords/getallrecordbyuser";
     private String GET_INSURANCE_BY_REG_NO = "/api/v1/insurancerecords/getrecordbyuserregisno";
 

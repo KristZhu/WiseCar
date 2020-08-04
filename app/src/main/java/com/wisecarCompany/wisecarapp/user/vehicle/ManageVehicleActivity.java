@@ -48,7 +48,7 @@ import java.util.TreeSet;
 public class ManageVehicleActivity extends AppCompatActivity {    //edit a special vehicle, or select functions of this vehicle to go
 
     private final static String TAG = "Manage Vehicle";
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String GET_SERVICE = "/api/v1/services/";
     private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
 
