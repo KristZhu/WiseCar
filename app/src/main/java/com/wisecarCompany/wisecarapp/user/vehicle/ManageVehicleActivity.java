@@ -82,7 +82,7 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         if (UserInfo.getNewVehicle()!=null || UserInfo.getCurrVehicle().getVehicle_id()==null) {
             //synchronizing process is not finished
             //call returnNewVehicle again to syc
-            Toast.makeText(ManageVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(ManageVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
             returnNewVehicle(new newVehicleCallbacks() {
                 @Override
                 public void onSuccess(Vehicle value) {
@@ -138,6 +138,7 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         loadServices(new servicesCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Integer> services) {
+                servicesLayout.removeAllViews();
                 services = new ArrayList<>(new TreeSet<>(services));
                 Log.e("services", String.valueOf(services));
                 UserInfo.getCurrVehicle().setServices(services);
