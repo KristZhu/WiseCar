@@ -17,7 +17,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.stephentuso.welcome.WelcomeHelper;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.introduction.WelcomeActivity;
@@ -51,10 +50,9 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String CREATE_USER = "/api/v1/users/register";
 
-    // private byte[] userImg;
-
     SharedPreferences sp;
 
+    // private byte[] userImg;
     private File userImgFile;
     private String username;
     private String userEmail;
@@ -92,7 +90,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
         //userImg = (byte[]) this.getIntent().getSerializableExtra("userImg");
         String userImgfilepath = this.getIntent().getStringExtra("userImgPath");
         //change into byte[]
-        if (userImgfilepath != null) userImgFile = new File(userImgfilepath);
+        if(userImgfilepath != null) userImgFile = new File(userImgfilepath);
         //init array with file length
 //        byte[] bytesArray = new byte[(int) file.length()];
 //
@@ -293,7 +291,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
 //                bos.close();
 
                 String response = HttpUtil.uploadForm(params, "logo", userImgFile, "userImage.png", IP_HOST + CREATE_USER);
-                if (response != null) {
+                if(response != null) {
                     Log.e("response", response);
                     try {
                         JSONObject jsonObject = new JSONObject(response);
@@ -304,27 +302,28 @@ public class CreateUserActivity2 extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                     Log.e("testest", message + "  " + user_id);
 
                     if (message != null && message.equals("success")) {
                         runOnUiThread(new Runnable() {
                             public void run() {
                                 Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-
-                                welcomeScreen = new WelcomeHelper(CreateUserActivity2.this, WisecarWelcomeActivity.class);
-                                //welcomeScreen.show(savedInstanceState);
-                                welcomeScreen.forceShow();
                             }
                         });
-                        startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id).putExtra("newCreatedUsername", username));
-                    }
-                }
+                        SharedPreferences.Editor editor = sp.edit()
+                                .putString("USERNAME", username)
+                                .putString("HASHED_PASSWORD", hashedPassword)
+                                .putInt("PASSWORD_LENGTH", 0)
+                                .putBoolean("AUTO_LOGIN", true);
+                        editor.commit();
 
-                if (response == null) {
+                        //startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id));
+                        startActivity(new Intent(this, WelcomeActivity.class));
+                    }
+                }else{
                     runOnUiThread(new Runnable() {
                         public void run() {
-                            Toast.makeText(getApplicationContext(), "This username is taken, please change your username.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Your username is taken, please change it.", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -333,31 +332,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            if (message != null && message.equals("success")) {
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                SharedPreferences.Editor editor = sp.edit()
-                        .putString("USERNAME", username)
-                        .putString("HASHED_PASSWORD", hashedPassword)
-                        .putInt("PASSWORD_LENGTH", 0)
-                        .putBoolean("AUTO_LOGIN", true);
-                editor.commit();
-
-                //startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id));
-                startActivity(new Intent(this, WelcomeActivity.class));
-            }
         });
         thread.start();
-    }
-
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        welcomeScreen.onSaveInstanceState(outState);
     }
 
     private <T extends View> T $(int id) {
