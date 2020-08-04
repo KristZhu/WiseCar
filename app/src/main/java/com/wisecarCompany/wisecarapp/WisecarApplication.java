@@ -2,10 +2,12 @@ package com.wisecarCompany.wisecarapp;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.wisecarCompany.wisecarapp.function.driverLog.DriverLogActivity;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
 
 public class WisecarApplication extends Application {
@@ -32,7 +34,12 @@ public class WisecarApplication extends Application {
                 if (mFinalCount == 1){
                     //return to front from back
                     Log.d(TAG, "front...");
-                    stopResumeDriverLogoice();
+                    if(UserInfo.getCurrLog()!=null && UserInfo.getCurrLog().isPausing() && UserInfo.getCurrLog().isSwitchedBackWhileRunning()){
+                        UserInfo.getCurrLog().setSwitchedBackWhileRunning(false);
+                        UserInfo.getCurrLog().setPausing(false);
+                        stopResumeDriverLogoice();
+                        startActivity(new Intent(getApplicationContext(), DriverLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    }
                 }
             }
 
@@ -54,6 +61,8 @@ public class WisecarApplication extends Application {
                     //go to back from front
                     Log.d(TAG, "back...");
                     if(UserInfo.getCurrLog()!=null && !UserInfo.getCurrLog().isPausing()){
+                        UserInfo.getCurrLog().setPausing(true);
+                        UserInfo.getCurrLog().setSwitchedBackWhileRunning(true);
                         startResumeDriverLogVoice();
                     }
                 }

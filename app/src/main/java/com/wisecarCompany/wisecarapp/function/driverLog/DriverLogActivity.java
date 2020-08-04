@@ -39,6 +39,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -487,14 +488,12 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         String secDuration = secD >= 10 ? "" + secD : "0" + secD;
         timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
 
-/*  not compatible with FrontBackListener
-
         getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-*/
+
 
         startLocation();
 
@@ -580,14 +579,11 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                 + (int) (UserInfo.getCurrLog().getKm() * 10) / 10.0 + "km");
         timeDistanceTextView.setText(timeDistanceTextView.getText().toString() + " (paused)");
 
-/*  not compatible with FrontEndListener
-
         getWindow().clearFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-*/
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);
         if (locationManager != null) locationManager.removeUpdates(locationListener);
@@ -601,14 +597,12 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
         timeDistanceTextView.setText("");
         pauseResumeImageButton.setImageDrawable(getResources().getDrawable(R.drawable.record_log0pause));
 
-/*  not compatible with FrontEndListener
-
         getWindow().clearFlags(
                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
                         | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-*/
+
         stopTaskBarLogNotification();
 
         //Settings.Secure.setLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER, false);

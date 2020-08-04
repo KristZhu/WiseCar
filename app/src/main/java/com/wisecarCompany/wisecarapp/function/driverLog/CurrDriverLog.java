@@ -29,7 +29,8 @@ public class CurrDriverLog {
     private int countPause = 0;
     private double km = 0;
     private boolean timerRunning = false;
-    private Timer timer;
+
+    private boolean switchedBackWhileRunning = false;
 
 
     private static CurrDriverLog currLog;
@@ -177,12 +178,12 @@ public class CurrDriverLog {
         this.timerRunning = timerRunning;
     }
 
-    public Timer getTimer() {
-        return timer;
+    public boolean isSwitchedBackWhileRunning() {
+        return switchedBackWhileRunning;
     }
 
-    public void setTimer(Timer timer) {
-        this.timer = timer;
+    public void setSwitchedBackWhileRunning(boolean switchedBackWhileRunning) {
+        this.switchedBackWhileRunning = switchedBackWhileRunning;
     }
 
     @Override
