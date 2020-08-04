@@ -16,23 +16,19 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
-import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.PowerManager;
 import android.text.Html;
 import android.text.InputType;
 import android.util.Base64;
@@ -43,7 +39,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -58,11 +53,9 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.element.AppFrontBackListener;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.element.ScreenListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -408,7 +401,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
     }
 
 
-    private void showTaskBarLogNotification(String time, String distance) {
+    private void showTaskBarLogNotification(String timeDistance) {
 
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         assert manager != null;
@@ -429,8 +422,8 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
         Notification taskBarLogNotification = new NotificationCompat.Builder(this, "default")
                 .setSmallIcon(R.drawable.logo_white_bg)
-                .setContentTitle(time)
-                .setContentText(distance)
+                .setContentTitle("Driver Log")
+                .setContentText(timeDistance)
                 .setAutoCancel(false)
                 .setOngoing(true)
                 .setDefaults(Notification.DEFAULT_ALL)
@@ -556,7 +549,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
                         String secDuration = secD >= 10 ? "" + secD : "0" + secD;
 
                         timeDistanceTextView.setText(minDuration + ":" + secDuration + ", " + (int) (UserInfo.getCurrLog().getKm() * 1000) / 1000.0 + "km");
-                        showTaskBarLogNotification("Driver Log", timeDistanceTextView.getText().toString());
+                        showTaskBarLogNotification(timeDistanceTextView.getText().toString());
 
                         TextView testLng = $(R.id.testLng);
                         testLng.setText("" + UserInfo.getCurrLog().getLongitude());

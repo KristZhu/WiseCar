@@ -57,6 +57,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private String username;
     private String userEmail;
     private String hashedPassword;
+    private int passwordLength;
 
     private String firstName;
     private String lastName;
@@ -107,6 +108,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
         username = this.getIntent().getStringExtra("username");
         userEmail = this.getIntent().getStringExtra("userEmail");
         hashedPassword = this.getIntent().getStringExtra("hashedPassword");
+        passwordLength = this.getIntent().getIntExtra("passwordLength", 0);
 
         firstNameEditText = $(R.id.userFNameEditText);
         lastNameEditText = $(R.id.userLNameEditText);
@@ -330,6 +332,26 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+
+            Log.e("testest", message + "  " + user_id);
+
+
+            if (message != null && message.equals("success")) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                SharedPreferences.Editor editor = sp.edit()
+                        .putString("USERNAME", username)
+                        .putString("HASHED_PASSWORD", hashedPassword)
+                        .putInt("PASSWORD_LENGTH", passwordLength)
+                        .putBoolean("AUTO_LOGIN", true);
+                editor.commit();
+
+                //startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id));
+                startActivity(new Intent(this, WelcomeActivity.class));
             }
 
         });
