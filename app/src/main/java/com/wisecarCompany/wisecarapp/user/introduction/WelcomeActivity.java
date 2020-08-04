@@ -22,6 +22,7 @@ import kotlin.Metadata;
 import org.jetbrains.annotations.Nullable;
 
 
+//https://github.com/AppIntro/AppIntro
 public class WelcomeActivity extends AppIntro {
 
     private SharedPreferences sp;

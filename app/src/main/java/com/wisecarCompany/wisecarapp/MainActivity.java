@@ -8,9 +8,6 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.wisecarCompany.wisecarapp.element.AppFrontBackListener;
-import com.wisecarCompany.wisecarapp.user.introduction.WelcomeActivity;
-import com.wisecarCompany.wisecarapp.user.profile.CreateUserActivity;
 import com.wisecarCompany.wisecarapp.user.profile.LoginActivity;
 
 public class MainActivity extends AppCompatActivity {

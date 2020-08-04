@@ -133,7 +133,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
         if (UserInfo.getNewVehicle()!=null) {
             //synchronizing process is not finished
             //call returnNewVehicle again to syc
-            Toast.makeText(this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
             returnLastNewVehicle(new newVehicleCallbacks() {
                 @Override
                 public void onSuccess(Vehicle value) {
