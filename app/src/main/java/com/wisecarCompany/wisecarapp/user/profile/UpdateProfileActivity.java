@@ -226,7 +226,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements EasyPerm
         updateImageButton.setOnClickListener(v -> {
             //BitmapDrawable bitmapDrawable = (BitmapDrawable) userImgImageView.getDrawable();
             //userImgBitmap = bitmapDrawable.getBitmap();
-            userImgFile = mPhotoHelper.getCropFilePath() == null ? null : new File(mPhotoHelper.getCameraFilePath());
+            userImgFile = mPhotoHelper.getCropFilePath()==null? null : new File(mPhotoHelper.getCropFilePath());
             fName = fNameEditText.getText().toString();
             lName = lNameEditText.getText().toString();
             email = emailEditText.getText().toString();

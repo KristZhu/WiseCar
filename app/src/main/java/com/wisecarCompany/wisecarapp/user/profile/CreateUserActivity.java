@@ -171,7 +171,8 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
                         .putExtra("username", username)
                         .putExtra("userEmail", userEmail)
 //                        .putExtra("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));
-                        .putExtra("hashedPassword", sha256(password)));
+                        .putExtra("hashedPassword", sha256(password))
+                        .putExtra("passwordLength", password.length()));
             } else {    //not valid info
                 if (username.equals(""))
                     Toast.makeText(getApplicationContext(), "Please entry nick name. ", Toast.LENGTH_SHORT).show();
