@@ -55,7 +55,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/backImageButton">
 
-        <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
+        <com.wisecarCompany.wisecarapp.element.CircleImageView
             android:id="@+id/vehicleBorderImageView"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -70,7 +70,7 @@
             app:layout_constraintWidth_default="percent"
             app:layout_constraintWidth_percent="0.33" />
 
-        <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
+        <com.wisecarCompany.wisecarapp.element.CircleImageView
             android:id="@+id/vehicleImageView"
             android:layout_width="0dp"
             android:layout_height="0dp"

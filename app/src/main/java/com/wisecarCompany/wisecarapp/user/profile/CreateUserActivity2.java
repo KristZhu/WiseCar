@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -66,6 +67,9 @@ public class CreateUserActivity2 extends AppCompatActivity {
     private final String CREATE_USER = "/api/v1/users/register";
 
     // private byte[] userImg;
+
+    SharedPreferences sp;
+
     private File userImgFile;
     private String username;
     private String userEmail;
@@ -99,6 +103,8 @@ public class CreateUserActivity2 extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_user2);
+
+        sp = this.getSharedPreferences("userInfo", MODE_PRIVATE);
 
         //userImg = (byte[]) this.getIntent().getSerializableExtra("userImg");
         String userImgfilepath = this.getIntent().getStringExtra("userImgPath");
@@ -344,9 +350,27 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            if (message != null && message.equals("success")) {
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                SharedPreferences.Editor editor = sp.edit()
+                        .putString("USERNAME", username)
+                        .putString("HASHED_PASSWORD", "")
+                        .putInt("PASSWORD_LENGTH", 0);
+                editor.commit();
+
+                welcomeScreen = new WelcomeHelper(CreateUserActivity2.this, WisecarWelcomeActivity.class);
+                //welcomeScreen.show(savedInstanceState);
+                welcomeScreen.forceShow();
+                startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id));
+            }
         });
         thread.start();
     }
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

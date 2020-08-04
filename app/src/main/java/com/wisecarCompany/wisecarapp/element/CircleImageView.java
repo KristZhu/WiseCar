@@ -1,4 +1,4 @@
-package com.wisecarCompany.wisecarapp.viewElement;
+package com.wisecarCompany.wisecarapp.element;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

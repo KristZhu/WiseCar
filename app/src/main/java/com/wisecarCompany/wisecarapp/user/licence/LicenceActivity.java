@@ -35,8 +35,8 @@ import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
-import com.wisecarCompany.wisecarapp.viewElement.CircleImageView;
-import com.wisecarCompany.wisecarapp.viewElement.SwitchButton;
+import com.wisecarCompany.wisecarapp.element.CircleImageView;
+import com.wisecarCompany.wisecarapp.element.SwitchButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -36,6 +36,7 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.EasyPermissions;
 
 
+//https://github.com/bingoogolapple/BGAPhotoPicker-Android  This project is used for upload/take photo in every Activity
 public class CreateUserActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private static final String TAG = "createUser";

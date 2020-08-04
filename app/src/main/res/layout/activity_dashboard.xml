@@ -98,7 +98,7 @@
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent">
 
-        <com.wisecarCompany.wisecarapp.viewElement.CircleImageView
+        <com.wisecarCompany.wisecarapp.element.CircleImageView
             android:id="@+id/userImgImageView"
             android:layout_width="0dp"
             android:layout_height="0dp"
