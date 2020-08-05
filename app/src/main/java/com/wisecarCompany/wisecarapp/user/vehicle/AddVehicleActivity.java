@@ -65,7 +65,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
 
     private static final String TAG = "addVehicle";
 
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String ADD_VEHICLE = "/api/v1/vehicles/";
     private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
 
@@ -531,6 +531,7 @@ public class AddVehicleActivity extends AppCompatActivity implements EasyPermiss
                 if (response == null) {
                     runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Add vehicle failed. Please check your registration number.", Toast.LENGTH_SHORT).show());
                 } else {
+                    Log.e("Add vehicle response", response);
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         message = jsonObject.optString("message");

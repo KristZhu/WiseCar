@@ -47,12 +47,12 @@ public class CreateUserActivity2 extends AppCompatActivity {
 
     private final static String TAG = "CreateUser2";
 
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String CREATE_USER = "/api/v1/users/register";
 
     SharedPreferences sp;
 
-   // private byte[] userImg;
+    // private byte[] userImg;
     private File userImgFile;
     private String username;
     private String userEmail;
@@ -293,15 +293,41 @@ public class CreateUserActivity2 extends AppCompatActivity {
 //                bos.close();
 
                 String response = HttpUtil.uploadForm(params, "logo", userImgFile, "userImage.png", IP_HOST + CREATE_USER);
-                Log.e("response", response);
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
+                if(response != null) {
+                    Log.e("response", response);
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
 
-                    message = jsonObject.optString("message");
-                    user_id = jsonObject.optInt("user_id");
+                        message = jsonObject.optString("message");
+                        user_id = jsonObject.optInt("user_id");
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.e("testest", message + "  " + user_id);
+
+                    if (message != null && message.equals("success")) {
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        SharedPreferences.Editor editor = sp.edit()
+                                .putString("USERNAME", username)
+                                .putString("HASHED_PASSWORD", hashedPassword)
+                                .putInt("PASSWORD_LENGTH", passwordLength)
+                                .putBoolean("AUTO_LOGIN", true);
+                        editor.commit();
+
+                        //startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id));
+                        startActivity(new Intent(this, WelcomeActivity.class));
+                    }
+                }else{
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Your username is taken, please change it.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
 
             } catch (Exception e) {
@@ -327,6 +353,7 @@ public class CreateUserActivity2 extends AppCompatActivity {
                 //startActivity(new Intent(CreateUserActivity2.this, LoginActivity.class).putExtra("user_id", user_id));
                 startActivity(new Intent(this, WelcomeActivity.class));
             }
+
         });
         thread.start();
     }

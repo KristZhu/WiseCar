@@ -63,7 +63,7 @@ public class ShareVehicleDetailActivity extends AppCompatActivity {
 
     private static final String TAG = "ShareVehicleDetail";
 
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String GET_COMPANY_LIST = "/api/v1/customers/customer/list";
     private final String SUBMIT_SHARE_VEHICLE = "/api/v1/sharevehicle/submit";
     private final String SHARE_CHECK = "/api/v1/sharevehicle/check";

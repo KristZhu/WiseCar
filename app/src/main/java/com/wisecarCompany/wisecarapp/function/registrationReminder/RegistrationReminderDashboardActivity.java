@@ -54,7 +54,7 @@ public class RegistrationReminderDashboardActivity extends AppCompatActivity {
 
     private final static String TAG = "RegReminderDashboard";
 
-    private String IP_HOST = "http://54.206.19.123:3000";
+    private String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private String GET_REGISTRATION_REFCORDS = "/api/v1/registrationrecords/getallrecordbyuser";
     private String GET_REGISTRATION_BY_REG_NO = "/api/v1/registrationrecords/getrecordbyuserregisno";
 

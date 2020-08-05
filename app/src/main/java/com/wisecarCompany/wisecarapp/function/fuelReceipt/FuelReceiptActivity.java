@@ -110,7 +110,7 @@ public class FuelReceiptActivity extends AppCompatActivity implements EasyPermis
 
     private String shared_company_id = "";
 
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String GET_FUEL_IDENTIFIER = "/api/v1/fuelreceipts/identifier/";
     private final String GET_IF_SHARED = "/api/v1/fuelreceipts/checkcurrentshare";
     private final String ADD_FUEL = "/api/v1/fuelreceipts/";

@@ -116,7 +116,7 @@ public class RegistrationReminderActivity extends AppCompatActivity implements E
 
     private BGAPhotoHelper mPhotoHelper;
 
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String GET_REGISTRATION_RECORD_IDENTIFIER = "/api/v1/registrationrecords/identifier/";
     private final String scanQRCode = "/api/v1/registrationrecords/upload?identifier=";
     private final String ADD_REGISTRATION_RECORD = "/api/v1/registrationrecords/";
