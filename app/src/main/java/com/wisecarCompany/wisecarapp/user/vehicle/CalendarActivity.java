@@ -56,18 +56,23 @@ public class CalendarActivity extends AppCompatActivity {
 
     private ImageButton backImageButton;
 
-    private ConstraintLayout backMonthButtonDiv;
-    private ConstraintLayout forthMonthButtonDiv;
-    private TextView backMonthTextView;
-    private TextView forthMonthTextView;
+    private ConstraintLayout previousMonthButtonDiv;    //the whole div(layout) plays as a button to go to previous month
+    private ConstraintLayout nextMonthButtonDiv;
+    private TextView previousMonthTextView;
+    private TextView nextMonthTextView;
     private TextView currMonthYearTextView;
 
     //private ConstraintLayout[] dateLineDiv;
     private TextView[][] dateTextView;
 
+    private ConstraintLayout currDateDiv;
+    private TextView currDateTextView;
+    private ImageButton cancelCurrDateImageButton;
     private LinearLayout noticeDiv;
 
     private Calendar cal;
+
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
 
 
     @Override
@@ -85,8 +90,10 @@ public class CalendarActivity extends AppCompatActivity {
         cal = Calendar.getInstance();
         cal.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH),0, 0, 0);   //still contains millisec, need /1000*1000 to get only date
 
-        backMonthTextView = $(R.id.backMonthTextView);
-        forthMonthTextView = $(R.id.forthMonthTextView);
+        previousMonthButtonDiv = $(R.id.previousMonthButtonDiv);
+        nextMonthButtonDiv = $(R.id.nextMonthButtonDiv);
+        previousMonthTextView = $(R.id.previousMonthTextView);
+        nextMonthTextView = $(R.id.nextMonthTextView);
         currMonthYearTextView = $(R.id.currMonthYearTextView);
 
         //dateLineDiv = new ConstraintLayout[] {$(R.id.dayLine0Div), $(R.id.dayLine1Div), $(R.id.dayLine2Div), $(R.id.dayLine3Div), $(R.id.dayLine4Div), $(R.id.dayLine5Div)};
@@ -98,28 +105,30 @@ public class CalendarActivity extends AppCompatActivity {
                 {$(R.id.textView40), $(R.id.textView41), $(R.id.textView42), $(R.id.textView43), $(R.id.textView44), $(R.id.textView45), $(R.id.textView46)},
                 {$(R.id.textView50), $(R.id.textView51), $(R.id.textView52), $(R.id.textView53), $(R.id.textView54), $(R.id.textView55), $(R.id.textView56)}
         };
+
+        currDateDiv = $(R.id.currDateDiv);
+        currDateTextView = $(R.id.currDateTextView);
+        cancelCurrDateImageButton = $(R.id.cancelCurrDateImageButton);
         noticeDiv = $(R.id.noticeDiv);
-        backMonthButtonDiv = $(R.id.backMonthButtonDiv);
-        forthMonthButtonDiv = $(R.id.forthMonthButtonDiv);
 
         getAllNotifications(new calendarCallbacks() {
             @Override
             public void onSuccess(@NonNull Map<Date, List<String[]>> value) {
 
-                setCalendar(value);
-                setNotices(value);
+                showCalendar(value);
+                showAllNotices(value);
 
-                backMonthButtonDiv.setOnClickListener(v -> {
+                previousMonthButtonDiv.setOnClickListener(v -> {
                     cal.add(Calendar.MONTH, -1);
-                    setCalendar(value);
+                    showCalendar(value);
                     noticeDiv.removeAllViews();
-                    setNotices(value);
+                    showAllNotices(value);
                 });
-                forthMonthButtonDiv.setOnClickListener(v -> {
+                nextMonthButtonDiv.setOnClickListener(v -> {
                     cal.add(Calendar.MONTH, 1);
-                    setCalendar(value);
+                    showCalendar(value);
                     noticeDiv.removeAllViews();
-                    setNotices(value);
+                    showAllNotices(value);
                 });
 
             }
@@ -133,17 +142,17 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void setCalendar(Map<Date, List<String[]>> notices) {
+    private void showCalendar(Map<Date, List<String[]>> notices) {
         assert notices != null;
 
-        Log.d(TAG, "setCalendar: cal: " + cal.getTime());
+        Log.d(TAG, "showCalendar: cal: " + cal.getTime());
         cal.set(Calendar.DAY_OF_MONTH, 1);  //first day of this month
         int week = 0;
         int weekIndex = cal.get(Calendar.DAY_OF_WEEK) - 1;  //0:Sun, 6:Sat
         int daysOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
         for(int i=0; i<weekIndex; i++) {  //other days not in this month but may in previous/next month and set content before, clear weekdays before 1st day of this month
             dateTextView[0][i].setText("");
-            dateTextView[0][i].setOnClickListener(v -> setNotices(notices));
+            dateTextView[0][i].setOnClickListener(v -> showAllNotices(notices));
         }
 
         for(int i=1; i<=daysOfMonth; i++) {
@@ -166,14 +175,17 @@ public class CalendarActivity extends AppCompatActivity {
                 boolean finalIsEmergent = isEmergent;   //IDE requires...
                 dateTextView[week][weekIndex].setOnClickListener(v -> {
                     noticeDiv.removeAllViews();
+                    currDateDiv.setVisibility(View.VISIBLE);
+                    currDateTextView.setText("Current Date: " + displayDateFormat.format(thisDate));
+                    cancelCurrDateImageButton.setOnClickListener(v1 -> showAllNotices(notices));
                     int seq = 1;
-                    for(String[] contents: notices.get(thisDate)) setNotice(thisDate, contents, finalIsEmergent, seq++);
+                    for(String[] contents: notices.get(thisDate)) showNotice(thisDate, contents, finalIsEmergent, seq++);
                 });
 
             } else {
                 dateTextView[week][weekIndex].setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
-                dateTextView[week][weekIndex].setOnClickListener(v -> setNotices(notices));
-                if(weekIndex==0) dateTextView[week][weekIndex].setTextColor(0xffffc909);    //Sun
+                dateTextView[week][weekIndex].setOnClickListener(v -> showAllNotices(notices));
+                if(weekIndex==0) dateTextView[week][weekIndex].setTextColor(0xffffc909);    //Sunday
                 else dateTextView[week][weekIndex].setTextColor(0xff9fa0a4);
             }
 
@@ -187,33 +199,34 @@ public class CalendarActivity extends AppCompatActivity {
 
         while(weekIndex++<7) {  //clear the rest weekdays of this week
             dateTextView[week][weekIndex-1].setText("");
-            dateTextView[week][weekIndex-1].setOnClickListener(v -> setNotices(notices));
+            dateTextView[week][weekIndex-1].setOnClickListener(v -> showAllNotices(notices));
         }
         if(week==4) {   //clear line5
             for(int i=0; i<7; i++) {
                 dateTextView[5][i].setText("");
-                dateTextView[5][i].setOnClickListener(v -> setNotices(notices));
+                dateTextView[5][i].setOnClickListener(v -> showAllNotices(notices));
             }
         }
         if(week==3) {   //clear line4
             for(int i=0; i<7; i++) {
                 dateTextView[4][i].setText("");
-                dateTextView[4][i].setOnClickListener(v -> setNotices(notices));
+                dateTextView[4][i].setOnClickListener(v -> showAllNotices(notices));
             }
         }
 
-        forthMonthTextView.setText(new SimpleDateFormat("MMM", Locale.getDefault()).format(cal.getTime()));
+        nextMonthTextView.setText(new SimpleDateFormat("MMM", Locale.getDefault()).format(cal.getTime()));
         cal.add(Calendar.MONTH, -2);    //after the loop, cal is the first day of next month. Go to previous month first, then go to curr month
-        backMonthTextView.setText(new SimpleDateFormat("MMM", Locale.getDefault()).format(cal.getTime()));
+        previousMonthTextView.setText(new SimpleDateFormat("MMM", Locale.getDefault()).format(cal.getTime()));
         cal.add(Calendar.MONTH, 1);
         currMonthYearTextView.setText(new SimpleDateFormat("MMM - yyyy", Locale.getDefault()).format(cal.getTime()));
 
     }
 
-    private void setNotices(Map<Date, List<String[]>> notices) {
+    private void showAllNotices(Map<Date, List<String[]>> notices) {
         assert notices != null;
 
         noticeDiv.removeAllViews();
+        currDateDiv.setVisibility(View.GONE);
         int seq = 1;
         for(Date date: notices.keySet()) {
             Calendar cal2 = Calendar.getInstance();
@@ -229,15 +242,15 @@ public class CalendarActivity extends AppCompatActivity {
                     currDateCal.set(currDateCal.get(Calendar.YEAR), currDateCal.get(Calendar.MONTH), currDateCal.get(Calendar.DAY_OF_MONTH),0, 0, 0);
                     isEmergent = Math.abs(currDateCal.getTime().getTime() - date.getTime()) <= 7*24*60*60*1000;
                 }
-                setNotice(date, contents, isEmergent, seq++);
+                showNotice(date, contents, isEmergent, seq++);
             }
         }
     }
 
     @SuppressLint({"ResourceType", "SetTextI18n"})
-    private void setNotice(Date date, String[] contents, boolean isEmergency, int seq) {
-        Log.d(TAG, "setNotice: date" + date);
-        Log.d(TAG, "setNotice: content: " + contents);
+    private void showNotice(Date date, String[] contents, boolean isEmergency, int seq) {
+        Log.d(TAG, "showNotice: date" + date);
+        Log.d(TAG, "showNotice: content: " + contents);
 
         ConstraintLayout noticeLineLayout = new ConstraintLayout(this);
         noticeLineLayout.setBackgroundColor(0xffeeeeee);
@@ -267,7 +280,7 @@ public class CalendarActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) noticeTextView.setAutoSizeTextTypeUniformWithConfiguration(14, 30, 1, TypedValue.COMPLEX_UNIT_SP);
         noticeTextView.setTextColor(isEmergency ? 0xffff0000 : 0xff007ba4);
         noticeTextView.setText(contents[0] + ", " + contents[1]);
-        if (contents.length!=3) Log.e(TAG, "setNotice: notice value String[] length != 3 ERR0R!!");
+        if (contents.length!=3) Log.e(TAG, "showNotice: notice value String[] length != 3 ERR0R!!");
         noticeTextView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         set.connect(noticeTextView.getId(), ConstraintSet.START, seqTextView.getId(), ConstraintSet.END, 8);
         set.connect(noticeTextView.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 8);
