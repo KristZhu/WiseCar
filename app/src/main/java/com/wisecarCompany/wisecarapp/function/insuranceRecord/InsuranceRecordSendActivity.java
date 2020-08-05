@@ -117,7 +117,7 @@ public class InsuranceRecordSendActivity extends AppCompatActivity {
                     email = emailEditText.getText().toString();
                     boolean isEmail = false;
                     try {
-                        String check = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
+                        String check = "^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
                         Pattern regex = Pattern.compile(check);
                         Matcher matcher = regex.matcher(email);
                         isEmail = matcher.matches();
