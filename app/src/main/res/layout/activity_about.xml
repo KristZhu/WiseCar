@@ -41,8 +41,7 @@
         app:layout_constraintTop_toTopOf="@+id/backImageButton"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="0.3"
-        app:srcCompat="@drawable/title"
-        android:contentDescription="TODO" />
+        app:srcCompat="@drawable/title" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -110,7 +109,13 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="WenYe LI, Hazel XiZhi YANG, Leo ZiMo YANG, Roy Xu ZHENG, Krist ZiKai ZHU"
+                    android:text="WenYe LI, Hazel XiZhi YANG, Leo ZiMo YANG, "
+                    android:textColor="#000000" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Roy Xu ZHENG, Krist ZiKai ZHU"
                     android:textColor="#000000" />
 
                 <TextView
@@ -146,7 +151,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:textStyle="italic"
-                        android:text="https://wisecar.com.au"
+                        android:text="https://wisecar.com.au/"
                         android:textColor="#1900eb" />
 
                 </LinearLayout>
