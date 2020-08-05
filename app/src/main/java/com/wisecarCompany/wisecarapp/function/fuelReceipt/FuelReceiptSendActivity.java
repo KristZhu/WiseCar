@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -85,6 +86,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
         backImageButton.setOnClickListener(v -> startActivity(new Intent(this, FuelReceiptDashboardActivity.class)));
 
         headerTextView = $(R.id.headerTextView);
+        invoiceRefTextView = $(R.id.invoiceRefTextView);
         dateTextView = $(R.id.dateTextView);
         typeTextView = $(R.id.typeTextView);
         fuelAmountTextView = $(R.id.fuelAmountTextView);
@@ -97,6 +99,7 @@ public class FuelReceiptSendActivity extends AppCompatActivity {
 
 
         getFuelReceiptInfo(new fuelReceiptSendCallbacks() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onSuccess(@NonNull FuelReceipt receipt) {
 

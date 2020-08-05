@@ -76,10 +76,13 @@ public class LoginActivity extends AppCompatActivity {
         //both are always true for now
         remember = sp.getBoolean("REMEMBER_PASSWORD", true);
         autoLogin = sp.getBoolean("AUTO_LOGIN", true);
+        Log.d(TAG, "remember: " + remember);
+        Log.d(TAG, "autoLogin: " + autoLogin);
         rememberCheckBox.setChecked(remember);
         autoLoginCheckBox.setChecked(autoLogin);
 
         username = sp.getString("USERNAME", "");
+        Log.d(TAG, "username: " + username);
         if(username.length()>0) {
             usernameEditText.setText(username);
             int passwordLength = sp.getInt("PASSWORD_LENGTH", 10);
