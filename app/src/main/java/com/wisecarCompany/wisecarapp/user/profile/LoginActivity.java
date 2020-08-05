@@ -41,7 +41,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "login";
 
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String LOGIN = "/api/v1/users/login";
 
     private SharedPreferences sp;

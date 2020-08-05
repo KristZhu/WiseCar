@@ -48,7 +48,7 @@ import java.util.TreeSet;
 public class ManageVehicleActivity extends AppCompatActivity {    //edit a special vehicle, or select functions of this vehicle to go
 
     private final static String TAG = "Manage Vehicle";
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String GET_SERVICE = "/api/v1/services/";
     private final String GET_VEHICLE_LIST = "/api/v1/vehicles/user/";
 
@@ -82,7 +82,7 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         if (UserInfo.getNewVehicle()!=null || UserInfo.getCurrVehicle().getVehicle_id()==null) {
             //synchronizing process is not finished
             //call returnNewVehicle again to syc
-            Toast.makeText(ManageVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(ManageVehicleActivity.this, "Please wait for system to finish adding vehicle", Toast.LENGTH_SHORT).show();
             returnNewVehicle(new newVehicleCallbacks() {
                 @Override
                 public void onSuccess(Vehicle value) {
@@ -138,6 +138,7 @@ public class ManageVehicleActivity extends AppCompatActivity {    //edit a speci
         loadServices(new servicesCallbacks() {
             @Override
             public void onSuccess(@NonNull List<Integer> services) {
+                servicesLayout.removeAllViews();
                 services = new ArrayList<>(new TreeSet<>(services));
                 Log.e("services", String.valueOf(services));
                 UserInfo.getCurrVehicle().setServices(services);

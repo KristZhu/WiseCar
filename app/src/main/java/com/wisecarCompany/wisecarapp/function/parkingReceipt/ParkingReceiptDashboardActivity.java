@@ -53,7 +53,7 @@ public class ParkingReceiptDashboardActivity extends AppCompatActivity {
 
     private final static String TAG = "Parking Receipt D";
 
-    private String IP_HOST = "http://54.206.19.123:3000";
+    private String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private String GET_PARKING_RECEIPTS = "/api/v1/parkingreceipts//getallrecordbyuser";
     private String GET_PARKING_BY_REG_NO = "/api/v1/parkingreceipts/getrecordbyuserregisno";
 

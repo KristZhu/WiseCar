@@ -42,7 +42,7 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
 
     private final static String TAG = "Parking Receipt Send";
 
-    private String IP_HOST = "http://54.206.19.123:3000";
+    private String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private String GET_PARKING_RECEIPT_INFO = "/api/v1/parkingreceipts/getrecordbyid";
     private String SEND_EMAIL = "/api/v1/parkingreceipts/sendemail";
 
@@ -122,7 +122,7 @@ public class ParkingReceiptSendActivity extends AppCompatActivity {
                     email = emailEditText.getText().toString();
                     boolean isEmail = false;
                     try {
-                        String check = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
+                        String check = "^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
                         Pattern regex = Pattern.compile(check);
                         Matcher matcher = regex.matcher(email);
                         isEmail = matcher.matches();

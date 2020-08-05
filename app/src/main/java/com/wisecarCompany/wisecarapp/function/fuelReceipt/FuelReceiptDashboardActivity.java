@@ -54,7 +54,7 @@ public class FuelReceiptDashboardActivity extends AppCompatActivity {
 
     private final static String TAG = "Fuel Receipt D";
 
-    private String IP_HOST = "http://54.206.19.123:3000";
+    private String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private String GET_FUEL_RECEIPT = "/api/v1/fuelreceipts/getallrecordbyuser";
     private String GET_FUEL_BY_REG_NO = "/api/v1/fuelreceipts/getrecordbyuserregisno";
 

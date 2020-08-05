@@ -113,7 +113,7 @@ public class InsuranceRecordActivity extends AppCompatActivity implements EasyPe
 
 
     // TO BE ADJUSTED
-    private final String IP_HOST = "http://54.206.19.123:3000";
+    private final String IP_HOST = "http://7ce7ccc8008dec603016594c02f76d60-1846191374.ap-southeast-2.elb.amazonaws.com";
     private final String GET_INSURANCE_RECORD_IDENTIFIER = "/api/v1/insurancerecords/identifier/";
     private final String scanQRCode = "/api/v1/insurancerecords/upload?identifier=";
     private final String ADD_INSURANCE_RECORD = "/api/v1/insurancerecords/";
