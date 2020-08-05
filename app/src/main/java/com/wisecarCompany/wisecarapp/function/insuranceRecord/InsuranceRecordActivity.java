@@ -1,10 +1,5 @@
 package com.wisecarCompany.wisecarapp.function.insuranceRecord;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
@@ -29,15 +24,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.function.HttpUtil;
-import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
+
+import net.glxn.qrgen.android.QRCode;
+import net.glxn.qrgen.core.image.ImageType;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,9 +53,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-import net.glxn.qrgen.android.QRCode;
-import net.glxn.qrgen.core.image.ImageType;
 
 import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
 import cn.bingoogolapple.photopicker.imageloader.BGAImage;

@@ -34,14 +34,33 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.wisecarCompany.wisecarapp.function.HttpUtil;
-import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 import com.wisecarCompany.wisecarapp.R;
+import com.wisecarCompany.wisecarapp.function.HttpUtil;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
-import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
+import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 
 import net.glxn.qrgen.android.QRCode;
 import net.glxn.qrgen.core.image.ImageType;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
+import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
+import cn.bingoogolapple.photopicker.imageloader.BGAImage;
+import cn.bingoogolapple.photopicker.util.BGAPhotoHelper;
+import cn.bingoogolapple.photopicker.util.BGAPhotoPickerUtil;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 //import org.apache.http.HttpResponse;
 //import org.apache.http.client.HttpClient;
@@ -52,25 +71,6 @@ import net.glxn.qrgen.core.image.ImageType;
 //import org.apache.http.entity.mime.content.ByteArrayBody;
 //import org.apache.http.entity.mime.content.StringBody;
 //import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.HashMap;
-import java.util.Locale;
-
-import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
-import cn.bingoogolapple.photopicker.imageloader.BGAImage;
-import cn.bingoogolapple.photopicker.util.BGAPhotoHelper;
-import cn.bingoogolapple.photopicker.util.BGAPhotoPickerUtil;
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
 
 public class RegistrationReminderActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 

@@ -34,7 +34,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -110,6 +109,23 @@ public class CreateUserActivity2 extends AppCompatActivity {
         hashedPassword = this.getIntent().getStringExtra("hashedPassword");
         passwordLength = this.getIntent().getIntExtra("passwordLength", 0);
 
+/*
+        //mostly null for the following
+        //if not null, the user come back from CreateUserActivity2
+        firstName = getIntent().getStringExtra("fName");
+        lastName = getIntent().getStringExtra("lName");
+        try {
+            dob = displayDateFormat.parse(getIntent().getStringExtra("dob"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        address1 = getIntent().getStringExtra("address1");
+        address2 = getIntent().getStringExtra("address2");
+        country = getIntent().getStringExtra("country");
+        state = getIntent().getStringExtra("state");
+        postCode = getIntent().getStringExtra("postCode");
+*/
+
         firstNameEditText = $(R.id.userFNameEditText);
         lastNameEditText = $(R.id.userLNameEditText);
         dobEditText = $(R.id.dobEditText);
@@ -120,6 +136,17 @@ public class CreateUserActivity2 extends AppCompatActivity {
         stateEditText = $(R.id.stateEditText);
         postCodeEditText = $(R.id.postCodeEditText);
         createImageButton = $(R.id.createImageButton);
+
+/*
+        firstNameEditText.setText(firstName);
+        lastNameEditText.setText(lastName);
+        dobEditText.setText(dob==null? null : displayDateFormat.format(dob));
+        address1EditText.setText(address1);
+        address2EditText.setText(address2);
+        countryEditText.setText(country);
+        stateEditText.setText(state);
+        postCodeEditText.setText(postCode);
+*/
 
         dobEditText.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();

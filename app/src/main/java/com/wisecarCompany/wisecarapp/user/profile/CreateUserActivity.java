@@ -1,9 +1,5 @@
 package com.wisecarCompany.wisecarapp.user.profile;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -20,13 +16,19 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.wisecarCompany.wisecarapp.R;
 
 import java.io.File;
+import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.security.MessageDigest;
 
 import cn.bingoogolapple.baseadapter.BGABaseAdapterUtil;
 import cn.bingoogolapple.photopicker.imageloader.BGAImage;
@@ -54,14 +56,16 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
     private String username;
     private String userEmail;
     private String password;
-
-    private java.util.Date dob;
-    private String licence;
+/*
+    private String fName;
+    private String lName;
+    private Date dob;
     private String address1;
     private String address2;
     private String country;
     private String state;
     private String postCode;
+*/
 
     private ImageView userImgImageView;
     private ImageButton uploadPhotoImageButton;
@@ -75,12 +79,31 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
     private ImageView confirmNoPassImageView;
     private ImageButton nextImageButton;
 
+    private SimpleDateFormat displayDateFormat = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_user);
+
+/*
+        //mostly null for the following
+        //if not null, the user come back from CreateUserActivity2
+        fName = getIntent().getStringExtra("fName");
+        lName = getIntent().getStringExtra("lName");
+        try {
+            dob = displayDateFormat.parse(getIntent().getStringExtra("dob"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        address1 = getIntent().getStringExtra("address1");
+        address2 = getIntent().getStringExtra("address2");
+        country = getIntent().getStringExtra("country");
+        state = getIntent().getStringExtra("state");
+        postCode = getIntent().getStringExtra("postCode");
+*/
 
         userImgImageView = $(R.id.userImgImageView);
         uploadPhotoImageButton = $(R.id.uploadPhotoImageButton);
@@ -173,6 +196,16 @@ public class CreateUserActivity extends AppCompatActivity implements EasyPermiss
 //                        .putExtra("password", org.apache.commons.codec.digest.DigestUtils.sha256Hex(password)));
                         .putExtra("hashedPassword", sha256(password))
                         .putExtra("passwordLength", password.length()));
+/*
+                        .putExtra("fName", fName)
+                        .putExtra("lName", lName)
+                        .putExtra("dob", dob==null ? null : displayDateFormat.format(dob))
+                        .putExtra("address1", address1)
+                        .putExtra("address2", address2).putExtra("country", country)
+                        .putExtra("state", state)
+                        .putExtra("postCode", postCode));
+*/
+
             } else {    //not valid info
                 if (username.equals(""))
                     Toast.makeText(getApplicationContext(), "Please entry nick name. ", Toast.LENGTH_SHORT).show();
