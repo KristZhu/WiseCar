@@ -225,7 +225,7 @@ public class VehicleActivity extends AppCompatActivity {
                             notifyTextView[i++].setText(Html.fromHtml(temp));
                         } else {
                             String temp = "<font color='#0c450c'>" + contents[0] + "<br>" + contents[1] + " - " + displayDateFormat.format(date) + "</font>";
-                            notifyTextView[0].setText(Html.fromHtml(temp));
+                            notifyTextView[i++].setText(Html.fromHtml(temp));
                         }
                     }
                 }
