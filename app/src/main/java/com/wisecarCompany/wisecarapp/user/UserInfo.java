@@ -3,7 +3,6 @@ package com.wisecarCompany.wisecarapp.user;
 import com.wisecarCompany.wisecarapp.function.driverLog.CurrDriverLog;
 import com.wisecarCompany.wisecarapp.user.vehicle.Vehicle;
 
-import java.util.Map;
 
 public class UserInfo {     //try to delete it totally in the future. Use SharePreference of query DB
 

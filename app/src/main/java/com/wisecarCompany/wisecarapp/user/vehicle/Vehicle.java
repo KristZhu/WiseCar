@@ -1,9 +1,7 @@
 package com.wisecarCompany.wisecarapp.user.vehicle;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
-import androidx.annotation.NonNull;
+
 import androidx.annotation.Nullable;
 
 import com.wisecarCompany.wisecarapp.function.driverLog.DriverLog;

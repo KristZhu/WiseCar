@@ -2,9 +2,6 @@ package com.wisecarCompany.wisecarapp.function.driverLog;
 
 import android.graphics.Bitmap;
 
-
-import com.wisecarCompany.wisecarapp.user.UserInfo;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;

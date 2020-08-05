@@ -1,7 +1,5 @@
 package com.wisecarCompany.wisecarapp.user.introduction;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,8 +7,9 @@ import android.view.KeyEvent;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.wisecarCompany.wisecarapp.R;
-import com.wisecarCompany.wisecarapp.user.vehicle.AddVehicleActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.VehicleActivity;
 
 public class AboutActivity extends AppCompatActivity {
