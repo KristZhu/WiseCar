@@ -56,6 +56,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.wisecarCompany.wisecarapp.R;
 import com.wisecarCompany.wisecarapp.user.UserInfo;
+import com.wisecarCompany.wisecarapp.user.profile.CreateUserActivity;
 import com.wisecarCompany.wisecarapp.user.vehicle.ManageVehicleActivity;
 
 import org.json.JSONArray;
@@ -368,7 +369,15 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
         startImageButton.setOnClickListener(v -> {
             if (UserInfo.getCurrLog() == null) {
-                startRecording();
+                AlertDialog alertDialog = new AlertDialog.Builder(this)
+                        .setMessage("Please do not turn off the screen or run the app at back, otherwise GPS function will stop working and current log will pause. ")
+                        .setIcon(R.mipmap.ic_launcher)
+                        .setPositiveButton("confirm", (dialogInterface, i) -> {
+                            Log.d(TAG, "onClick: confirm not running at back");
+                            startRecording();
+                        }).setNegativeButton("cancel", null)
+                        .create();
+                alertDialog.show();
             } else {
                 Toast.makeText(getApplicationContext(), "You already start a record", Toast.LENGTH_SHORT).show();
             }
@@ -457,12 +466,7 @@ public class DriverLogActivity extends AppCompatActivity implements EasyPermissi
 
     @AfterPermissionGranted(REQUEST_CODE_PERMISSION_LOCATION)
     private void startRecording() {
-        String[] perms;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            perms = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION};
-        } else {
-            perms = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
-        }
+        String[] perms = new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
         if (EasyPermissions.hasPermissions(this, perms)) {
             recording();
         } else {
