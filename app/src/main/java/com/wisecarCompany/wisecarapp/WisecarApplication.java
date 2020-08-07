@@ -37,7 +37,7 @@ public class WisecarApplication extends Application {
                     if(UserInfo.getCurrLog()!=null && UserInfo.getCurrLog().isPausing() && UserInfo.getCurrLog().isSwitchedBackWhileRunning()){
                         UserInfo.getCurrLog().setSwitchedBackWhileRunning(false);
                         UserInfo.getCurrLog().setPausing(false);
-                        stopResumeDriverLogoice();
+                        //stopResumeDriverLogoice();
                         startActivity(new Intent(getApplicationContext(), DriverLogActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                     }
                 }
@@ -63,7 +63,9 @@ public class WisecarApplication extends Application {
                     if(UserInfo.getCurrLog()!=null && !UserInfo.getCurrLog().isPausing()){
                         UserInfo.getCurrLog().setPausing(true);
                         UserInfo.getCurrLog().setSwitchedBackWhileRunning(true);
-                        startResumeDriverLogVoice();
+                        //startResumeDriverLogVoice();
+                        resumeDriverLogMediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.resume_driver_log);
+                        resumeDriverLogMediaPlayer.start();
                     }
                 }
             }
@@ -81,6 +83,7 @@ public class WisecarApplication extends Application {
     }
 
 
+/*
     public void startResumeDriverLogVoice() {
         if (resumeDriverLogMediaPlayer != null && resumeDriverLogMediaPlayer.isPlaying()) {return;}
         resumeDriverLogMediaPlayer = MediaPlayer.create(this, R.raw.resume_driver_log);
@@ -99,5 +102,6 @@ public class WisecarApplication extends Application {
             resumeDriverLogMediaPlayer = null;
         }
     }
+*/
 
 }
